@@ -4,6 +4,15 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -16,14 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -35,8 +36,8 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 abstract class BaseMeshNetwork {
     private static final String TAG = "BaseMeshNetwork";
     // Key refresh phases
-    public static final int NORMAL_OPERATION = 0; //Distribution of new keys
-    public static final int IV_UPDATE_ACTIVE = 1; //Switching to the new keys
+    public static final int NORMAL_OPERATION = 0; //Normal operation
+    public static final int IV_UPDATE_ACTIVE = 1; //IV Update active
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "mesh_uuid")

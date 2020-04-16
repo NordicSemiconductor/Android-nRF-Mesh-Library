@@ -2,12 +2,13 @@ package no.nordicsemi.android.meshprovisioner.transport;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import no.nordicsemi.android.meshprovisioner.Group;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -46,10 +47,15 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         return null;
     }
 
-    void parseMeshPdu(@NonNull final ProvisionedMeshNode node, @NonNull final byte[] pdu, @NonNull final byte[] networkHeader, @NonNull final byte[] decryptedNetworkPayload) {
+    void parseMeshPdu(@NonNull final ProvisionedMeshNode node,
+                      @NonNull final byte[] pdu,
+                      @NonNull final byte[] networkHeader,
+                      @NonNull final byte[] decryptedNetworkPayload,
+                      final int ivIndex,
+                      @NonNull final byte[] sequenceNumber) {
         final Message message;
         try {
-            message = mMeshTransport.parsePdu(node, pdu, networkHeader, decryptedNetworkPayload);
+            message = mMeshTransport.parseMeshMessage(node, pdu, networkHeader, decryptedNetworkPayload, ivIndex, sequenceNumber);
             if (message != null) {
                 if (message instanceof AccessMessage) {
                     parseAccessMessage((AccessMessage) message);

@@ -26,6 +26,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.ParseException;
@@ -37,7 +39,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -555,9 +556,7 @@ public class MeshParserUtils {
     }
 
     public static byte[] intToBytes(int i) {
-        ByteBuffer b = ByteBuffer.allocate(4);
-        b.putInt(i);
-        return b.array();
+        return ByteBuffer.allocate(4).putInt(i).array();
     }
 
     /**

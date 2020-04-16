@@ -26,6 +26,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 
 import org.spongycastle.crypto.BlockCipher;
@@ -43,10 +45,11 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
-import androidx.annotation.NonNull;
+import no.nordicsemi.android.meshprovisioner.MeshNetwork;
+import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.SecureNetworkBeacon;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "CharsetObjectCanBeUsed"})
 public class SecureUtils {
 
     /**
@@ -347,14 +350,14 @@ public class SecureUtils {
      * @param ivIndex   ivindex of the network
      */
     public static byte[] calculateAuthValueSecureNetBeacon(@NonNull final byte[] n,
-                                                           @NonNull final byte[] flags,
+                                                           final int flags,
                                                            @NonNull final byte[] networkId,
-                                                           @NonNull final byte[] ivIndex) {
-        final int inputLength = flags.length + networkId.length + ivIndex.length;
+                                                           final int ivIndex) {
+        final int inputLength = 1 + networkId.length + 4;
         final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
-        pBuffer.put(flags);
+        pBuffer.put((byte) flags);
         pBuffer.put(networkId);
-        pBuffer.put(ivIndex);
+        pBuffer.putInt(ivIndex);
         final byte[] beaconKey = calculateBeaconKey(n);
         return calculateCMAC(pBuffer.array(), beaconKey);
     }
@@ -368,16 +371,16 @@ public class SecureUtils {
      * @param ivIndex   iv index of the network
      */
     public static SecureNetworkBeacon createSecureNetworkBeacon(@NonNull final byte[] n,
-                                                         @NonNull final byte[] flags,
-                                                         @NonNull final byte[] networkId,
-                                                         @NonNull final byte[] ivIndex) {
+                                                                final int flags,
+                                                                @NonNull final byte[] networkId,
+                                                                final int ivIndex) {
         final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
 
-        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final int inputLength = 1 + networkId.length + 4;
         final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
-        pBuffer.put(flags);
+        pBuffer.put((byte) flags);
         pBuffer.put(networkId);
-        pBuffer.put(ivIndex);
+        pBuffer.putInt(ivIndex);
         final ByteBuffer secNetBeaconBuffer = ByteBuffer.allocate(1 + inputLength + 8);
         secNetBeaconBuffer.put((byte) 0x01);
         secNetBeaconBuffer.put(pBuffer.array());
@@ -395,16 +398,16 @@ public class SecureUtils {
      */
     public static byte[] calculateSecureNetworkBeacon(@NonNull final byte[] n,
                                                       final int beaconType,
-                                                      @NonNull final byte[] flags,
+                                                      final int flags,
                                                       @NonNull final byte[] networkId,
-                                                      @NonNull final byte[] ivIndex) {
+                                                      final int ivIndex) {
         final byte[] authentication = calculateAuthValueSecureNetBeacon(n, flags, networkId, ivIndex);
 
-        final int inputLength = flags.length + networkId.length + ivIndex.length;
+        final int inputLength = 1 + networkId.length + 4;
         final ByteBuffer pBuffer = ByteBuffer.allocate(inputLength);
-        pBuffer.put(flags);
+        pBuffer.put((byte) flags);
         pBuffer.put(networkId);
-        pBuffer.put(ivIndex);
+        pBuffer.putInt(ivIndex);
         final ByteBuffer secNetBeaconBuffer = ByteBuffer.allocate(1 + inputLength + 8);
         secNetBeaconBuffer.put((byte) beaconType);
         secNetBeaconBuffer.put(pBuffer.array());

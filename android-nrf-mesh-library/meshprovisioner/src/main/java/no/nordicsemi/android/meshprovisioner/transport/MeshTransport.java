@@ -26,11 +26,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import java.util.UUID;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
+import java.util.UUID;
+
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
 import no.nordicsemi.android.meshprovisioner.Provisioner;
@@ -344,20 +345,5 @@ final class MeshTransport extends NetworkLayer {
 
     final Message createRetransmitMeshMessage(final Message message, final int segment) {
         return createRetransmitNetworkLayerPDU(message, segment);
-    }
-
-    /**
-     * Parses the received pdu
-     *
-     * @param pdu pdu received
-     * @return Message
-     */
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    final Message parsePdu(@NonNull final ProvisionedMeshNode node,
-                           @NonNull final byte[] pdu,
-                           @NonNull final byte[] networkHeader,
-                           @NonNull final byte[] decryptedNetworkPayload) throws ExtendedInvalidCipherTextException {
-
-        return parseMeshMessage(node, pdu, networkHeader, decryptedNetworkPayload);
     }
 }
