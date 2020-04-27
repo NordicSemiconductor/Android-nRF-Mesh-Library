@@ -20,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -71,11 +72,10 @@ abstract class BaseMeshNetwork {
     @Expose
     long timestamp = System.currentTimeMillis();
     @ColumnInfo(name = "iv_index")
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
-    int ivIndex = 0;
-    @ColumnInfo(name = "iv_update_state")
-    @Expose
-    int ivUpdateState = NORMAL_OPERATION;
+    @NonNull
+    IvIndex ivIndex = new IvIndex(0, false, Calendar.getInstance());
     @Ignore
     @SerializedName("netKeys")
     @Expose

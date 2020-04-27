@@ -544,4 +544,7 @@
     <string name="title_subscription_status">Subscription Status</string>
     <string name="set_as_current_provisioner">Set as current provisioner</string>
     <string name="title_error_network_import">Network Import Error</string>
+
+    <string name="title_iv_test_mode">IV Test Mode</string>
+    <string name="iv_test_mode_summary">Note this is setting is not restored upon restart.</string>
 </resources>

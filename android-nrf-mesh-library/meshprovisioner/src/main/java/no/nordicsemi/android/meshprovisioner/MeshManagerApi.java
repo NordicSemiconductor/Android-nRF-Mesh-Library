@@ -35,6 +35,7 @@ import java.nio.ByteOrder;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -64,9 +65,6 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 import no.nordicsemi.android.meshprovisioner.utils.OutputOOBAction;
 import no.nordicsemi.android.meshprovisioner.utils.ProxyFilter;
 import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
-
-import static no.nordicsemi.android.meshprovisioner.MeshNetwork.IV_UPDATE_ACTIVE;
-import static no.nordicsemi.android.meshprovisioner.MeshNetwork.NORMAL_OPERATION;
 
 
 @SuppressWarnings("WeakerAccess")
@@ -112,6 +110,8 @@ public class MeshManagerApi implements MeshMngrApi {
     private byte[] mOutgoingBuffer;
     private int mOutgoingBufferOffset;
     private MeshNetwork mMeshNetwork;
+    private boolean ivUpdateTestModeActive = false;
+    private boolean allowIvIndexRecoveryOver42 = false;
 
     private MeshNetworkDb mMeshNetworkDb;
     private MeshNetworkDao mMeshNetworkDao;
@@ -185,6 +185,46 @@ public class MeshManagerApi implements MeshMngrApi {
 
     private void initBouncyCastle() {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
+
+    /**
+     * Returns the current IV Test mode.
+     * IV Update Test Mode enables efficient testing of the IV Update procedure.
+     * The IV Update test mode removes the 96-hour limit; all other behavior of the device are unchanged.
+     * - seeAlso: Bluetooth Mesh Profile 1.0.1, section 3.10.5.1.
+     */
+    public boolean isIvUpdateTestModeActive() {
+        return ivUpdateTestModeActive;
+    }
+
+    /**
+     * Set IV Update test mode.
+     * IV Update Test Mode enables efficient testing of the IV Update procedure.
+     * * The IV Update test mode removes the 96-hour limit; all other behavior of the device are unchanged.
+     * * - seeAlso: Bluetooth Mesh Profile 1.0.1, section 3.10.5.1.
+     *
+     * @param ivUpdateTestMode True if the test mode is active or false otherwise.
+     */
+    public void setIvUpdateTestModeActive(final boolean ivUpdateTestMode) {
+        ivUpdateTestModeActive = ivUpdateTestMode;
+    }
+
+    /**
+     *
+     * Allow Iv Index recovery over 42.
+     * According to Bluetooth Mesh Profile 1.0.1, section 3.10.5, if the IV Index of the mesh
+     * network increased by more than 42 since the last connection (which can take at least
+     * 48 weeks), the Node should be reprovisioned. However, as this library can be used to
+     * provision other Nodes, it should not be blocked from sending messages to the network
+     * only because the phone wasn't connected to the network for that time. This flag can
+     * disable this check, effectively allowing such connection.
+     * The same can be achieved by clearing the app data (uninstalling and reinstalling the
+     * app) and importing the mesh network. With no "previous" IV Index, the library will
+     * accept any IV Index received in the Secure Network beacon upon connection to the
+     * GATT Proxy Node.
+     */
+    public void allowIvIndexRecoveryOver42(final boolean allowIvIndexRecoveryOver42) {
+        this.allowIvIndexRecoveryOver42 = allowIvIndexRecoveryOver42;
     }
 
     private void initDb(final Context context) {
@@ -277,26 +317,68 @@ public class MeshManagerApi implements MeshMngrApi {
                             final byte[] n = networkKey.getKey();
                             final int flags = receivedBeacon.getFlags();
                             final byte[] networkId = SecureUtils.calculateK3(n);
-                            final int ivIndex = receivedBeacon.getIvIndex();
+                            final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
                             Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
 
                             final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
-                            //Let's check the the beacon received is a valid one by matching the authentication values
+                            //Check the the beacon received is a valid by matching the authentication values
                             if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
-                                Log.d(TAG, "Secure Network Beacon beacon is valid");
-                                if (mMeshNetwork.ivIndex < receivedBeacon.getIvIndex())
-                                    mMeshNetwork.ivIndex = receivedBeacon.getIvIndex();
-                                // If the last known state of the network was IV_UPDATE_ACTIVE and received beacon
-                                // has the state as Normal operation the sequence number must be reset to 0.
-                                if (mMeshNetwork.getIvUpdateState() == IV_UPDATE_ACTIVE && !receivedBeacon.isIvUpdateActive()) {
+                                Log.d(TAG, "Secure Network Beacon beacon authenticated.");
+
+                                //  The library does not retransmit Secure Network Beacon.
+                                //  If this node is a member of a primary subnet and receives a Secure Network
+                                //  beacon on a secondary subnet, it will disregard it.
+                                if (mMeshNetwork.getPrimaryNetworkKey() != null && networkKey.keyIndex != 0) {
+                                    Log.d(TAG, "Discarding beacon for secondary subnet with network key index: " + networkKey.keyIndex);
+                                    return;
+                                }
+
+                                // Get the last IV Index.
+                                /// The last used IV Index for this mesh network.
+                                final IvIndex lastIvIndex = mMeshNetwork.getIvIndex();
+                                Log.d(TAG, "Last IV Index: " + lastIvIndex.getIvIndex());
+                                /// The date of the last change of IV Index or IV Update Flag.
+                                final Calendar lastTransitionDate = lastIvIndex.getTransitionDate();
+                                /// A flag whether the IV has recently been updated using IV Recovery procedure.
+                                /// The at-least-96h requirement for the duration of the current state will not apply.
+                                /// The node shall not execute more than one IV Index Recovery within a period of 192 hours.
+                                final boolean isIvRecoveryActive = lastIvIndex.getIvRecoveryFlag();
+                                /// The test mode disables the 96h rule, leaving all other behavior unchanged.
+                                final boolean isIvTestModeActive = ivUpdateTestModeActive;
+
+                                final boolean flag = allowIvIndexRecoveryOver42;
+                                if (!receivedBeacon.canOverwrite(lastIvIndex, lastTransitionDate, isIvRecoveryActive, isIvTestModeActive, flag)) {
+                                    String numberOfHoursSinceDate = ((Calendar.getInstance().getTimeInMillis() -
+                                            lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
+                                    Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
+                                            ", last " + lastIvIndex.getIvIndex() + ", changed: "
+                                            + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
+                                    return;
+                                }
+
+                                final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
+                                mMeshNetwork.ivIndex = new IvIndex(receivedIvIndex.getIvIndex(), receivedIvIndex.isIvUpdateActive(), lastTransitionDate);
+
+                                if (mMeshNetwork.ivIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
+                                    Log.i(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
+                                }
+
+                                // If the IV Index used for transmitting messages effectively increased,
+                                // the Node shall reset the sequence number to 0x000000.
+                                if (mMeshNetwork.ivIndex.getTransmitIvIndex() > lastIvIndex.getTransmitIvIndex()) {
+                                    Log.i(TAG, "Resetting local sequence numbers to 0");
                                     final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
                                     final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
                                     node.setSequenceNumber(0);
                                     provisioner.setSequenceNumber(0);
                                 }
-                                // Update the Networks IV Update state to the corresponding state received via the Secure network beacon.
-                                mMeshNetwork.setIvUpdateState(receivedBeacon.isIvUpdateActive() ? IV_UPDATE_ACTIVE : NORMAL_OPERATION);
-                                return;
+
+                                //Updating the iv recovery flag
+                                if (lastIvIndex != mMeshNetwork.ivIndex) {
+                                    final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
+                                            && !receivedBeacon.getIvIndex().isIvUpdateActive();
+                                    mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
+                                }
                             }
                         }
                     }
@@ -498,7 +580,7 @@ public class MeshManagerApi implements MeshMngrApi {
         final NetworkKey networkKey = mMeshNetwork.getPrimaryNetworkKey();
         if (networkKey != null) {
             mMeshProvisioningHandler.identify(deviceUuid, networkKey, mMeshNetwork.getProvisioningFlags(),
-                    mMeshNetwork.getIvIndex(), mMeshNetwork.getGlobalTtl(), attentionTimer);
+                    mMeshNetwork.getIvIndex().getIvIndex(), mMeshNetwork.getGlobalTtl(), attentionTimer);
         }
     }
 
@@ -966,14 +1048,9 @@ public class MeshManagerApi implements MeshMngrApi {
     @SuppressWarnings("FieldCanBeLocal")
     private final UpperTransportLayerCallbacks upperTransportLayerCallbacks = new UpperTransportLayerCallbacks() {
 
-
         @Override
         public byte[] getIvIndex() {
-            int ivIndex = mMeshNetwork.getIvIndex();
-            if (mMeshNetwork.ivUpdateState == IV_UPDATE_ACTIVE) {
-                if (ivIndex != 0)
-                    ivIndex--;
-            }
+            int ivIndex = mMeshNetwork.getIvIndex().getTransmitIvIndex();
             return ByteBuffer.allocate(4).putInt(ivIndex).array();
         }
 

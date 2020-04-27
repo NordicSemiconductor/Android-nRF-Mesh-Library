@@ -8,13 +8,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseIntArray;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.room.Database;
@@ -22,6 +15,15 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeyDao;
 import no.nordicsemi.android.meshprovisioner.data.ApplicationKeysDao;
 import no.nordicsemi.android.meshprovisioner.data.GroupDao;
@@ -49,7 +51,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 7)
+        version = 8)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     private static String TAG = MeshNetworkDb.class.getSimpleName();
@@ -99,6 +101,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
                             .addMigrations(MIGRATION_6_7)
+                            .addMigrations(MIGRATION_7_8)
                             .build();
                 }
 
@@ -810,6 +813,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateMeshNetwork7_8(database);
+        }
+    };
+
     private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -1324,5 +1334,40 @@ abstract class MeshNetworkDb extends RoomDatabase {
             } while (cursor.moveToNext());
             cursor.close();
         }
+    }
+
+    private static void migrateMeshNetwork7_8(final SupportSQLiteDatabase database) {
+        database.execSQL("ALTER TABLE mesh_network RENAME TO mesh_network_temp");
+        database.execSQL("CREATE TABLE `mesh_network` " +
+                "(`mesh_uuid` TEXT NOT NULL, " +
+                "`mesh_name` TEXT, " +
+                "`timestamp` INTEGER NOT NULL, " +
+                "`iv_index` TEXT NOT NULL, " +
+                "`sequence_numbers` TEXT NOT NULL, " +
+                "`last_selected` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`mesh_uuid`))");
+
+        final Cursor cursor = database.query("SELECT * FROM mesh_network_temp");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
+                final String meshName = cursor.getString(cursor.getColumnIndex("mesh_name"));
+                final long timestamp = cursor.getInt(cursor.getColumnIndex("timestamp"));
+                final int ivIndex = cursor.getInt(cursor.getColumnIndex("iv_index"));
+                final int ivUpdateState = cursor.getInt(cursor.getColumnIndex("iv_update_state"));
+                final String sequenceNumbers = cursor.getString(cursor.getColumnIndex("sequence_numbers"));
+                final int lastSelected = cursor.getInt(cursor.getColumnIndex("last_selected"));
+                final ContentValues values = new ContentValues();
+                values.put("mesh_uuid", uuid);
+                values.put("mesh_name", meshName);
+                values.put("timestamp", timestamp);
+                values.put("iv_index", MeshTypeConverters.ivIndexToJson(new IvIndex(ivIndex, ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE, Calendar.getInstance())));
+                values.put("sequence_numbers", sequenceNumbers);
+                values.put("last_selected", lastSelected);
+                database.insert("mesh_network", SQLiteDatabase.CONFLICT_REPLACE, values);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        database.execSQL("DROP TABLE mesh_network_temp");
     }
 }

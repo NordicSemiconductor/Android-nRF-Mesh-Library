@@ -413,7 +413,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         final int akf = (header >> 6) & 0x01;
         final int aid = header & 0x3F;
         if (seg == 0) { //Unsegmented message
-            Log.d(TAG, "IV Index: " + ivIndex);
+            Log.d(TAG, "IV Index of received message: " + ivIndex);
             final int seqAuth = (ivIndex << 24) | MeshParserUtils.getSequenceNumber(sequenceNumber);
             final byte[] src = MeshParserUtils.getSrcAddress(pdu);
             final int srcAdd = MeshParserUtils.unsignedBytesToInt(src[1], src[0]);
