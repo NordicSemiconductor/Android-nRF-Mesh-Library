@@ -77,12 +77,11 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      * @param message access message received by the acccess layer
      */
     private void parseAccessMessage(final AccessMessage message) {
-        final byte[] accessPayload = message.getAccessPdu();
         final ProvisionedMeshNode node = mInternalTransportCallbacks.getNode(message.getSrc());
-        final int opCodeLength = ((accessPayload[0] & 0xF0) >> 6);
+        final int opCodeLength = MeshParserUtils.getOpCodeLength(message.getOpCode());
         //OpCode length
         switch (opCodeLength) {
-            case 0:
+            case 1:
                 if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS) {
                     final ConfigCompositionDataStatus status = new ConfigCompositionDataStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
@@ -90,13 +89,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
-                }
-                break;
-            case 1:
-                if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_STATUS) {
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_STATUS) {
                     final SceneStatus sceneStatus = new SceneStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(sceneStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), sceneStatus);
+                } else {
+                    handleUnknownPdu(message);
                 }
                 break;
             case 2:
@@ -338,8 +336,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mInternalTransportCallbacks.updateMeshNetwork(registerStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), registerStatus);
                 } else {
-                    Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                    mMeshStatusCallbacks.onUnknownPduReceived(message.getSrc(), message.getAccessPdu());
+                    handleUnknownPdu(message);
                 }
                 break;
             case 3:
@@ -347,18 +344,21 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final VendorModelMessageAcked vendorModelMessageAcked = (VendorModelMessageAcked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(message, vendorModelMessageAcked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
-                    Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
+                    Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(message.getAccessPdu(), false));
                 } else if (mMeshMessage instanceof VendorModelMessageUnacked) {
                     final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(message, vendorModelMessageUnacked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else {
+                    handleUnknownPdu(message);
                 }
                 break;
-            default:
-                Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(accessPayload, false));
-                mMeshStatusCallbacks.onUnknownPduReceived(message.getSrc(), message.getAccessPdu());
-                break;
         }
+    }
+
+    private void handleUnknownPdu(final AccessMessage message) {
+        Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(message.getAccessPdu(), false));
+        mMeshStatusCallbacks.onUnknownPduReceived(message.getSrc(), message.getAccessPdu());
     }
 
     /**

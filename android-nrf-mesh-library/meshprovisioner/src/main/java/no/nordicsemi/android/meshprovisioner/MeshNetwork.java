@@ -32,12 +32,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.mCallbacks = mCallbacks;
     }
 
-    public void setIvIndex(final int ivIndex) {
+    public void setIvIndex(final IvIndex ivIndex) {
         this.ivIndex = ivIndex;
         notifyNetworkUpdated();
     }
 
-    public int getIvIndex() {
+    public IvIndex getIvIndex() {
         return ivIndex;
     }
 
@@ -617,30 +617,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.appKeys = appKeys;
     }
 
-
-    /**
-     * Returns the current iv update state {@link IvUpdateStates}
-     *
-     * @return 1 if iv update is active or 0 otherwise
-     */
-    @IvUpdateStates
-    public int getIvUpdateState() {
-        return ivUpdateState;
-    }
-
-    /**
-     * Sets the iv update state.
-     * <p>
-     * This is not currently supported by the library
-     * </p>
-     *
-     * @param ivUpdateState 0 if normal operation and 1 if iv update is active
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setIvUpdateState(@IvUpdateStates final int ivUpdateState) {
-        this.ivUpdateState = ivUpdateState;
-    }
-
     /**
      * Returns the provisioning flags
      */
@@ -652,7 +628,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 flags |= 1 << 7;
             }
 
-            if (ivUpdateState == IV_UPDATE_ACTIVE) {
+            if (ivIndex.isIvUpdateActive()) {
                 flags |= 1 << 6;
             }
         }

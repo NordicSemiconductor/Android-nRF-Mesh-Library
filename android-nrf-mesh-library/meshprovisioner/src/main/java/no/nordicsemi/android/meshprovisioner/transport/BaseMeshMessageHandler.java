@@ -103,9 +103,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         final List<NetworkKey> networkKeys = network.getNetKeys();
         final int ivi = ((pdu[1] & 0xFF) >>> 7) & 0x01;
         final int nid = pdu[1] & 0x7F;
-        final int tempIvIndex = network.getIvIndex();
-        int ivIndex = tempIvIndex == 0 ? 0 : tempIvIndex - 1;
-        boolean isParsingComplete = false;
+        final int acceptedIvIndex = network.getIvIndex().getIvIndex();
+        int ivIndex = acceptedIvIndex == 0 ? 0 : acceptedIvIndex - 1;
         while (ivIndex <= ivIndex + 1) {
             //Here we go through all the network keys and filter out network keys based on the nid.
             for (int i = 0; i < networkKeys.size(); i++) {

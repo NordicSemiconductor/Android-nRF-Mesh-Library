@@ -240,7 +240,6 @@ public class MeshParserUtils {
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
     public static boolean validateIvIndexInput(final Context context, final Integer ivIndex) throws IllegalArgumentException {
-
         if (ivIndex == null) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_iv_index));
         }
@@ -344,13 +343,12 @@ public class MeshParserUtils {
     }
 
     /**
-     * Returns the length of the opcode.
+     * Returns an array of opcodes.
      * If the MSB = 0 then the length is 1
      * If the MSB = 1 then the length is 2
      * If the MSB = 2 then the length is 3
      *
      * @param opCode operation code
-     * @return length of opcodes
      */
     public static byte[] getOpCode(final int opCode) {
         if (opCode < 0x80) {
@@ -361,6 +359,25 @@ public class MeshParserUtils {
             return new byte[]{(byte) (0xC0 | ((opCode >> 16) & 0x3F)),
                     (byte) ((opCode >> 8) & 0xFF),
                     (byte) (opCode & 0xFF)};
+        }
+    }
+
+    /**
+     * Returns the length of the opcode.
+     * If the MSB = 0 then the length is 1
+     * If the MSB = 1 then the length is 2
+     * If the MSB = 2 then the length is 3
+     *
+     * @param opCode operation code
+     * @return length of opcodes
+     */
+    public static int getOpCodeLength(final int opCode) {
+        if (opCode < 0x80) {
+            return 1;
+        } else if (opCode < 0x4000 || (opCode & 0xFFFC00) == 0x8000) {
+            return 2;
+        } else {
+            return 3;
         }
     }
 

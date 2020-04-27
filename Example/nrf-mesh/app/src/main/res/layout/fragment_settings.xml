@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,8 +20,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -59,7 +57,7 @@
                     app:logo="@drawable/ic_certificate"
                     app:title="@string/network_settings"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                 <include
                     android:id="@+id/container_network_name"
@@ -68,7 +66,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/network_settings_toolbar"/>
+                    app:layout_constraintTop_toBottomOf="@id/network_settings_toolbar" />
 
                 <include
                     android:id="@+id/container_provisioners"
@@ -77,7 +75,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/container_network_name"/>
+                    app:layout_constraintTop_toBottomOf="@id/container_network_name" />
 
                 <include
                     android:id="@+id/container_net_keys"
@@ -86,7 +84,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/container_provisioners"/>
+                    app:layout_constraintTop_toBottomOf="@id/container_provisioners" />
 
                 <include
                     android:id="@+id/container_app_keys"
@@ -95,7 +93,17 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/container_net_keys"/>
+                    app:layout_constraintTop_toBottomOf="@id/container_net_keys" />
+
+                <include
+                    android:id="@+id/container_iv_test_mode"
+                    layout="@layout/layout_container"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_app_keys" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
@@ -123,7 +131,7 @@
                     app:logo="@drawable/ic_info_black_24dp_alpha"
                     app:title="@string/title_about"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                 <include
                     android:id="@+id/container_version"
@@ -132,7 +140,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/about_tool_bar"/>
+                    app:layout_constraintTop_toBottomOf="@+id/about_tool_bar" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
