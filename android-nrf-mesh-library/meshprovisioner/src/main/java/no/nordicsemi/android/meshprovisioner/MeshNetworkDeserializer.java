@@ -93,10 +93,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
 
-        //Optional properties
-        if (!network.getNodes().isEmpty()) {
-            jsonObject.add("nodes", serializeNodes(context, network.getNodes()));
-        }
+        jsonObject.add("nodes", serializeNodes(context, network.getNodes()));
 
         jsonObject.add("groups", serializeGroups(network.getGroups()));
 
