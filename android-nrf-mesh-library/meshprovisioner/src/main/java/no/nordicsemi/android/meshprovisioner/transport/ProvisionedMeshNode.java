@@ -241,11 +241,13 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Sets the sequence number
-     * <p>This is only meant to be used internally within the library, hence the Restricted</p>
+     * <p>
+     *     This is only meant to be used internally within the library.
+     *     However this is open now for users to set the sequence number manually in provisioner node.
+     * </p>
      *
      * @param sequenceNumber sequence number of the node
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setSequenceNumber(final int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
