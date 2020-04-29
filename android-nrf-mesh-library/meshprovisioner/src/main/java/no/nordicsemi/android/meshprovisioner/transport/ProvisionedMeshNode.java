@@ -25,13 +25,6 @@ package no.nordicsemi.android.meshprovisioner.transport;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -39,6 +32,14 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.Features;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
@@ -126,7 +127,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         }
         if (provisioner.getProvisionerAddress() != null)
             unicastAddress = provisioner.getProvisionerAddress();
-        sequenceNumber = provisioner.getSequenceNumber();
+        sequenceNumber = 0;
         deviceKey = SecureUtils.generateRandomNumber();
         ttl = provisioner.getGlobalTtl();
         mTimeStampInMillis = System.currentTimeMillis();
@@ -240,11 +241,13 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     /**
      * Sets the sequence number
-     * <p>This is only meant to be used internally within the library, hence the Restricted</p>
+     * <p>
+     *     This is only meant to be used internally within the library.
+     *     However this is open now for users to set the sequence number manually in provisioner node.
+     * </p>
      *
      * @param sequenceNumber sequence number of the node
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public final void setSequenceNumber(final int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
@@ -572,5 +575,12 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             }
         }
         return false;
+    }
+
+    /**
+     * Increments the sequence number
+     */
+    public int incrementSequenceNumber(){
+        return sequenceNumber = sequenceNumber + 1;
     }
 }

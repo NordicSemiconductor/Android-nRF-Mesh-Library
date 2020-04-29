@@ -51,7 +51,7 @@ import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 8)
+        version = 9)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     private static String TAG = MeshNetworkDb.class.getSimpleName();
@@ -102,6 +102,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_5_6)
                             .addMigrations(MIGRATION_6_7)
                             .addMigrations(MIGRATION_7_8)
+                            .addMigrations(MIGRATION_8_9)
                             .build();
                 }
 
@@ -820,6 +821,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateProvisioner8_9(database);
+        }
+    };
+
     private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -1142,7 +1150,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
                         meshUuid);
                 provisioner.setProvisionerName(name);
                 provisioner.setProvisionerAddress(unicast);
-                provisioner.setSequenceNumber(sequenceNumber);
                 provisioner.setLastSelected(lastSelected);
                 provisioner.setGlobalTtl(globalTtl);
                 provisioners.add(provisioner);
@@ -1206,7 +1213,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
         return keys;
     }
 
-    private static void addProvisionerNodes(@NonNull final SupportSQLiteDatabase database, @NonNull List<Provisioner> provisioners) {
+    private static void addProvisionerNodes(@NonNull final SupportSQLiteDatabase database,
+                                            @NonNull List<Provisioner> provisioners) {
         if (!provisioners.isEmpty()) {
             final List<NetworkKey> netKeys = getNetKeys(database);
             final List<ApplicationKey> appKeys = getAppKeys(database);
@@ -1336,7 +1344,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     }
 
-    private static void migrateMeshNetwork7_8(final SupportSQLiteDatabase database) {
+    private static void migrateMeshNetwork7_8(@NonNull final SupportSQLiteDatabase database) {
         database.execSQL("ALTER TABLE mesh_network RENAME TO mesh_network_temp");
         database.execSQL("CREATE TABLE `mesh_network` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -1369,5 +1377,29 @@ abstract class MeshNetworkDb extends RoomDatabase {
             cursor.close();
         }
         database.execSQL("DROP TABLE mesh_network_temp");
+    }
+
+    private static void migrateProvisioner8_9(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("ALTER TABLE provisioner RENAME TO provisioner_temp");
+        database.execSQL("CREATE TABLE `provisioner` " +
+                "(`provisioner_uuid` TEXT NOT NULL, " +
+                "`mesh_uuid` TEXT NOT NULL, " +
+                "`name` TEXT, " +
+                "`allocated_unicast_ranges` TEXT NOT NULL, " +
+                "`allocated_group_ranges` TEXT NOT NULL, " +
+                "`allocated_scene_ranges` TEXT NOT NULL, " +
+                "`provisioner_address` INTEGER," +
+                "`global_ttl` INTEGER NOT NULL, " +
+                "`last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), " +
+                "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL("INSERT INTO provisioner (provisioner_uuid,  mesh_uuid, name,  " +
+                "allocated_unicast_ranges, allocated_group_ranges, allocated_scene_ranges, " +
+                "provisioner_address, global_ttl, last_selected) " +
+                "SELECT provisioner_uuid, mesh_uuid, name," +
+                "allocated_unicast_ranges, allocated_group_ranges, allocated_scene_ranges," +
+                "provisioner_address, global_ttl, last_selected FROM provisioner_temp");
+        database.execSQL("DROP TABLE provisioner_temp");
+        database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
     }
 }

@@ -4,14 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -22,6 +14,15 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -74,10 +75,6 @@ public class Provisioner implements Parcelable {
     @Expose
     List<AllocatedSceneRange> allocatedSceneRanges = new ArrayList<>();
 
-    @ColumnInfo(name = "sequence_number")
-    @Expose
-    private int sequenceNumber;
-
     @ColumnInfo(name = "provisioner_address")
     @Expose
     private Integer provisionerAddress = null;
@@ -121,7 +118,6 @@ public class Provisioner implements Parcelable {
         in.readTypedList(allocatedUnicastRanges, AllocatedUnicastRange.CREATOR);
         in.readTypedList(allocatedGroupRanges, AllocatedGroupRange.CREATOR);
         in.readTypedList(allocatedSceneRanges, AllocatedSceneRange.CREATOR);
-        sequenceNumber = in.readInt();
         provisionerAddress = in.readInt();
         globalTtl = in.readInt();
         lastSelected = in.readByte() != 0;
@@ -246,15 +242,6 @@ public class Provisioner implements Parcelable {
         this.allocatedSceneRanges = allocatedSceneRanges;
     }
 
-
-    public int getSequenceNumber() {
-        return sequenceNumber;
-    }
-
-    public void setSequenceNumber(final int sequenceNumber) {
-        this.sequenceNumber = sequenceNumber;
-    }
-
     @Nullable
     public Integer getProvisionerAddress() {
         return provisionerAddress;
@@ -323,11 +310,6 @@ public class Provisioner implements Parcelable {
         this.lastSelected = lastSelected;
     }
 
-    public int incrementSequenceNumber() {
-        sequenceNumber = sequenceNumber + 1;
-        return sequenceNumber;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -341,7 +323,6 @@ public class Provisioner implements Parcelable {
         parcel.writeTypedList(allocatedUnicastRanges);
         parcel.writeTypedList(allocatedGroupRanges);
         parcel.writeTypedList(allocatedSceneRanges);
-        parcel.writeInt(sequenceNumber);
         parcel.writeInt(provisionerAddress);
         parcel.writeInt(globalTtl);
         parcel.writeByte((byte) (lastSelected ? 1 : 0));

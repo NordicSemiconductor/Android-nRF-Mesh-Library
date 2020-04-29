@@ -32,7 +32,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.meshprovisioner.opcodes.TransportLayerOpCodes;
 import no.nordicsemi.android.meshprovisioner.utils.ExtendedInvalidCipherTextException;
@@ -86,31 +85,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      * @param callbacks {@link LowerTransportLayerCallbacks} callbacks
      */
     abstract void setLowerTransportLayerCallbacks(@NonNull final LowerTransportLayerCallbacks callbacks);
-
-    /**
-     * Increments the sequence number and returns the new sequence number.
-     *
-     * @param src source address, which is the address of the provisioner
-     * @return Incremented sequence number.
-     */
-    protected abstract int incrementSequenceNumber(final int src);
-
-    /**
-     * Increments the sequence number and returns the new sequence number.
-     *
-     * @param provisioner provisioner
-     * @return Incremented sequence number.
-     */
-    protected abstract int incrementSequenceNumber(final Provisioner provisioner);
-
-    /**
-     * Increments the given sequence number.
-     *
-     * @param provisioner    provisioner
-     * @param sequenceNumber Sequence number to be incremented.
-     * @return Incremented sequence number.
-     */
-    protected abstract int incrementSequenceNumber(final Provisioner provisioner, @NonNull final byte[] sequenceNumber);
 
     /**
      * Creates the network layer pdu
@@ -768,7 +742,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-        final int sequenceNumber = incrementSequenceNumber(controlMessage.getSrc());
+        final int sequenceNumber = mUpperTransportLayerCallbacks.getNode(controlMessage.getSrc()).incrementSequenceNumber();//mMeshNode.incrementSequenceNumber();//(controlMessage.getSrc());
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);
         mBlockAckSent = true;

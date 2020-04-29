@@ -214,7 +214,7 @@ public class MeshManagerApi implements MeshMngrApi {
      * Allow Iv Index recovery over 42.
      * According to Bluetooth Mesh Profile 1.0.1, section 3.10.5, if the IV Index of the mesh
      * network increased by more than 42 since the last connection (which can take at least
-     * 48 weeks), the Node should be reprovisioned. However, as this library can be used to
+     * 48 weeks), the Node should be re-provisioned. However, as this library can be used to
      * provision other Nodes, it should not be blocked from sending messages to the network
      * only because the phone wasn't connected to the network for that time. This flag can
      * disable this check, effectively allowing such connection.
@@ -370,7 +370,7 @@ public class MeshManagerApi implements MeshMngrApi {
                                     final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
                                     final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
                                     node.setSequenceNumber(0);
-                                    provisioner.setSequenceNumber(0);
+                                    //provisioner.setSequenceNumber(0);
                                 }
 
                                 //Updating the iv recovery flag
@@ -793,6 +793,8 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     public final void resetMeshNetwork() {
         //We delete the existing network as the user has already given the
+        ivUpdateTestModeActive = false;
+        allowIvIndexRecoveryOver42 = false;
         final MeshNetwork meshNet = mMeshNetwork;
         deleteMeshNetworkFromDb(meshNet);
         final MeshNetwork newMeshNetwork = generateMeshNetwork();
@@ -825,6 +827,8 @@ public class MeshManagerApi implements MeshMngrApi {
         network.lastSelected = true;
         network.sequenceNumbers.clear(); //Clear the sequence numbers first
         network.loadSequenceNumbers();
+        ivUpdateTestModeActive = false;
+        allowIvIndexRecoveryOver42 = false;
         return network;
     }
 
@@ -1010,10 +1014,6 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @SuppressWarnings("FieldCanBeLocal")
     private final NetworkLayerCallbacks networkLayerCallbacks = new NetworkLayerCallbacks() {
-        @Override
-        public ProvisionedMeshNode getNode(final int unicastAddress) {
-            return mMeshNetwork.getNode(unicastAddress);
-        }
 
         @Override
         public Provisioner getProvisioner() {
@@ -1047,6 +1047,11 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @SuppressWarnings("FieldCanBeLocal")
     private final UpperTransportLayerCallbacks upperTransportLayerCallbacks = new UpperTransportLayerCallbacks() {
+
+        @Override
+        public ProvisionedMeshNode getNode(final int unicastAddress) {
+            return mMeshNetwork.getNode(unicastAddress);
+        }
 
         @Override
         public byte[] getIvIndex() {
