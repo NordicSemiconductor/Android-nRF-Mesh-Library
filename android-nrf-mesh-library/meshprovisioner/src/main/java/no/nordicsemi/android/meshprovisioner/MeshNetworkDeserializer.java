@@ -2,6 +2,8 @@ package no.nordicsemi.android.meshprovisioner;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -20,7 +22,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -97,13 +98,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             jsonObject.add("nodes", serializeNodes(context, network.getNodes()));
         }
 
-        //Optional properties
-        if (!network.getGroups().isEmpty())
-            jsonObject.add("groups", serializeGroups(network.getGroups()));
+        jsonObject.add("groups", serializeGroups(network.getGroups()));
 
-        //Mandatory properties
-        if (!network.getScenes().isEmpty())
-            jsonObject.add("scenes", serializeScenes(network.getScenes()));
+        jsonObject.add("scenes", serializeScenes(network.getScenes()));
 
         return jsonObject;
     }
