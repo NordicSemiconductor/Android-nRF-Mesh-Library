@@ -374,7 +374,7 @@ public class MeshParserUtils {
     public static int getOpCodeLength(final int mostSignificantOpcodeByte) {
         if (mostSignificantOpcodeByte < 0x80) {
             return 1;
-        } else if (mostSignificantOpcodeByte == 0x80) {
+        } else if (/*mostSignificantOpcodeByte >= 0x80 &&*/ mostSignificantOpcodeByte <= 0xBF) {
             return 2;
         } else {
             return 3;
