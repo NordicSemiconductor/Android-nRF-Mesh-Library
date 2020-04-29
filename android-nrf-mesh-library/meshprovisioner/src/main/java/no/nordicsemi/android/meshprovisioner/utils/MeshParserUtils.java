@@ -368,13 +368,13 @@ public class MeshParserUtils {
      * If the MSB = 1 then the length is 2
      * If the MSB = 2 then the length is 3
      *
-     * @param opCode operation code
+     * @param mostSignificantOpcodeByte operation code
      * @return length of opcodes
      */
-    public static int getOpCodeLength(final int opCode) {
-        if (opCode < 0x80) {
+    public static int getOpCodeLength(final int mostSignificantOpcodeByte) {
+        if (mostSignificantOpcodeByte < 0x80) {
             return 1;
-        } else if (opCode < 0x4000 || (opCode & 0xFFFC00) == 0x8000) {
+        } else if (mostSignificantOpcodeByte == 0x80) {
             return 2;
         } else {
             return 3;
