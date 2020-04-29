@@ -208,7 +208,7 @@ abstract class BaseMeshNetwork {
                     return false;
                 }
             } else {
-                throw new IllegalArgumentException("Unable to update a network key that's already in use");
+                throw new IllegalArgumentException("Unable to update a network key that's already in use.");
             }
         }
         return false;
@@ -234,7 +234,7 @@ abstract class BaseMeshNetwork {
                 //This will return true only if the key index and the key are the same
                 return updateMeshKey(networkKey);
             } else {
-                throw new IllegalArgumentException("Unable to update a network key that's already in use");
+                throw new IllegalArgumentException("Unable to update a network key that's already in use.");
             }
         }
     }
@@ -401,7 +401,7 @@ abstract class BaseMeshNetwork {
                     return false;
                 }
             } else {
-                throw new IllegalArgumentException("Unable to update a application key that's already in use");
+                throw new IllegalArgumentException("Unable to update a application key that's already in use.");
             }
         }
         return false;
@@ -427,7 +427,7 @@ abstract class BaseMeshNetwork {
                 //This will return true only if the key index and the key are the same
                 return updateMeshKey(applicationKey);
             } else {
-                throw new IllegalArgumentException("Unable to update a application key that's already in use");
+                throw new IllegalArgumentException("Unable to update a application key that's already in use.");
             }
         }
     }
@@ -474,13 +474,13 @@ abstract class BaseMeshNetwork {
      */
     public boolean removeAppKey(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         if (isKeyInUse(appKey)) {
-            throw new IllegalArgumentException("Unable to delete an app key that's in use");
+            throw new IllegalArgumentException("Unable to delete an app key that's in use.");
         } else {
             if (appKeys.remove(appKey)) {
                 notifyAppKeyDeleted(appKey);
                 return true;
             } else {
-                throw new IllegalArgumentException("Key does not exist");
+                throw new IllegalArgumentException("Key does not exist.");
             }
         }
     }
