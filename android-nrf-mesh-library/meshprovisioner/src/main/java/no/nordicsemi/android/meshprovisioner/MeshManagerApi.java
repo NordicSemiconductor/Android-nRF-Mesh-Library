@@ -370,7 +370,7 @@ public class MeshManagerApi implements MeshMngrApi {
                                     final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
                                     final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
                                     node.setSequenceNumber(0);
-                                    provisioner.setSequenceNumber(0);
+                                    //provisioner.setSequenceNumber(0);
                                 }
 
                                 //Updating the iv recovery flag

@@ -111,6 +111,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final SparseArray<byte[]> encryptedPduPayload = new SparseArray<>();
         final List<byte[]> sequenceNumbers = new ArrayList<>();
 
+        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(message.getSrc());
+
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
             case MeshManagerApi.PDU_TYPE_NETWORK:
@@ -122,9 +124,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     if (i != 0) {
-                        final int sequenceNumber = incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
-                        final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
-                        message.setSequenceNumber(sequenceNum);
+                        final int sequenceNumber = node.incrementSequenceNumber();
+                        message.setSequenceNumber(MeshParserUtils.getSequenceNumberBytes(sequenceNumber));
                     }
                     sequenceNumbers.add(message.getSequenceNumber());
                     Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNumbers.get(i), false));
@@ -139,8 +140,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     mNetworkLayerCallbacks.getProvisioner(message.getSrc());
-                    final int sequenceNumber = incrementSequenceNumber(message.getSrc());
-                    final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+                    final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
                     message.setSequenceNumber(sequenceNum);
                     sequenceNumbers.add(message.getSequenceNumber());
                     final byte[] nonce = createProxyNonce(message.getSequenceNumber(), src, message.getIvIndex());
@@ -200,9 +200,10 @@ abstract class NetworkLayer extends LowerTransportLayer {
         byte[] encryptedNetworkPayload = null;
         final int pduType = message.getPduType();
         if (message.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
+            final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(message.getSrc());
             final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
-            final int sequenceNumber = incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
-            final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
+            final int sequenceNumber = node.incrementSequenceNumber();//incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
+            final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
             message.setSequenceNumber(sequenceNum);
 
             Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
@@ -270,12 +271,12 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses access message
      *
-     * @param data                    Received from the node
-     * @param networkHeader           De-obfuscated network header
-     * @param decryptedNetworkPayload Decrypted network payload
-     * @param src                     Source address
-     * @param sequenceNumber          Sequence number of the received message
-     * @param ivIndex
+     * @param data                      Received from the node.
+     * @param networkHeader             De-obfuscated network header.
+     * @param decryptedNetworkPayload   Decrypted network payload.
+     * @param src                       Source address.
+     * @param sequenceNumber            Sequence number of the received message.
+     * @param ivIndex                   IV Index used for decryption.
      * @return access message
      */
     @VisibleForTesting
@@ -360,13 +361,13 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses control message
      *
-     * @param provisionerAddress      Provisioner address
-     * @param data                    Data received from the node
-     * @param networkHeader           De-obfuscated network header
-     * @param decryptedNetworkPayload Decrypted network payload
-     * @param src                     Source address where the pdu originated from
-     * @param sequenceNumber          Sequence number of the received message
-     * @param ivIndex
+     * @param provisionerAddress        Provisioner address.
+     * @param data                      Data received from the node.
+     * @param networkHeader             De-obfuscated network header.
+     * @param decryptedNetworkPayload   Decrypted network payload.
+     * @param src                       Source address where the pdu originated from.
+     * @param sequenceNumber            Sequence number of the received message.
+     * @param ivIndex                   IV Index used for decryption.
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
     private ControlMessage parseControlMessage(@Nullable final Integer provisionerAddress,
