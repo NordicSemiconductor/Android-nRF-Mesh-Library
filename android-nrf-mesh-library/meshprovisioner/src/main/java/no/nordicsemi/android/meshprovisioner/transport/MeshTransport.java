@@ -34,7 +34,6 @@ import java.util.UUID;
 
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
 import no.nordicsemi.android.meshprovisioner.MeshManagerApi;
-import no.nordicsemi.android.meshprovisioner.Provisioner;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
 
@@ -125,7 +124,7 @@ final class MeshTransport extends NetworkLayer {
                                           final int aid,
                                           final int aszmic,
                                           final int accessOpCode, final byte[] accessMessageParameters) {
-        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(src);
+        final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
@@ -183,8 +182,8 @@ final class MeshTransport extends NetworkLayer {
                                           final int aszmic,
                                           final int accessOpCode,
                                           @Nullable final byte[] accessMessageParameters) {
-        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        final int sequenceNumber = mMeshNode.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
+        final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
@@ -200,7 +199,7 @@ final class MeshTransport extends NetworkLayer {
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(dst);
-        message.setTtl(provisioner.getGlobalTtl());
+        message.setTtl(node.getTtl());
         if (label != null) {
             message.setLabel(label);
         }
@@ -245,8 +244,8 @@ final class MeshTransport extends NetworkLayer {
                                                 final int aszmic,
                                                 final int accessOpCode,
                                                 @Nullable final byte[] accessMessageParameters) {
-        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        final int sequenceNumber = mMeshNode.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
+        final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
@@ -263,7 +262,7 @@ final class MeshTransport extends NetworkLayer {
         message.setCompanyIdentifier(companyIdentifier);
         message.setSrc(src);
         message.setDst(dst);
-        message.setTtl(provisioner.getGlobalTtl());
+        message.setTtl(node.getTtl());
         if (label != null) {
             message.setLabel(label);
         }
@@ -293,8 +292,8 @@ final class MeshTransport extends NetworkLayer {
     final ControlMessage createProxyConfigurationMessage(final int src,
                                                          final int dst,
                                                          final int opcode, final byte[] parameters) {
-        final Provisioner provisioner = mNetworkLayerCallbacks.getProvisioner(src);
-        final int sequenceNumber = mMeshNode.incrementSequenceNumber();
+        final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
+        final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
@@ -306,7 +305,7 @@ final class MeshTransport extends NetworkLayer {
         final ControlMessage message = new ControlMessage();
         message.setSrc(src);
         message.setDst(dst);
-        message.setTtl(provisioner.getGlobalTtl());
+        message.setTtl(node.getTtl());
         message.setTtl(PROXY_CONFIGURATION_TTL); //TTL for proxy configuration messages are set to 0
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);

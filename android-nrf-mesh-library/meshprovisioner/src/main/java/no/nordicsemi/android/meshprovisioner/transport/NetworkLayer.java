@@ -111,7 +111,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final SparseArray<byte[]> encryptedPduPayload = new SparseArray<>();
         final List<byte[]> sequenceNumbers = new ArrayList<>();
 
-        final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(message.getSrc());
+        final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(message.getSrc());
 
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
@@ -124,8 +124,9 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     if (i != 0) {
-                        final int sequenceNumber = node.incrementSequenceNumber();
-                        message.setSequenceNumber(MeshParserUtils.getSequenceNumberBytes(sequenceNumber));
+                        node.setSequenceNumber(MeshParserUtils.getSequenceNumber(message.getSequenceNumber()));
+                        final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
+                        message.setSequenceNumber(sequenceNumber);
                     }
                     sequenceNumbers.add(message.getSequenceNumber());
                     Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNumbers.get(i), false));
@@ -139,7 +140,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 lowerTransportPduMap = ((ControlMessage) message).getLowerTransportControlPdu();
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
-                    mNetworkLayerCallbacks.getProvisioner(message.getSrc());
                     final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
                     message.setSequenceNumber(sequenceNum);
                     sequenceNumbers.add(message.getSequenceNumber());
@@ -200,9 +200,10 @@ abstract class NetworkLayer extends LowerTransportLayer {
         byte[] encryptedNetworkPayload = null;
         final int pduType = message.getPduType();
         if (message.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
-            final ProvisionedMeshNode node = mNetworkLayerCallbacks.getNode(message.getSrc());
+            final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(message.getSrc());
             final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
-            final int sequenceNumber = node.incrementSequenceNumber();//incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
+            node.setSequenceNumber(MeshParserUtils.getSequenceNumber(message.getSequenceNumber()));
+            //final int sequenceNumber = node.incrementSequenceNumber();//incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
             final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
             message.setSequenceNumber(sequenceNum);
 

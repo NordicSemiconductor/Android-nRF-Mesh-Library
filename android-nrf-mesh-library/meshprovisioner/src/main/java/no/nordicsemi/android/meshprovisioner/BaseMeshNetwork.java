@@ -746,9 +746,10 @@ abstract class BaseMeshNetwork {
                             if (meshNode.getUnicastAddress() != provisioner.getProvisionerAddress()) {
                                 sequenceNumber = sequenceNumbers.get(provisioner.getProvisionerAddress());
                             } else {
-                                sequenceNumber = sequenceNumbers.get(node.getUnicastAddress(), 0);
+                                sequenceNumber = sequenceNumbers.get(node.getUnicastAddress(), node.getSequenceNumber());
                             }
                             node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
+                            node.setSequenceNumber(sequenceNumber);
                             nodes.set(i, node);
                             notifyNodeUpdated(node);
                             break;

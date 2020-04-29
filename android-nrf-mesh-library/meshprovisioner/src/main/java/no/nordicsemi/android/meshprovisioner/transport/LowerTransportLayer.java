@@ -742,7 +742,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-        final int sequenceNumber = mMeshNode.incrementSequenceNumber();//(controlMessage.getSrc());
+        final int sequenceNumber = mUpperTransportLayerCallbacks.getNode(controlMessage.getSrc()).incrementSequenceNumber();//mMeshNode.incrementSequenceNumber();//(controlMessage.getSrc());
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);
         mBlockAckSent = true;
