@@ -1345,8 +1345,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     private static void migrateMeshNetwork7_8(@NonNull final SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE mesh_network RENAME TO mesh_network_temp");
-        database.execSQL("CREATE TABLE `mesh_network` " +
+        database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
                 "`mesh_name` TEXT, " +
                 "`timestamp` INTEGER NOT NULL, " +
@@ -1355,7 +1354,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "`last_selected` INTEGER NOT NULL, " +
                 "PRIMARY KEY(`mesh_uuid`))");
 
-        final Cursor cursor = database.query("SELECT * FROM mesh_network_temp");
+        final Cursor cursor = database.query("SELECT * FROM mesh_network");
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
@@ -1372,16 +1371,16 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("iv_index", MeshTypeConverters.ivIndexToJson(new IvIndex(ivIndex, ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE, Calendar.getInstance())));
                 values.put("sequence_numbers", sequenceNumbers);
                 values.put("last_selected", lastSelected);
-                database.insert("mesh_network", SQLiteDatabase.CONFLICT_REPLACE, values);
+                database.insert("mesh_network_temp", SQLiteDatabase.CONFLICT_REPLACE, values);
             } while (cursor.moveToNext());
             cursor.close();
         }
-        database.execSQL("DROP TABLE mesh_network_temp");
+        database.execSQL("DROP TABLE mesh_network");
+        database.execSQL("ALTER TABLE mesh_network_temp RENAME TO mesh_network");
     }
 
     private static void migrateProvisioner8_9(@NonNull final SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE provisioner RENAME TO provisioner_temp");
-        database.execSQL("CREATE TABLE `provisioner` " +
+        database.execSQL("CREATE TABLE `provisioner_temp` " +
                 "(`provisioner_uuid` TEXT NOT NULL, " +
                 "`mesh_uuid` TEXT NOT NULL, " +
                 "`name` TEXT, " +
@@ -1393,13 +1392,14 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "`last_selected` INTEGER NOT NULL, PRIMARY KEY(`provisioner_uuid`), " +
                 "FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )");
 
-        database.execSQL("INSERT INTO provisioner (provisioner_uuid,  mesh_uuid, name,  " +
+        database.execSQL("INSERT INTO provisioner_temp (provisioner_uuid,  mesh_uuid, name,  " +
                 "allocated_unicast_ranges, allocated_group_ranges, allocated_scene_ranges, " +
                 "provisioner_address, global_ttl, last_selected) " +
                 "SELECT provisioner_uuid, mesh_uuid, name," +
                 "allocated_unicast_ranges, allocated_group_ranges, allocated_scene_ranges," +
-                "provisioner_address, global_ttl, last_selected FROM provisioner_temp");
-        database.execSQL("DROP TABLE provisioner_temp");
-        database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner` (mesh_uuid)");
+                "provisioner_address, global_ttl, last_selected FROM provisioner");
+        database.execSQL("DROP TABLE provisioner");
+        database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner_temp` (mesh_uuid)");
+        database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
     }
 }
