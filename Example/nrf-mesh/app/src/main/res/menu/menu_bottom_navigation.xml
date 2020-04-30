@@ -27,7 +27,7 @@
     <item
         android:id="@+id/action_network"
         android:enabled="true"
-        android:icon="@drawable/ic_lan_black"
+        android:icon="@drawable/ic_mesh_black"
         android:title="@string/network"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>
@@ -43,7 +43,7 @@
     <item
         android:id="@+id/action_proxy"
         android:enabled="true"
-        android:icon="@drawable/ic_filter_list_black_24dp"
+        android:icon="@drawable/ic_proxy_filter"
         android:title="@string/action_proxy"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>

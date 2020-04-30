@@ -42,7 +42,7 @@
         android:layout_centerVertical="true"
         android:background="@drawable/ic_device_bg"
         android:padding="@dimen/mesh_list_icon_padding"
-        app:srcCompat="@drawable/ic_mesh_48dp"/>
+        app:srcCompat="@drawable/ic_mesh_white"/>
 
     <TextView
         android:id="@+id/device_name"

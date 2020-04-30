@@ -67,7 +67,7 @@
                 app:layout_constraintEnd_toStartOf="@id/node_name"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/node_name"
-                app:srcCompat="@drawable/ic_mesh_48dp"/>
+                app:srcCompat="@drawable/ic_mesh_white"/>
 
             <TextView
                 android:id="@+id/node_name"

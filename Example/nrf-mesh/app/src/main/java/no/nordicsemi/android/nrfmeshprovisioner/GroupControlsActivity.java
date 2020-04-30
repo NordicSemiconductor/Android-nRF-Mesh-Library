@@ -29,13 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,6 +37,15 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
@@ -206,7 +208,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public void onSubGroupItemClick(final int appKeyIndex, final int modelId) {
-        if(!isConnected())
+        if (!isConnected())
             return;
 
         if (MeshParserUtils.isVendorModel(modelId)) {
@@ -238,7 +240,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final MeshMessage meshMessage;
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = network.getAppKey(appKeyIndex);
-        final int tid = network.getSelectedProvisioner().getSequenceNumber();
+        final int tid = new Random().nextInt();
         switch (modelId) {
             case SigModelParser.GENERIC_ON_OFF_SERVER:
                 meshMessage = new GenericOnOffSetUnacknowledged(applicationKey, isChecked, tid);
@@ -262,7 +264,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
-        final int tid = network.getSelectedProvisioner().getSequenceNumber();
+        final int tid = new Random().nextInt();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,
                 state, tid, transitionSteps, transitionStepResolution, delay);
         sendMessage(group.getAddress(), meshMessage);
@@ -280,7 +282,7 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final ApplicationKey applicationKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
-            final int tid = mViewModel.getNetworkLiveData().getMeshNetwork().getSelectedProvisioner().getSequenceNumber();
+            final int tid = new Random().nextInt();
             final MeshMessage meshMessage = new GenericLevelSetUnacknowledged(applicationKey, transitionSteps, transitionStepResolution, delay, level, tid);
             sendMessage(group.getAddress(), meshMessage);
         }

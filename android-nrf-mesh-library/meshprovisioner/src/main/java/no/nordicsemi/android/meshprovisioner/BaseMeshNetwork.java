@@ -4,18 +4,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +12,20 @@ import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+
 import no.nordicsemi.android.meshprovisioner.transport.Element;
 import no.nordicsemi.android.meshprovisioner.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.meshprovisioner.utils.MeshAddress;
@@ -35,8 +37,8 @@ import no.nordicsemi.android.meshprovisioner.utils.SecureUtils;
 abstract class BaseMeshNetwork {
     private static final String TAG = "BaseMeshNetwork";
     // Key refresh phases
-    public static final int NORMAL_OPERATION = 0; //Distribution of new keys
-    public static final int IV_UPDATE_ACTIVE = 1; //Switching to the new keys
+    public static final int NORMAL_OPERATION = 0; //Normal operation
+    public static final int IV_UPDATE_ACTIVE = 1; //IV Update active
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "mesh_uuid")
@@ -70,11 +72,10 @@ abstract class BaseMeshNetwork {
     @Expose
     long timestamp = System.currentTimeMillis();
     @ColumnInfo(name = "iv_index")
+    @TypeConverters(MeshTypeConverters.class)
     @Expose
-    int ivIndex = 0;
-    @ColumnInfo(name = "iv_update_state")
-    @Expose
-    int ivUpdateState = NORMAL_OPERATION;
+    @NonNull
+    IvIndex ivIndex = new IvIndex(0, false, Calendar.getInstance());
     @Ignore
     @SerializedName("netKeys")
     @Expose
@@ -207,7 +208,7 @@ abstract class BaseMeshNetwork {
                     return false;
                 }
             } else {
-                throw new IllegalArgumentException("Unable to update a network key that's already in use");
+                throw new IllegalArgumentException("Unable to update a network key that's already in use.");
             }
         }
         return false;
@@ -233,7 +234,7 @@ abstract class BaseMeshNetwork {
                 //This will return true only if the key index and the key are the same
                 return updateMeshKey(networkKey);
             } else {
-                throw new IllegalArgumentException("Unable to update a network key that's already in use");
+                throw new IllegalArgumentException("Unable to update a network key that's already in use.");
             }
         }
     }
@@ -400,7 +401,7 @@ abstract class BaseMeshNetwork {
                     return false;
                 }
             } else {
-                throw new IllegalArgumentException("Unable to update a application key that's already in use");
+                throw new IllegalArgumentException("Unable to update a application key that's already in use.");
             }
         }
         return false;
@@ -426,7 +427,7 @@ abstract class BaseMeshNetwork {
                 //This will return true only if the key index and the key are the same
                 return updateMeshKey(applicationKey);
             } else {
-                throw new IllegalArgumentException("Unable to update a application key that's already in use");
+                throw new IllegalArgumentException("Unable to update a application key that's already in use.");
             }
         }
     }
@@ -473,13 +474,13 @@ abstract class BaseMeshNetwork {
      */
     public boolean removeAppKey(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
         if (isKeyInUse(appKey)) {
-            throw new IllegalArgumentException("Unable to delete an app key that's in use");
+            throw new IllegalArgumentException("Unable to delete an app key that's in use.");
         } else {
             if (appKeys.remove(appKey)) {
                 notifyAppKeyDeleted(appKey);
                 return true;
             } else {
-                throw new IllegalArgumentException("Key does not exist");
+                throw new IllegalArgumentException("Key does not exist.");
             }
         }
     }
@@ -735,7 +736,6 @@ abstract class BaseMeshNetwork {
                 ProvisionedMeshNode node = getNode(provisioner.getProvisionerUuid());
                 if (node == null) {
                     node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
-                    provisioner.setSequenceNumber(node.getSequenceNumber());
                     nodes.add(node);
                     notifyNodeAdded(node);
                 } else {
@@ -746,10 +746,10 @@ abstract class BaseMeshNetwork {
                             if (meshNode.getUnicastAddress() != provisioner.getProvisionerAddress()) {
                                 sequenceNumber = sequenceNumbers.get(provisioner.getProvisionerAddress());
                             } else {
-                                sequenceNumber = sequenceNumbers.get(node.getUnicastAddress(), 0);
+                                sequenceNumber = sequenceNumbers.get(node.getUnicastAddress(), node.getSequenceNumber());
                             }
-                            provisioner.setSequenceNumber(sequenceNumber);
                             node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
+                            node.setSequenceNumber(sequenceNumber);
                             nodes.set(i, node);
                             notifyNodeUpdated(node);
                             break;

@@ -26,18 +26,18 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
 import no.nordicsemi.android.meshprovisioner.NodeKey;
 import no.nordicsemi.android.meshprovisioner.R;
 
@@ -240,7 +240,6 @@ public class MeshParserUtils {
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
     public static boolean validateIvIndexInput(final Context context, final Integer ivIndex) throws IllegalArgumentException {
-
         if (ivIndex == null) {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_iv_index));
         }
@@ -328,21 +327,39 @@ public class MeshParserUtils {
      * Returns the opcode within the access payload
      *
      * @param accessPayload payload
-     * @param opcodeCount   number of opcodes
      * @return array of opcodes
      */
-    public static int getOpCode(final byte[] accessPayload, final int opcodeCount) {
-        switch (opcodeCount) {
+    public static int getOpCode(final byte[] accessPayload, final int opCodeCount) {
+        switch (opCodeCount) {
             case 1:
                 return accessPayload[0];
             case 2:
                 return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
-            case 3:
+            default:
                 return ((byte) (MeshParserUtils.unsignedByteToInt(accessPayload[1]))
                         | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 8)
                         | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 16))));
         }
-        return -1;
+    }
+
+    /**
+     * Returns an array of opcodes.
+     * If the MSB = 0 then the length is 1
+     * If the MSB = 1 then the length is 2
+     * If the MSB = 2 then the length is 3
+     *
+     * @param opCode operation code
+     */
+    public static byte[] getOpCode(final int opCode) {
+        if (opCode < 0x80) {
+            return new byte[]{(byte) (opCode & 0xFF)};
+        } else if (opCode < 0x4000 || (opCode & 0xFFFC00) == 0x8000) {
+            return new byte[]{(byte) (0x80 | ((opCode >> 8) & 0x3F)), (byte) (opCode & 0xFF)};
+        } else {
+            return new byte[]{(byte) (0xC0 | ((opCode >> 16) & 0x3F)),
+                    (byte) ((opCode >> 8) & 0xFF),
+                    (byte) (opCode & 0xFF)};
+        }
     }
 
     /**
@@ -351,17 +368,16 @@ public class MeshParserUtils {
      * If the MSB = 1 then the length is 2
      * If the MSB = 2 then the length is 3
      *
-     * @param opCode operation code
+     * @param mostSignificantOpcodeByte operation code
      * @return length of opcodes
      */
-    public static byte[] getOpCodes(final int opCode) {
-        if ((opCode & 0xC00000) == 0xC00000) {
-            return new byte[]{(byte) ((opCode >> 16) & 0xFF), (byte) ((opCode >> 8) & 0xFF), (byte) (opCode & 0xFF)};
-        } else if ((opCode & 0xFF8000) == 0x8000) {
-            return new byte[]{(byte) ((opCode >> 8) & 0xFF), (byte) (opCode & 0xFF)};
+    public static int getOpCodeLength(final int mostSignificantOpcodeByte) {
+        if (mostSignificantOpcodeByte < 0x80) {
+            return 1;
+        } else if (/*mostSignificantOpcodeByte >= 0x80 &&*/ mostSignificantOpcodeByte <= 0xBF) {
+            return 2;
         } else {
-            //return new byte[]{ (byte) ((opCode >> 8) & 0xFF), (byte) (opCode & 0xFF)};
-            return new byte[]{(byte) opCode};
+            return 3;
         }
     }
 
@@ -375,10 +391,10 @@ public class MeshParserUtils {
      * @return length of opcodes
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
-        if (companyIdentifier != 0xFFFF) {
-            return new byte[]{(byte) (0xC0 | (opCode & 0x3F)), (byte) (companyIdentifier & 0xFF), (byte) ((companyIdentifier >> 8) & 0xFF)};
-        }
-        return null;
+        final byte[] opCodes = getOpCode(opCode);
+        opCodes[1] = (byte) (companyIdentifier & 0xFF);
+        opCodes[2] = (byte) ((companyIdentifier >> 8) & 0xFF);
+        return opCodes;
     }
 
     /**
@@ -555,9 +571,7 @@ public class MeshParserUtils {
     }
 
     public static byte[] intToBytes(int i) {
-        ByteBuffer b = ByteBuffer.allocate(4);
-        b.putInt(i);
-        return b.array();
+        return ByteBuffer.allocate(4).putInt(i).array();
     }
 
     /**
@@ -568,21 +582,6 @@ public class MeshParserUtils {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
         return unsigned;
-    }
-
-    /**
-     * Returns the international atomic time (TAI) in seconds
-     * <p>
-     * TAI seconds and is the number of seconds after 00:00:00 TAI on 2000-01-01
-     * </p>
-     *
-     * @param currentTime current time in milliseconds
-     */
-    public static long getInternationalAtomicTime(final long currentTime) {
-        final Calendar calendar = Calendar.getInstance();
-        calendar.set(TAI_YEAR, TAI_MONTH, TAI_DATE, 0, 0, 0);
-        final long millisSinceEpoch = calendar.getTimeInMillis();
-        return (currentTime - millisSinceEpoch) / 1000;
     }
 
     /**

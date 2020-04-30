@@ -35,21 +35,21 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+
+import javax.inject.Inject;
+
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImport;
@@ -64,7 +64,6 @@ import no.nordicsemi.android.nrfmeshprovisioner.utils.Utils;
 import no.nordicsemi.android.nrfmeshprovisioner.viewmodels.SharedViewModel;
 
 import static android.app.Activity.RESULT_OK;
-import static no.nordicsemi.android.nrfmeshprovisioner.viewmodels.NrfMeshRepository.EXPORT_PATH;
 
 public class SettingsFragment extends Fragment implements Injectable,
         DialogFragmentNetworkName.DialogFragmentNetworkNameListener,
@@ -141,6 +140,25 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);
         containerAppKey.setOnClickListener(v -> {
+            final Intent intent = new Intent(requireContext(), AppKeysActivity.class);
+            startActivity(intent);
+        });
+
+
+        final View containerIvTestMode = rootView.findViewById(R.id.container_iv_test_mode);
+        containerIvTestMode.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
+        ((TextView) containerIvTestMode.findViewById(R.id.title)).setText(R.string.title_iv_test_mode);
+        final TextView ivTestModeSummary = containerIvTestMode.findViewById(R.id.text);
+        ivTestModeSummary.setText(R.string.iv_test_mode_summary);
+        ivTestModeSummary.setVisibility(View.VISIBLE);
+        final Switch actionChangeIvTestMode = containerIvTestMode.findViewById(R.id.action_change_test_mode);
+        actionChangeIvTestMode.setVisibility(View.VISIBLE);
+        actionChangeIvTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
+        actionChangeIvTestMode.setOnClickListener(v -> {
+            mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(actionChangeIvTestMode.isChecked());
+        });
+        containerIvTestMode.setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), AppKeysActivity.class);
             startActivity(intent);
         });

@@ -30,13 +30,6 @@ import no.nordicsemi.android.meshprovisioner.Provisioner;
 public interface NetworkLayerCallbacks {
 
     /**
-     * Callback to get the mesh node from the list of provisioned mesh node.
-     *
-     * @param unicastAddress unicast address of the mesh node
-     */
-    ProvisionedMeshNode getNode(final int unicastAddress);
-
-    /**
      * Callback to retrieve the current provisioner of the network
      */
     Provisioner getProvisioner();

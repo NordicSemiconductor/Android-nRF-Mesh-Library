@@ -79,7 +79,7 @@ public class LightCtlSet extends GenericMessage {
             throw new IllegalArgumentException("Light lightness value must be between 0 to 0xFFFF");
         if (lightTemperature < 0x0320 || lightTemperature > 0x4E20)
             throw new IllegalArgumentException("Light temperature value must be between 0x0320 to 0x4E20");
-        if (lightDeltaUv < -32768 || lightDeltaUv > 0x32767)
+        if (lightDeltaUv < -32768 || lightDeltaUv > 32767)
             throw new IllegalArgumentException("Light delta uv value must be between 0x8000 to 0x7FFF or 0");
         this.mLightness = lightLightness;
         this.mTemperature = lightTemperature;
