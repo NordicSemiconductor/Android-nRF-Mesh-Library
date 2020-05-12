@@ -27,11 +27,6 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -45,8 +40,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.nio.ByteBuffer;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.provisionerstates.ProvisioningConfirmationState;
@@ -105,7 +106,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         ButterKnife.bind(this, rootView);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
-                setIcon(R.drawable.ic_lock_open_black_alpha_24dp).
+                setIcon(R.drawable.ic_lock_open_24dp).
                 setTitle(getString(R.string.provisioner_authentication_title)).
                 setView(rootView);
 

@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.material.elevation.ElevationOverlayProvider;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +75,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
     @NonNull
     @Override
     public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item2, parent, false);
         return new BoundAppKeysAdapter.ViewHolder(layoutView);
     }
 
@@ -123,6 +125,9 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
+            final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
+            getSwipeableView().setBackgroundColor(color);
         }
     }
 }

@@ -37,8 +37,6 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.w3c.dom.Text;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -146,7 +144,7 @@ public class DialogFragmentGroupRange extends DialogFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
                 .setView(rootView)
-                .setIcon(R.drawable.ic_arrow_collapse_black_alpha_24dp)
+                .setIcon(R.drawable.ic_arrow_collapse_black)
                 .setTitle(R.string.title_range)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null);

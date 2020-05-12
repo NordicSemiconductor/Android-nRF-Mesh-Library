@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,8 +20,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -41,23 +39,22 @@
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <ProgressBar
                 android:id="@+id/provisioning_progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="-7dp"
                 android:layout_marginTop="-8dp"
+                android:layout_marginBottom="-7dp"
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -66,10 +63,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/appbar_layout"
-            android:visibility="gone"
-            tools:visibility="visible"
             android:clipToPadding="false"
-            android:scrollbars="none">
+            android:scrollbars="none"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -77,13 +74,12 @@
                 android:orientation="vertical"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/capabilities_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_horizontal_margin"
-                    android:background="@color/white"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
                     app:cardElevation="1dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -91,7 +87,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <androidx.appcompat.widget.Toolbar
+                        <com.google.android.material.appbar.MaterialToolbar
                             android:id="@+id/tool_bar"
                             android:layout_width="0dp"
                             android:layout_height="?actionBarSize"
@@ -101,7 +97,7 @@
                             app:logo="@drawable/ic_certificate"
                             app:title="Provisioning Data"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                         <include
                             android:id="@+id/container_name"
@@ -110,7 +106,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/tool_bar"/>
+                            app:layout_constraintTop_toBottomOf="@id/tool_bar" />
 
                         <include
                             android:id="@+id/container_app_keys"
@@ -119,49 +115,49 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/container_name"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_name" />
 
                         <include
                             android:id="@+id/container_unicast"
                             layout="@layout/layout_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:visibility="gone"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/container_app_keys"
-                            android:visibility="gone"
-                            tools:visibility="visible"/>
+                            tools:visibility="visible" />
 
-                        <View
+                        <include
                             android:id="@+id/div1"
+                            layout="@layout/layout_divider"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/divider"
+                            android:layout_height="1dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/container_unicast"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_unicast" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/action_provision_device"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:layout_marginEnd="8dp"
                             android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
                             android:padding="@dimen/activity_horizontal_margin"
                             android:text="@string/identify_action"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/div1"/>
+                            app:layout_constraintTop_toBottomOf="@+id/div1" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <include
-                    layout="@layout/layout_capabilities"
                     android:id="@+id/capabilities_container"
+                    layout="@layout/layout_capabilities"
                     android:visibility="gone"
-                    tools:visibility="visible"/>
+                    tools:visibility="visible" />
             </LinearLayout>
         </ScrollView>
 
@@ -170,9 +166,9 @@
             layout="@layout/info_live_provisioning_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:layout_below="@+id/appbar_layout"
-            android:layout_marginTop="@dimen/activity_vertical_margin"/>
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/connectivity_progress_container"
@@ -184,20 +180,20 @@
             android:padding="@dimen/activity_horizontal_margin"
             android:visibility="visible">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/connection_state"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:textSize="16sp"
-                tools:text="@string/state_connecting"/>
+                tools:text="@string/state_connecting" />
 
             <ProgressBar
                 android:id="@+id/progress_bar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="250dp"
                 android:layout_height="wrap_content"
-                android:indeterminate="true"/>
+                android:indeterminate="true" />
         </LinearLayout>
 
     </RelativeLayout>

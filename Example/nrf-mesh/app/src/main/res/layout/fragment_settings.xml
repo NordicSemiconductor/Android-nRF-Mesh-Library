@@ -33,12 +33,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/network_settings_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
-            android:background="@color/white"
             app:cardElevation="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -47,7 +46,7 @@
                 android:layout_height="match_parent"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/network_settings_toolbar"
                     android:layout_width="0dp"
                     android:layout_height="?actionBarSize"
@@ -57,13 +56,14 @@
                     app:logo="@drawable/ic_certificate"
                     app:title="@string/network_settings"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText" />
+                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
                 <include
                     android:id="@+id/container_network_name"
                     layout="@layout/layout_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/network_settings_toolbar" />
@@ -105,14 +105,13 @@
                     app:layout_constraintTop_toBottomOf="@id/container_app_keys" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/about_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
-            android:background="@color/white"
             app:cardElevation="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -121,14 +120,14 @@
                 android:layout_height="match_parent"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/about_tool_bar"
                     android:layout_width="0dp"
                     android:layout_height="?actionBarSize"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_info_black_24dp_alpha"
+                    app:logo="@drawable/ic_info_24dp"
                     app:title="@string/title_about"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
                     app:titleTextAppearance="@style/Toolbar.TitleText" />
@@ -143,6 +142,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/about_tool_bar" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

@@ -29,6 +29,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.elevation.ElevationOverlayProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,16 +82,10 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
             final int address = mAddresses.get(position);
             final Group group = network.getGroup(address);
             if (group != null) {
-                holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_outline_group_work_black_alpha_24dp));
+                holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_outline_group_24dp));
                 holder.name.setText(group.getName());
                 holder.address.setText(MeshAddress.formatAddress(address, true));
-            }/* else {
-                if(MeshAddress.isValidVirtualAddress(address)) {
-                    holder.icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_label_outline_black_alpha_24dp));
-                    holder.name.setText(group.getName());
-                    holder.address.setText(model.getLabelUUID(address).toString().toUpperCase(Locale.US));
-                }
-            }*/
+            }
         }
     }
 
@@ -119,6 +115,9 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
+            final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
+            getSwipeableView().setBackgroundColor(color);
         }
     }
 }

@@ -29,20 +29,20 @@
             app:srcCompat="@drawable/ic_numeric"
             tools:ignore="ContentDescription"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_count_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_network_transmit_count"
-            android:textColor="@color/black"
+            android:textColor="?android:textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_count"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_count"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,20 +89,20 @@
             app:srcCompat="@drawable/ic_index"
             tools:ignore="ContentDescription"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_interval_steps_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/title_network_transmit_interval_steps"
-            android:textColor="@color/black"
+            android:textColor="?android:textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/steps_summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
             app:layout_constraintStart_toStartOf="@id/dialog_network_transmit_interval_steps_title"
             app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_interval_steps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:clipChildren="false"
     android:clipToPadding="false"
-    android:clipChildren="false">
+    android:paddingBottom="@dimen/activity_vertical_margin">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         app:cardElevation="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,17 +20,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/node_controls_tool_bar"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="?actionBarSize"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:logo="@drawable/ic_subscribe_black_alpha_24dp"
+                app:logo="@drawable/ic_lightbulb_outline_black_24dp"
                 app:title="@string/title_generic_on_off_controls"
                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/transition_progress_bar"
@@ -43,7 +41,7 @@
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar"/>
+                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_controls"
@@ -56,7 +54,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/node_controls_tool_bar"
                 tools:visibility="visible">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/transition"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -72,9 +70,9 @@
                     app:layout_constraintBottom_toTopOf="@+id/transition_seekbar"
                     app:layout_constraintEnd_toStartOf="@id/transition_time"
                     app:layout_constraintStart_toStartOf="@id/transition_seekbar"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/transition_time"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -89,7 +87,7 @@
                     app:layout_constraintEnd_toEndOf="@id/transition_seekbar"
                     app:layout_constraintStart_toEndOf="@id/transition"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="HardcodedText"/>
+                    tools:ignore="HardcodedText" />
 
                 <SeekBar
                     android:id="@+id/transition_seekbar"
@@ -101,10 +99,10 @@
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/transition"/>
+                    app:layout_constraintTop_toBottomOf="@id/transition" />
 
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/delay"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -118,9 +116,9 @@
                     android:textSize="18sp"
                     app:layout_constraintEnd_toStartOf="@id/transition_time"
                     app:layout_constraintStart_toStartOf="@id/delay_seekbar"
-                    app:layout_constraintTop_toBottomOf="@id/transition_seekbar"/>
+                    app:layout_constraintTop_toBottomOf="@id/transition_seekbar" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/delay_time"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -135,7 +133,7 @@
                     app:layout_constraintEnd_toEndOf="@id/transition_seekbar"
                     app:layout_constraintStart_toStartOf="@id/delay_seekbar"
                     app:layout_constraintTop_toBottomOf="@id/transition_seekbar"
-                    tools:ignore="HardcodedText"/>
+                    tools:ignore="HardcodedText" />
 
                 <SeekBar
                     android:id="@+id/delay_seekbar"
@@ -148,11 +146,11 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/delay"/>
+                    app:layout_constraintTop_toBottomOf="@id/delay" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/state"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -164,17 +162,17 @@
                 android:visibility="visible"
                 app:layout_constraintEnd_toStartOf="@id/on_off_state"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/container_controls"/>
+                app:layout_constraintTop_toBottomOf="@id/container_controls" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/on_off_state"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:gravity="end"
-                android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingStart="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingEnd="@dimen/activity_horizontal_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 android:text="@string/button_unknown"
@@ -182,7 +180,7 @@
                 app:layout_constraintBottom_toTopOf="@+id/div3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/state"
-                app:layout_constraintTop_toTopOf="@+id/state"/>
+                app:layout_constraintTop_toTopOf="@+id/state" />
 
             <include
                 android:id="@+id/div3"
@@ -191,7 +189,7 @@
                 android:layout_height="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/state"/>
+                app:layout_constraintTop_toBottomOf="@id/state" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_read"
@@ -203,7 +201,7 @@
                 android:text="@string/action_generic_read_state"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/action_on"
-                app:layout_constraintTop_toTopOf="@+id/action_on"/>
+                app:layout_constraintTop_toTopOf="@+id/action_on" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_on"
@@ -215,9 +213,9 @@
                 android:text="@string/action_generic_on"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/div3"/>
+                app:layout_constraintTop_toBottomOf="@id/div3" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/transition_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -227,8 +225,8 @@
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 app:layout_constraintBottom_toBottomOf="@id/action_on"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/action_on"/>
+                app:layout_constraintTop_toTopOf="@id/action_on" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

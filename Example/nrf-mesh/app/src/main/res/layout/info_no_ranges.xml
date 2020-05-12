@@ -37,16 +37,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:padding="@dimen/activity_horizontal_margin"
-        app:srcCompat="@drawable/ic_range_black_alpha_48dp"/>
+        app:srcCompat="@drawable/ic_range_48dp"/>
 
-    <TextView
-        style="@style/Widget.InfoWarningTitles"
+    <com.google.android.material.textview.MaterialTextView
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:textColor="?colorSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/title_no_ranges"/>
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/rationale"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

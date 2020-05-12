@@ -38,7 +38,7 @@
         tools:ignore="ContentDescription">
 
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             app:layout_constraintBottom_toBottomOf="@id/title"
             app:layout_constraintStart_toEndOf="@id/title"
             app:layout_constraintTop_toTopOf="@id/title"
-            app:srcCompat="@drawable/ic_close_white_24dp"/>
+            app:srcCompat="@drawable/ic_close"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

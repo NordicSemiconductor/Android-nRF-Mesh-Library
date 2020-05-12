@@ -26,8 +26,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+
+import com.google.android.material.elevation.ElevationOverlayProvider;
 
 import java.util.List;
 
@@ -108,7 +111,8 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
     }
 
     final class ViewHolder extends RemovableViewHolder {
-
+        @BindView(R.id.container)
+        FrameLayout container;
         @BindView(R.id.title)
         TextView netKeyName;
         @BindView(R.id.subtitle)
@@ -119,7 +123,10 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
+            final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
+            final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
+            getSwipeableView().setBackgroundColor(color);
+            view.findViewById(R.id.container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final NetworkKey netKey = mNetworkKeys.get(getAdapterPosition());
                     final ApplicationKey appKey = mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);

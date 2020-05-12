@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,8 +20,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -33,11 +31,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/proxy_filter_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             app:cardElevation="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,19 +42,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/proxy_filter_tool_bar"
                     android:layout_width="0dp"
                     android:layout_height="?actionBarSize"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_filter_list_black_alpha_24dp"
+                    app:logo="@drawable/ic_filter_list_24dp"
                     app:title="@string/title_proxy_filter"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/proxy_filter_summary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -66,7 +63,7 @@
                     android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar"/>
+                    app:layout_constraintTop_toBottomOf="@id/proxy_filter_tool_bar" />
 
                 <include
                     android:id="@+id/div2"
@@ -75,7 +72,7 @@
                     android:layout_height="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/proxy_filter_summary"/>
+                    app:layout_constraintTop_toBottomOf="@id/proxy_filter_summary" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_disable"
@@ -85,12 +82,11 @@
                     android:layout_marginStart="@dimen/item_padding_end"
                     android:layout_marginEnd="@dimen/item_padding_start"
                     android:enabled="false"
-                    android:padding="@dimen/activity_horizontal_margin"
                     android:text="@string/action_disable"
                     android:textColor="@color/proxy_filter_button_states"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/div2"/>
+                    app:layout_constraintTop_toBottomOf="@id/div2" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_black_list"
@@ -100,12 +96,11 @@
                     android:layout_marginStart="@dimen/item_padding_end"
                     android:layout_marginEnd="@dimen/item_padding_start"
                     android:enabled="false"
-                    android:padding="@dimen/activity_horizontal_margin"
                     android:text="@string/black_list_filter"
                     android:textColor="@color/proxy_filter_button_states"
                     app:layout_constraintBottom_toBottomOf="@id/action_disable"
                     app:layout_constraintEnd_toStartOf="@id/action_disable"
-                    app:layout_constraintTop_toTopOf="@id/action_disable"/>
+                    app:layout_constraintTop_toTopOf="@id/action_disable" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_white_list"
@@ -115,41 +110,39 @@
                     android:layout_marginStart="@dimen/item_padding_end"
                     android:layout_marginEnd="@dimen/item_padding_start"
                     android:enabled="false"
-                    android:padding="@dimen/activity_horizontal_margin"
                     android:text="@string/white_list_filter"
                     android:textColor="@color/proxy_filter_button_states"
                     app:layout_constraintBottom_toBottomOf="@id/action_black_list"
                     app:layout_constraintEnd_toStartOf="@id/action_black_list"
-                    app:layout_constraintTop_toTopOf="@id/action_black_list"/>
+                    app:layout_constraintTop_toTopOf="@id/action_black_list" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/proxy_filter_address_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:background="@color/white"
             app:cardElevation="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <androidx.appcompat.widget.Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/address_filter_tool_bar"
                     android:layout_width="0dp"
                     android:layout_height="?actionBarSize"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_lan_black_alpha_24dp"
+                    app:logo="@drawable/ic_lan_24dp"
                     app:title="@string/title_filter_addresses"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/container_proxy_filter"
@@ -160,7 +153,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/address_filter_tool_bar">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/no_addresses"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -169,18 +162,18 @@
                         android:textSize="16sp"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_view_filter_addresses"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:background="@color/nordicRed"
                         android:scrollbars="none"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:visibility="visible"/>
+                        tools:listitem="@layout/address_item"
+                        tools:visibility="visible" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -191,7 +184,7 @@
                     android:layout_height="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_proxy_filter"/>
+                    app:layout_constraintTop_toBottomOf="@id/container_proxy_filter" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_add_address"
@@ -201,11 +194,10 @@
                     android:layout_marginStart="@dimen/item_padding_end"
                     android:layout_marginEnd="@dimen/item_padding_start"
                     android:enabled="false"
-                    android:padding="@dimen/activity_horizontal_margin"
                     android:text="@string/action_add"
                     android:textColor="@color/filter_add_button_states"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/div2"/>
+                    app:layout_constraintTop_toBottomOf="@id/div2" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_clear_addresses"
@@ -215,14 +207,13 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginStart="@dimen/item_padding_end"
                     android:layout_marginEnd="@dimen/item_padding_start"
-                    android:padding="@dimen/activity_horizontal_margin"
                     android:text="@string/action_clear"
                     android:visibility="gone"
                     app:layout_constraintBaseline_toBaselineOf="@id/action_add_address"
                     app:layout_constraintEnd_toStartOf="@id/action_add_address"
-                    tools:visibility="visible"/>
+                    tools:visibility="visible" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/remove_hint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -232,9 +223,9 @@
                     android:visibility="gone"
                     app:layout_constraintBaseline_toBaselineOf="@id/action_add_address"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:visibility="visible"/>
+                    tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

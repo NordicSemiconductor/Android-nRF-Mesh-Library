@@ -7,10 +7,9 @@
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         app:cardElevation="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,19 +20,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/node_controls_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:logo="@drawable/ic_subscribe_black_alpha_24dp"
+                app:logo="@drawable/ic_subscribe"
                 app:title="@string/title_vendor_model_controls"
                 app:titleMarginStart="@dimen/toolbar_title_margin"
                 app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/item_padding_bottom"
@@ -103,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/item_padding_bottom"
@@ -133,13 +132,13 @@
                 app:layout_constraintStart_toStartOf="@id/parameters_layout"
                 app:layout_constraintTop_toBottomOf="@id/parameters_layout">
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_view1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/received_message"/>
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/received_message"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -172,6 +171,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/div"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

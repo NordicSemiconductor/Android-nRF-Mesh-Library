@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -20,8 +19,7 @@
   ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -40,74 +38,69 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/icon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
-            app:layout_constraintBottom_toBottomOf="@id/element_container"
-            app:layout_constraintEnd_toStartOf="@id/element_container"
+            app:layout_constraintBottom_toBottomOf="@id/element_subtitle"
+            app:layout_constraintEnd_toStartOf="@id/element_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/element_container"
-            app:srcCompat="@drawable/ic_drawing_black_24dp_alpha"
-            tools:ignore="RtlSymmetry"/>
+            app:layout_constraintTop_toTopOf="@id/element_title"
+            app:srcCompat="@drawable/ic_drawing"
+            tools:ignore="RtlSymmetry" />
 
-        <LinearLayout
-            android:id="@+id/element_container"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/element_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Element 0"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="?android:textColorPrimary"
             app:layout_constraintEnd_toStartOf="@id/edit"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="RtlSymmetry">
+            tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/element_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="top"
-                android:singleLine="true"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                tools:text="Element 0"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/element_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="2 Models"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            android:textColor="?android:textColorSecondary"
+            app:layout_constraintEnd_toEndOf="@id/element_title"
+            app:layout_constraintStart_toStartOf="@id/element_title"
+            app:layout_constraintTop_toBottomOf="@id/element_title"
+            tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/element_subtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/textColorSecondary"
-                android:textSize="12sp"
-                tools:text="2 Models"/>
-
-        </LinearLayout>
-
-        <androidx.appcompat.widget.AppCompatImageButton
+        <ImageButton
             android:id="@+id/edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/item_padding_end"
+            android:background="?selectableItemBackground"
             android:padding="@dimen/item_padding_top"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="@id/element_container"
+            app:layout_constraintBottom_toBottomOf="@id/icon"
             app:layout_constraintEnd_toStartOf="@id/element_expand"
-            app:layout_constraintStart_toEndOf="@id/element_container"
-            app:layout_constraintTop_toTopOf="@id/element_container"
-            app:srcCompat="@drawable/ic_edit_black_alpha_24dp"
-            tools:ignore="RtlSymmetry"/>
+            app:layout_constraintStart_toEndOf="@id/element_title"
+            app:layout_constraintTop_toTopOf="@id/element_title"
+            app:srcCompat="@drawable/ic_edit_black"
+            tools:ignore="RtlSymmetry" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <ImageButton
             android:id="@+id/element_expand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:background="?selectableItemBackgroundBorderless"
             android:padding="@dimen/item_padding_top"
-            android:scaleType="fitCenter"
-            app:layout_constraintBottom_toBottomOf="@id/element_container"
+            app:layout_constraintBottom_toBottomOf="@id/icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/edit"
-            app:layout_constraintTop_toTopOf="@id/element_container"
-            app:srcCompat="@drawable/ic_round_expand_more_black_alpha_24dp"
-            tools:ignore="RtlSymmetry"/>
+            app:layout_constraintTop_toTopOf="@id/element_title"
+            app:srcCompat="@drawable/ic_round_expand_more"
+            tools:ignore="RtlSymmetry" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -118,5 +111,5 @@
         android:orientation="vertical"
         android:paddingTop="@dimen/item_padding_top"
         android:visibility="gone"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 </LinearLayout>

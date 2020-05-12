@@ -38,14 +38,15 @@
         android:padding="@dimen/activity_horizontal_margin"
         app:srcCompat="@drawable/ic_location_off"/>
 
-    <TextView
-        style="@style/Widget.InfoWarningTitles"
+    <com.google.android.material.textview.MaterialTextView
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:textColor="?colorSecondary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/location_permission_title"/>
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"

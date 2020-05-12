@@ -49,12 +49,12 @@
             android:paddingStart="@dimen/item_padding_start"
             android:paddingEnd="@dimen/item_padding_end">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/item_padding_top"
                 android:text="@string/title_select_output_oob"
-                android:textColor="@color/black"/>
+                android:textColor="?android:textColorPrimary"/>
 
             <RadioGroup
                 android:id="@+id/radio_group_output_oob"
@@ -111,12 +111,12 @@
             android:paddingStart="@dimen/item_padding_start"
             android:paddingEnd="@dimen/item_padding_end">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/item_padding_top"
                 android:text="@string/title_select_input_oob"
-                android:textColor="@color/black"/>
+                android:textColor="?android:textColorPrimary"/>
 
             <RadioGroup
                 android:id="@+id/radio_group_input_oob"
