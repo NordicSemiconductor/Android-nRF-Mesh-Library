@@ -21,12 +21,10 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
@@ -75,8 +73,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     // Butter Knife
-    implementation 'com.jakewharton:butterknife:10.2.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
+    implementation 'com.jakewharton:butterknife:10.2.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     // Android BLE Library
@@ -88,9 +86,6 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
     implementation project(':meshprovisioner')
-    implementation "androidx.core:core-ktx:+"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
     mavenCentral()
