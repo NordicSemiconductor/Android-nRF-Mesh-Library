@@ -29,26 +29,25 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/activity_horizontal_margin">
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textColor="@color/black"
+        android:textSize="16sp"
         android:text="@string/supported_input_oob_actions_title"
         app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlSymmetry" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:textSize="12sp"
         app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        tools:ignore="RtlSymmetry" />
+        app:layout_constraintTop_toBottomOf="@id/title"/>
 
     <ImageView
         android:id="@+id/image"
@@ -57,7 +56,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"
-        app:srcCompat="@drawable/ic_arrow_downward"
+        app:srcCompat="@drawable/ic_arrow_downward_black_alpha_24dp"
         tools:ignore="VectorDrawableCompat"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

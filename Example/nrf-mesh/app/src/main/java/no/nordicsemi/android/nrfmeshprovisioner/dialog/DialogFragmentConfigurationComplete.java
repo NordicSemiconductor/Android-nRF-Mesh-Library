@@ -53,7 +53,7 @@ public class DialogFragmentConfigurationComplete extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireContext());
-        alertDialogBuilder.setIcon(R.drawable.ic_done_all_black);
+        alertDialogBuilder.setIcon(R.drawable.ic_done_all_black_alpha_24dp);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> (
                 (ConfigurationCompleteListener)requireActivity()).onConfigurationCompleted());
 

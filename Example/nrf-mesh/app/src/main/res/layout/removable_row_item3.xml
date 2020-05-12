@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -20,14 +21,12 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/nordicRed"
-    android:foreground="?selectableItemBackground"
-    tools:ignore="ContentDescription">
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:background="@color/nordicRed"
+             tools:ignore="ContentDescription">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon_delete"
@@ -36,13 +35,13 @@
         android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        app:srcCompat="@drawable/ic_delete_white" />
+        app:srcCompat="@drawable/ic_delete_white"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/removable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?colorSurface"
+        android:background="@color/white"
         android:orientation="horizontal"
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/item_padding_top"
@@ -58,9 +57,9 @@
             app:layout_constraintBottom_toBottomOf="@id/subtitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/title"
-            app:srcCompat="@drawable/ic_vpn_key_24dp" />
+            app:srcCompat="@drawable/ic_vpn_key_black_alpha_24dp"/>
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,22 +68,24 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="Living Room Key"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="@color/black"
+            android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
             android:text="00112233445566778899001122334455"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            android:textColor="@color/textColorSecondary"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/title"
             app:layout_constraintTop_toBottomOf="@id/title"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/check"
@@ -93,6 +94,6 @@
             app:layout_constraintBottom_toBottomOf="@id/subtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/title"
-            app:srcCompat="@drawable/ic_done_all_black" />
+            app:srcCompat="@drawable/ic_done_all_black_alpha_24dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

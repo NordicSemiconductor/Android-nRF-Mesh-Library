@@ -121,7 +121,7 @@ public class DialogFragmentEditNetKey extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_network_key, null)
-                .setIcon(R.drawable.ic_vpn_key_24dp)
+                .setIcon(R.drawable.ic_vpn_key_black_alpha_24dp)
                 .setTitle(R.string.title_edit_key);
         final AlertDialog alertDialog = alertDialogBuilder.show();
 

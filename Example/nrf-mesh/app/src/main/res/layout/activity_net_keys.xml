@@ -42,10 +42,11 @@
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <com.google.android.material.appbar.MaterialToolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -61,11 +62,12 @@
                 android:orientation="vertical"
                 android:paddingBottom="@dimen/activity_vertical_margin">
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/primary_net_key_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -74,11 +76,11 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <com.google.android.material.appbar.MaterialToolbar
+                        <androidx.appcompat.widget.Toolbar
                             android:id="@+id/primary_net_key_toolbar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_shield_key"
+                            app:logo="@drawable/ic_shield_key_black_alpha_24dp"
                             app:title="@string/title_primary_net_key"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
@@ -89,13 +91,14 @@
                             android:layout_height="wrap_content"/>
 
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/sub_net_key_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/item_padding_bottom"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <androidx.core.widget.NestedScrollView
@@ -114,14 +117,14 @@
                             android:orientation="vertical"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
-                            <com.google.android.material.appbar.MaterialToolbar
+                            <androidx.appcompat.widget.Toolbar
                                 android:id="@+id/sub_net_key_toolbar"
                                 android:layout_width="match_parent"
                                 android:layout_height="?actionBarSize"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:logo="@drawable/ic_folder_key_24dp"
+                                app:logo="@drawable/ic_folder_key_black_24dp_alpha"
                                 app:title="@string/title_sub_net_keys"
                                 app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
@@ -144,7 +147,7 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/recycler_view_keys"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/delete_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -158,7 +161,7 @@
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </androidx.core.widget.NestedScrollView>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

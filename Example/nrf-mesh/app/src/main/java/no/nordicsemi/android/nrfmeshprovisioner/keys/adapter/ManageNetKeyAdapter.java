@@ -26,10 +26,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
-
-import com.google.android.material.elevation.ElevationOverlayProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,8 +106,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
-        FrameLayout container;
+
         @BindView(R.id.title)
         TextView netKeyName;
         @BindView(R.id.subtitle)
@@ -119,10 +115,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
-            final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
-            getSwipeableView().setBackgroundColor(color);
-            container.setOnClickListener(v -> {
+            view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final NetworkKey key = networkKeys.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(getAdapterPosition(), key);

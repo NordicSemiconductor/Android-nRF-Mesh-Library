@@ -212,7 +212,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
-                .setIcon(R.drawable.ic_subscribe)
+                .setIcon(R.drawable.ic_subscribe_black_alpha_24dp)
                 .setTitle(R.string.title_subscribe_group)
                 .setView(rootView)
                 .setPositiveButton(R.string.ok, null)

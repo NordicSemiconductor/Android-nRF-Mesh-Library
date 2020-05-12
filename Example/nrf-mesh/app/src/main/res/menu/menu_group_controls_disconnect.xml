@@ -28,7 +28,7 @@
         android:id="@+id/action_edit"
         android:enabled="true"
         android:title="@string/action_edit"
-        android:icon="@drawable/ic_edit_white"
+        android:icon="@drawable/ic_edit_white_24dp"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>
     <item

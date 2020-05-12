@@ -27,8 +27,9 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="AppTheme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowBackground">@color/background</item>
+
         <!-- Primary colors map to components and elements, like app bars and buttons -->
         <!-- Secondary colors are most often used as accents on components, such as FABS and selection controls -->
         <!-- Color variants can be used to complement and provide accessible options for your primary and secondary colors. -->
@@ -39,16 +40,23 @@
 
         <!-- Primary colors -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorPrimaryDark">@color/statusBarColor</item>
+        <item name="colorOnPrimary">@color/white</item>
 
+        <!-- Primary  variant colors -->
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
         <!-- Error views -->
         <item name="colorError">@color/nordicRed</item>
         <item name="colorOnError">@color/white</item>
 
         <!-- Primary text color i.e. titles of lists etc -->
-        <!--<item name="android:textColorPrimary">@color/textColorPrimary</item>-->
+        <item name="android:textColorPrimary">@color/black</item>
         <!-- Secondary text color i.e. descriptions and subtitles of lists etc -->
         <item name="android:textColorSecondary">@color/textColorSecondary</item>
 
@@ -58,25 +66,32 @@
         <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox
         </item>
 
-        <!--<item name="alertDialogTheme">@style/CustomDialogTheme</item>-->
+        <item name="alertDialogTheme">@style/CustomDialogTheme</item>
 
         <item name="bottomSheetDialogTheme">@style/CustomBottomSheetDialog</item>
+
+        <!--<item name="alertDialogTheme">@style/CustomDialogTheme</item>-->
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
 
     <style name="AppTheme.SplashScreen">
         <item name="colorPrimaryDark">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
-    <style name="Widget" />
+    <style name="Widget"/>
 
     <style name="Widget.InfoWarningTitles">
         <item name="android:textColor">?android:textColorSecondary</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.GroupTitle">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="BlueTextButton" parent="Widget.MaterialComponents.Button.TextButton">
@@ -87,18 +102,16 @@
         <item name="android:textColor">@drawable/red_button_states</item>
     </style>
 
-    <style name="CustomBottomSheetDialog" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <!-- All buttons should not have border, except specified otherwise -->
-        <item name="materialButtonStyle">@style/BlueTextButton</item>
-        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox
-        </item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="CustomDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
+    <style name="CustomDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorSecondary">@color/colorAccent</item>
     </style>
 
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">

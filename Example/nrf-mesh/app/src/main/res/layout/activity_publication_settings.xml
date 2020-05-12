@@ -20,10 +20,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.appbar.MaterialToolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -46,11 +47,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/publish_address_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -59,11 +61,11 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <com.google.android.material.appbar.MaterialToolbar
+                        <androidx.appcompat.widget.Toolbar
                             android:id="@+id/publish_address_tool_bar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_publish"
+                            app:logo="@drawable/ic_publish_black_alpha_24dp"
                             app:title="@string/title_address"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
                             app:titleTextAppearance="@style/Toolbar.TitleText"/>
@@ -80,20 +82,20 @@
                             android:paddingTop="@dimen/item_padding_top"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/publish_address_title"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="@dimen/activity_horizontal_margin"
                                 android:text="@string/title_publish_address"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/image_pub_address"
                                 app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="RtlSymmetry"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/publish_address"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -112,18 +114,19 @@
                                 app:layout_constraintBottom_toBottomOf="@+id/publish_address"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@+id/publish_address_title"
-                                app:srcCompat="@drawable/ic_lan_24dp"
+                                app:srcCompat="@drawable/ic_lan_black_alpha_24dp"
                                 tools:ignore="ContentDescription"/>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/security_credentials_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -132,11 +135,11 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <com.google.android.material.appbar.MaterialToolbar
+                        <androidx.appcompat.widget.Toolbar
                             android:id="@+id/security_credentials_toolbar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_security"
+                            app:logo="@drawable/ic_security_black_24dp_alpha"
                             app:title="@string/title_security_credentials"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
                             app:titleTextAppearance="@style/Toolbar.TitleText"/>
@@ -153,20 +156,20 @@
                             android:paddingTop="@dimen/item_padding_top"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/title_appkey_index"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="@dimen/activity_horizontal_margin"
                                 android:text="@string/title_key"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_app_key"
                                 app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="RtlSymmetry"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/app_key"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -185,7 +188,7 @@
                                 app:layout_constraintBottom_toBottomOf="@id/app_key"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@id/title_appkey_index"
-                                app:srcCompat="@drawable/ic_vpn_key_24dp"
+                                app:srcCompat="@drawable/ic_vpn_key_black_alpha_24dp"
                                 tools:ignore="ContentDescription"/>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -196,7 +199,7 @@
                             android:layout_height="wrap_content"
                             android:padding="@dimen/activity_horizontal_margin">
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/title_friendship_credential_flag"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -205,7 +208,7 @@
                                 android:paddingEnd="@dimen/activity_horizontal_margin"
                                 android:paddingBottom="@dimen/item_padding_bottom"
                                 android:text="@string/title_friendship_credentials_flag"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_friendship_credentials"
@@ -229,18 +232,19 @@
                                 app:layout_constraintBottom_toBottomOf="@id/title_friendship_credential_flag"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@id/title_friendship_credential_flag"
-                                app:srcCompat="@drawable/ic_account_key"
+                                app:srcCompat="@drawable/ic_account_key_black_alpha_24dp"
                                 tools:ignore="ContentDescription"/>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/ttl_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -249,7 +253,7 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <com.google.android.material.appbar.MaterialToolbar
+                        <androidx.appcompat.widget.Toolbar
                             android:id="@+id/ttl_tool_bar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
@@ -280,20 +284,20 @@
                                 app:srcCompat="@drawable/ic_timer"
                                 tools:ignore="ContentDescription"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/title_ttl"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="@dimen/activity_horizontal_margin"
                                 android:text="@string/title_publish_ttl"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_ttl"
                                 app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="RtlSymmetry"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/publication_ttl"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -307,13 +311,14 @@
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/publish_period_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -322,11 +327,11 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <com.google.android.material.appbar.MaterialToolbar
+                        <androidx.appcompat.widget.Toolbar
                             android:id="@+id/publish_period_toolbar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_linear_scale"
+                            app:logo="@drawable/ic_linear_scale_black_alpha_24dp"
                             app:title="@string/title_publish_period"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
                             app:titleTextAppearance="@style/Toolbar.TitleText"/>
@@ -349,19 +354,19 @@
                                 app:srcCompat="@drawable/ic_index"
                                 tools:ignore="ContentDescription"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/pub_interval_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                                 android:text="@string/interval"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintStart_toEndOf="@id/image_publication"
                                 app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="RtlSymmetry"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/pub_interval"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -385,13 +390,14 @@
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
 
-                <com.google.android.material.card.MaterialCardView
+                <androidx.cardview.widget.CardView
                     android:id="@+id/retransmission_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -400,11 +406,11 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <com.google.android.material.appbar.MaterialToolbar
+                        <androidx.appcompat.widget.Toolbar
                             android:id="@+id/retransmission_tool_bar"
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_repeat"
+                            app:logo="@drawable/ic_repeat_black_24dp"
                             app:title="@string/title_retransmission"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
                             app:titleTextAppearance="@style/Toolbar.TitleText"/>
@@ -417,19 +423,19 @@
                             android:paddingTop="@dimen/item_padding_top"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/retransmission_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                                 android:text="@string/title_retransmit_count"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintStart_toEndOf="@id/image_retransmission"
                                 app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="RtlSymmetry"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/retransmit_count"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -478,19 +484,19 @@
                                 app:srcCompat="@drawable/ic_index"
                                 tools:ignore="ContentDescription"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/interval_steps_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                                 android:text="@string/interval"
-                                android:textColor="?android:textColorPrimary"
+                                android:textColor="@color/black"
                                 android:textSize="16sp"
                                 app:layout_constraintStart_toEndOf="@id/image_interval_steps"
                                 app:layout_constraintTop_toTopOf="parent"
                                 tools:ignore="RtlSymmetry"/>
 
-                            <com.google.android.material.textview.MaterialTextView
+                            <TextView
                                 android:id="@+id/retransmit_interval"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -515,7 +521,7 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -527,5 +533,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/activity_vertical_margin"
         android:text="@string/action_apply"
-        app:icon="@drawable/ic_done_all_white"/>
+        app:icon="@drawable/ic_done_all_white_24dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

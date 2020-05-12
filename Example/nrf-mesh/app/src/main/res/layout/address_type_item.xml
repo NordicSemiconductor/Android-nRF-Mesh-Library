@@ -21,7 +21,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<com.google.android.material.textview.MaterialTextView
+<TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -31,7 +31,8 @@
     android:ellipsize="end"
     android:singleLine="true"
     android:text="Unassigned Address"
-    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+    android:textColor="@color/black"
+    android:textSize="16sp"
     android:padding="@dimen/activity_vertical_margin"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"

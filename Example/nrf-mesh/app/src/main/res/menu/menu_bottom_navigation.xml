@@ -35,7 +35,7 @@
     <item
         android:id="@+id/action_groups"
         android:enabled="true"
-        android:icon="@drawable/ic_outline_group"
+        android:icon="@drawable/ic_outline_group_work_black_24dp"
         android:title="@string/action_groups"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>
@@ -51,7 +51,7 @@
     <item
         android:id="@+id/action_settings"
         android:enabled="true"
-        android:icon="@drawable/ic_settings"
+        android:icon="@drawable/ic_settings_black"
         android:title="@string/action_settings"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction"/>

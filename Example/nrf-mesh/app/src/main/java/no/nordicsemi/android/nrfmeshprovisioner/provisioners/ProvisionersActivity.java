@@ -43,6 +43,7 @@ import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -97,7 +98,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
 
         final View containerProvisioner = findViewById(R.id.container_current_provisioner);
         containerProvisioner.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_account_key));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_account_key_black_alpha_24dp));
         final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
         final TextView provisionerView = containerProvisioner.findViewById(R.id.text);
         provisionerView.setVisibility(View.VISIBLE);
@@ -213,7 +214,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
                         network.addProvisioner(provisioner);
                     }
                 })
-                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 }

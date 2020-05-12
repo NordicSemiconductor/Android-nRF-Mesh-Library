@@ -28,10 +28,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +38,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.ApplicationKey;
@@ -95,18 +96,18 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_add_app_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
 
         final View containerKey = findViewById(R.id.container_key);
         containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_app_key);
         keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
 
         final View containerKeyName = findViewById(R.id.container_key_name);
         containerKeyName.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_black_alpha_24dp));
         ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
         nameView = containerKeyName.findViewById(R.id.text);
         nameView.setVisibility(View.VISIBLE);

@@ -35,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -71,14 +72,14 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
 
         final View containerKey = findViewById(R.id.container_key);
         containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_black_alpha_24dp));
         ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_net_key);
         final TextView keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
 
         final View containerKeyName = findViewById(R.id.container_key_name);
         containerKeyName.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_black_alpha_24dp));
         ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
         final TextView name = containerKeyName.findViewById(R.id.text);
         name.setVisibility(View.VISIBLE);

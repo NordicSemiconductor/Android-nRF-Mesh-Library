@@ -153,7 +153,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
                     }
                 })
                 .setNegativeButton(R.string.cancel, null)
-                .setIcon(R.drawable.ic_lan_24dp)
+                .setIcon(R.drawable.ic_lan_black_alpha_24dp)
                 .setTitle(R.string.title_add_address).create();
     }
 

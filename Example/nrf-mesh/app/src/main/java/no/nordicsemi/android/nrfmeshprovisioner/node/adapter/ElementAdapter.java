@@ -56,7 +56,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     private ProvisionedMeshNode mProvisionedMeshNode;
 
     public ElementAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.mContext = context;
+        this.mContext = context.getApplicationContext();
         meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
             if (meshNode != null) {
                 mProvisionedMeshNode = meshNode;
@@ -105,6 +105,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             } else {
                 modelIdView.setText(mContext.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
             }
+
             modelView.setOnClickListener(v -> {
                 final int position = holder.getAdapterPosition();
                 final Element element = mElements.get(position);
@@ -161,10 +162,10 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         public void onClick(final View v) {
             if (v.getId() == R.id.element_expand) {
                 if (mModelContainer.getVisibility() == View.VISIBLE) {
-                    mElementExpand.setImageResource(R.drawable.ic_round_expand_more);
+                    mElementExpand.setImageResource(R.drawable.ic_round_expand_more_black_alpha_24dp);
                     mModelContainer.setVisibility(View.GONE);
                 } else {
-                    mElementExpand.setImageResource(R.drawable.ic_round_expand_less);
+                    mElementExpand.setImageResource(R.drawable.ic_round_expand_less_black_alpha_24dp);
                     mModelContainer.setVisibility(View.VISIBLE);
                 }
             } else if (v.getId() == R.id.edit) {

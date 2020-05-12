@@ -107,7 +107,7 @@ public class DialogFragmentKeyName extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_edit_key_name);
         summary.setText(R.string.key_name_rationale);
 

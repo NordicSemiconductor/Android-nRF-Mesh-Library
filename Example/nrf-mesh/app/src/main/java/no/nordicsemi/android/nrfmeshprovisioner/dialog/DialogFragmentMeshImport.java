@@ -24,14 +24,14 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 @SuppressWarnings("ConstantConditions")
 public class DialogFragmentMeshImport extends DialogFragmentMessage {
-    private int resId = R.drawable.ic_info_outline;
+    private int resId = R.drawable.ic_info_outline_black_alpha;
 
     public interface DialogFragmentNetworkImportListener {
         void onNetworkImportConfirmed();

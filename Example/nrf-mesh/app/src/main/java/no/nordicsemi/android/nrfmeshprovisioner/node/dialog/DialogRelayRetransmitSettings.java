@@ -1,18 +1,18 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.utils.RelaySettings;
@@ -131,7 +131,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
                                 .onRelayRetransmitSet(mRelay, mTransmitCount, mTransmitIntervalSteps);
                     }
                 }).setNegativeButton(R.string.cancel, null)
-                .setIcon(R.drawable.ic_repeat)
+                .setIcon(R.drawable.ic_repeat_black_24dp)
                 .setTitle(R.string.title_relay_retransmit).create();
     }
 

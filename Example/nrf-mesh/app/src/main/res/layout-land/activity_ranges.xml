@@ -43,10 +43,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.appbar.MaterialToolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
+                android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -109,7 +110,7 @@
         android:text="@string/action_resolve"
         app:backgroundTint="@color/nordicRed"
         app:fabSize="normal"
-        app:icon="@drawable/ic_check"
+        app:icon="@drawable/ic_check_white_24dp"
         app:layout_anchor="@id/fab_add"
         app:layout_anchorGravity="start"/>
 

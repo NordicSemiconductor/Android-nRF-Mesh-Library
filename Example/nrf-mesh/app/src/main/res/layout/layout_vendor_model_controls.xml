@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin">
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         app:cardElevation="1dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,19 +24,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.appbar.MaterialToolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/node_controls_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:logo="@drawable/ic_subscribe"
+                app:logo="@drawable/ic_subscribe_black_alpha_24dp"
                 app:title="@string/title_vendor_model_controls"
                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                app:titleTextAppearance="@style/Toolbar.TitleText" />
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -41,7 +44,7 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:text="@string/message_type"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar" />
+                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar"/>
 
             <CheckBox
                 android:id="@+id/chk_acknowledged"
@@ -50,20 +53,28 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 app:layout_constraintBottom_toBottomOf="@id/text_view"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/text_view" />
+                app:layout_constraintTop_toTopOf="@id/text_view"/>
+
+            <TextView
+                android:id="@+id/prefix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:text="@string/enforce_vendor_op_code"
+                android:textSize="16sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/op_code_layout"
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/op_code_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/item_padding_start"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/text_view"
-                app:prefixText="@string/enforce_vendor_op_code">
+                app:layout_constraintStart_toEndOf="@id/prefix"
+                app:layout_constraintTop_toBottomOf="@id/text_view">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/op_code"
@@ -71,23 +82,32 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/opcode"
                     android:inputType="text|textCapCharacters"
-                    android:lines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@id/prefix1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="8dp"
+                android:text="0x"
+                android:textSize="16sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/parameters_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="HardcodedText"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/parameters_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/item_padding_start"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/op_code_layout"
-                app:prefixText="0x">
+                app:layout_constraintStart_toEndOf="@id/prefix1"
+                app:layout_constraintTop_toBottomOf="@id/op_code_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/parameters"
@@ -95,34 +115,34 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/parameters"
                     android:inputType="text|textCapCharacters"
-                    android:lines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:id="@+id/received_message_container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:orientation="horizontal"
+                android:paddingTop="@dimen/item_padding_top"
+                android:paddingBottom="@dimen/item_padding_bottom"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@id/parameters_layout"
                 app:layout_constraintStart_toStartOf="@id/parameters_layout"
                 app:layout_constraintTop_toBottomOf="@id/parameters_layout">
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/text_view1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/received_message" />
+                    android:text="@string/received_message"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/received_message"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="end"
-                    android:text="@string/none" />
+                    android:text="@string/none"/>
 
             </LinearLayout>
 
@@ -134,7 +154,7 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/received_message_container" />
+                app:layout_constraintTop_toBottomOf="@id/received_message_container"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_send"
@@ -147,8 +167,8 @@
                 android:text="@string/action_send"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/div" />
+                app:layout_constraintTop_toBottomOf="@id/div"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.cardview.widget.CardView>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,6 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -197,7 +198,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     private void displaySnackBar(final Group group) {
         final String message = getString(R.string.group_deleted, group.getName());
         Snackbar.make(container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .setAction(R.string.undo, v -> {
                     mEmptyView.setVisibility(View.INVISIBLE);
                     final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();

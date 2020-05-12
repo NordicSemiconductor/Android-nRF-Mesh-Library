@@ -24,9 +24,9 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentResetNetwork extends DialogFragmentMessage {
@@ -53,7 +53,7 @@ public class DialogFragmentResetNetwork extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_lan_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_lan_black_alpha_24dp);
         alertDialogBuilder.setNegativeButton(getString(R.string.no), null);
         alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> {
             if(getParentFragment() != null)

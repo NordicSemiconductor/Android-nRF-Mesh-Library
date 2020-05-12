@@ -27,9 +27,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentPermissionRationale extends DialogFragmentMessage {
@@ -64,7 +64,7 @@ public class DialogFragmentPermissionRationale extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_info_outline);
+        alertDialogBuilder.setIcon(R.drawable.ic_info_outline_black_alpha);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((StoragePermissionListener)getParentFragment()).requestPermission());
         if(isDeniedForever){
             message = message + getString(R.string.permission_rationale_settings);

@@ -66,7 +66,7 @@ public class DialogFragmentDeleteNode extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_delete);
+        alertDialogBuilder.setIcon(R.drawable.ic_delete_black_alpha_24dp);
         alertDialogBuilder.setNegativeButton(getString(R.string.no), (dialog, which) ->
                 ((DialogFragmentDeleteNodeListener) requireParentFragment()).onNodeDeleteCancelled(position));
         alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) ->

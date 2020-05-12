@@ -24,15 +24,15 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+
 import no.nordicsemi.android.meshprovisioner.transport.ConfigProxySet;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentProxySet extends DialogFragmentMessage {
 
-    private static final String SET_PROXY_STATE = "SET_PROXY_STATE";
+    protected static final String SET_PROXY_STATE = "SET_PROXY_STATE";
     private boolean mState = true; //Let's set true by default so that we don't break anyone's node
 
     public interface DialogFragmentProxySetListener {
@@ -61,7 +61,7 @@ public class DialogFragmentProxySet extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_reset);
+        alertDialogBuilder.setIcon(R.drawable.ic_reset_black_24dp_alpha);
         alertDialogBuilder.setCancelable(true);
         alertDialogBuilder.setNegativeButton(getString(R.string.no), null);
         alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> (

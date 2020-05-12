@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -20,33 +21,33 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/activity_horizontal_margin">
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/activity_horizontal_margin"
+        android:textColor="@color/black"
+        android:textSize="16sp"
         android:text="@string/output_oob_size_title"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlSymmetry" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:textSize="12sp"
         app:layout_constraintLeft_toRightOf="@id/image"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        tools:ignore="RtlSymmetry" />
+        app:layout_constraintTop_toBottomOf="@id/title"/>
 
     <ImageView
         android:id="@+id/image"
@@ -55,7 +56,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"
-        app:srcCompat="@drawable/ic_space_bar"
-        tools:ignore="VectorDrawableCompat" />
+        app:srcCompat="@drawable/ic_space_bar_black_alpha_24dp"
+        tools:ignore="VectorDrawableCompat"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,13 +31,13 @@
     android:paddingEnd="@dimen/alert_dialog_padding_right"
     android:paddingBottom="@dimen/alert_dialog_padding_bottom">
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/summary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:text="@string/dialog_summary_retransmit_count"
-        android:textColor="?android:textColorPrimary"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

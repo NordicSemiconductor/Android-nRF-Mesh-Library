@@ -224,7 +224,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
-                setIcon(R.drawable.ic_lan_24dp).
+                setIcon(R.drawable.ic_lan_black_alpha_24dp).
                 setTitle(R.string.title_publish_address).
                 setView(rootView).
                 setPositiveButton(R.string.ok, null).

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -20,12 +21,14 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/divider"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:padding="@dimen/activity_horizontal_margin"
     app:elevation="6dp">
 
@@ -39,23 +42,23 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible">
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/start_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0x0001"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/end_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0x7FFF"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"/>
 
         <no.nordicsemi.android.nrfmeshprovisioner.widgets.RangeView
             android:id="@+id/range"
@@ -63,7 +66,7 @@
             android:layout_height="18dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/start_address" />
+            app:layout_constraintTop_toBottomOf="@id/start_address"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -88,9 +91,9 @@
                 android:src="@drawable/ic_range_nordic_light_gray"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+                tools:ignore="ContentDescription"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -99,7 +102,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/img1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/img1"
-                app:layout_constraintTop_toTopOf="@id/img1" />
+                app:layout_constraintTop_toTopOf="@id/img1"/>
 
             <ImageView
                 android:id="@+id/img2"
@@ -109,9 +112,9 @@
                 android:src="@drawable/ic_range_nordic_lake"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/img1"
-                tools:ignore="ContentDescription" />
+                tools:ignore="ContentDescription"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -120,7 +123,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/img2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/img2"
-                app:layout_constraintTop_toTopOf="@id/img2" />
+                app:layout_constraintTop_toTopOf="@id/img2"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
@@ -147,9 +150,9 @@
                 android:src="@drawable/ic_range_nordic_medium_gray"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+                tools:ignore="ContentDescription"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -158,7 +161,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/img3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/img3"
-                app:layout_constraintTop_toTopOf="@id/img3" />
+                app:layout_constraintTop_toTopOf="@id/img3"/>
 
             <ImageView
                 android:id="@+id/img4"
@@ -168,9 +171,9 @@
                 android:src="@drawable/ic_range_nordic_red"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/img3"
-                tools:ignore="ContentDescription" />
+                tools:ignore="ContentDescription"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -179,7 +182,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/img4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/img4"
-                app:layout_constraintTop_toTopOf="@id/img4" />
+                app:layout_constraintTop_toTopOf="@id/img4"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>

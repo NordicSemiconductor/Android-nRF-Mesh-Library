@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -19,10 +20,10 @@
   ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/nordicRed"
@@ -35,18 +36,21 @@
         android:layout_gravity="center_vertical"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        app:srcCompat="@drawable/ic_delete_white" />
+        app:srcCompat="@drawable/ic_delete_white"/>
 
     <FrameLayout
-        android:id="@+id/removable"
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?colorSurface">
+        android:foreground="?selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/removable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?selectableItemBackground"
+            android:background="@color/white"
             android:padding="@dimen/activity_horizontal_margin">
 
             <ImageView
@@ -57,43 +61,42 @@
                 app:layout_constraintBottom_toBottomOf="@+id/group_device_count"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/group_name"
-                app:srcCompat="@drawable/ic_outline_group_white_48dp"
-                tools:ignore="ContentDescription,VectorDrawableCompat" />
+                app:srcCompat="@drawable/ic_outline_group_work_white_48dp"
+                tools:ignore="ContentDescription,VectorDrawableCompat"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/group_name"
+                style="@style/Widget.GroupTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/activity_horizontal_margin"
                 android:text="Living Room"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 app:layout_constraintStart_toEndOf="@id/image"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="HardcodedText,RtlSymmetry"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/group_address"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/activity_horizontal_margin"
                 android:text="Address: 0xC000"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textColor="@color/textColorSecondary"
+                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@id/group_name"
                 app:layout_constraintTop_toBottomOf="@id/group_name"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="HardcodedText,RtlSymmetry"/>
 
-            <com.google.android.material.textview.MaterialTextView
+            <TextView
                 android:id="@+id/group_device_count"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/activity_horizontal_margin"
                 android:text="4 Devices"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textColor="@color/textColorSecondary"
+                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@id/group_address"
                 app:layout_constraintTop_toBottomOf="@id/group_address"
-                tools:ignore="HardcodedText,RtlSymmetry" />
+                tools:ignore="HardcodedText,RtlSymmetry"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 </FrameLayout>

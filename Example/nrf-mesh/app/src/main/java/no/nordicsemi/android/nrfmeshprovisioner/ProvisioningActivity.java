@@ -45,6 +45,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -133,7 +134,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
 
         final View containerName = findViewById(R.id.container_name);
         containerName.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline));
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline_black_alpha_24dp));
         final TextView nameTitle = containerName.findViewById(R.id.title);
         nameTitle.setText(R.string.summary_name);
         final TextView nameView = containerName.findViewById(R.id.text);
@@ -145,7 +146,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
 
         final View containerUnicastAddress = findViewById(R.id.container_unicast);
         containerUnicastAddress.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_24dp));
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
         final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
         unicastAddressTitle.setText(R.string.title_unicast_address);
         final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
@@ -163,7 +164,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
 
         final View containerAppKey = findViewById(R.id.container_app_keys);
         containerAppKey.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView appKeyTitle = containerAppKey.findViewById(R.id.title);
         appKeyTitle.setText(R.string.title_app_keys);
         final TextView appKeyView = containerAppKey.findViewById(R.id.text);
@@ -364,7 +365,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                     switch (state) {
                         case PROVISIONING_FAILED:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_PROVISIONING_FAILED) == null) {
-                                final String statusMessage = ProvisioningFailedState.parseProvisioningFailure(this, provisionerProgress.getStatusReceived());
+                                final String statusMessage = ProvisioningFailedState.parseProvisioningFailure(getApplicationContext(), provisionerProgress.getStatusReceived());
                                 DialogFragmentProvisioningFailedError message = DialogFragmentProvisioningFailedError.newInstance(getString(R.string.title_error_provisioning_failed), statusMessage);
                                 message.show(getSupportFragmentManager(), DIALOG_FRAGMENT_PROVISIONING_FAILED);
                             }

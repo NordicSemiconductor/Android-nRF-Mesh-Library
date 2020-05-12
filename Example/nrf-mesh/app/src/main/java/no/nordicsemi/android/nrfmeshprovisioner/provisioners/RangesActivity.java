@@ -43,6 +43,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -364,7 +365,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                     updateEmptyView();
                     updateResolveFab();
                 })
-                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
                 .show();
     }
 

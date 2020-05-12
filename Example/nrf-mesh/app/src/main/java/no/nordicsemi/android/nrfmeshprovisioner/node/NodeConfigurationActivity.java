@@ -40,6 +40,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -163,7 +164,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         final View containerNodeName = findViewById(R.id.container_node_name);
         containerNodeName.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_black_alpha_24dp));
         final TextView nodeNameTitle = containerNodeName.findViewById(R.id.title);
         nodeNameTitle.setText(R.string.title_node_name);
         final TextView nodeNameView = containerNodeName.findViewById(R.id.text);
@@ -189,7 +190,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         final View containerNetKey = findViewById(R.id.container_net_keys);
         containerNetKey.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         final TextView keyTitle = containerNetKey.findViewById(R.id.title);
         keyTitle.setText(R.string.title_net_keys);
         final TextView netKeySummary = containerNetKey.findViewById(R.id.text);
@@ -201,7 +202,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
         final View containerAppKey = findViewById(R.id.container_app_keys);
         containerAppKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
         ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
         final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);

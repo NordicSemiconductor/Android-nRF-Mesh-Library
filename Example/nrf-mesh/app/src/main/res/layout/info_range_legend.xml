@@ -28,6 +28,7 @@
     android:id="@+id/divider"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:padding="@dimen/activity_horizontal_margin"
     app:elevation="6dp">
 
@@ -41,7 +42,7 @@
         android:visibility="gone"
         tools:visibility="visible">
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/start_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,7 +51,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:id="@+id/end_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,7 +80,7 @@
         app:layout_constraintTop_toBottomOf="@id/container"
         tools:ignore="ContentDescription"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -100,7 +101,7 @@
         app:layout_constraintTop_toBottomOf="@id/img1"
         tools:ignore="ContentDescription"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -121,7 +122,7 @@
         app:layout_constraintTop_toBottomOf="@id/img2"
         tools:ignore="ContentDescription"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -142,7 +143,7 @@
         app:layout_constraintTop_toBottomOf="@id/img3"
         tools:ignore="ContentDescription"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"

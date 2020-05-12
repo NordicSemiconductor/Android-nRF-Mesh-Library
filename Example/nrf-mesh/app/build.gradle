@@ -21,8 +21,6 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 29
@@ -88,10 +86,4 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
     implementation project(':meshprovisioner')
-    implementation "androidx.core:core-ktx:+"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
 }

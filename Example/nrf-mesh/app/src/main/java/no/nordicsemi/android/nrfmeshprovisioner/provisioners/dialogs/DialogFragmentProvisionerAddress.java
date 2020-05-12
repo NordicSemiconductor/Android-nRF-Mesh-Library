@@ -120,7 +120,7 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
                 .setView(rootView)
-                .setIcon(R.drawable.ic_lan_24dp)
+                .setIcon(R.drawable.ic_lan_black_alpha_24dp)
                 .setTitle(R.string.title_provisioner_address)
                 .setPositiveButton(R.string.ok, null)
                 .setNeutralButton(R.string.action_unassign, null)

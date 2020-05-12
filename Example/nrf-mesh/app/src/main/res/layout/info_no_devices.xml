@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,13 +22,13 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:paddingStart="@dimen/activity_horizontal_margin"
     android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:paddingStart="@dimen/activity_horizontal_margin"
     tools:ignore="ContentDescription">
 
     <ImageView
@@ -35,42 +36,39 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:padding="@dimen/activity_horizontal_margin"
-        app:srcCompat="@drawable/ic_bluetooth_searching" />
+        app:srcCompat="@drawable/ic_bluetooth_searching_black_alpha"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         style="@style/Widget.InfoWarningTitles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/unprovisioned_node_guide_title"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-        android:textColor="?colorSecondary" />
+        android:text="@string/unprovisioned_node_guide_title"/>
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="@string/unprovisioned_node_guide_info" />
+        android:text="@string/unprovisioned_node_guide_info"/>
 
     <LinearLayout
         android:id="@+id/no_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="invisible"
-        tools:visibility="visible">
+        android:visibility="invisible">
 
-        <com.google.android.material.textview.MaterialTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="@string/unprovisioned_node_guide_location_info" />
+            android:text="@string/unprovisioned_node_guide_location_info"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/action_enable_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/unprovisioned_node_guide_location_action" />
+            android:text="@string/unprovisioned_node_guide_location_action"/>
     </LinearLayout>
 </LinearLayout>

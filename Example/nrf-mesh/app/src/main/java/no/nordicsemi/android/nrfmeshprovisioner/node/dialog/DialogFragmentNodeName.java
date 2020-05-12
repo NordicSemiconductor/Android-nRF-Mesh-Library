@@ -106,7 +106,7 @@ public class DialogFragmentNodeName extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_label);
+        alertDialogBuilder.setIcon(R.drawable.ic_label_black_alpha_24dp);
         alertDialogBuilder.setTitle(R.string.title_node_name);
         summary.setText(R.string.node_name_rationale);
 

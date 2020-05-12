@@ -169,7 +169,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.container).setOnClickListener(v -> {
+            view.findViewById(R.id.removable).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(getAdapterPosition(), mRanges.get(getAdapterPosition()));
                 }

@@ -73,6 +73,3 @@ dependencies {
     androidTestImplementation 'androidx.room:room-testing:2.2.5'
 
 }
-repositories {
-    mavenCentral()
-}

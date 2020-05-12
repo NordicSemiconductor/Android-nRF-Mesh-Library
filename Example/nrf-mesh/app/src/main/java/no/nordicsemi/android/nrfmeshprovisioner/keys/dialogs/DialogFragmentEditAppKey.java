@@ -118,7 +118,7 @@ public class DialogFragmentEditAppKey extends DialogFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
                 .setView(rootView)
-                .setIcon(R.drawable.ic_vpn_key_24dp)
+                .setIcon(R.drawable.ic_vpn_key_black_alpha_24dp)
                 .setTitle(R.string.title_edit_key)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null)

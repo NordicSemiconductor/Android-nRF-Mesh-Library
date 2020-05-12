@@ -1,39 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clipChildren="false"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:clipToPadding="false"
-    android:paddingBottom="@dimen/activity_vertical_margin">
+    android:clipChildren="false">
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/config_relay_set_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:cardElevation="1dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/white"
+        app:cardElevation="1dp"
+        android:visibility="gone"
         tools:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.appbar.MaterialToolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/config_relay_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:logo="@drawable/ic_repeat"
+                app:logo="@drawable/ic_repeat_black_24dp"
                 app:title="@string/title_relay_retransmit_info"
                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                app:titleTextAppearance="@style/Toolbar.TitleText" />
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -50,40 +52,41 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/config_relay_tool_bar">
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/relay_retransmit_count_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_relay_retransmit_count"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/relay_retransmit_count"
                     android:layout_width="0dp"
                     android:layout_height="19dp"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="1 time(s)"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
                     app:layout_constraintTop_toBottomOf="@id/relay_retransmit_count_title"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"/>
 
                 <ImageView
                     android:id="@+id/image_relay_retransmit_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="@id/relay_retransmit_count"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/relay_retransmit_count_title"
+                    app:layout_constraintBottom_toBottomOf="@id/relay_retransmit_count"
                     app:srcCompat="@drawable/ic_numeric"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -109,32 +112,33 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/relay_retransmit_interval_steps_title"
                     app:srcCompat="@drawable/ic_index"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/relay_retransmit_interval_steps_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_relay_retransmit_interval"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/relay_retransmit_interval_steps"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="1 step(s)"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
                     app:layout_constraintTop_toBottomOf="@id/relay_retransmit_interval_steps_title"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -144,7 +148,7 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps" />
+                app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_get"
@@ -156,7 +160,7 @@
                 android:text="@string/action_network_transmit_get"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/action_relay_retransmit_configure"
-                app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider" />
+                app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_configure"
@@ -168,36 +172,37 @@
                 android:text="@string/action_relay_retransmit_set"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider" />
+                app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.cardview.widget.CardView>
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/network_transmit_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        app:cardElevation="1dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/config_relay_set_card">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/config_relay_set_card"
+        android:background="@color/white"
+        app:cardElevation="1dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.appbar.MaterialToolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/network_transmit_tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:logo="@drawable/ic_repeat"
+                app:logo="@drawable/ic_repeat_black_24dp"
                 app:title="@string/title_network_transmit_info"
                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                app:titleTextAppearance="@style/Toolbar.TitleText" />
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_network_transmit_count"
@@ -213,30 +218,31 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/network_transmit_tool_bar">
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/network_transmit_count_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_network_transmit_count"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/network_transmit_count"
                     android:layout_width="0dp"
                     android:layout_height="19dp"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="1 time(s)"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
                     app:layout_constraintTop_toBottomOf="@id/network_transmit_count_title"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"/>
 
                 <ImageView
                     android:id="@+id/image_network_transmit_count"
@@ -246,7 +252,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/network_transmit_count_title"
                     app:srcCompat="@drawable/ic_numeric"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -272,32 +278,33 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/network_transmit_interval_steps_title"
                     app:srcCompat="@drawable/ic_index"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/network_transmit_interval_steps_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="@string/title_network_transmit_interval"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
                     android:id="@+id/network_transmit_interval_steps"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
                     android:text="1 step(s)"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
                     app:layout_constraintTop_toBottomOf="@id/network_transmit_interval_steps_title"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -307,7 +314,7 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps" />
+                app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_get"
@@ -319,7 +326,7 @@
                 android:text="@string/action_network_transmit_get"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/action_network_transmit_configure"
-                app:layout_constraintTop_toBottomOf="@id/network_transmit_divider" />
+                app:layout_constraintTop_toBottomOf="@id/network_transmit_divider"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_configure"
@@ -331,9 +338,9 @@
                 android:text="@string/action_network_transmit_set"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/network_transmit_divider" />
+                app:layout_constraintTop_toBottomOf="@id/network_transmit_divider"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
