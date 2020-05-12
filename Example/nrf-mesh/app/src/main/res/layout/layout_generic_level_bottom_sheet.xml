@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?colorSurface"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical">
@@ -33,7 +32,6 @@
         android:id="@+id/container_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?selectableItemBackground"
         android:visibility="visible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

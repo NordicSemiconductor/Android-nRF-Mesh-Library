@@ -75,7 +75,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
     @NonNull
     @Override
     public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item2, parent, false);
+        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
         return new BoundAppKeysAdapter.ViewHolder(layoutView);
     }
 
