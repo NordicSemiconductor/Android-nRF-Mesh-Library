@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018, Nordic Semiconductor
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  ~
+  ~ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  ~
+  ~ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~
+  ~ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+  ~ software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  ~ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  ~ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  ~ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+  ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/divider"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/activity_horizontal_margin"
+    app:elevation="6dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/start_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0x0001"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/end_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0x7FFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText"/>
+
+        <no.nordicsemi.android.nrfmesh.widgets.RangeView
+            android:id="@+id/range"
+            android:layout_width="0dp"
+            android:layout_height="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/start_address"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/img1"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:src="@drawable/ic_range_nordic_light_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/item_padding_top"
+        app:layout_constraintTop_toBottomOf="@id/container"
+        tools:ignore="ContentDescription"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="@string/not_allocated"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/img1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img1"
+        app:layout_constraintTop_toTopOf="@id/img1"/>
+
+    <ImageView
+        android:id="@+id/img2"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_marginTop="@dimen/item_padding_top"
+        android:src="@drawable/ic_range_nordic_lake"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/img1"
+        tools:ignore="ContentDescription"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="@string/allocated_to_this"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/img2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img2"
+        app:layout_constraintTop_toTopOf="@id/img2"/>
+
+    <ImageView
+        android:id="@+id/img3"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_marginTop="@dimen/item_padding_top"
+        android:src="@drawable/ic_range_nordic_medium_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/img2"
+        tools:ignore="ContentDescription"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="@string/allocated_to_another"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/img3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img3"
+        app:layout_constraintTop_toTopOf="@id/img3"/>
+
+    <ImageView
+        android:id="@+id/img4"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_marginTop="@dimen/item_padding_top"
+        android:src="@drawable/ic_range_nordic_red"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/img3"
+        tools:ignore="ContentDescription"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:text="@string/conflicting_with_another"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/img4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/img4"
+        app:layout_constraintTop_toTopOf="@id/img4"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
