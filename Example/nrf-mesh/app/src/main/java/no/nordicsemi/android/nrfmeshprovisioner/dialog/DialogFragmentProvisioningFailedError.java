@@ -24,9 +24,9 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentProvisioningFailedError extends DialogFragmentMessage {
@@ -48,7 +48,7 @@ public class DialogFragmentProvisioningFailedError extends DialogFragmentMessage
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black_alpha);
+        alertDialogBuilder.setIcon(R.drawable.ic_error_outline_black);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((DialogFragmentProvisioningFailedErrorListener)requireActivity()).onProvisioningFailed());
 
         return super.onCreateDialog(savedInstanceState);

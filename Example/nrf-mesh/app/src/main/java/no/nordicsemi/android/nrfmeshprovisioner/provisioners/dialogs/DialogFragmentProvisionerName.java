@@ -105,7 +105,7 @@ public class DialogFragmentProvisionerName extends DialogFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
                 .setView(rootView)
-                .setIcon(R.drawable.ic_lan_black_alpha_24dp)
+                .setIcon(R.drawable.ic_lan_24dp)
                 .setTitle(R.string.title_provisioner_name)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null);

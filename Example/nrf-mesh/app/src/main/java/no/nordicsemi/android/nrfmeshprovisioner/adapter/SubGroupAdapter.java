@@ -120,7 +120,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         final Button on = view.findViewById(R.id.action_on);
         final Button off = view.findViewById(R.id.action_off);
         if (MeshParserUtils.isVendorModel(modelId)) {
-            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_48dp));
+            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_48dp));
             view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
             view.findViewById(R.id.container_vendor).setVisibility(View.VISIBLE);
             final TextView modelIdView = view.findViewById(R.id.subtitle);
@@ -135,16 +135,16 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
                     groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.light_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_ON_OFF_CLIENT:
-                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_48dp));
+                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_48dp));
                     view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
                     groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.switch_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_LEVEL_SERVER:
-                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_sun_outline_48dp));
+                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_48dp));
                     groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.dimmer_count, modelCount, modelCount));
                     break;
                 default:
-                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_48dp));
+                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_48dp));
                     view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
                     groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
                     break;

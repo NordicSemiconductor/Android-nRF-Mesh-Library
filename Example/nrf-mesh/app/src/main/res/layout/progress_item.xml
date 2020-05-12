@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,14 +20,13 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:layout_centerHorizontal="true"
+    android:orientation="vertical"
     tools:ignore="ContentDescription">
 
     <LinearLayout
@@ -36,24 +34,24 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/item_padding_top"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
         android:paddingBottom="@dimen/item_padding_bottom">
 
         <ImageView
             android:id="@+id/image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_arrow_forward_black_alpha"/>
+            app:srcCompat="@drawable/ic_arrow_forward" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/activity_horizontal_margin"
-            android:textColor="@color/black"
             android:text="@string/sending_prov_invite"
-            android:textSize="16sp"/>
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            tools:ignore="RtlSymmetry" />
 
     </LinearLayout>
 </LinearLayout>

@@ -64,7 +64,7 @@ public class DialogFragmentUnassign extends DialogFragment {
         super.onCreateDialog(savedInstanceState);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_reset_black_24dp_alpha);
+        alertDialogBuilder.setIcon(R.drawable.ic_reset);
         alertDialogBuilder.setTitle(requireContext().getString(R.string.title_unassign_provisioner));
         alertDialogBuilder.setMessage(requireContext().getString(R.string.summary_unassign_provisioner));
         alertDialogBuilder.setNegativeButton(getString(R.string.no), null);

@@ -1,18 +1,18 @@
 package no.nordicsemi.android.nrfmeshprovisioner.node.dialog;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
@@ -113,7 +113,7 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_repeat_black_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_repeat);
         alertDialogBuilder.setTitle(R.string.title_network_transmit);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();

@@ -29,18 +29,18 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/activity_horizontal_margin">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:paddingStart="@dimen/activity_horizontal_margin"
-        android:textColor="@color/black"
+        android:textColor="?android:textColorPrimary"
         android:textSize="16sp"
         android:text="@string/static_oob_type_title"
         app:layout_constraintLeft_toRightOf="@id/image"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"
-        app:srcCompat="@drawable/ic_linear_scale_black_alpha_24dp"
+        app:srcCompat="@drawable/ic_linear_scale"
         tools:ignore="VectorDrawableCompat"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

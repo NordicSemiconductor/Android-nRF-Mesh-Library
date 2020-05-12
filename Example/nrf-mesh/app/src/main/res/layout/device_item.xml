@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,18 +20,17 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/device_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:paddingBottom="@dimen/item_padding_bottom"
-    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:background="?attr/colorSurface"
     android:paddingStart="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/item_padding_top"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/item_padding_bottom"
     tools:ignore="ContentDescription">
 
     <ImageView
@@ -42,31 +40,31 @@
         android:layout_centerVertical="true"
         android:background="@drawable/ic_device_bg"
         android:padding="@dimen/mesh_list_icon_padding"
-        app:srcCompat="@drawable/ic_mesh_white"/>
+        app:srcCompat="@drawable/ic_mesh_white" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_toStartOf="@+id/rssi"
         android:layout_toEndOf="@id/icon"
         android:ellipsize="end"
         android:singleLine="true"
-        android:textSize="24sp"
-        tools:text="Nordic_Blinky"/>
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        tools:text="Nordic_Blinky" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/device_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/device_name"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_toEndOf="@id/icon"
-        android:textSize="12sp"
-        tools:text="AA:BB:CC:DD:EE:FF"/>
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        tools:text="AA:BB:CC:DD:EE:FF" />
 
     <ImageView
         android:id="@+id/rssi"
@@ -74,6 +72,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_rssi_bar"
-        tools:src="@drawable/ic_rssi_3_bars"/>
+        android:src="@drawable/ic_signal_bar"
+        tools:src="@drawable/ic_signal_3_bar" />
 </RelativeLayout>

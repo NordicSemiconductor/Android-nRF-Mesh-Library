@@ -23,10 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.meshprovisioner.Group;
@@ -113,20 +113,20 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
                     final TextView modelTitle = view.findViewById(R.id.model_title);
                     modelTitle.setText(model.getModelName());
                     if(MeshParserUtils.isVendorModel(model.getModelId())){
-                        modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray_24dp));
+                        modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray));
                     } else {
                         switch (model.getModelId()) {
                             case SigModelParser.GENERIC_ON_OFF_SERVER:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_nordic_medium_grey_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_24dp));
                                 break;
                             case SigModelParser.GENERIC_ON_OFF_CLIENT:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_nordic_medium_grey_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_24dp));
                                 break;
                             case SigModelParser.GENERIC_LEVEL_SERVER:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_nordic_medium_gray_outline_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_24dp));
                                 break;
                             default:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_nordic_medium_grey_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_24dp));
                                 break;
                         }
                     }

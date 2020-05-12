@@ -39,7 +39,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import no.nordicsemi.android.meshprovisioner.AllocatedGroupRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedSceneRange;
 import no.nordicsemi.android.meshprovisioner.AllocatedUnicastRange;
@@ -89,11 +88,11 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_add_provisioner);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
 
         final View containerProvisionerName = findViewById(R.id.container_name);
         containerProvisionerName.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline));
         ((TextView) containerProvisionerName.findViewById(R.id.title)).setText(R.string.name);
         provisionerName = containerProvisionerName.findViewById(R.id.text);
         provisionerName.setVisibility(View.VISIBLE);
@@ -124,21 +123,21 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
         final View containerUnicastRange = findViewById(R.id.container_unicast_range);
         containerUnicastRange.setClickable(false);
         containerUnicastRange.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_24dp));
         ((TextView) containerUnicastRange.findViewById(R.id.title)).setText(R.string.title_unicast_addresses);
         unicastRangeView = containerUnicastRange.findViewById(R.id.range_view);
 
         final View containerGroupRange = findViewById(R.id.container_group_range);
         containerGroupRange.setClickable(false);
         containerGroupRange.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_outline_group_work_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_outline_group_24dp));
         ((TextView) containerGroupRange.findViewById(R.id.title)).setText(R.string.title_group_addresses);
         groupRangeView = containerGroupRange.findViewById(R.id.range_view);
 
         final View containerSceneRange = findViewById(R.id.container_scene_range);
         containerSceneRange.setClickable(false);
         containerSceneRange.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_arrow_collapse_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_arrow_collapse_black));
         ((TextView) containerSceneRange.findViewById(R.id.title)).setText(R.string.title_scenes);
         sceneRangeView = containerSceneRange.findViewById(R.id.range_view);
 

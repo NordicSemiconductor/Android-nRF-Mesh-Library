@@ -24,13 +24,13 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentMeshExportMsg extends DialogFragmentMessage {
-    private int resId = R.drawable.ic_info_outline_black_alpha;
+    private int resId = R.drawable.ic_info_outline;
 
     public static DialogFragmentMeshExportMsg newInstance(final int resId, final String title, final String message) {
         final Bundle args = new Bundle();
@@ -55,7 +55,7 @@ public class DialogFragmentMeshExportMsg extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
-        alertDialogBuilder.setIcon(R.drawable.ic_info_outline_black_alpha);
+        alertDialogBuilder.setIcon(R.drawable.ic_info_outline);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
         return super.onCreateDialog(savedInstanceState);
     }

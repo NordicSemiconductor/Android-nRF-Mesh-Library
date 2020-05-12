@@ -26,8 +26,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.material.elevation.ElevationOverlayProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +51,10 @@ import no.nordicsemi.android.nrfmeshprovisioner.widgets.RemovableViewHolder;
 public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.ViewHolder> {
 
     private final List<Provisioner> mProvisioners = new ArrayList<>();
-    private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ProvisionerAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
-        this.mContext = context;
-        meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
+    public ProvisionerAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
+        meshNetworkLiveData.observe(owner, networkData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             final List<Provisioner> provisioners = network.getProvisioners();
             mProvisioners.clear();
@@ -71,7 +72,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     @NonNull
     @Override
     public ProvisionerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item1, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item_provisioner, parent, false);
         return new ProvisionerAdapter.ViewHolder(layoutView);
     }
 
@@ -79,11 +80,12 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     public void onBindViewHolder(@NonNull final ProvisionerAdapter.ViewHolder holder, final int position) {
         final Provisioner provisioner = mProvisioners.get(position);
         holder.provisionerName.setText(provisioner.getProvisionerName());
+        final Context context = holder.provisionerName.getContext();
         if (provisioner.getProvisionerAddress() == null) {
-            holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
-                    mContext.getString(R.string.address_unassigned)));
+            holder.provisionerSummary.setText(context.getString(R.string.unicast_address,
+                    holder.provisionerName.getContext().getString(R.string.address_unassigned)));
         } else {
-            holder.provisionerSummary.setText(mContext.getString(R.string.unicast_address,
+            holder.provisionerSummary.setText(context.getString(R.string.unicast_address,
                     MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
         }
     }
@@ -112,7 +114,8 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     }
 
     final class ViewHolder extends RemovableViewHolder {
-
+        @BindView(R.id.container)
+        FrameLayout container;
         @BindView(R.id.icon)
         ImageView icon;
         @BindView(R.id.title)
@@ -123,9 +126,11 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_account_key_black_alpha_24dp));
-
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
+            final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
+            final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
+            getSwipeableView().setBackgroundColor(color);
+            icon.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.ic_account_key));
+            container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);

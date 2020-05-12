@@ -39,17 +39,16 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.nrfmeshprovisioner.di.Injectable;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmeshprovisioner.dialog.DialogFragmentMeshImport;
@@ -97,7 +96,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         // Set up views
         final View containerNetworkName = rootView.findViewById(R.id.container_network_name);
         containerNetworkName.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_label_black_alpha_24dp));
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_label));
         final TextView networkNameTitle = containerNetworkName.findViewById(R.id.title);
         networkNameTitle.setText(R.string.title_network_name);
         final TextView networkNameView = containerNetworkName.findViewById(R.id.text);
@@ -110,7 +109,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         final View containerProvisioner = rootView.findViewById(R.id.container_provisioners);
         containerProvisioner.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_provisioner_black_alpha_24dp));
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_provisioner_24dp));
         final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
         final TextView provisionerSummary = containerProvisioner.findViewById(R.id.text);
         provisionerSummary.setVisibility(View.VISIBLE);
@@ -122,7 +121,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         final View containerNetKey = rootView.findViewById(R.id.container_net_keys);
         containerNetKey.findViewById(R.id.image)
-                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
         final TextView keyTitle = containerNetKey.findViewById(R.id.title);
         keyTitle.setText(R.string.title_net_keys);
         final TextView netKeySummary = containerNetKey.findViewById(R.id.text);
@@ -135,7 +134,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         final View containerAppKey = rootView.findViewById(R.id.container_app_keys);
         containerAppKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
         ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
         final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);
@@ -147,7 +146,7 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         final View containerIvTestMode = rootView.findViewById(R.id.container_iv_test_mode);
         containerIvTestMode.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_black_24dp_alpha));
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
         ((TextView) containerIvTestMode.findViewById(R.id.title)).setText(R.string.title_iv_test_mode);
         final TextView ivTestModeSummary = containerIvTestMode.findViewById(R.id.text);
         ivTestModeSummary.setText(R.string.iv_test_mode_summary);
@@ -189,7 +188,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         mViewModel.getNetworkLoadState().observe(getViewLifecycleOwner(), networkImportState -> {
             final String title = getString(R.string.title_network_import);
             final DialogFragmentMeshImportMsg fragment =
-                    DialogFragmentMeshImportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
+                    DialogFragmentMeshImportMsg.newInstance(R.drawable.ic_info_outline,
                             title, networkImportState);
             fragment.show(getChildFragmentManager(), null);
         });
@@ -197,7 +196,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         mViewModel.getNetworkExportState().observe(getViewLifecycleOwner(), networkExportState -> {
             final String title = getString(R.string.title_network_export);
             final DialogFragmentMeshExportMsg fragment =
-                    DialogFragmentMeshExportMsg.newInstance(R.drawable.ic_info_outline_black_alpha,
+                    DialogFragmentMeshExportMsg.newInstance(R.drawable.ic_info_outline,
                             title, networkExportState);
             fragment.show(getChildFragmentManager(), null);
         });

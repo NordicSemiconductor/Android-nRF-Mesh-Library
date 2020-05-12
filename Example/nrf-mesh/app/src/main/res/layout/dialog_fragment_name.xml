@@ -31,7 +31,7 @@
     android:paddingStart="@dimen/alert_dialog_padding_left"
     android:paddingTop="@dimen/alert_dialog_padding">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/summary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

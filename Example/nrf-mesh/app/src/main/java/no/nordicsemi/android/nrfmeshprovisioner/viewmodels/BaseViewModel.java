@@ -281,7 +281,7 @@ abstract class BaseViewModel extends ViewModel {
      */
     public void displayDisconnectedSnackBar(@NonNull final Activity context, @NonNull final CoordinatorLayout container) {
         Snackbar.make(container, context.getString(R.string.disconnected_network_rationale), Snackbar.LENGTH_LONG)
-                .setActionTextColor(context.getResources().getColor(R.color.colorPrimaryDark))
+                .setActionTextColor(context.getResources().getColor(R.color.colorSecondary))
                 .setAction(context.getString(R.string.action_connect), v ->
                         navigateToScannerActivity(context, false, Utils.CONNECT_TO_NETWORK, false))
                 .show();
@@ -297,7 +297,7 @@ abstract class BaseViewModel extends ViewModel {
      */
     public void displaySnackBar(@NonNull final Activity context, @NonNull final CoordinatorLayout container, @NonNull final String message, final int duration) {
         Snackbar.make(container, message, duration)
-                .setActionTextColor(context.getResources().getColor(R.color.colorPrimaryDark))
+                .setActionTextColor(context.getResources().getColor(R.color.colorSecondary))
                 .show();
     }
 }
