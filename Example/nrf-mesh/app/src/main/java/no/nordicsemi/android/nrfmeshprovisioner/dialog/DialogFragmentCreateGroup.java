@@ -165,7 +165,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
 
         final AlertDialog alertDialog = new AlertDialog.Builder(requireContext())
                 .setView(rootView)
-                .setIcon(R.drawable.ic_outline_group_work_black_alpha_24dp)
+                .setIcon(R.drawable.ic_outline_group_24dp)
                 .setTitle(R.string.title_create_group)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null)

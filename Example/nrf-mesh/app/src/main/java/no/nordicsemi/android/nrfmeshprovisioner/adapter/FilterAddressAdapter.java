@@ -23,11 +23,13 @@
 package no.nordicsemi.android.nrfmeshprovisioner.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.google.android.material.elevation.ElevationOverlayProvider;
 
 import java.util.ArrayList;
 
@@ -52,18 +54,18 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         this.mContext = context;
     }
 
-    public void updateData(@NonNull final ProxyFilter filter){
+    public void updateData(@NonNull final ProxyFilter filter) {
         mAddresses.clear();
         mAddresses.addAll(filter.getAddresses());
         notifyDataSetChanged();
     }
 
-    public void clearData(){
+    public void clearData() {
         mAddresses.clear();
         notifyDataSetChanged();
     }
 
-    public void clearRow(final int position){
+    public void clearRow(final int position) {
         mAddresses.remove(position);
         notifyDataSetChanged();
     }
@@ -112,7 +114,8 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     }
 
     public final class ViewHolder extends RemovableViewHolder {
-
+        @BindView(R.id.container)
+        FrameLayout container;
         @BindView(R.id.address_id)
         TextView addressTitle;
         @BindView(R.id.title)
@@ -121,7 +124,10 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
-            view.findViewById(R.id.removable).setOnClickListener(v -> {
+            final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
+            final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
+            getSwipeableView().setBackgroundColor(color);
+            container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()).getAddress());
                 }

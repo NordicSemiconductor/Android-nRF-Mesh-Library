@@ -24,14 +24,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 62
-        versionName "2.2.0"
+        versionCode 63
+        versionName "2.3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -73,8 +73,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     // Butter Knife
-    implementation 'com.jakewharton:butterknife:10.2.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
+    implementation 'com.jakewharton:butterknife:10.2.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     // Android BLE Library
@@ -86,4 +86,7 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
     implementation project(':meshprovisioner')
+}
+repositories {
+    mavenCentral()
 }

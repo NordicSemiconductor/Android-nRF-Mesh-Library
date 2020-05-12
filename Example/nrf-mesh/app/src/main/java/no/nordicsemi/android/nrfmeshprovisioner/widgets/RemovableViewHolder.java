@@ -22,10 +22,10 @@
 
 package no.nordicsemi.android.nrfmeshprovisioner.widgets;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class RemovableViewHolder extends RecyclerView.ViewHolder {
@@ -43,11 +43,11 @@ public class RemovableViewHolder extends RecyclerView.ViewHolder {
         return mRemovableView;
     }
 
-    protected boolean isRemovable() {
+    boolean isRemovable() {
         return true;
     }
 
-    public ImageView getDeleteView() {
+    ImageView getDeleteView() {
         return mDeleteView;
     }
 

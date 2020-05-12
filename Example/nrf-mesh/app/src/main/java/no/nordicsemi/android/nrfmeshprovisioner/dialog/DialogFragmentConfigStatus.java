@@ -24,9 +24,9 @@ package no.nordicsemi.android.nrfmeshprovisioner.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-
 import no.nordicsemi.android.nrfmeshprovisioner.R;
 
 public class DialogFragmentConfigStatus extends DialogFragmentMessage {
@@ -49,7 +49,7 @@ public class DialogFragmentConfigStatus extends DialogFragmentMessage {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireContext());
-        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_24dp);
         alertDialogBuilder.setPositiveButton(getString(R.string.ok), null);
 
         return super.onCreateDialog(savedInstanceState);

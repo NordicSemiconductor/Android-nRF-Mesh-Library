@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,15 +20,14 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingStart="@dimen/activity_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
     tools:ignore="ContentDescription">
 
     <ImageView
@@ -37,19 +35,20 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:padding="@dimen/activity_horizontal_margin"
-        app:srcCompat="@drawable/ic_lan_black_alpha_48dp"/>
+        app:srcCompat="@drawable/ic_mesh_black_48dp" />
 
-    <TextView
-        style="@style/Widget.InfoWarningTitles"
+    <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="@string/no_nodes_provisioned_title"/>
+        android:text="@string/no_nodes_provisioned_title"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:textColor="?colorSecondary" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:gravity="center_horizontal"
-        android:text="@string/no_nodes_provisioned_rationale"/>
+        android:text="@string/no_nodes_provisioned_rationale" />
 </LinearLayout>

@@ -35,7 +35,7 @@
         android:paddingEnd="@dimen/activity_horizontal_margin"
         android:paddingBottom="@dimen/activity_vertical_margin">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/summary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/subscription_address_dialog_summary"
-            android:textColor="@color/black"
+            android:textColor="?android:textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -78,19 +78,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/group_container">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/label_summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/item_padding_top"
                 android:text="@string/label_uuid_summary"
-                android:textColor="@color/black"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/group_container"
                 tools:ignore="RtlSymmetry"/>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/uuid_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -126,7 +126,7 @@
                 tools:ignore="HardcodedText"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/prefix"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

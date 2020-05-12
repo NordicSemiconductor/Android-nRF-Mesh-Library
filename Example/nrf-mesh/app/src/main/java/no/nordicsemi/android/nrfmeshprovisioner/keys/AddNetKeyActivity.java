@@ -36,7 +36,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import no.nordicsemi.android.meshprovisioner.MeshNetwork;
 import no.nordicsemi.android.meshprovisioner.NetworkKey;
 import no.nordicsemi.android.meshprovisioner.utils.MeshParserUtils;
@@ -70,18 +69,18 @@ public class AddNetKeyActivity extends AppCompatActivity implements Injectable, 
         //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_add_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
 
         final View containerKey = findViewById(R.id.container_key);
         containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
         ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_net_key);
         keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
 
         final View containerKeyName = findViewById(R.id.container_key_name);
         containerKeyName.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
         ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
         nameView = containerKeyName.findViewById(R.id.text);
         nameView.setVisibility(View.VISIBLE);

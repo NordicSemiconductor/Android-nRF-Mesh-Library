@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2018, Nordic Semiconductor
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  ~
+  ~ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  ~
+  ~ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~
+  ~ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+  ~ software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  ~ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  ~ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  ~ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+  ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<resources>
+
+
+    <!-- Base theme colors -->
+    <color name="colorPrimary">@color/nordicBlue</color>
+    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorSecondary">@color/nordicBlue</color>
+
+    <color name="colorBackground">@color/black</color>
+    <color name="colorForeground">@color/white</color>
+
+    <color name="background">@color/black</color>
+
+    <color name="textColorPrimary">@color/white</color>
+    <color name="textColorSecondary">@color/white</color>
+
+    <color name="toolbarColor">@color/nordicDarkGray</color>
+    <color name="toolbarIconColor">@color/nordicLake</color>
+    <color name="statusBarColor">@color/black</color>
+    <color name="indeterminateColor">@color/nordicBlue</color>
+
+    <!--
+        Nordic logo on splash screen.
+        When using light/dark top background, consider changing status bar to light/dark
+        in styles-v23.
+    -->
+    <color name="colorNordicLogo">@color/white</color>
+    <color name="colorNordicLogoText">@color/white</color>
+    <color name="colorNordicLogoBottom">@color/black</color>
+    <color name="colorNordicLogoTop">@color/nordicDarkGray</color>
+
+    <!-- Nordic colors -->
+    <color name="nordicBlue">#FF00A9CE</color>
+    <color name="nordicBlueDark">#FF0090B0</color>
+    <color name="nordicSky">#FF6AD1E3</color>
+    <color name="nordicBlueSlate">#FF0033A0</color>
+    <color name="nordicLake">#FF0077C8</color>
+    <color name="nordicLightGray">#FFD9E1E2</color>
+    <color name="nordicMediumGray">#FF768692</color>
+    <color name="nordicDarkGray">#FF333F48</color>
+    <color name="nordicGrass">#FFD0DF00</color>
+    <color name="nordicSun">#FFFFCD00</color>
+    <color name="nordicRed">#FFEE2F4E</color>
+    <color name="nordicFall">#FFF58220</color>
+
+    <!-- Common -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="red">#FFFF0000</color>
+
+    <color name="bulbNordicGrass">@color/nordicGrass</color>
+    <color name="bulbNordicSun">@color/nordicSun</color>
+    <color name="bulbNordicMediumGray">@color/nordicMediumGray</color>
+    <color name="vendorNordicMediumGray">@color/nordicMediumGray</color>
+    <color name="uncheckedColor">#a1a1a1</color>
+</resources>

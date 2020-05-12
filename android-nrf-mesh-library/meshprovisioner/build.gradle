@@ -29,8 +29,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 62
-        versionName "2.2.0"
+        versionCode 63
+        versionName "2.3.0"
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -72,4 +72,7 @@ dependencies {
     annotationProcessor 'androidx.room:room-compiler:2.2.5'
     androidTestImplementation 'androidx.room:room-testing:2.2.5'
 
+}
+repositories {
+    mavenCentral()
 }
