@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.keys.dialogs;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -39,6 +38,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -108,7 +108,7 @@ public class DialogFragmentAddKey extends DialogFragment {
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_new_key, null);
 
-        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_black_alpha_24dp);
+        alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_24dp);
         alertDialogBuilder.setTitle(R.string.title_manage_app_keys);
         summary.setText(R.string.title_app_keys);
 

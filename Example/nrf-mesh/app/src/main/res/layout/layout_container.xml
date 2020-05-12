@@ -43,25 +43,25 @@
         app:layout_constraintTop_toTopOf="@id/title"
         tools:ignore="ContentDescription,VectorDrawableCompat" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Title"
-        android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         app:layout_constraintBaseline_toBaselineOf="@id/image"
         app:layout_constraintStart_toEndOf="@id/image"
         app:layout_goneMarginStart="@dimen/activity_horizontal_margin"
         tools:ignore="HardcodedText" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Subtitle"
-        android:textSize="12sp"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:textColor="@color/textColorSecondary"
         android:visibility="gone"
         app:layout_constraintBaseline_creator="@id/image"
         app:layout_constraintStart_toStartOf="@id/title"
@@ -73,11 +73,10 @@
         android:id="@+id/action_change_test_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/text"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"/>
-
+        app:layout_constraintTop_toTopOf="@id/text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

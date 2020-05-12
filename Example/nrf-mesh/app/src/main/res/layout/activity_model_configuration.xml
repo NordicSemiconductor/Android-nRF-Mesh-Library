@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,8 +20,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -42,12 +40,11 @@
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <ProgressBar
                 android:id="@+id/configuration_progress_bar"
@@ -59,7 +56,7 @@
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
                 android:visibility="invisible"
-                tools:ignore="UnusedAttribute"/>
+                tools:ignore="UnusedAttribute" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -81,12 +78,11 @@
                     android:clipToPadding="false"
                     android:paddingBottom="@dimen/activity_vertical_margin">
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:id="@+id/app_key_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                        android:background="@color/white"
                         app:cardElevation="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -96,17 +92,17 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <androidx.appcompat.widget.Toolbar
+                            <com.google.android.material.appbar.MaterialToolbar
                                 android:id="@+id/app_key_tool_bar"
                                 android:layout_width="0dp"
                                 android:layout_height="?actionBarSize"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:logo="@drawable/ic_folder_key_black_24dp_alpha"
+                                app:logo="@drawable/ic_folder_key_24dp"
                                 app:title="@string/title_bound_app_keys"
                                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                                app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                                app:titleTextAppearance="@style/Toolbar.TitleText" />
 
 
                             <androidx.constraintlayout.widget.ConstraintLayout
@@ -118,7 +114,7 @@
                                 app:layout_constraintRight_toRightOf="parent"
                                 app:layout_constraintTop_toBottomOf="@+id/app_key_tool_bar">
 
-                                <TextView
+                                <com.google.android.material.textview.MaterialTextView
                                     android:id="@+id/bound_keys"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
@@ -127,11 +123,11 @@
                                     android:paddingEnd="@dimen/activity_horizontal_margin"
                                     android:paddingBottom="@dimen/item_padding_bottom"
                                     android:text="@string/no_app_keys_bound"
-                                    android:textColor="@color/black"
+                                    android:textColor="?android:textColorPrimary"
                                     android:textSize="14sp"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"/>
+                                    app:layout_constraintTop_toTopOf="parent" />
 
                                 <androidx.recyclerview.widget.RecyclerView
                                     android:id="@+id/recycler_view_bound_keys"
@@ -144,7 +140,9 @@
                                     app:layout_constraintBottom_toBottomOf="parent"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"/>
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    tools:listitem="@layout/removable_row_item"
+                                    tools:visibility="visible"/>
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -155,20 +153,21 @@
                                 android:layout_height="1dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/container_app_key_bind"/>
+                                app:layout_constraintTop_toBottomOf="@id/container_app_key_bind" />
 
-                            <TextView
+                            <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/unbind_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/item_padding_end"
                                 android:padding="@dimen/activity_horizontal_margin"
                                 android:text="@string/hint_unbind"
+                                android:textColor="?android:textColorSecondary"
                                 android:visibility="invisible"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/div1"
-                                tools:visibility="visible"/>
+                                tools:visibility="visible" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/action_bind_app_key"
@@ -180,18 +179,17 @@
                                 android:text="@string/action_bind_app_key"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/div1"/>
+                                app:layout_constraintTop_toBottomOf="@id/div1" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:id="@+id/publish_address_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/activity_vertical_margin"
                         android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                        android:background="@color/white"
                         app:cardElevation="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -202,17 +200,17 @@
                             android:layout_height="wrap_content"
                             android:background="?selectableItemBackground">
 
-                            <androidx.appcompat.widget.Toolbar
+                            <com.google.android.material.appbar.MaterialToolbar
                                 android:id="@+id/publish_address_tool_bar"
                                 android:layout_width="match_parent"
                                 android:layout_height="?actionBarSize"
                                 app:layout_constraintLeft_toLeftOf="parent"
                                 app:layout_constraintRight_toRightOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:logo="@drawable/ic_publish_black_alpha_24dp"
+                                app:logo="@drawable/ic_publish"
                                 app:title="@string/title_publish_address_configuration"
                                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                                app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                                app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:id="@+id/container_publish_address"
@@ -227,30 +225,31 @@
                                 app:layout_constraintRight_toRightOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/publish_address_tool_bar">
 
-                                <TextView
+                                <com.google.android.material.textview.MaterialTextView
                                     android:id="@+id/publish_address_title"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:paddingStart="@dimen/activity_horizontal_margin"
                                     android:paddingEnd="@dimen/activity_horizontal_margin"
                                     android:text="@string/title_publish_address"
-                                    android:textColor="@color/black"
+                                    android:textColor="?android:textColorPrimary"
                                     android:textSize="16sp"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toEndOf="@id/image_pub_address"
-                                    app:layout_constraintTop_toTopOf="parent"/>
+                                    app:layout_constraintTop_toTopOf="parent" />
 
-                                <TextView
+                                <com.google.android.material.textview.MaterialTextView
                                     android:id="@+id/publish_address"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:paddingStart="@dimen/activity_horizontal_margin"
                                     android:text="None"
+                                    android:textColor="?android:textColorSecondary"
                                     android:textSize="12sp"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toEndOf="@id/image_pub_address"
                                     app:layout_constraintTop_toBottomOf="@id/publish_address_title"
-                                    tools:ignore="HardcodedText,RtlSymmetry"/>
+                                    tools:ignore="HardcodedText,RtlSymmetry" />
 
                                 <ImageView
                                     android:id="@+id/image_pub_address"
@@ -259,7 +258,7 @@
                                     app:layout_constraintBottom_toBottomOf="@+id/publish_address"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="@+id/publish_address_title"
-                                    app:srcCompat="@drawable/ic_lan_black_alpha_24dp"/>
+                                    app:srcCompat="@drawable/ic_lan_24dp" />
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -270,7 +269,7 @@
                                 android:layout_height="1dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/container_publish_address"/>
+                                app:layout_constraintTop_toBottomOf="@id/container_publish_address" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/action_set_publication"
@@ -282,7 +281,7 @@
                                 android:text="@string/action_set_publish_address"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/div2"/>
+                                app:layout_constraintTop_toBottomOf="@id/div2" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/action_clear_publication"
@@ -296,17 +295,16 @@
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toStartOf="@id/action_set_publication"
                                 app:layout_constraintTop_toBottomOf="@id/div2"
-                                tools:visibility="visible"/>
+                                tools:visibility="visible" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:id="@+id/subscription_address_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/activity_vertical_margin"
-                        android:background="@color/white"
                         app:cardElevation="1dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -317,17 +315,17 @@
                             android:layout_height="wrap_content"
                             android:background="?selectableItemBackground">
 
-                            <androidx.appcompat.widget.Toolbar
+                            <com.google.android.material.appbar.MaterialToolbar
                                 android:id="@+id/subscribe_address_tool_bar"
                                 android:layout_width="match_parent"
                                 android:layout_height="?actionBarSize"
                                 app:layout_constraintLeft_toLeftOf="parent"
                                 app:layout_constraintRight_toRightOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:logo="@drawable/ic_subscribe_black_alpha_24dp"
+                                app:logo="@drawable/ic_subscribe"
                                 app:title="@string/title_subscription_addresses_configuration"
                                 app:titleMarginStart="@dimen/toolbar_title_margin"
-                                app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                                app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:id="@+id/container_subscribe_address"
@@ -338,7 +336,7 @@
                                 app:layout_constraintRight_toRightOf="parent"
                                 app:layout_constraintTop_toBottomOf="@+id/subscribe_address_tool_bar">
 
-                                <TextView
+                                <com.google.android.material.textview.MaterialTextView
                                     android:id="@+id/subscribe_addresses"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
@@ -347,11 +345,11 @@
                                     android:paddingEnd="@dimen/activity_horizontal_margin"
                                     android:paddingBottom="@dimen/item_padding_bottom"
                                     android:text="@string/not_subscribed_to_groups"
-                                    android:textColor="@color/black"
+                                    android:textColor="?android:textColorPrimary"
                                     android:textSize="14sp"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"/>
+                                    app:layout_constraintTop_toTopOf="parent" />
 
                                 <androidx.recyclerview.widget.RecyclerView
                                     android:id="@+id/recycler_view_addresses"
@@ -363,7 +361,7 @@
                                     app:layout_constraintBottom_toBottomOf="parent"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"/>
+                                    app:layout_constraintTop_toTopOf="parent" />
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -374,20 +372,21 @@
                                 android:layout_height="1dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/container_subscribe_address"/>
+                                app:layout_constraintTop_toBottomOf="@id/container_subscribe_address" />
 
-                            <TextView
+                            <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/subscribe_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/item_padding_end"
                                 android:padding="@dimen/activity_horizontal_margin"
                                 android:text="@string/hint_unsubscribe"
+                                android:textColor="?android:textColorSecondary"
                                 android:visibility="invisible"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/div3"
-                                tools:visibility="visible"/>
+                                tools:visibility="visible" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/action_subscribe_address"
@@ -399,10 +398,10 @@
                                 android:text="@string/action_subscribe_address"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/div3"/>
+                                app:layout_constraintTop_toBottomOf="@id/div3" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/node_controls_container"
@@ -414,8 +413,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/subscription_address_card">
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                        app:layout_constraintTop_toBottomOf="@id/subscription_address_card" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

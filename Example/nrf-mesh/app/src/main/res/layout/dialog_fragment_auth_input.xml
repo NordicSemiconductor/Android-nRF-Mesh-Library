@@ -28,7 +28,7 @@
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/hex_prefix"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

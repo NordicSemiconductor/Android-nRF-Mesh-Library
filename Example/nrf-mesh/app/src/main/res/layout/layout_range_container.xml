@@ -39,7 +39,7 @@
         android:layout_gravity="center_vertical"
         tools:ignore="ContentDescription"/>
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_weight="1"
         android:text="@string/title_range"
-        android:textColor="@color/black"
+        android:textColor="?android:textColorPrimary"
         android:textSize="16sp"
         tools:ignore="RtlSymmetry"/>
 

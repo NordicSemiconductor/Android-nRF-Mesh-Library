@@ -40,11 +40,10 @@
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -60,11 +59,10 @@
                 android:orientation="vertical"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -73,10 +71,10 @@
                         android:orientation="vertical"
                         android:paddingBottom="@dimen/item_padding_bottom">
 
-                        <androidx.appcompat.widget.Toolbar
+                        <com.google.android.material.appbar.MaterialToolbar
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_account_key_black_alpha_24dp"
+                            app:logo="@drawable/ic_account_key"
                             app:title="@string/title_provisioner"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
@@ -121,13 +119,13 @@
                                 app:srcCompat="@drawable/ic_account_check"
                                 tools:ignore="ContentDescription,VectorDrawableCompat"/>
 
-                            <TextView
+                            <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/title"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="16dp"
                                 android:text="@string/set_as_current_provisioner"
-                                android:textColor="@color/black"
+                                android:textColor="?android:textColorPrimary"
                                 android:textSize="16sp"
                                 app:layout_constraintBaseline_toBaselineOf="@id/image"
                                 app:layout_constraintEnd_toStartOf="@id/check_provisioner"
@@ -143,13 +141,12 @@
                                 app:layout_constraintStart_toEndOf="@id/title"/>
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:background="@color/white"
                     app:cardElevation="1dp">
 
                     <LinearLayout
@@ -157,10 +154,10 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <androidx.appcompat.widget.Toolbar
+                        <com.google.android.material.appbar.MaterialToolbar
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_arrow_collapse_black_alpha_24dp"
+                            app:logo="@drawable/ic_arrow_collapse_black"
                             app:title="@string/title_allocated_ranges"
                             app:titleMarginStart="@dimen/toolbar_title_margin"/>
 
@@ -194,7 +191,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>

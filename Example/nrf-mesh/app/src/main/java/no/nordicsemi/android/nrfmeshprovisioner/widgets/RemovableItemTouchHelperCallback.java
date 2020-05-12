@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmeshprovisioner.widgets;
 
 import android.graphics.Canvas;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;

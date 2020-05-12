@@ -42,7 +42,6 @@ import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -107,7 +106,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_black_alpha_24dp));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
         final TextView keyTitle = containerKey.findViewById(R.id.title);
         final TextView keyView = containerKey.findViewById(R.id.text);
         keyView.setVisibility(View.VISIBLE);
@@ -196,7 +195,7 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     private void displaySnackBar(@NonNull final NetworkKey networkKey) {
         Snackbar.make(container, getString(R.string.net_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> addNetKey(networkKey))
-                .setActionTextColor(getResources().getColor(R.color.colorPrimaryDark))
+                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
                 .show();
     }
 
