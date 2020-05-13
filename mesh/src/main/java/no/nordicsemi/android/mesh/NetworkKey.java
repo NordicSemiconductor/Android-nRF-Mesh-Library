@@ -48,7 +48,7 @@ public final class NetworkKey extends MeshKey {
 
     @ColumnInfo(name = "timestamp")
     @Expose
-    private long timestamp = 0x0;
+    private long timestamp;
 
     @Ignore
     private byte[] identityKey;
@@ -128,6 +128,12 @@ public final class NetworkKey extends MeshKey {
      */
     public boolean isMinSecurity() {
         return minSecurity;
+    }
+
+    @Override
+    public void setKey(@NonNull final byte[] key) {
+        super.setKey(key);
+        identityKey = SecureUtils.calculateIdentityKey(key);
     }
 
     /**

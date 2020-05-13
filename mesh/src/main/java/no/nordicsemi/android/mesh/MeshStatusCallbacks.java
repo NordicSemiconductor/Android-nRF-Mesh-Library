@@ -97,7 +97,8 @@ public interface MeshStatusCallbacks {
     /**
      * Callback to notify if the decryption failed of a received mesh message
      *
-     * @param errorMessage Error message
+     * @param meshLayer     Mesh layer name
+     * @param errorMessage  Error message
      */
     void onMessageDecryptionFailed(final String meshLayer, final String errorMessage);
 }

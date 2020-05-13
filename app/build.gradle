@@ -85,6 +85,7 @@ dependencies {
     implementation 'com.google.dagger:dagger-android-support:2.27'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.27'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
+    //implementation 'no.nordicsemi.android:mesh:2.3.0'
     implementation project(':mesh')
 }
 repositories {
