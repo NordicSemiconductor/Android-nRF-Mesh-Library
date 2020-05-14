@@ -64,6 +64,8 @@ import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
+import static android.view.View.VISIBLE;
+
 public class ProxyFilterFragment extends Fragment implements Injectable,
         DialogFragmentFilterAddAddress.DialogFragmentFilterAddressListener,
         ItemTouchHelperAdapter {
@@ -120,7 +122,7 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        addressAdapter = new FilterAddressAdapter(requireContext());
+        addressAdapter = new FilterAddressAdapter();
         recyclerViewAddresses.setAdapter(addressAdapter);
 
         mViewModel.isConnectedToProxy().observe(getViewLifecycleOwner(), isConnected -> {
@@ -170,7 +172,9 @@ public class ProxyFilterFragment extends Fragment implements Injectable,
             if (!mFilter.getAddresses().isEmpty()) {
                 noAddressesAdded.setVisibility(View.GONE);
                 actionClearFilterAddress.setVisibility(View.VISIBLE);
+                recyclerViewAddresses.setVisibility(VISIBLE);
             } else {
+                recyclerViewAddresses.setVisibility(View.GONE);
                 noAddressesAdded.setVisibility(View.VISIBLE);
                 actionClearFilterAddress.setVisibility(View.GONE);
             }
