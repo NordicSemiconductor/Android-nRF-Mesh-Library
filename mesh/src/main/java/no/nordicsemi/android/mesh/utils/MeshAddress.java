@@ -346,4 +346,44 @@ public final class MeshAddress {
     public static short addressBytesToInt(final byte[] unicastAddress) {
         return ByteBuffer.wrap(unicastAddress).order(ByteOrder.BIG_ENDIAN).getShort();
     }
+
+    /**
+     * Validates if the address is a valid Heartbeat publicaiton destination.
+     * A valid address shall be an unassigned address, a unicast address, or a group address,
+     * all other values are Prohibited.
+     *
+     * @param address address
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatPublicationDestination(final int address) {
+        return isValidUnassignedAddress(address) &&
+                isValidUnicastAddress(address) &&
+                isValidGroupAddress(address);
+    }
+
+    /**
+     * Validates if the address is a valid Heartbeat subscription source.
+     * A valid address shall be an unassigned address, a unicast address.
+     * All other values are Prohibited.
+     *
+     * @param address address
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatSubscriptionSource(final int address) {
+        return isValidUnassignedAddress(address) && isValidUnicastAddress(address);
+    }
+
+    /**
+     * Validates if the address is a valid Heartbeat subscription source.
+     * A valid address shall be an unassigned address, a primary unicast address of the node, or a group address,
+     * All other values are Prohibited.
+     *
+     * @param address address
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatSubscriptionDestination(final int address) {
+        return isValidUnassignedAddress(address) &&
+                isValidUnicastAddress(address) &&
+                isValidGroupAddress(address);
+    }
 }

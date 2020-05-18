@@ -3,14 +3,15 @@ package no.nordicsemi.android.mesh;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.IntDef;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 
+import androidx.annotation.IntDef;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 
 /**
@@ -213,4 +214,22 @@ public class Features implements Parcelable {
         }
     }
 
+    public byte[] toByteArray() {
+        int feature = bitValue(relay) << 15;
+        feature = feature | bitValue(proxy) << 14;
+        feature = feature | bitValue(friend) << 13;
+        feature = feature | bitValue(lowPower) << 12;
+        return ByteBuffer.allocate(2).putShort((short) feature).array();
+    }
+
+    private short bitValue(final int feature) {
+        switch (feature) {
+            default:
+            case UNSUPPORTED:
+            case DISABLED:
+                return 0;
+            case ENABLED:
+                return 1;
+        }
+    }
 }
