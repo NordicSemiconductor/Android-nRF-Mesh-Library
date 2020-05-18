@@ -26,8 +26,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.ParseException;
@@ -38,6 +36,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.R;
 
@@ -599,7 +598,7 @@ public class MeshParserUtils {
         }
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelId);
-        return (int) buffer.getShort(0);
+        return buffer.getShort(0);
     }
 
     /**
@@ -752,5 +751,35 @@ public class MeshParserUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Validates heart beat count log.
+     *
+     * @param countLog Heartbeat publication count.
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatCountLog(final int countLog) {
+        return countLog < 0x12 || countLog > 0xFE;
+    }
+
+    /**
+     * Validates heart beat period log.
+     *
+     * @param periodLog Heartbeat publication period.
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatPeriodLog(final int periodLog) {
+        return periodLog < 0x12;
+    }
+
+    /**
+     * Validates heart beat publication ttl.
+     *
+     * @param ttl Heartbeat publication ttl.
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatPublicationTtl(final int ttl) {
+        return ttl <= 0x7F;
     }
 }
