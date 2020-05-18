@@ -68,16 +68,18 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
                                          final int ttl,
                                          @NonNull final Features features,
                                          final NetworkKey networkKey) throws IllegalArgumentException {
-        if (!MeshAddress.isValidHeartbeatDestination(dstAddress))
+        if (!MeshAddress.isValidHeartbeatPublicationDestination(dstAddress))
             throw new IllegalArgumentException("Destination address must be an unassigned address, " +
                     "a unicast address, or a group address, all other values are Prohibited!");
         this.dstAddress = dstAddress;
         if (!MeshParserUtils.isValidHeartbeatCountLog(countLog))
             throw new IllegalArgumentException("Count log must not be within the prohibited range of 0x12 to 0xFE!");
         this.countLog = countLog;
+        if (!MeshParserUtils.isValidHeartbeatPeriodLog(periodLog))
+            throw new IllegalArgumentException("Period log must be within the range of 0x00 to 0x11!");
         this.periodLog = periodLog;
-        if (!MeshParserUtils.isValidHeartbeatCountLog(countLog))
-            throw new IllegalArgumentException("Count log must not be within the prohibited range of 0x12 to 0xFE!");
+        if (!MeshParserUtils.isValidHeartbeatPublicationTtl(ttl))
+            throw new IllegalArgumentException("Heartbeat ttl must be within the range of 0x00 to 0x7F!");
         this.ttl = ttl;
         this.features = features;
         this.networkKey = networkKey;
