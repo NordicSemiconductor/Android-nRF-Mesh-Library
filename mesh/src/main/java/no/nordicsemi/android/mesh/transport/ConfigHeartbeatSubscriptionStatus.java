@@ -37,7 +37,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigHeartbeatSubscriptionStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS;
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS;
     private int srcAddress;
     private int dstAddress;
     private int periodLog;
