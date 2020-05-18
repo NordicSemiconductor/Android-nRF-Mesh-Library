@@ -80,26 +80,25 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
 
     @Override
     void parseStatusParameters() {
-        final AccessMessage message = (AccessMessage) mMessage;
-        dstAddress = MeshParserUtils.unsignedBytesToInt(mParameters[0], mParameters[1]);
-        countLog = MeshParserUtils.unsignedByteToInt(mParameters[2]);
-        periodLog = MeshParserUtils.unsignedByteToInt(mParameters[3]);
-        ttl = MeshParserUtils.unsignedByteToInt(mParameters[4]);
+        mStatusCode = mParameters[0];
+        mStatusCodeName = getStatusCodeName(mStatusCode);
+        dstAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
+        countLog = MeshParserUtils.unsignedByteToInt(mParameters[3]);
+        periodLog = MeshParserUtils.unsignedByteToInt(mParameters[4]);
+        ttl = MeshParserUtils.unsignedByteToInt(mParameters[5]);
 
-        final int features = MeshParserUtils.unsignedBytesToInt(mParameters[5], mParameters[6]);
+        final int features = MeshParserUtils.unsignedBytesToInt(mParameters[6], mParameters[7]);
         final boolean friendFeatureSupported = DeviceFeatureUtils.supportsFriendFeature(features);
-        Log.v(TAG, "Friend feature: " + friendFeatureSupported);
         final boolean lowPowerFeatureSupported = DeviceFeatureUtils.supportsLowPowerFeature(features);
-        Log.v(TAG, "Low power feature: " + lowPowerFeatureSupported);
         final boolean proxyFeatureSupported = DeviceFeatureUtils.supportsProxyFeature(features);
-        Log.v(TAG, "Proxy feature: " + proxyFeatureSupported);
         final boolean relayFeatureSupported = DeviceFeatureUtils.supportsRelayFeature(features);
-        Log.v(TAG, "Relay feature: " + relayFeatureSupported);
         this.features = new Features(friendFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
                 lowPowerFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
                 proxyFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
                 relayFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED);
-        netKeyIndex = MeshParserUtils.unsignedBytesToInt((byte) ((mParameters[7] & 0xF0) >> 4), mParameters[8]);
+        netKeyIndex = MeshParserUtils.unsignedBytesToInt((byte) ((mParameters[8] & 0xF0) >> 4), mParameters[9]);
+        Log.v(TAG, "Status code: " + mStatusCode);
+        Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.d(TAG, "Destination address: " + Integer.toHexString(dstAddress));
         Log.d(TAG, "Count Log: " + Integer.toHexString(countLog));
         Log.d(TAG, "Period Log: " + Integer.toHexString(periodLog));
