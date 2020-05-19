@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.DeviceFeatureUtils;
+import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
@@ -40,12 +41,7 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
 
     private static final String TAG = ConfigHeartbeatPublicationStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS;
-    private int dstAddress;
-    private int countLog;
-    private int periodLog;
-    private int ttl;
-    private Features features;
-    private int netKeyIndex;
+    private HeartbeatPublication heartbeatPublication;
 
     /**
      * Constructs ConfigHeartbeatPublicationStatus message.
@@ -82,29 +78,25 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
     void parseStatusParameters() {
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
-        dstAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
-        countLog = MeshParserUtils.unsignedByteToInt(mParameters[3]);
-        periodLog = MeshParserUtils.unsignedByteToInt(mParameters[4]);
-        ttl = MeshParserUtils.unsignedByteToInt(mParameters[5]);
+        final int dst = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
+        final int countLog = MeshParserUtils.unsignedByteToInt(mParameters[3]);
+        final int periodLog = MeshParserUtils.unsignedByteToInt(mParameters[4]);
+        final int ttl = MeshParserUtils.unsignedByteToInt(mParameters[5]);
 
-        final int features = MeshParserUtils.unsignedBytesToInt(mParameters[6], mParameters[7]);
-        final boolean friendFeatureSupported = DeviceFeatureUtils.supportsFriendFeature(features);
-        final boolean lowPowerFeatureSupported = DeviceFeatureUtils.supportsLowPowerFeature(features);
-        final boolean proxyFeatureSupported = DeviceFeatureUtils.supportsProxyFeature(features);
-        final boolean relayFeatureSupported = DeviceFeatureUtils.supportsRelayFeature(features);
-        this.features = new Features(friendFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
+        final int featuresInt = MeshParserUtils.unsignedBytesToInt(mParameters[6], mParameters[7]);
+        final boolean friendFeatureSupported = DeviceFeatureUtils.supportsFriendFeature(featuresInt);
+        final boolean lowPowerFeatureSupported = DeviceFeatureUtils.supportsLowPowerFeature(featuresInt);
+        final boolean proxyFeatureSupported = DeviceFeatureUtils.supportsProxyFeature(featuresInt);
+        final boolean relayFeatureSupported = DeviceFeatureUtils.supportsRelayFeature(featuresInt);
+        final Features features = new Features(friendFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
                 lowPowerFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
                 proxyFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
                 relayFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED);
-        netKeyIndex = MeshParserUtils.unsignedBytesToInt((byte) ((mParameters[8] & 0xF0) >> 4), mParameters[9]);
+        final int netKeyIndex = MeshParserUtils.unsignedBytesToInt((byte) ((mParameters[8] & 0xF0) >> 4), mParameters[9]);
+        heartbeatPublication = new HeartbeatPublication(dst, countLog, periodLog, ttl, features, netKeyIndex);
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.d(TAG, "Destination address: " + Integer.toHexString(dstAddress));
-        Log.d(TAG, "Count Log: " + Integer.toHexString(countLog));
-        Log.d(TAG, "Period Log: " + Integer.toHexString(periodLog));
-        Log.d(TAG, "TTL: " + Integer.toHexString(ttl));
-        Log.d(TAG, "Features: " + this.features.toString());
-        Log.d(TAG, "Net key index: " + Integer.toHexString(netKeyIndex));
+        Log.d(TAG, "Heartbeat publication: " + heartbeatPublication.toString());
     }
 
     @Override
@@ -119,44 +111,15 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
     }
 
     /**
-     * Returns the destination address of the Heartbeat publications.
+     * Returns if the message was successful
+     *
+     * @return true if the message was successful or false otherwise
      */
-    public int getDstAddress() {
-        return dstAddress;
+    public final boolean isSuccessful() {
+        return mStatusCode == 0x00;
     }
 
-    /**
-     * Returns the publication count.
-     */
-    public int getCountLog() {
-        return countLog;
-    }
-
-    /**
-     * Returns the period log.
-     */
-    public int getPeriodLog() {
-        return periodLog;
-    }
-
-    /**
-     * Returns the publication ttl.
-     */
-    public int getTtl() {
-        return ttl;
-    }
-
-    /**
-     * Returns the features.
-     */
-    public Features getFeatures() {
-        return features;
-    }
-
-    /**
-     * Returns the Net key index.
-     */
-    public int getNetKeyIndex() {
-        return netKeyIndex;
+    public HeartbeatPublication getHeartbeatPublication() {
+        return heartbeatPublication;
     }
 }
