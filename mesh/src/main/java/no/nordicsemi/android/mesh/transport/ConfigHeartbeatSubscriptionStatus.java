@@ -28,6 +28,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
@@ -38,12 +39,7 @@ public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage imple
 
     private static final String TAG = ConfigHeartbeatSubscriptionStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS;
-    private int srcAddress;
-    private int dstAddress;
-    private int periodLog;
-    private int countLog;
-    private int minHops;
-    private int maxHops;
+    private HeartbeatSubscription heartbeatSubscription;
 
     /**
      * Constructs ConfigHeartbeatSubscriptionStatus message.
@@ -80,21 +76,17 @@ public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage imple
     void parseStatusParameters() {
         mStatusCode = mParameters[0];
         mStatusCodeName = getStatusCodeName(mStatusCode);
-        srcAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
-        dstAddress = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
-        periodLog = MeshParserUtils.unsignedByteToInt(mParameters[5]);
-        countLog = MeshParserUtils.unsignedByteToInt(mParameters[6]);
-        minHops = MeshParserUtils.unsignedByteToInt(mParameters[7]);
-        maxHops = MeshParserUtils.unsignedByteToInt(mParameters[8]);
+        final int srcAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
+        final int dstAddress = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
+        final int periodLog = MeshParserUtils.unsignedByteToInt(mParameters[5]);
+        final int countLog = MeshParserUtils.unsignedByteToInt(mParameters[6]);
+        final int minHops = MeshParserUtils.unsignedByteToInt(mParameters[7]);
+        final int maxHops = MeshParserUtils.unsignedByteToInt(mParameters[8]);
 
+        heartbeatSubscription = new HeartbeatSubscription(srcAddress, dstAddress, periodLog, countLog, minHops, maxHops);
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.d(TAG, "Source address: " + Integer.toHexString(srcAddress));
-        Log.d(TAG, "Destination address: " + Integer.toHexString(dstAddress));
-        Log.d(TAG, "Period Log: " + Integer.toHexString(periodLog));
-        Log.d(TAG, "Count Log: " + Integer.toHexString(countLog));
-        Log.d(TAG, "Min Hops: " + minHops);
-        Log.d(TAG, "Max Hops: " + maxHops);
+        Log.d(TAG, "Heartbeat subscription: " + heartbeatSubscription.toString());
     }
 
     @Override
@@ -109,44 +101,18 @@ public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage imple
     }
 
     /**
-     * Returns the source address of the Heartbeat publications.
+     * Returns the Heartbeat subscription.
      */
-    public int getSrcAddress() {
-        return srcAddress;
+    public HeartbeatSubscription getHeartbeatSubscription() {
+        return heartbeatSubscription;
     }
 
     /**
-     * Returns the destination address of the Heartbeat publications.
+     * Returns if the message was successful
+     *
+     * @return true if the message was successful or false otherwise
      */
-    public int getDstAddress() {
-        return dstAddress;
-    }
-
-    /**
-     * Returns the period log.
-     */
-    public int getPeriodLog() {
-        return periodLog;
-    }
-
-    /**
-     * Returns the publication count.
-     */
-    public int getCountLog() {
-        return countLog;
-    }
-
-    /**
-     * Returns the minimum hops when receiving heartbeat messages.
-     */
-    public int getMinHops() {
-        return minHops;
-    }
-
-    /**
-     * Returns the maximum hops when receiving heartbeat messages.
-     */
-    public int getMaxHops() {
-        return maxHops;
+    public final boolean isSuccessful() {
+        return mStatusCode == 0x00;
     }
 }
