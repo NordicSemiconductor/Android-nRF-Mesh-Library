@@ -54,6 +54,10 @@ public class Utils {
     public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
     public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
 
+    public static final String RESULT_KEY_INDEX = "RESULT_KEY_INDEX";
+    public static final String RESULT_KEY_LIST_SIZE = "RESULT_KEY_LIST_SIZE";
+    public static final String EDIT_KEY = "EDIT_KEY";
+
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
     public static final String ACTIVITY_RESULT = "RESULT_KEY";
     public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
@@ -81,7 +85,7 @@ public class Utils {
     public static final int GROUP_RANGE = 1;
     public static final int SCENE_RANGE = 2;
 
-    //Manage app keys
+    //Manage net keys
     public static final int MANAGE_NET_KEY = 0;
     public static final int ADD_NET_KEY = 1;
 
@@ -90,6 +94,9 @@ public class Utils {
     public static final int ADD_APP_KEY = 3;
     public static final int BIND_APP_KEY = 4;
     public static final int PUBLICATION_APP_KEY = 5;
+
+    // Heartbeat publication key
+    public static final int HEARTBEAT_PUBLICATION_NET_KEY = 6;
     public static final int SELECT_KEY = 2011; //Random number
 
     public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());

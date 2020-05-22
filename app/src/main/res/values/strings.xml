@@ -437,7 +437,7 @@
     <string name="resolution_summary_100_m">10 minutes</string>
 
     <string name="app_key_index">App key index %d</string>
-    <string name="app_key_name_and_index">Name: %s\nIndex: %d</string>
+    <string name="key_name_and_index">Name: %s\nIndex: %d</string>
 
     <string name="action_apply">Apply</string>
     <string name="action_save">Save</string>
@@ -547,4 +547,17 @@
 
     <string name="title_iv_test_mode">IV Test Mode</string>
     <string name="iv_test_mode_summary">Note this is setting is not restored upon restart.</string>
+    <string name="title_heartbeat_publication">Heartbeat Publication</string>
+    <string name="title_publication_count">Publication Count</string>
+    <string name="title_publication_period">Publication Period</string>
+    <string name="title_heartbeat_subscription">Heartbeat Subscription</string>
+    <string name="title_features">Features</string>
+    <string name="do_not_send_periodically">Do not send periodically</string>
+    <string name="send_indefinitely">Send indefinitely</string>
+    <string name="send_periodically">Send periodically</string>
+    <string name="relay">Relay</string>
+    <string name="proxy">Proxy</string>
+    <string name="friend">Friend</string>
+    <string name="low_power">Low Power</string>
+    <string name="title_net_key_index">Net Key Index</string>
 </resources>

@@ -1,5 +1,6 @@
 package no.nordicsemi.android.nrfmesh.node;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -88,6 +89,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 }
             }
 
+            final Button setPublication = nodeControlsContainer.findViewById(R.id.action_set_heartbeat_publication);
+            setPublication.setOnClickListener(v -> {
+                final Intent i = new Intent(this, HeartbeatPublicationActivity.class);
+                startActivity(i);
+            });
 
             mNetworkTransmitCountText = nodeControlsContainer.findViewById(R.id.network_transmit_count);
             mNetworkTransmitIntervalStepsText = nodeControlsContainer.findViewById(R.id.network_transmit_interval_steps);

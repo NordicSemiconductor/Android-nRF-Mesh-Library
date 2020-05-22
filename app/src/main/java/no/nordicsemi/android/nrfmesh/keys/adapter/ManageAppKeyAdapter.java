@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,12 +48,10 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapter.ViewHolder> {
 
     private final List<ApplicationKey> appKeys = new ArrayList<>();
-    private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageAppKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
-        this.mContext = context;
-        meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
+    public ManageAppKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
+        meshNetworkLiveData.observe(owner, networkData -> {
             final List<ApplicationKey> keys = networkData.getAppKeys();
             if (keys != null) {
                 appKeys.clear();
@@ -65,10 +62,8 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
         });
     }
 
-    public ManageAppKeyAdapter(@NonNull final Context context,
-                               @NonNull final List<ApplicationKey> appKeys,
+    public ManageAppKeyAdapter(@NonNull final List<ApplicationKey> appKeys,
                                @NonNull final List<NodeKey> appKeyIndexes) {
-        this.mContext = context;
         for (NodeKey nodeKey : appKeyIndexes) {
             for (ApplicationKey applicationKey : appKeys) {
                 if (nodeKey.getIndex() == applicationKey.getKeyIndex()) {
@@ -87,7 +82,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
     @NonNull
     @Override
     public ManageAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
         return new ManageAppKeyAdapter.ViewHolder(layoutView);
     }
 

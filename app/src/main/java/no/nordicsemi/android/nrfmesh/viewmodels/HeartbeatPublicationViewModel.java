@@ -20,26 +20,20 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmesh.node.dialog;
+package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import android.app.Dialog;
-import android.os.Bundle;
+import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity;
 
-public class DialogFragmentPublishTtl extends DialogFragmentTtl {
+/**
+ * View Model class for {@link PublicationSettingsActivity}
+ */
+public class HeartbeatPublicationViewModel extends BaseViewModel {
 
-    public static DialogFragmentTtl newInstance(final int ttl) {
-        final DialogFragmentTtl fragment = new DialogFragmentPublishTtl();
-        final Bundle args = new Bundle();
-        args.putInt(PUBLISH_TTL, ttl);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        return super.onCreateDialog(savedInstanceState);
+    @Inject
+    HeartbeatPublicationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+        super(nrfMeshRepository);
     }
 }

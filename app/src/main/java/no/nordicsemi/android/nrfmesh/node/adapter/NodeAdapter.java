@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.node.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,14 +47,12 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
-    private final Context mContext;
     private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
 
-    public NodeAdapter(@NonNull final Context context,
+    public NodeAdapter(@NonNull final LifecycleOwner owner,
                        @NonNull final LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
-        this.mContext = context;
-        provisionedNodesLiveData.observe((LifecycleOwner) context, nodes -> {
+        provisionedNodesLiveData.observe(owner, nodes -> {
             if (nodes != null) {
                 mNodes.clear();
                 mNodes.addAll(nodes);
@@ -71,7 +68,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.network_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.network_item, parent, false);
         return new NodeAdapter.ViewHolder(layoutView);
     }
 

@@ -27,10 +27,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-public class DialogFragmentPublishTtl extends DialogFragmentTtl {
+import static android.view.View.GONE;
+
+public class DialogFragmentHeartbeatPublishTtl extends DialogFragmentTtl {
 
     public static DialogFragmentTtl newInstance(final int ttl) {
-        final DialogFragmentTtl fragment = new DialogFragmentPublishTtl();
+        final DialogFragmentTtl fragment = new DialogFragmentHeartbeatPublishTtl();
         final Bundle args = new Bundle();
         args.putInt(PUBLISH_TTL, ttl);
         fragment.setArguments(args);
@@ -40,6 +42,8 @@ public class DialogFragmentPublishTtl extends DialogFragmentTtl {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        return super.onCreateDialog(savedInstanceState);
+        final Dialog dialog = super.onCreateDialog(savedInstanceState);
+        chkPublishTtl.setVisibility(GONE);
+        return dialog;
     }
 }

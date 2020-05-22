@@ -72,10 +72,11 @@
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 app:layout_constraintTop_toBottomOf="@id/appbar_layout">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
+                    android:orientation="vertical"
                     android:paddingBottom="@dimen/activity_vertical_margin">
 
                     <com.google.android.material.card.MaterialCardView
@@ -83,10 +84,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                        app:cardElevation="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:cardElevation="1dp">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -142,7 +140,7 @@
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="parent"
                                     tools:listitem="@layout/removable_row_item"
-                                    tools:visibility="visible"/>
+                                    tools:visibility="visible" />
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -188,12 +186,8 @@
                         android:id="@+id/publish_address_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
                         android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                        app:cardElevation="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/app_key_card">
+                        app:cardElevation="1dp">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -304,11 +298,8 @@
                         android:id="@+id/subscription_address_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
-                        app:cardElevation="1dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/publish_address_card">
+                        android:layout_marginBottom="@dimen/activity_vertical_margin"
+                        app:cardElevation="1dp">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -405,16 +396,11 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/node_controls_container"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
                         android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:clipToPadding="false"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/subscription_address_card" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:clipToPadding="false" />
+                </LinearLayout>
             </androidx.core.widget.NestedScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>

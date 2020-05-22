@@ -42,6 +42,7 @@ import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity;
 import no.nordicsemi.android.nrfmesh.node.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.NodeDetailsActivity;
@@ -120,6 +121,9 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector()
     abstract ConfigurationServerActivity contributeConfigurationServerActivity();
+
+    @ContributesAndroidInjector()
+    abstract HeartbeatPublicationActivity contributeHeartbeatPublicationActivity();
 
     @ContributesAndroidInjector()
     abstract ConfigurationClientActivity contributeConfigurationClientActivity();

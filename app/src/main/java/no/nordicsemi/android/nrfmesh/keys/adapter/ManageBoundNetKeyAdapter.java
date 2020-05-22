@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,14 +46,11 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNetKeyAdapter.ViewHolder> {
 
     private final List<NetworkKey> mNetworkKeys;
-    private final Context mContext;
     private ApplicationKey mAppKey;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageBoundNetKeyAdapter(@NonNull final Context context,
-                                    @NonNull final List<NetworkKey> networkKeys,
+    public ManageBoundNetKeyAdapter(@NonNull final List<NetworkKey> networkKeys,
                                     @NonNull final ApplicationKey appKey) {
-        mContext = context;
         mNetworkKeys = networkKeys;
         mAppKey = appKey;
     }
@@ -66,7 +62,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
     @NonNull
     @Override
     public ManageBoundNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item2, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item2, parent, false);
         return new ManageBoundNetKeyAdapter.ViewHolder(layoutView);
     }
 

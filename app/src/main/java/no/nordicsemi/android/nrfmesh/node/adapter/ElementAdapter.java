@@ -50,14 +50,12 @@ import no.nordicsemi.android.nrfmesh.R;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
 
-    private final Context mContext;
     private final List<Element> mElements = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
     private ProvisionedMeshNode mProvisionedMeshNode;
 
-    public ElementAdapter(@NonNull final Context context, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.mContext = context;
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
+    public ElementAdapter(@NonNull final LifecycleOwner owner, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
+        meshNodeLiveData.observe(owner, meshNode -> {
             if (meshNode != null) {
                 mProvisionedMeshNode = meshNode;
                 mElements.clear();
@@ -75,7 +73,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.element_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_item, parent, false);
         return new ViewHolder(layoutView);
     }
 
@@ -84,7 +82,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         final Element element = mElements.get(position);
         final int modelCount = element.getMeshModels().size();
         holder.mElementTitle.setText(element.getName());
-        holder.mElementSubtitle.setText(mContext.getString(R.string.model_count, modelCount));
+        holder.mElementSubtitle.setText(holder.mElementSubtitle.getContext().getString(R.string.model_count, modelCount));
 
         final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
         inflateModelViews(holder, models);
@@ -93,17 +91,18 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models) {
         //Remove all child views to avoid duplicating
         holder.mModelContainer.removeAllViews();
+        final Context context = holder.mModelContainer.getContext();
         for (int i = 0; i < models.size(); i++) {
             final MeshModel model = models.get(i);
-            final View modelView = LayoutInflater.from(mContext).inflate(R.layout.model_item, holder.mElementContainer, false);
+            final View modelView = LayoutInflater.from(context).inflate(R.layout.model_item, holder.mElementContainer, false);
             modelView.setTag(model.getModelId());
             final TextView modelNameView = modelView.findViewById(R.id.title);
             final TextView modelIdView = modelView.findViewById(R.id.subtitle);
             modelNameView.setText(model.getModelName());
             if (model instanceof VendorModel) {
-                modelIdView.setText(mContext.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
+                modelIdView.setText(context.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
             } else {
-                modelIdView.setText(mContext.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
+                modelIdView.setText(context.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
             }
             modelView.setOnClickListener(v -> {
                 final int position = holder.getAdapterPosition();

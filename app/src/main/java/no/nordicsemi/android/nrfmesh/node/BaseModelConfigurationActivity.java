@@ -96,11 +96,17 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.adapter.BoundAppKeysAdapter;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
+
+import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.MESSAGE_TIME_OUT;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 
 public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
         GroupCallbacks,
@@ -205,8 +211,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             }
             if (!checkConnectivity()) return;
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
-            bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.BIND_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, Utils.SELECT_KEY);
+            bindAppKeysIntent.putExtra(EXTRA_DATA, BIND_APP_KEY);
+            startActivityForResult(bindAppKeysIntent, SELECT_KEY);
         });
 
         mPublishAddressView.setText(R.string.none);
@@ -280,7 +286,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 onBackPressed();
                 return true;
             case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
+                mViewModel.navigateToScannerActivity(this, false, CONNECT_TO_NETWORK, false);
                 return true;
             case R.id.action_disconnect:
                 mViewModel.disconnect();
@@ -312,9 +318,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case Utils.SELECT_KEY:
+            case SELECT_KEY:
                 if (resultCode == RESULT_OK) {
-                    final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
+                    final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
                     if (appKey != null) {
                         bindAppKey(appKey.getKeyIndex());
                     }
@@ -554,7 +560,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     }
 
     protected final void showProgressbar() {
-        mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
+        mHandler.postDelayed(mOperationTimeout, MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
