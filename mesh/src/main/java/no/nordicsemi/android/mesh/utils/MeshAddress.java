@@ -356,8 +356,8 @@ public final class MeshAddress {
      * @return true if valid or false otherwise.
      */
     public static boolean isValidHeartbeatPublicationDestination(final int address) {
-        return isValidUnassignedAddress(address) &&
-                isValidUnicastAddress(address) &&
+        return isValidUnassignedAddress(address) ||
+                isValidUnicastAddress(address) ||
                 isValidGroupAddress(address);
     }
 

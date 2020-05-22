@@ -91,8 +91,9 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
             final Button setPublication = nodeControlsContainer.findViewById(R.id.action_set_heartbeat_publication);
             setPublication.setOnClickListener(v -> {
-                final Intent i = new Intent(this, HeartbeatPublicationActivity.class);
-                startActivity(i);
+                final Intent heartbeatPublication = new Intent(this, HeartbeatPublicationActivity.class);
+                startActivityForResult(heartbeatPublication, HeartbeatPublicationActivity.HEARTBEAT_PUBLICATION_SETTINGS_SET);
+                startActivity(heartbeatPublication);
             });
 
             mNetworkTransmitCountText = nodeControlsContainer.findViewById(R.id.network_transmit_count);
