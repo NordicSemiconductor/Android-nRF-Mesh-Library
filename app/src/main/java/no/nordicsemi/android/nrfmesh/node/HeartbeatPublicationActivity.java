@@ -35,12 +35,17 @@ import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
+import no.nordicsemi.android.mesh.transport.Element;
+import no.nordicsemi.android.mesh.transport.MeshMessage;
+import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatPublishTtl;
@@ -50,6 +55,9 @@ import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatPublicationViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static no.nordicsemi.android.mesh.Features.DISABLED;
+import static no.nordicsemi.android.mesh.Features.ENABLED;
+import static no.nordicsemi.android.mesh.Features.UNSUPPORTED;
 import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.DEFAULT_TTL;
 import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.DO_NOT_SEND_PERIODICALLY;
 import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.SEND_INDEFINITELY;
@@ -64,6 +72,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         PublicationDestinationCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
 
+    public static final int HEARTBEAT_PUBLICATION_SETTINGS_SET = 2022;
     private static final String ADDRESS = "ADDRESS";
     private static final String COUNT_LOG = "COUNT_LOG";
     private static final String PERIOD_LOG = "PERIOD_LOG";
@@ -263,25 +272,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(ADDRESS, mPublishAddress);
-        switch (publicationCountGroup.getCheckedRadioButtonId()) {
-            case R.id.publication_count_1:
-                outState.putInt(COUNT_LOG, DO_NOT_SEND_PERIODICALLY);
-                break;
-            case R.id.publication_count_2:
-                outState.putInt(COUNT_LOG, Integer.parseInt(publicationCountInput.getEditableText().toString().trim()));
-                break;
-            case R.id.publication_count_3:
-                outState.putInt(COUNT_LOG, SEND_INDEFINITELY);
-                break;
-        }
-        switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
-            case R.id.publication_period_rb_1:
-                outState.putInt(PERIOD_LOG, DO_NOT_SEND_PERIODICALLY);
-                break;
-            case R.id.publication_period_rb_2:
-                outState.putInt(PERIOD_LOG, Integer.parseInt(publicationPeriodInput.getEditableText().toString().trim()));
-                break;
-        }
+        outState.putInt(COUNT_LOG, getCountLog());
+        outState.putInt(PERIOD_LOG, getPeriodLog());
         if (checkBoxRelay.isEnabled())
             outState.putBoolean(RELAY, checkBoxRelay.isChecked());
         if (checkBoxProxy.isEnabled())
@@ -451,16 +443,16 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
                                 final int lowPower) {
         checkBoxRelay.setEnabled(relaySupported);
         if (relaySupported)
-            checkBoxRelay.setChecked(relay == Features.ENABLED);
+            checkBoxRelay.setChecked(relay == ENABLED);
         checkBoxProxy.setEnabled(proxySupported);
         if (proxySupported)
-            checkBoxProxy.setChecked(proxy == Features.ENABLED);
+            checkBoxProxy.setChecked(proxy == ENABLED);
         checkBoxFriend.setEnabled(friendSupported);
         if (friendSupported)
-            checkBoxFriend.setChecked(friend == Features.ENABLED);
+            checkBoxFriend.setChecked(friend == ENABLED);
         checkBoxLowPower.setEnabled(lowPowerSupported);
         if (lowPowerSupported)
-            checkBoxLowPower.setChecked(lowPower == Features.ENABLED);
+            checkBoxLowPower.setChecked(lowPower == ENABLED);
     }
 
     private void updateTtl(final int ttl) {
@@ -471,7 +463,54 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         netKeyIndex.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
     }
 
+    private int getCountLog() {
+        switch (publicationCountGroup.getCheckedRadioButtonId()) {
+            default:
+            case R.id.publication_count_1:
+                return DO_NOT_SEND_PERIODICALLY;
+            case R.id.publication_count_2:
+                return Integer.parseInt(publicationCountInput.getEditableText().toString().trim());
+            case R.id.publication_count_3:
+                return SEND_INDEFINITELY;
+        }
+    }
+
+
+    private int getPeriodLog() {
+        switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
+            default:
+            case R.id.publication_period_rb_1:
+                return DO_NOT_SEND_PERIODICALLY;
+            case R.id.publication_period_rb_2:
+                return Integer.parseInt(publicationPeriodInput.getEditableText().toString().trim());
+        }
+    }
+
+    public Features getFeatures() {
+        final int relay = checkBoxRelay.isEnabled() ? checkBoxRelay.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
+        final int proxy = checkBoxProxy.isEnabled() ? checkBoxProxy.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
+        final int friend = checkBoxFriend.isEnabled() ? checkBoxFriend.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
+        final int lowPower = checkBoxLowPower.isEnabled() ? checkBoxLowPower.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
+        return new Features(relay, proxy, friend, lowPower);
+    }
+
     private void setPublication() {
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        final MeshMessage configHeartbeatPublicationSet;
+        if (node != null && element != null && model != null) {
+            try {
+                configHeartbeatPublicationSet = new ConfigHeartbeatPublicationSet(mPublishAddress, getCountLog(), getPeriodLog(), mTtl,
+                        getFeatures(), mNetKey.getKeyIndex());
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configHeartbeatPublicationSet);
+            } catch (IllegalArgumentException ex) {
+                final DialogFragmentError message = DialogFragmentError.
+                        newInstance(getString(R.string.title_error), ex.getMessage());
+                message.show(getSupportFragmentManager(), null);
+                return;
+            }
+        }
         final Intent returnIntent = new Intent();
         setResult(Activity.RESULT_OK, returnIntent);
         finish();

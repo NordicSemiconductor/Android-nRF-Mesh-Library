@@ -326,6 +326,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     }
                 }
                 break;
+            case HeartbeatPublicationActivity.HEARTBEAT_PUBLICATION_SETTINGS_SET:
             case PublicationSettingsActivity.SET_PUBLICATION_SETTINGS:
                 if (resultCode == RESULT_OK) {
                     showProgressbar();
