@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,18 +20,18 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="no.nordicsemi.android.nrfmesh">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="no.nordicsemi.android.nrfmesh">
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="true"/>
+        android:required="true" />
 
     <application
         android:name="no.nordicsemi.android.nrfmesh.di.MeshApplication"
@@ -49,8 +48,8 @@
             android:noHistory="true"
             android:theme="@style/AppTheme.SplashScreen">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
@@ -60,86 +59,89 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="no.nordicsemi.android.nrfmesh.ble.ScannerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.ble.ReconnectActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.GroupControlsActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.provisioners.AddProvisionerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.provisioners.EditProvisionerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.provisioners.RangesActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.NetKeysActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.EditNetKeyActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.AddNetKeyActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.AppKeysActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.AddAppKeyActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.EditAppKeyActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.ProvisioningActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.AddNetKeysActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.NodeDetailsActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.VendorModelActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.HeartbeatPublicationActivity"
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.ModelConfigurationActivity"
-            android:launchMode="singleTop"/>
+            android:launchMode="singleTop" />
     </application>
 
 </manifest>

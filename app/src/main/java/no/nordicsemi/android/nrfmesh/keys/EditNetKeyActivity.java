@@ -44,6 +44,8 @@ import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 
+import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
+
 public class EditNetKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
 
     @Inject
@@ -59,7 +61,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditNetKeyViewModel.class);
 
         //noinspection ConstantConditions
-        final int index = getIntent().getExtras().getInt(NetKeysActivity.EDIT_NET_KEY);
+        final int index = getIntent().getExtras().getInt(EDIT_KEY);
         networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(index);
 
         //Bind ui

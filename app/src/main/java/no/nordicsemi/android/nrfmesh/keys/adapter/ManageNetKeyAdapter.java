@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +36,13 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.NetworkKey;
+import no.nordicsemi.android.mesh.NodeKey;
+import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
@@ -50,12 +52,10 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapter.ViewHolder> {
 
     private final List<NetworkKey> networkKeys = new ArrayList<>();
-    private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageNetKeyAdapter(@NonNull final Context context, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
-        this.mContext = context;
-        meshNetworkLiveData.observe((LifecycleOwner) context, networkData -> {
+    public ManageNetKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
+        meshNetworkLiveData.observe(owner, networkData -> {
             final List<NetworkKey> keys = networkData.getNetworkKeys();
             if (keys != null) {
                 networkKeys.clear();
@@ -67,6 +67,23 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
         });
     }
 
+    public ManageNetKeyAdapter(@NonNull final LifecycleOwner owner,
+                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData,
+                               @NonNull final List<NetworkKey> netKeys) {
+        meshNodeLiveData.observe(owner, node -> {
+            networkKeys.clear();
+            for (NodeKey key : node.getAddedNetKeys()) {
+                for (NetworkKey networkKey : netKeys) {
+                    if (networkKey.getKeyIndex() == key.getIndex()) {
+                        networkKeys.add(networkKey);
+                    }
+                }
+            }
+            Collections.sort(networkKeys, Utils.netKeyComparator);
+            notifyDataSetChanged();
+        });
+    }
+
     public void setOnItemClickListener(final ManageNetKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
@@ -74,7 +91,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
     @NonNull
     @Override
     public ManageNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
         return new ManageNetKeyAdapter.ViewHolder(layoutView);
     }
 
