@@ -334,11 +334,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Utils.SELECT_KEY) {
@@ -415,11 +410,9 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
-            if (group != null) {
-                if (network.addGroup(group)) {
-                    onPublishAddressSet(group);
-                    return true;
-                }
+            if (network.addGroup(group)) {
+                onPublishAddressSet(group);
+                return true;
             }
         }
         return false;
