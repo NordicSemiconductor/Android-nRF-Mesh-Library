@@ -12,20 +12,26 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitGet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
 import no.nordicsemi.android.mesh.transport.ConfigRelayGet;
 import no.nordicsemi.android.mesh.transport.ConfigRelaySet;
 import no.nordicsemi.android.mesh.transport.ConfigRelayStatus;
+import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
+import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogRelayRetransmitSettings;
+
+import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
 
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
         DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener,
@@ -36,6 +42,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private static final int NETWORK_TRANSMIT_SETTING_UNKNOWN = -1;
     private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = -1;
 
+    private TextView mHeartbeatPublicationText;
     private TextView mRelayRetransmitCountText;
     private TextView mRelayRetransmitIntervalStepsText;
     private TextView mNetworkTransmitCountText;
@@ -59,6 +66,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             final ConstraintLayout view = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this)
                     .inflate(R.layout.layout_config_server_model, view);
+
+            mHeartbeatPublicationText = nodeControlsContainer.findViewById(R.id.heart_beat_publication);
 
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if (meshNode != null) {
@@ -93,7 +102,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             setPublication.setOnClickListener(v -> {
                 final Intent heartbeatPublication = new Intent(this, HeartbeatPublicationActivity.class);
                 startActivityForResult(heartbeatPublication, HeartbeatPublicationActivity.HEARTBEAT_PUBLICATION_SETTINGS_SET);
-                startActivity(heartbeatPublication);
             });
 
             mNetworkTransmitCountText = nodeControlsContainer.findViewById(R.id.network_transmit_count);
@@ -121,12 +129,14 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 if (node != null) {
                     updateNetworkTransmitUi(node);
                     updateRelayUi(node);
+                    updateHeartbeatPublication(node);
                 }
             });
 
             if (savedInstanceState == null) {
                 updateNetworkTransmitUi(mViewModel.getSelectedMeshNode().getValue());
                 updateRelayUi(mViewModel.getSelectedMeshNode().getValue());
+                updateHeartbeatPublication(mViewModel.getSelectedMeshNode().getValue());
             }
         }
     }
@@ -154,6 +164,10 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
             final ProvisionedMeshNode meshNode = mViewModel.getNetworkLiveData().getMeshNetwork().getNode(status.getSrc());
             updateRelayUi(meshNode);
+        } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
+            final ConfigHeartbeatPublicationStatus status = (ConfigHeartbeatPublicationStatus) meshMessage;
+            final ProvisionedMeshNode meshNode = mViewModel.getNetworkLiveData().getMeshNetwork().getNode(status.getSrc());
+            updateHeartbeatPublication(meshNode);
         }
     }
 
@@ -250,6 +264,18 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mActionSetRelayState.setEnabled(false);
             mRelayRetransmitCountText.setText(getResources().getString(R.string.unknown));
             mRelayRetransmitIntervalStepsText.setText(getResources().getString(R.string.unknown));
+        }
+    }
+
+    private void updateHeartbeatPublication(@NonNull final ProvisionedMeshNode node) {
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            final MeshModel model = element.getMeshModels().get((int) CONFIGURATION_SERVER);
+            if (model != null) {
+                final HeartbeatPublication heartbeatPublication = ((ConfigurationServerModel) model).getHeartbeatPublication();
+                if (heartbeatPublication != null)
+                    mHeartbeatPublicationText.setText(MeshAddress.formatAddress(heartbeatPublication.getDstAddress(), true));
+            }
         }
     }
 }

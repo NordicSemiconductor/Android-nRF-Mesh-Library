@@ -251,11 +251,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SELECT_KEY) {
