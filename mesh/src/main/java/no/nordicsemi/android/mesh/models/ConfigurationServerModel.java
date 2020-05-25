@@ -27,6 +27,7 @@ import android.os.Parcel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
 
@@ -78,6 +79,7 @@ public class ConfigurationServerModel extends SigModel {
     /**
      * Returns the Heartbeat publication.
      */
+    @Nullable
     public HeartbeatPublication getHeartbeatPublication() {
         return heartbeatPublication;
     }

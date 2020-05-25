@@ -49,7 +49,6 @@ import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Group;
-import no.nordicsemi.android.mesh.transport.PublicationSettings;
 import no.nordicsemi.android.mesh.utils.AddressType;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -72,7 +71,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     private static final String GROUPS = "GROUPS";
     private static final String GROUP = "GROUP";
     private ArrayList<Group> mGroups = new ArrayList<>();
-    private PublicationSettings mPublicationSettings;
+    private HeartbeatPublication mHeartbeatPublication;
     private static final AddressTypes[] addressTypes = {UNICAST_ADDRESS, GROUP_ADDRESS};
 
     //UI Bindings
@@ -106,7 +105,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
 
     public static DialogFragmentHeartbeatDestination newInstance(@NonNull final HeartbeatPublication publication,
                                                                  @NonNull final ArrayList<Group> groups) {
-        DialogFragmentHeartbeatDestination fragmentPublishAddress = new DialogFragmentHeartbeatDestination();
+        final DialogFragmentHeartbeatDestination fragmentPublishAddress = new DialogFragmentHeartbeatDestination();
         final Bundle args = new Bundle();
         args.putParcelable(PUBLICATION_SETTINGS, publication);
         args.putParcelableArrayList(GROUPS, groups);
@@ -118,7 +117,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mPublicationSettings = getArguments().getParcelable(PUBLICATION_SETTINGS);
+            mHeartbeatPublication = getArguments().getParcelable(PUBLICATION_SETTINGS);
             mGroups = getArguments().getParcelableArrayList(GROUPS);
         }
     }
@@ -268,8 +267,8 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
 
     private void setAddressType() {
         int address = 0;
-        if (mPublicationSettings != null) {
-            address = mPublicationSettings.getPublishAddress();
+        if (mHeartbeatPublication != null) {
+            address = mHeartbeatPublication.getDstAddress();
         }
 
         mAdapterSpinner = new AddressTypeAdapter(requireContext(), addressTypes);
@@ -289,8 +288,8 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
 
     private void updateAddress(@NonNull final AddressTypes addressType) {
         int address = 0;
-        if (mPublicationSettings != null) {
-            address = mPublicationSettings.getPublishAddress();
+        if (mHeartbeatPublication != null) {
+            address = mHeartbeatPublication.getDstAddress();
         }
 
         switch (addressType) {

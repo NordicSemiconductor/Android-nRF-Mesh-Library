@@ -95,6 +95,21 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SceneStatus sceneStatus = new SceneStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(sceneStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), sceneStatus);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS) {
+                    final ConfigHeartbeatPublicationStatus status = new ConfigHeartbeatPublicationStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(status.getSrc());
+                            if (element != null) {
+                                final ConfigurationServerModel model = (ConfigurationServerModel) element.getMeshModels().get((int) CONFIGURATION_SERVER);
+                                if (model != null) {
+                                    model.setHeartbeatPublication(status.getHeartbeatPublication());
+                                }
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -282,21 +297,6 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                 }
                             }
                             createGroups(status.getSubscriptionAddresses());
-                        }
-                    }
-                    mInternalTransportCallbacks.updateMeshNetwork(status);
-                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
-                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS) {
-                    final ConfigHeartbeatPublicationStatus status = new ConfigHeartbeatPublicationStatus(message);
-                    if (!isReceivedViaProxyFilter(message)) {
-                        if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getSrc());
-                            if (element != null) {
-                                final ConfigurationServerModel model = (ConfigurationServerModel) element.getMeshModels().get((int) CONFIGURATION_SERVER);
-                                if (model != null) {
-                                    model.setHeartbeatPublication(status.getHeartbeatPublication());
-                                }
-                            }
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);

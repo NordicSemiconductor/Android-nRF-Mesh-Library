@@ -134,7 +134,7 @@
             android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".node.HeartbeatPublicationActivity"
+            android:name="no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity"
             android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity"

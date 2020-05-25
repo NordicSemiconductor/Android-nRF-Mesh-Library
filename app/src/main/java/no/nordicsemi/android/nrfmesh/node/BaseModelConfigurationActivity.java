@@ -360,11 +360,9 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     public boolean onGroupAdded(@NonNull final String name, final int address) {
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
-        if (group != null) {
-            if (network.addGroup(group)) {
-                subscribe(group);
-                return true;
-            }
+        if (network.addGroup(group)) {
+            subscribe(group);
+            return true;
         }
         return false;
     }
