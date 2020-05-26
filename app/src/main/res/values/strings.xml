@@ -560,4 +560,9 @@
     <string name="friend">Friend</string>
     <string name="low_power">Low Power</string>
     <string name="title_net_key_index">Net Key Index</string>
+    <string name="count_summary">= %d</string>
+    <string name="equals">=</string>
+    <string name="seconds">%d seconds</string>
+    <string name="messages">%d messages</string>
+    <string name="count">Count</string>
 </resources>

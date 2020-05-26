@@ -42,8 +42,8 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
     private static final String TAG = ConfigHeartbeatPublicationSet.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_SET;
     private final int dstAddress;
-    private final int countLog;
-    private final int periodLog;
+    private int countLog;
+    private int periodLog;
     private final int ttl;
     private final Features features;
     private final int netKeyIndex;
@@ -71,12 +71,10 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
             throw new IllegalArgumentException("Destination address must be an unassigned address, " +
                     "a unicast address, or a group address, all other values are Prohibited!");
         this.dstAddress = dstAddress;
-        if (!MeshParserUtils.isValidHeartbeatCountLog(countLog))
-            throw new IllegalArgumentException("Count log must not be within the prohibited range of 0x12 to 0xFE!");
-        this.countLog = countLog;
-        if (!MeshParserUtils.isValidHeartbeatPeriodLog(periodLog))
-            throw new IllegalArgumentException("Period log must be within the range of 0x00 to 0x11!");
-        this.periodLog = periodLog;
+        if (MeshParserUtils.isValidHeartbeatCountLog(countLog))
+            this.countLog = countLog;
+        if (MeshParserUtils.isValidHeartbeatPeriodLog(periodLog))
+            this.periodLog = periodLog;
         if (!MeshParserUtils.isValidHeartbeatPublicationTtl(ttl))
             throw new IllegalArgumentException("Heartbeat ttl must be within the range of 0x00 to 0x7F!");
         this.ttl = ttl;

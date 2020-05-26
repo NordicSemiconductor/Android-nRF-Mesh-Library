@@ -12,8 +12,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.BindView;
@@ -42,6 +42,7 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
+import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
@@ -58,8 +59,12 @@ import static android.view.View.VISIBLE;
 import static no.nordicsemi.android.mesh.Features.DISABLED;
 import static no.nordicsemi.android.mesh.Features.ENABLED;
 import static no.nordicsemi.android.mesh.Features.UNSUPPORTED;
+import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.COUNT_MAX;
+import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.COUNT_MIN;
 import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.DEFAULT_TTL;
 import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.DO_NOT_SEND_PERIODICALLY;
+import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.PERIOD_MAX;
+import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.PERIOD_MIN;
 import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.SEND_INDEFINITELY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
@@ -96,16 +101,20 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     TextView destinationAddress;
     @BindView(R.id.publication_count_group)
     RadioGroup publicationCountGroup;
-    @BindView(R.id.publication_count_layout)
-    TextInputLayout publicationCountLayout;
-    @BindView(R.id.publication_count_input)
-    TextInputEditText publicationCountInput;
+    @BindView(R.id.publication_count_container)
+    ConstraintLayout publicationCountContainer;
+    @BindView(R.id.count)
+    TextView publicationCount;
+    @BindView(R.id.count_slider)
+    Slider countSlider;
     @BindView(R.id.publication_period_group)
     RadioGroup publicationPeriodGroup;
-    @BindView(R.id.publication_period_layout)
-    TextInputLayout publicationPeriodLayout;
-    @BindView(R.id.publication_period_input)
-    TextInputEditText publicationPeriodInput;
+    @BindView(R.id.period_slider)
+    Slider periodSlider;
+    @BindView(R.id.publication_period_container)
+    ConstraintLayout publicationPeriodContainer;
+    @BindView(R.id.period)
+    TextView publicationPeriod;
     @BindView(R.id.check_relay)
     CheckBox checkBoxRelay;
     @BindView(R.id.check_proxy)
@@ -172,25 +181,45 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             destination.show(getSupportFragmentManager(), null);
         });
 
+        countSlider.setValueFrom(COUNT_MIN);
+        countSlider.setValueTo(COUNT_MAX);
+        countSlider.addOnChangeListener((slider, value, fromUser) ->
+                publicationCount.setText(String.format(getString(R.string.messages),
+                        MeshParserUtils.calculateHeartbeatPublicationCount((int) value))));
+
         publicationCountGroup.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.publication_count_2:
-                    publicationCountLayout.setVisibility(VISIBLE);
+                    enableDisableRadioGroup(true);
+                    enableDisableViews(publicationPeriodContainer, true);
+                    publicationCountContainer.setVisibility(VISIBLE);
                     break;
                 case R.id.publication_count_1:
                 case R.id.publication_count_3:
-                    publicationCountLayout.setVisibility(GONE);
+                    enableDisableRadioGroup(false);
+                    publicationCountContainer.setVisibility(GONE);
+                    if (publicationPeriodGroup.getCheckedRadioButtonId() == R.id.publication_period_rb_1)
+                        publicationPeriodContainer.setVisibility(GONE);
+                    else enableDisableViews(publicationPeriodContainer, false);
                     break;
             }
         });
 
+        periodSlider.setValueFrom(PERIOD_MIN);
+        periodSlider.setValueTo(PERIOD_MAX);
+        periodSlider.addOnChangeListener((slider, value, fromUser) ->
+                publicationPeriod.setText(String.format(getString(R.string.seconds),
+                        MeshParserUtils.calculateHeartbeatPublicationPeriod((int) value))));
+
         publicationPeriodGroup.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.publication_period_rb_1:
-                    publicationPeriodLayout.setVisibility(GONE);
+                    publicationPeriodContainer.setVisibility(GONE);
                     break;
                 case R.id.publication_period_rb_2:
-                    publicationPeriodLayout.setVisibility(VISIBLE);
+                    enableDisableViews(publicationPeriodContainer, true);
+                    if (publicationPeriodContainer.getVisibility() != VISIBLE)
+                        publicationPeriodContainer.setVisibility(VISIBLE);
                     break;
             }
         });
@@ -221,6 +250,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         if (savedInstanceState == null) {
             updatePublicationValues();
         }
+        countSlider.setValue(1);
+        periodSlider.setValue(1);
     }
 
     @Override
@@ -284,8 +315,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     @Override
     protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
         updateDestinationAddress(mPublishAddress = savedInstanceState.getInt(ADDRESS, 0));
-        updateCountLog(savedInstanceState.getInt(COUNT_LOG));
         updatePeriodLog(savedInstanceState.getInt(PERIOD_LOG));
+        updateCountLog(savedInstanceState.getInt(COUNT_LOG));
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Features features = node.getNodeFeatures();
@@ -412,8 +443,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
                 break;
             default:
                 publicationCountGroup.check(R.id.publication_count_2);
-                publicationCountLayout.setVisibility(VISIBLE);
-                publicationCountInput.setText(String.valueOf(countLog));
+                publicationCountContainer.setVisibility(VISIBLE);
+                countSlider.setValue(countLog);
                 break;
         }
     }
@@ -423,8 +454,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             publicationPeriodGroup.check(R.id.publication_period_rb_1);
         } else {
             publicationPeriodGroup.check(R.id.publication_period_rb_2);
-            publicationPeriodInput.setVisibility(VISIBLE);
-            publicationPeriodInput.setText(String.valueOf(periodLog));
+            periodSlider.setValue(periodLog);
         }
     }
 
@@ -464,12 +494,24 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             case R.id.publication_count_1:
                 return DO_NOT_SEND_PERIODICALLY;
             case R.id.publication_count_2:
-                return Integer.parseInt(publicationCountInput.getEditableText().toString().trim());
+                return (int) countSlider.getValue();
             case R.id.publication_count_3:
                 return SEND_INDEFINITELY;
         }
     }
 
+    private int getHeartbeatCountLog() {
+        switch (publicationCountGroup.getCheckedRadioButtonId()) {
+            default:
+            case R.id.publication_count_1:
+                return DO_NOT_SEND_PERIODICALLY;
+            case R.id.publication_count_2:
+                return MeshParserUtils.
+                        calculateHeartbeatPublicationCount((int) countSlider.getValue());
+            case R.id.publication_count_3:
+                return SEND_INDEFINITELY;
+        }
+    }
 
     private int getPeriodLog() {
         switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
@@ -477,7 +519,18 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             case R.id.publication_period_rb_1:
                 return DO_NOT_SEND_PERIODICALLY;
             case R.id.publication_period_rb_2:
-                return Integer.parseInt(publicationPeriodInput.getEditableText().toString().trim());
+                return (int) periodSlider.getValue();
+        }
+    }
+
+    private int getHeartbeatPeriodLog() {
+        switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
+            default:
+            case R.id.publication_period_rb_1:
+                return DO_NOT_SEND_PERIODICALLY;
+            case R.id.publication_period_rb_2:
+                return MeshParserUtils.
+                        calculateHeartbeatPublicationPeriod((int) periodSlider.getValue());
         }
     }
 
@@ -496,7 +549,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         final MeshMessage configHeartbeatPublicationSet;
         if (node != null && element != null && model != null) {
             try {
-                configHeartbeatPublicationSet = new ConfigHeartbeatPublicationSet(mPublishAddress, getCountLog(), getPeriodLog(), mTtl,
+                configHeartbeatPublicationSet = new ConfigHeartbeatPublicationSet(mPublishAddress,
+                        getHeartbeatCountLog(), getHeartbeatPeriodLog(), mTtl,
                         getFeatures(), mNetKey.getKeyIndex());
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configHeartbeatPublicationSet);
             } catch (IllegalArgumentException ex) {
@@ -517,5 +571,17 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             return false;
         }
         return true;
+    }
+
+    private void enableDisableRadioGroup(final boolean flag) {
+        for (int i = 0; i < publicationPeriodGroup.getChildCount(); i++) {
+            publicationPeriodGroup.getChildAt(i).setEnabled(flag);
+        }
+    }
+
+    private void enableDisableViews(final ConstraintLayout view, final boolean flag) {
+        for (int i = 0; i < view.getChildCount(); i++) {
+            view.getChildAt(i).setEnabled(flag);
+        }
     }
 }
