@@ -54,7 +54,7 @@
         </activity>
         <activity
             android:name="no.nordicsemi.android.nrfmesh.MainActivity"
-            android:icon="@drawable/ic_feature_mesh"
+            android:icon="@drawable/ic_mesh_feature"
             android:label="@string/feature_name"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan">
