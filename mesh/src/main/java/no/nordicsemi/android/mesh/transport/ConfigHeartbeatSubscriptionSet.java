@@ -49,9 +49,10 @@ public class ConfigHeartbeatSubscriptionSet extends ConfigMessage {
      * @param srcAddress Source address identifies the Heartbeat Subscription Source,
      *                   where the address shall be an unassigned address or a unicast address.
      *                   All other values are prohibited.
-     * @param dstAddress Destination address identifies the Heartbeat Subscription
-     *                   destination shall be the unassigned address,
-     *                   the primary unicast address of the node, or a group address, all other values are Prohibited.
+     * @param dstAddress Destination address identifies the Heartbeat Subscription destination,
+     *                   where the address shall be an unassigned address,
+     *                   the primary unicast address of the node, or a group address,
+     *                   all other values are Prohibited.
      * @param periodLog  Period for sending Heartbeat messages.
      * @throws IllegalArgumentException if any illegal arguments are passed.
      */

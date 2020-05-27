@@ -26,7 +26,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
-public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
+public class GenericLevelServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
 
@@ -46,6 +46,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericLevelServerModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
@@ -178,6 +179,11 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
         mTransitionTimeSeekBar.setEnabled(false);
         mDelaySeekBar.setEnabled(false);
         mLevelSeekBar.setEnabled(false);
+    }
+
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
     }
 
     @Override

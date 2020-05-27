@@ -3,6 +3,9 @@ package no.nordicsemi.android.mesh.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.Features;
 
@@ -19,11 +22,23 @@ public class HeartbeatPublication implements Parcelable {
     public static final int SEND_INDEFINITELY = 0xFF;
     public static final int DEFAULT_TTL = 0x05;
 
+    @Expose
+    @SerializedName("address")
     private final int dst;
+    @Expose
+    @SerializedName("count")
     private final int countLog;
+    @Expose
+    @SerializedName("period")
     private final int periodLog;
+    @Expose
+    @SerializedName("ttl")
     private final int ttl;
+    @Expose
+    @SerializedName("features")
     private final Features features;
+    @Expose
+    @SerializedName("netKeyIndex")
     private final int netKeyIndex;
 
     /**

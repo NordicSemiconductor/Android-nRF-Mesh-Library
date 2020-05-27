@@ -8,11 +8,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.slider.Slider;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Features;
@@ -35,7 +37,9 @@ import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -47,6 +51,7 @@ import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
+import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatPublishTtl;
@@ -75,7 +80,7 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 public class HeartbeatPublicationActivity extends AppCompatActivity implements Injectable,
         GroupCallbacks,
         PublicationDestinationCallbacks,
-        DialogFragmentTtl.DialogFragmentTtlListener {
+        DialogFragmentTtl.DialogFragmentTtlListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final int HEARTBEAT_PUBLICATION_SETTINGS_SET = 2022;
     private static final String ADDRESS = "ADDRESS";
@@ -131,6 +136,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     View actionNetKeyIndex;
     @BindView(R.id.net_key_index)
     TextView netKeyIndex;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipe;
 
     private boolean mIsConnected;
     private int mPublishAddress;
@@ -157,8 +164,9 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
         getSupportActionBar().setTitle(R.string.title_heartbeat_publication);
+        mSwipe.setOnRefreshListener(this);
 
-        final ScrollView scrollView = findViewById(R.id.scroll_view);
+        final NestedScrollView scrollView = findViewById(R.id.scroll_view);
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
                 fabApply.extend();
@@ -247,6 +255,16 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             setPublication();
         });
 
+        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
+
+        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
+            if (transactionStatus != null) {
+                mSwipe.setRefreshing(false);
+                final String message = getString(R.string.operation_timed_out);
+                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
+                fragmentMessage.show(getSupportFragmentManager(), null);
+            }
+        });
         if (savedInstanceState == null) {
             updatePublicationValues();
         }
@@ -392,6 +410,14 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         updateTtl(mTtl = ttl);
     }
 
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
+            mSwipe.setRefreshing(false);
+            updatePublicationValues();
+            mViewModel.removeMessage();
+        }
+    }
+
     private void updatePublicationValues() {
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         final HeartbeatPublication publication = mMeshModel.getHeartbeatPublication();
@@ -500,19 +526,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         }
     }
 
-    private int getHeartbeatCountLog() {
-        switch (publicationCountGroup.getCheckedRadioButtonId()) {
-            default:
-            case R.id.publication_count_1:
-                return DO_NOT_SEND_PERIODICALLY;
-            case R.id.publication_count_2:
-                return MeshParserUtils.
-                        calculateHeartbeatPublicationCount((int) countSlider.getValue());
-            case R.id.publication_count_3:
-                return SEND_INDEFINITELY;
-        }
-    }
-
     private int getPeriodLog() {
         switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
             default:
@@ -520,17 +533,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
                 return DO_NOT_SEND_PERIODICALLY;
             case R.id.publication_period_rb_2:
                 return (int) periodSlider.getValue();
-        }
-    }
-
-    private int getHeartbeatPeriodLog() {
-        switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
-            default:
-            case R.id.publication_period_rb_1:
-                return DO_NOT_SEND_PERIODICALLY;
-            case R.id.publication_period_rb_2:
-                return MeshParserUtils.
-                        calculateHeartbeatPublicationPeriod((int) periodSlider.getValue());
         }
     }
 
@@ -550,7 +552,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         if (node != null && element != null && model != null) {
             try {
                 configHeartbeatPublicationSet = new ConfigHeartbeatPublicationSet(mPublishAddress,
-                        getHeartbeatCountLog(), getHeartbeatPeriodLog(), mTtl,
+                        getCountLog(), getPeriodLog(), mTtl,
                         getFeatures(), mNetKey.getKeyIndex());
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configHeartbeatPublicationSet);
             } catch (IllegalArgumentException ex) {
@@ -582,6 +584,37 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     private void enableDisableViews(final ConstraintLayout view, final boolean flag) {
         for (int i = 0; i < view.getChildCount(); i++) {
             view.getChildAt(i).setEnabled(flag);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (!checkConnectivity() || model == null) {
+            mSwipe.setRefreshing(false);
+        }
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (node != null && element != null &&
+                model instanceof ConfigurationServerModel) {
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
+            mViewModel.getMessageQueue().add(new ConfigHeartbeatPublicationGet());
+            //noinspection ConstantConditions
+            sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+        } else {
+            mSwipe.setRefreshing(false);
+        }
+    }
+
+    protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
+        try {
+            if (!checkConnectivity())
+                return;
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
+            final DialogFragmentError message = DialogFragmentError.
+                    newInstance(getString(R.string.title_error), ex.getMessage());
+            message.show(getSupportFragmentManager(), null);
         }
     }
 }

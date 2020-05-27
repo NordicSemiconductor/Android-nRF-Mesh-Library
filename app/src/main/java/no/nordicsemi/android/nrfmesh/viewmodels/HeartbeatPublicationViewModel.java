@@ -22,9 +22,13 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity;
 
 /**
@@ -32,8 +36,26 @@ import no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity;
  */
 public class HeartbeatPublicationViewModel extends BaseViewModel {
 
+    private Queue<MeshMessage> messageQueue = new LinkedList<>();
+    
     @Inject
     HeartbeatPublicationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        mNrfMeshRepository.clearTransactionStatus();
+        messageQueue.clear();
+    }
+
+    public Queue<MeshMessage> getMessageQueue() {
+        return messageQueue;
+    }
+
+    public void removeMessage() {
+        if (!messageQueue.isEmpty())
+            messageQueue.remove();
     }
 }

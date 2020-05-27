@@ -37,6 +37,8 @@ import no.nordicsemi.android.mesh.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.mesh.transport.ConfigCompositionDataStatus;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlGet;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlStatus;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionStatus;
@@ -847,9 +849,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         mSelectedModel.postValue(model);
                     }
                 }
-
             } else if (meshMessage instanceof ConfigModelPublicationStatus) {
-
                 if (updateNode(node)) {
                     final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
                     if (node.getElements().containsKey(status.getElementAddress())) {
@@ -861,7 +861,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 }
 
             } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
-
                 if (updateNode(node)) {
                     final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
                     if (node.getElements().containsKey(status.getElementAddress())) {
@@ -884,13 +883,21 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
                     mMeshMessageLiveData.postValue(status);
                 }
-
+            } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
+                if (updateNode(node)) {
+                    mMeshMessageLiveData.postValue(meshMessage);
+                }
+            } else if (meshMessage instanceof ConfigHeartbeatSubscriptionStatus) {
+                if (updateNode(node)) {
+                    final Element element = node.getElements().get(meshMessage.getSrc());
+                    final MeshModel model = element.getMeshModels().get((int)SigModelParser.CONFIGURATION_SERVER);
+                    mMeshMessageLiveData.postValue(meshMessage);
+                }
             } else if (meshMessage instanceof ConfigProxyStatus) {
                 if (updateNode(node)) {
                     final ConfigProxyStatus status = (ConfigProxyStatus) meshMessage;
                     mMeshMessageLiveData.postValue(status);
                 }
-
             } else if (meshMessage instanceof GenericOnOffStatus) {
                 if (updateNode(node)) {
                     final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;

@@ -140,7 +140,7 @@
             android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.ModelConfigurationActivity"
+            android:name="no.nordicsemi.android.nrfmesh.node.GenericModelConfigurationActivity"
             android:launchMode="singleTop" />
     </application>
 

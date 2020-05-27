@@ -257,6 +257,7 @@
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
 
     <string name="title_publish_address">Publish Address</string>
+    <string name="title_subscription_address">Subscription Address</string>
     <string name="none">None</string>
     <string name="no_app_keys_bound">No app keys are bound to this model.</string>
     <string name="title_publish_address_configuration">Publish</string>
@@ -565,4 +566,6 @@
     <string name="seconds">%d seconds</string>
     <string name="messages">%d messages</string>
     <string name="count">Count</string>
+    <string name="title_heartbeat_publication_status">Heartbeat Publication Status</string>
+    <string name="title_heartbeat_subscription_status">Heartbeat Subscription Status</string>
 </resources>

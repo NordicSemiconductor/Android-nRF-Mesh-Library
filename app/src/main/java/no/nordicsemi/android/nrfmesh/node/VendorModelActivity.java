@@ -22,6 +22,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.VendorModel;
+import no.nordicsemi.android.mesh.transport.ConfigVendorModelAppList;
+import no.nordicsemi.android.mesh.transport.ConfigVendorModelSubscriptionList;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -34,7 +36,7 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
-public class VendorModelActivity extends BaseModelConfigurationActivity {
+public class VendorModelActivity extends ModelConfigurationActivity {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -45,6 +47,7 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof VendorModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
@@ -128,12 +131,33 @@ public class VendorModelActivity extends BaseModelConfigurationActivity {
     }
 
     @Override
+    public void onRefresh() {
+        super.onRefresh();
+    }
+
+    @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
         if (meshMessage instanceof VendorModelMessageStatus) {
             final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
             messageContainer.setVisibility(View.VISIBLE);
             receivedMessage.setText(MeshParserUtils.bytesToHex(status.getAccessPayload(), false));
+        } else if (meshMessage instanceof ConfigVendorModelAppList) {
+            final ConfigVendorModelAppList status = (ConfigVendorModelAppList) meshMessage;
+            mViewModel.removeMessage();
+            if (status.isSuccessful()) {
+                if (handleStatuses()) return;
+            } else {
+                displayStatusDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigVendorModelSubscriptionList) {
+            final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
+            mViewModel.removeMessage();
+            if (status.isSuccessful()) {
+                if (handleStatuses()) return;
+            } else {
+                displayStatusDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
+            }
         }
     }
 

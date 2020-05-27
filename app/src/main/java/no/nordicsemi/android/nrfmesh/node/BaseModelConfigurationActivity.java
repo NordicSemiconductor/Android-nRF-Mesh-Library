@@ -60,24 +60,17 @@ import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.models.SigModel;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppBind;
-import no.nordicsemi.android.mesh.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppUnbind;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationSet;
-import no.nordicsemi.android.mesh.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionAdd;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionDelete;
-import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionVirtualAddressAdd;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionVirtualAddressDelete;
 import no.nordicsemi.android.mesh.transport.ConfigSigModelAppGet;
-import no.nordicsemi.android.mesh.transport.ConfigSigModelAppList;
 import no.nordicsemi.android.mesh.transport.ConfigSigModelSubscriptionGet;
-import no.nordicsemi.android.mesh.transport.ConfigSigModelSubscriptionList;
 import no.nordicsemi.android.mesh.transport.ConfigVendorModelAppGet;
-import no.nordicsemi.android.mesh.transport.ConfigVendorModelAppList;
 import no.nordicsemi.android.mesh.transport.ConfigVendorModelSubscriptionGet;
-import no.nordicsemi.android.mesh.transport.ConfigVendorModelSubscriptionList;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -160,7 +153,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected BoundAppKeysAdapter mBoundAppKeyAdapter;
     protected Button mActionRead;
     protected Button mActionSetRelayState;
-    protected Button mReadNetworkTransmitStateButton;
     protected Button mSetNetworkTransmitStateButton;
 
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
@@ -186,7 +178,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         getSupportActionBar().setTitle(modelName);
         final int modelId = meshModel.getModelId();
         getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, true)));
-        mSwipe.setOnRefreshListener(this);
 
         recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
         recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
@@ -574,7 +565,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     private final Runnable mOperationTimeout = () -> {
         hideProgressBar();
         mViewModel.getMessageQueue().clear();
-        if (mViewModel.isActivityVisibile()) {
+        if (mViewModel.isActivityVisible()) {
             DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
                     newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
             fragmentMessage.show(getSupportFragmentManager(), null);
@@ -589,8 +580,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         if (mActionSetRelayState != null)
             mActionSetRelayState.setEnabled(true);
-        if (mReadNetworkTransmitStateButton != null)
-            mReadNetworkTransmitStateButton.setEnabled(true);
         if (mSetNetworkTransmitStateButton != null)
             mSetNetworkTransmitStateButton.setEnabled(true);
 
@@ -606,11 +595,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
         if (mActionSetRelayState != null)
             mActionSetRelayState.setEnabled(false);
-        if (mReadNetworkTransmitStateButton != null)
-            mReadNetworkTransmitStateButton.setEnabled(false);
         if (mSetNetworkTransmitStateButton != null)
             mSetNetworkTransmitStateButton.setEnabled(false);
-
         if (mActionRead != null)
             mActionRead.setEnabled(false);
     }
@@ -620,65 +606,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
      *
      * @param meshMessage {@link MeshMessage} mesh message status
      */
-    protected void updateMeshMessage(final MeshMessage meshMessage) {
-        if (meshMessage instanceof ConfigModelAppStatus) {
-            final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
-            if (status.isSuccessful()) {
-                mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-            }
-        } else if (meshMessage instanceof ConfigSigModelAppList) {
-            final ConfigSigModelAppList status = (ConfigSigModelAppList) meshMessage;
-            mViewModel.removeMessage();
-            if (status.isSuccessful()) {
-                if (handleStatuses()) return;
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
-            }
-        } else if (meshMessage instanceof ConfigVendorModelAppList) {
-            final ConfigVendorModelAppList status = (ConfigVendorModelAppList) meshMessage;
-            mViewModel.removeMessage();
-            if (status.isSuccessful()) {
-                if (handleStatuses()) return;
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_vendor_model_app_list), status.getStatusCodeName());
-            }
-        } else if (meshMessage instanceof ConfigModelPublicationStatus) {
-            final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
-            mViewModel.removeMessage();
-            if (status.isSuccessful()) {
-                if (handleStatuses()) return;
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
-            }
-        } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
-            final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
-            mViewModel.removeMessage();
-            if (status.isSuccessful()) {
-                if (handleStatuses()) return;
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
-            }
-        } else if (meshMessage instanceof ConfigSigModelSubscriptionList) {
-            final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
-            mViewModel.removeMessage();
-            if (status.isSuccessful()) {
-                if (handleStatuses()) return;
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
-            }
-        } else if (meshMessage instanceof ConfigVendorModelSubscriptionList) {
-            final ConfigVendorModelSubscriptionList status = (ConfigVendorModelSubscriptionList) meshMessage;
-            mViewModel.removeMessage();
-            if (status.isSuccessful()) {
-                if (handleStatuses()) return;
-            } else {
-                displayStatusDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
-            }
-        }
-        hideProgressBar();
-    }
+    protected abstract void updateMeshMessage(final MeshMessage meshMessage);
 
     private void updateAppStatusUi(final MeshModel meshModel) {
         final List<Integer> keys = meshModel.getBoundAppKeyIndexes();
@@ -758,7 +686,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    private boolean handleStatuses() {
+    protected boolean handleStatuses() {
         final MeshMessage message = mViewModel.getMessageQueue().peek();
         if (message != null) {
             sendMessage(message);
@@ -789,13 +717,13 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             disableClickableViews();
     }
 
-    private void queuePublicationGetMessage(final int address, final int modelId) {
+    protected void queuePublicationGetMessage(final int address, final int modelId) {
         final ConfigModelPublicationGet publicationGet = new ConfigModelPublicationGet(address, modelId);
         mViewModel.getMessageQueue().add(publicationGet);
     }
 
-    private void displayStatusDialogFragment(@NonNull final String title, @NonNull final String message) {
-        if (mViewModel.isActivityVisibile()) {
+    protected void displayStatusDialogFragment(@NonNull final String title, @NonNull final String message) {
+        if (mViewModel.isActivityVisible()) {
             DialogFragmentConfigStatus fragmentAppKeyBindStatus = DialogFragmentConfigStatus.
                     newInstance(title, message);
             fragmentAppKeyBindStatus.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
