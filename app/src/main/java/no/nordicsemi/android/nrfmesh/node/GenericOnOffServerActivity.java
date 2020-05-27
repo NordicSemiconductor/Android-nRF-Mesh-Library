@@ -201,6 +201,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
                 remainingTime.setVisibility(View.VISIBLE);
             }
         }
+        hideProgressBar();
     }
 
 

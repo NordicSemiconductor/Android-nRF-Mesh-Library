@@ -16,5 +16,6 @@ public class GenericModelConfigurationActivity extends BaseModelConfigurationAct
     @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         // DO nothing
+        hideProgressBar();
     }
 }
