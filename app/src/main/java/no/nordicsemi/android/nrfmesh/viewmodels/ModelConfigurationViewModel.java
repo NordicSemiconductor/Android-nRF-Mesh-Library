@@ -32,14 +32,14 @@ import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmesh.node.GenericModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity;
-import no.nordicsemi.android.nrfmesh.node.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
 
 /**
  * Generic View Model class for {@link ConfigurationServerActivity},{@link ConfigurationClientActivity},
  * {@link GenericOnOffServerActivity}, {@link GenericLevelServerActivity}, {@link VendorModelActivity},
- * {@link ModelConfigurationActivity}
+ * {@link GenericModelConfigurationActivity}
  */
 public class ModelConfigurationViewModel extends BaseViewModel {
 
@@ -66,11 +66,11 @@ public class ModelConfigurationViewModel extends BaseViewModel {
             messageQueue.remove();
     }
 
-    public boolean isActivityVisibile() {
+    public boolean isActivityVisible() {
         return isActivityVisibile;
     }
 
-    public void setActivityVisible(final boolean visible){
+    public void setActivityVisible(final boolean visible) {
         isActivityVisibile = visible;
     }
 }

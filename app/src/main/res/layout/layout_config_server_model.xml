@@ -59,7 +59,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/heart_beat_publication"
+                    android:id="@+id/heartbeat_publication"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="@id/heart_beat_publish_title"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/heart_beat_publication"
+                    app:layout_constraintTop_toTopOf="@id/heartbeat_publication"
                     app:srcCompat="@drawable/ic_lan_24dp"
                     tools:ignore="ContentDescription" />
 
@@ -129,8 +129,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackground">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/heartbeat_subscription_tool_bar"
@@ -146,39 +145,50 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/container_heartbeat_subscription"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="?selectableItemBackground"
+                android:paddingStart="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/item_padding_top"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
+                android:paddingBottom="@dimen/item_padding_bottom"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/heartbeat_subscription_tool_bar">
+                app:layout_constraintTop_toBottomOf="@id/heartbeat_subscription_tool_bar">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/subscribe_heartbeat_addresses"
+                    android:id="@+id/heartbeat_subscription_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:paddingStart="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/item_padding_top"
                     android:paddingEnd="@dimen/activity_horizontal_margin"
-                    android:paddingBottom="@dimen/item_padding_bottom"
-                    android:text="@string/not_subscribed_to_groups"
-                    android:textColor="?android:textColorPrimary"
-                    android:textSize="14sp"
+                    android:text="@string/title_subscription_address"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/image_heartbeat_sub"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view_heartbeat_subscriptions"
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/heartbeat_subscription"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:scrollbars="none"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:text="None"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/image_heartbeat_sub"
+                    app:layout_constraintTop_toBottomOf="@id/heartbeat_subscription_title"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <ImageView
+                    android:id="@+id/image_heartbeat_sub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="@id/heartbeat_subscription_title"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@id/heartbeat_subscription"
+                    app:srcCompat="@drawable/ic_lan_24dp"
+                    tools:ignore="ContentDescription" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -357,17 +367,6 @@
                 app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/action_relay_retransmit_get"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginStart="@dimen/item_padding_start"
-                android:text="@string/action_network_transmit_get"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/action_relay_retransmit_configure"
-                app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_relay_retransmit_configure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -514,17 +513,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/action_network_transmit_get"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginStart="@dimen/item_padding_start"
-                android:text="@string/action_network_transmit_get"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/action_network_transmit_configure"
-                app:layout_constraintTop_toBottomOf="@id/network_transmit_divider" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_network_transmit_configure"
