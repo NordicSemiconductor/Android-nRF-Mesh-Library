@@ -159,6 +159,7 @@ public class VendorModelActivity extends ModelConfigurationActivity {
                 displayStatusDialogFragment(getString(R.string.title_vendor_model_subscription_list), status.getStatusCodeName());
             }
         }
+        hideProgressBar();
     }
 
     /**

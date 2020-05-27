@@ -38,7 +38,7 @@ public abstract class ModelConfigurationActivity extends BaseModelConfigurationA
             final ConfigSigModelAppList status = (ConfigSigModelAppList) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                if (handleStatuses()) return;
+                handleStatuses();
             } else {
                 displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
@@ -46,7 +46,7 @@ public abstract class ModelConfigurationActivity extends BaseModelConfigurationA
             final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                if (handleStatuses()) return;
+                handleStatuses();
             } else {
                 displayStatusDialogFragment(getString(R.string.title_publication_status), status.getStatusCodeName());
             }
@@ -54,7 +54,7 @@ public abstract class ModelConfigurationActivity extends BaseModelConfigurationA
             final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                if (handleStatuses()) return;
+                handleStatuses();
             } else {
                 displayStatusDialogFragment(getString(R.string.title_subscription_status), status.getStatusCodeName());
             }
@@ -62,11 +62,10 @@ public abstract class ModelConfigurationActivity extends BaseModelConfigurationA
             final ConfigSigModelSubscriptionList status = (ConfigSigModelSubscriptionList) meshMessage;
             mViewModel.removeMessage();
             if (status.isSuccessful()) {
-                if (handleStatuses()) return;
+                handleStatuses();
             } else {
                 displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusCodeName());
             }
         }
-        hideProgressBar();
     }
 }

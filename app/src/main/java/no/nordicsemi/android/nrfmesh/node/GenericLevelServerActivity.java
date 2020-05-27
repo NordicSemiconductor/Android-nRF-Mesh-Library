@@ -209,8 +209,8 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
             }
             mLevelSeekBar.setProgress(levelPercent);
         }
+        hideProgressBar();
     }
-
 
     /**
      * Send generic on off get to mesh node
