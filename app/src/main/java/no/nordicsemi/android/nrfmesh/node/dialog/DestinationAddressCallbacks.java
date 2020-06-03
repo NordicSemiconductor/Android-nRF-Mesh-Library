@@ -6,19 +6,19 @@ import no.nordicsemi.android.mesh.Group;
 /**
  * Publication destination callbacks.
  */
-public interface PublicationDestinationCallbacks {
+public interface DestinationAddressCallbacks {
 
     /**
      * Invoked when publish address set.
      *
      * @param address publish address
      */
-    void onPublishAddressSet(int address);
+    void onDestinationAddressSet(int address);
 
     /**
      * Invoked when publish address set.
      *
      * @param group Group
      */
-    void onPublishAddressSet(@NonNull Group group);
+    void onDestinationAddressSet(@NonNull Group group);
 }

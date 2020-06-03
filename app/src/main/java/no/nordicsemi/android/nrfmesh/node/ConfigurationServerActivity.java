@@ -38,9 +38,10 @@ import no.nordicsemi.android.mesh.utils.RelaySettings;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogRelayRetransmitSettings;
+import no.nordicsemi.android.nrfmesh.utils.Utils;
 
-import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.DEFAULT_TTL;
-import static no.nordicsemi.android.mesh.utils.HeartbeatPublication.DO_NOT_SEND_PERIODICALLY;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.DEFAULT_PUBLICATION_TTL;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.DO_NOT_SEND_PERIODICALLY;
 
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
         DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener,
@@ -113,7 +114,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mSetPublication = nodeControlsContainer.findViewById(R.id.action_set_heartbeat_publication);
             mSetPublication.setOnClickListener(v -> {
                 final Intent heartbeatPublication = new Intent(this, HeartbeatPublicationActivity.class);
-                startActivityForResult(heartbeatPublication, HeartbeatPublicationActivity.HEARTBEAT_PUBLICATION_SETTINGS_SET);
+                startActivityForResult(heartbeatPublication, Utils.HEARTBEAT_SETTINGS_SET);
             });
 
             mClearSubscription = nodeControlsContainer.findViewById(R.id.action_clear_heartbeat_subscription);
@@ -121,8 +122,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
             mSetSubscription = nodeControlsContainer.findViewById(R.id.action_set_heartbeat_subscription);
             mSetSubscription.setOnClickListener(v -> {
-                final Intent heartbeatPublication = new Intent(this, HeartbeatPublicationActivity.class);
-                startActivityForResult(heartbeatPublication, HeartbeatPublicationActivity.HEARTBEAT_PUBLICATION_SETTINGS_SET);
+                final Intent subscription = new Intent(this, HeartbeatSubscriptionActivity.class);
+                startActivityForResult(subscription, Utils.HEARTBEAT_SETTINGS_SET);
             });
 
             mNetworkTransmitCountText = nodeControlsContainer.findViewById(R.id.network_transmit_count);
@@ -225,8 +226,10 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
+        mClearPublication.setEnabled(true);
         mSetPublication.setEnabled(true);
         mSetSubscription.setEnabled(true);
+        mClearSubscription.setEnabled(true);
         mActionSetRelayState.setEnabled(true);
         mSetNetworkTransmitStateButton.setEnabled(true);
     }
@@ -234,7 +237,9 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
+        mClearPublication.setEnabled(false);
         mSetPublication.setEnabled(false);
+        mClearSubscription.setEnabled(false);
         mSetSubscription.setEnabled(false);
         mActionSetRelayState.setEnabled(false);
         mSetNetworkTransmitStateButton.setEnabled(false);
@@ -346,7 +351,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                 if (node != null) {
                     message = new ConfigHeartbeatPublicationSet(MeshAddress.UNASSIGNED_ADDRESS,
-                            DO_NOT_SEND_PERIODICALLY, DO_NOT_SEND_PERIODICALLY, DEFAULT_TTL,
+                            DO_NOT_SEND_PERIODICALLY, DO_NOT_SEND_PERIODICALLY, DEFAULT_PUBLICATION_TTL,
                             node.getNodeFeatures(), node.getAddedNetKeys().get(0).getIndex());
                     sendMessage(message);
                 }

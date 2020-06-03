@@ -137,7 +137,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
         }
 
         setAddressType();
-        summary.setText(R.string.publish_address_dialog_summary);
+        summary.setText(R.string.dialog_summary_heartbeat_destination);
         addressTypesSpinnerView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -206,7 +206,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
                 setIcon(R.drawable.ic_lan_24dp).
-                setTitle(R.string.title_publish_address).
+                setTitle(R.string.destination_address).
                 setView(rootView).
                 setPositiveButton(R.string.ok, null).
                 setNegativeButton(R.string.cancel, null);
@@ -231,8 +231,8 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
-                    ((PublicationDestinationCallbacks) requireActivity())
-                            .onPublishAddressSet(address);
+                    ((DestinationAddressCallbacks) requireActivity())
+                            .onDestinationAddressSet(address);
                     dismiss();
                 }
                 break;
@@ -243,8 +243,8 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
                         final String groupAddress = addressInput.getEditableText().toString().trim();
                         if (validateInput(name, groupAddress)) {
                             if (mGroup != null) {
-                                ((PublicationDestinationCallbacks) requireActivity()).
-                                        onPublishAddressSet(mGroup);
+                                ((DestinationAddressCallbacks) requireActivity()).
+                                        onDestinationAddressSet(mGroup);
                                 dismiss();
                             } else {
                                 if (((GroupCallbacks) requireActivity())
@@ -255,7 +255,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
                         }
                     } else {
                         final Group group = (Group) groups.getSelectedItem();
-                        ((PublicationDestinationCallbacks) requireActivity()).onPublishAddressSet(group);
+                        ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(group);
                         dismiss();
                     }
                 } catch (IllegalArgumentException ex) {

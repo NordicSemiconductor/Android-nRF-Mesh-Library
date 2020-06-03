@@ -46,17 +46,17 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
+import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentTtl;
-import no.nordicsemi.android.nrfmesh.node.dialog.PublicationDestinationCallbacks;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.PublicationViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 
-public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
-        GroupCallbacks, PublicationDestinationCallbacks,
+public class SettingsActivityAddress extends AppCompatActivity implements Injectable,
+        GroupCallbacks, DestinationAddressCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
 
     public static final int SET_PUBLICATION_SETTINGS = 2021;
@@ -398,7 +398,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             if (network.addGroup(group)) {
-                onPublishAddressSet(group);
+                onDestinationAddressSet(group);
                 return true;
             }
         }
@@ -411,7 +411,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         if (network != null) {
             final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
             if (network.addGroup(group)) {
-                onPublishAddressSet(group);
+                onDestinationAddressSet(group);
                 return true;
             }
         }
@@ -419,14 +419,14 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     @Override
-    public void onPublishAddressSet(final int address) {
+    public void onDestinationAddressSet(final int address) {
         mLabelUUID = null;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
     }
 
     @Override
-    public void onPublishAddressSet(@NonNull final Group group) {
+    public void onDestinationAddressSet(@NonNull final Group group) {
         mLabelUUID = group.getAddressLabel();
         mPublishAddress = group.getAddress();
         mPublishAddressView.setText(MeshAddress.formatAddress(group.getAddress(), true));

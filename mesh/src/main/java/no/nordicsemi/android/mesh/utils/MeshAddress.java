@@ -368,9 +368,13 @@ public final class MeshAddress {
      *
      * @param address address
      * @return true if valid or false otherwise.
+     * @throws IllegalArgumentException if the address is not the unassigned address or a unicast address.
      */
     public static boolean isValidHeartbeatSubscriptionSource(final int address) {
-        return isValidUnassignedAddress(address) && isValidUnicastAddress(address);
+        if (isValidUnassignedAddress(address) || isValidUnicastAddress(address))
+            return true;
+        else
+            throw new IllegalArgumentException("Source address must be an unassigned address or a unicast address!");
     }
 
     /**
@@ -382,8 +386,12 @@ public final class MeshAddress {
      * @return true if valid or false otherwise.
      */
     public static boolean isValidHeartbeatSubscriptionDestination(final int address) {
-        return isValidUnassignedAddress(address) &&
-                isValidUnicastAddress(address) &&
-                isValidGroupAddress(address);
+        if (isValidUnassignedAddress(address) ||
+                isValidUnicastAddress(address) ||
+                isValidGroupAddress(address))
+            return true;
+        else
+            throw new IllegalArgumentException("Destination address must be an unassigned address, " +
+                    "a primary unicast address, or a group address!");
     }
 }

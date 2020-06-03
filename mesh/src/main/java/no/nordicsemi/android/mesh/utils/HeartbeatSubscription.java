@@ -9,7 +9,8 @@ import androidx.annotation.NonNull;
  * Class containing the Heartbeat subscription configuration.
  */
 @SuppressWarnings("unused")
-public class HeartbeatSubscription implements Parcelable {
+public class HeartbeatSubscription extends Heartbeat implements Parcelable {
+
     private final int src;
     private final int dst;
     private final int periodLog;
