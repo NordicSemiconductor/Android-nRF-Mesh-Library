@@ -74,7 +74,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private static final String TAG = NrfMeshRepository.class.getSimpleName();
     private static final int ATTENTION_TIMER = 5;
-    public static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
+    static final String EXPORT_PATH = Environment.getExternalStorageDirectory() + File.separator +
             "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
     private static final String EXPORTED_PATH = "sdcard" + File.separator + "Nordic Semiconductor" + File.separator + "nRF Mesh" + File.separator;
 

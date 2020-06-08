@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,17 +47,13 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
 
     private final ArrayList<AddressArray> mAddresses = new ArrayList<>();
-    private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
-
-    public FilterAddressAdapter(@NonNull final Context context) {
-        this.mContext = context;
-    }
 
     public void updateData(@NonNull final ProxyFilter filter) {
         mAddresses.clear();
         mAddresses.addAll(filter.getAddresses());
         notifyDataSetChanged();
+        Log.d("TAG", "Address size: " + mAddresses.size());
     }
 
     public void clearData() {
@@ -77,7 +73,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     @NonNull
     @Override
     public FilterAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.address_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.address_item, parent, false);
         return new FilterAddressAdapter.ViewHolder(layoutView);
     }
 

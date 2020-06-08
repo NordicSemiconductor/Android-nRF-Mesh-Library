@@ -27,9 +27,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.Security;
@@ -40,6 +37,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.data.ApplicationKeyDao;
 import no.nordicsemi.android.mesh.data.ApplicationKeysDao;
 import no.nordicsemi.android.mesh.data.GroupDao;
@@ -210,7 +209,6 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     /**
-     *
      * Allow Iv Index recovery over 42.
      * According to Bluetooth Mesh Profile 1.0.1, section 3.10.5, if the IV Index of the mesh
      * network increased by more than 42 since the last connection (which can take at least
@@ -559,7 +557,8 @@ public class MeshManagerApi implements MeshMngrApi {
                 } else if (i == chunks - 1) {
                     System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 } else {
-                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length - 1);
+                    length = length - 1;
+                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 }
                 srcOffset += mtuSize;
                 dstOffset += length;
