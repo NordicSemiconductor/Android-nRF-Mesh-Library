@@ -31,7 +31,7 @@ public class HeartbeatPublication extends Heartbeat implements Parcelable {
     @SerializedName("features")
     private final Features features;
     @Expose
-    @SerializedName("netKeyIndex")
+    @SerializedName("index")
     private final int netKeyIndex;
 
     /**

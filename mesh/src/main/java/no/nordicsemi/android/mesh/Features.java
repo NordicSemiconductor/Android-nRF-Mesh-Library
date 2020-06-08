@@ -9,7 +9,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.nio.ByteBuffer;
 
 import androidx.annotation.IntDef;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -63,6 +62,16 @@ public class Features implements Parcelable {
         lowPower = in.readInt();
         proxy = in.readInt();
         relay = in.readInt();
+    }
+
+    @Override
+    public String toString() {
+        return "Features{" +
+                "friend=" + friend +
+                ", lowPower=" + lowPower +
+                ", proxy=" + proxy +
+                ", relay=" + relay +
+                '}';
     }
 
     @Override
@@ -214,12 +223,12 @@ public class Features implements Parcelable {
         }
     }
 
-    public byte[] toByteArray() {
-        int feature = bitValue(relay) << 15;
-        feature = feature | bitValue(proxy) << 14;
-        feature = feature | bitValue(friend) << 13;
-        feature = feature | bitValue(lowPower) << 12;
-        return ByteBuffer.allocate(2).putShort((short) feature).array();
+    public int assembleFeatures() {
+        int features = bitValue(relay) << 15;
+        features = features | bitValue(proxy) << 14;
+        features = features | bitValue(friend) << 13;
+        features = features | bitValue(lowPower) << 12;
+        return features;
     }
 
     private short bitValue(final int feature) {

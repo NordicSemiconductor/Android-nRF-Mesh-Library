@@ -268,11 +268,11 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
                 fragmentMessage.show(getSupportFragmentManager(), null);
             }
         });
+        countSlider.setValue(1);
+        periodSlider.setValue(1);
         if (savedInstanceState == null) {
             updatePublicationValues();
         }
-        countSlider.setValue(1);
-        periodSlider.setValue(1);
     }
 
     @Override
@@ -321,14 +321,14 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         outState.putInt(ADDRESS, mPublishAddress);
         outState.putInt(COUNT_LOG, getCountLog());
         outState.putInt(PERIOD_LOG, getPeriodLog());
-        if (checkBoxRelay.isEnabled())
-            outState.putBoolean(RELAY, checkBoxRelay.isChecked());
-        if (checkBoxProxy.isEnabled())
-            outState.putBoolean(PROXY, checkBoxProxy.isChecked());
-        if (checkBoxFriend.isEnabled())
-            outState.putBoolean(FRIEND, checkBoxFriend.isChecked());
-        if (checkBoxLowPower.isEnabled())
-            outState.putBoolean(LOW_POWER, checkBoxLowPower.isChecked());
+        //if (checkBoxRelay.isEnabled())
+        outState.putBoolean(RELAY, checkBoxRelay.isChecked());
+        //if (checkBoxProxy.isEnabled())
+        outState.putBoolean(PROXY, checkBoxProxy.isChecked());
+        //if (checkBoxFriend.isEnabled())
+        outState.putBoolean(FRIEND, checkBoxFriend.isChecked());
+        //if (checkBoxLowPower.isEnabled())
+        outState.putBoolean(LOW_POWER, checkBoxLowPower.isChecked());
         outState.putInt(TTL, Integer.parseInt(heartbeatTtl.getText().toString()));
         outState.putParcelable(NET_KEY, mNetKey);
     }
@@ -517,7 +517,9 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     }
 
     private void updateNetKeyIndex(final NetworkKey key) {
-        netKeyIndex.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
+        if (key != null) {
+            netKeyIndex.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
+        }
     }
 
     private int getCountLog() {
@@ -547,7 +549,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         final int proxy = checkBoxProxy.isEnabled() ? checkBoxProxy.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
         final int friend = checkBoxFriend.isEnabled() ? checkBoxFriend.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
         final int lowPower = checkBoxLowPower.isEnabled() ? checkBoxLowPower.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
-        return new Features(relay, proxy, friend, lowPower);
+        return new Features(friend, lowPower, proxy, relay);
     }
 
     private void setPublication() {

@@ -102,7 +102,7 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
         paramsBuffer.put((byte) countLog);
         paramsBuffer.put((byte) periodLog);
         paramsBuffer.put((byte) ttl);
-        paramsBuffer.put(features.toByteArray());
+        paramsBuffer.putShort((short) features.assembleFeatures());
         paramsBuffer.put(netKeyIndex[1]);
         paramsBuffer.put((byte) ((netKeyIndex[0] & 0xFF) & 0x0F));
         mParameters = paramsBuffer.array();

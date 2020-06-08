@@ -63,6 +63,7 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.GROUP_ADDRESS;
+import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.UNASSIGNED_ADDRESS;
 import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.UNICAST_ADDRESS;
 
 public class DialogFragmentHeartbeatDestination extends DialogFragment {
@@ -72,7 +73,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     private static final String GROUP = "GROUP";
     private ArrayList<Group> mGroups = new ArrayList<>();
     private HeartbeatPublication mHeartbeatPublication;
-    private static final AddressTypes[] addressTypes = {UNICAST_ADDRESS, GROUP_ADDRESS};
+    private static final AddressTypes[] addressTypes = {UNASSIGNED_ADDRESS, UNICAST_ADDRESS, GROUP_ADDRESS};
 
     //UI Bindings
     @BindView(R.id.summary)
@@ -228,6 +229,8 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
         final int address;
         final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
         switch (type) {
+            default:
+            case UNASSIGNED_ADDRESS:
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
@@ -294,6 +297,10 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
 
         switch (addressType) {
             default:
+            case UNASSIGNED_ADDRESS:
+                addressInput.getEditableText().clear();
+                updateFixedGroupAddressVisibility(0, true);
+                break;
             case UNICAST_ADDRESS:
                 addressInput.getEditableText().clear();
                 updateFixedGroupAddressVisibility(2, true);
@@ -344,6 +351,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
             final int address = Integer.parseInt(input, 16);
             switch (type) {
                 default:
+                case UNASSIGNED_ADDRESS:
                     if (!MeshAddress.isValidUnassignedAddress(address)) {
                         addressInputLayout.setError(getString(R.string.invalid_address_value));
                         return false;

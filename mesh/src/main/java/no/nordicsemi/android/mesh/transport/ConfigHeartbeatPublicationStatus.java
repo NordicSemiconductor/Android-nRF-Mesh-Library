@@ -84,14 +84,10 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
         final int ttl = MeshParserUtils.unsignedByteToInt(mParameters[5]);
 
         final int featuresInt = MeshParserUtils.unsignedBytesToInt(mParameters[6], mParameters[7]);
-        final boolean friendFeatureSupported = DeviceFeatureUtils.supportsFriendFeature(featuresInt);
-        final boolean lowPowerFeatureSupported = DeviceFeatureUtils.supportsLowPowerFeature(featuresInt);
-        final boolean proxyFeatureSupported = DeviceFeatureUtils.supportsProxyFeature(featuresInt);
-        final boolean relayFeatureSupported = DeviceFeatureUtils.supportsRelayFeature(featuresInt);
-        final Features features = new Features(friendFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
-                lowPowerFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
-                proxyFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
-                relayFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED);
+        final Features features = new Features(DeviceFeatureUtils.getFriendFeature(featuresInt),
+                DeviceFeatureUtils.getLowPowerFeature(featuresInt),
+                DeviceFeatureUtils.getProxyFeature(featuresInt),
+                DeviceFeatureUtils.getRelayFeature(featuresInt));
         final int netKeyIndex = MeshParserUtils.unsignedBytesToInt((byte) ((mParameters[8] & 0xF0) >> 4), mParameters[9]);
         heartbeatPublication = new HeartbeatPublication(dst, countLog, periodLog, ttl, features, netKeyIndex);
         Log.v(TAG, "Status code: " + mStatusCode);

@@ -3,6 +3,9 @@ package no.nordicsemi.android.mesh.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -11,11 +14,24 @@ import androidx.annotation.NonNull;
 @SuppressWarnings("unused")
 public class HeartbeatSubscription extends Heartbeat implements Parcelable {
 
+
+    @Expose
+    @SerializedName("source")
     private final int src;
+    @Expose
+    @SerializedName("destination")
     private final int dst;
+    @Expose
+    @SerializedName("period")
     private final int periodLog;
+    @Expose
+    @SerializedName("count")
     private final int countLog;
+    @Expose
+    @SerializedName("minHops")
     private final int minHops;
+    @Expose
+    @SerializedName("maxHops")
     private final int maxHops;
 
     /**
