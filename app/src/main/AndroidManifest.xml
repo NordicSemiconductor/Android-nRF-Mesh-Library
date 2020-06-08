@@ -116,7 +116,7 @@
             android:name="no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity"
+            android:name="no.nordicsemi.android.nrfmesh.node.SettingsActivityAddress"
             android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.NodeDetailsActivity"
@@ -135,6 +135,9 @@
             android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.HeartbeatSubscriptionActivity"
             android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity"

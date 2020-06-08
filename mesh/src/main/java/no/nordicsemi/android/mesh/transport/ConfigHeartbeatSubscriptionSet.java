@@ -39,8 +39,8 @@ public class ConfigHeartbeatSubscriptionSet extends ConfigMessage {
 
     private static final String TAG = ConfigHeartbeatSubscriptionSet.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_SUBSCRIPTION_SET;
-    private final int srcAddress;
-    private final int dstAddress;
+    private int srcAddress;
+    private int dstAddress;
     private final int periodLog;
 
     /**
@@ -59,13 +59,10 @@ public class ConfigHeartbeatSubscriptionSet extends ConfigMessage {
     public ConfigHeartbeatSubscriptionSet(final int srcAddress,
                                           final int dstAddress,
                                           final int periodLog) throws IllegalArgumentException {
-        if (!MeshAddress.isValidHeartbeatSubscriptionSource(srcAddress))
-            throw new IllegalArgumentException("Source address must be an unassigned address or a unicast address!");
-        this.srcAddress = srcAddress;
-        if (!MeshAddress.isValidHeartbeatSubscriptionDestination(dstAddress))
-            throw new IllegalArgumentException("Destination address must be an unassigned address, " +
-                    "a primary unicast address, or a group address!");
-        this.dstAddress = dstAddress;
+        if (MeshAddress.isValidHeartbeatSubscriptionSource(srcAddress))
+            this.srcAddress = srcAddress;
+        if (MeshAddress.isValidHeartbeatSubscriptionDestination(dstAddress))
+            this.dstAddress = dstAddress;
         if (!MeshParserUtils.isValidHeartbeatPeriodLog(periodLog))
             throw new IllegalArgumentException("Period log must be within the range of 0x00 to 0x11!");
         this.periodLog = periodLog;

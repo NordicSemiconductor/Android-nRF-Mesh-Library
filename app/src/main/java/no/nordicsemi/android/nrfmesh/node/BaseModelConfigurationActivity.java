@@ -89,6 +89,7 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.adapter.BoundAppKeysAdapter;
+import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
@@ -317,8 +318,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     }
                 }
                 break;
-            case HeartbeatPublicationActivity.HEARTBEAT_PUBLICATION_SETTINGS_SET:
-            case PublicationSettingsActivity.SET_PUBLICATION_SETTINGS:
+            case Utils.HEARTBEAT_SETTINGS_SET:
+            case SettingsActivityAddress.SET_PUBLICATION_SETTINGS:
                 if (resultCode == RESULT_OK) {
                     showProgressbar();
                 }
@@ -448,8 +449,8 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected void navigateToPublication() {
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
-            final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-            startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
+            final Intent publicationSettings = new Intent(this, SettingsActivityAddress.class);
+            startActivityForResult(publicationSettings, SettingsActivityAddress.SET_PUBLICATION_SETTINGS);
         } else {
             mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
         }
