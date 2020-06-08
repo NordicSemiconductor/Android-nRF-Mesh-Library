@@ -541,6 +541,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     private byte[] removeSegmentation(final int mtuSize, final byte[] data) {
+        Log.d(TAG, "Data: " + MeshParserUtils.bytesToHex(data, false));
         int srcOffset = 0;
         int dstOffset = 0;
         final int chunks = (data.length + (mtuSize - 1)) / mtuSize;
@@ -557,7 +558,8 @@ public class MeshManagerApi implements MeshMngrApi {
                 } else if (i == chunks - 1) {
                     System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 } else {
-                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length - 1);
+                    length = length - 1;
+                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 }
                 srcOffset += mtuSize;
                 dstOffset += length;
