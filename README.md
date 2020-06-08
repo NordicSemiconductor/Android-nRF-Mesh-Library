@@ -1,19 +1,30 @@
-# Android-nRF-Mesh
+# Android-nRF-Mesh-Library
+[ ![Download](https://api.bintray.com/packages/nordic/android/no.nordicsemi.android%3Amesh/images/download.svg) ](https://bintray.com/nordic/android/no.nordicsemi.android%3Amesh/_latestVersion)
 
 ## About
+The Android-nRF-Mesh-Library allows provisioning and sending messages to Bluetooth Mesh devices. 
 
-An early alpha version of the Bluetooth Mesh specification, this library will allow you to provision and configure bluetooth Mesh compliant nodes.
+> Bluetooth Mesh specification may be found here: https://www.bluetooth.com/specifications/mesh-specifications/
 
-This is a preview version that has missing features and capabilities that are going to be added in the near future. 
+The library is compatible with version 1.0.1 of the Bluetooth Mesh Profile Specification.
 
 nRF Mesh for Android is supported on Android devices running Android 4.3 and onwards.
 
 ### Features
-1. Supports provisioning with OOB Numeric
-2. Adding App Key
-3. Binding added app keys to Models
-4. Setting publish address
-5. Subscribing/Unsubscribing to and from group addresses
+1. Provisionig with all features that available in Bluetooth Mesh Profile 1.0.1, including OOB Public Key and all types of OOB.
+2. Managing Provisioners, Network Keys, Application Keys, resetting network, etc.
+3. All network layers are working.
+4. Parsing Secure Network beacons.
+5. Adding, removing and refreshing Network and Application Keys to Nodes.
+6. Binding and unbinding Application Keys to Models.
+7. Setting and clearing publication to a Model.
+8. Setting and removing subscriptions to a Model.
+9. Groups, including those with Virtual Addresses.
+10. UI for controlling groups (Generic OnOff and Generic Level (delta) are supported).
+12. Handling Configuration Server message sent by other Provisioner.
+13. Generic OnOff and Vendor model have dedicated controls in sample app.
+14. Proxy Filter.
+15. IV Index update (handling updates received in Secure Network beacons).
 
 
 ## Requirements
@@ -23,7 +34,7 @@ nRF Mesh for Android is supported on Android devices running Android 4.3 and onw
 
 ## Optional
 
-* nrf52832 based Development Kit(s) to test the sample firmwares on.
+* nrf52832/840 based Development Kit(s) to test the sample firmwares on.
 
 ## Installation
 
