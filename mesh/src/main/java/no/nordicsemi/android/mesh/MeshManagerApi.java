@@ -557,7 +557,8 @@ public class MeshManagerApi implements MeshMngrApi {
                 } else if (i == chunks - 1) {
                     System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 } else {
-                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length - 1);
+                    length = length - 1;
+                    System.arraycopy(data, srcOffset + 1, buffer, dstOffset, length);
                 }
                 srcOffset += mtuSize;
                 dstOffset += length;
