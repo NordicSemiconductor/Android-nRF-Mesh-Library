@@ -26,8 +26,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.ParseException;
@@ -38,6 +36,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.R;
 
@@ -599,7 +598,7 @@ public class MeshParserUtils {
         }
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
         buffer.putInt(modelId);
-        return (int) buffer.getShort(0);
+        return buffer.getShort(0);
     }
 
     /**
@@ -752,5 +751,59 @@ public class MeshParserUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Validates heart beat count log.
+     *
+     * @param countLog Heartbeat publication count.
+     * @return true if valid.
+     * @throws IllegalArgumentException if the countLog value is not a value from 0 to 17 or 255
+     */
+    public static boolean isValidHeartbeatCountLog(final int countLog) {
+        if ((countLog >= 0x00 && countLog < 0x12) || countLog == 0xFF)
+            return true;
+        throw new IllegalArgumentException("Count log must be 0 to 17 or 255!");
+    }
+
+    /**
+     * Validates heart beat period log.
+     *
+     * @param periodLog Heartbeat publication period.
+     * @return true if valid or false otherwise.
+     * @throws IllegalArgumentException if the value does not range from 0 to 17.
+     */
+    public static boolean isValidHeartbeatPeriodLog(final int periodLog) {
+        if (periodLog >= 0x00 && periodLog < 0x12)
+            return true;
+        throw new IllegalArgumentException("Period log must be within the range of 0 to 17!");
+    }
+
+    /**
+     * Validates heart beat publication ttl.
+     *
+     * @param ttl Heartbeat publication ttl.
+     * @return true if valid or false otherwise.
+     */
+    public static boolean isValidHeartbeatPublicationTtl(final int ttl) {
+        return ttl <= 0x7F;
+    }
+
+    /**
+     * Calculates the heart beat publication count which are the number of publications to be sent
+     *
+     * @param count count value
+     */
+    public static int calculateHeartbeatPublicationCount(final int count) {
+        return (int) Math.pow(2, count - 1);
+    }
+
+    /**
+     * Calculates the heart beat publication period interval in seconds
+     *
+     * @param period period value
+     */
+    public static int calculateHeartbeatPublicationPeriod(final int period) {
+        return (int) Math.pow(2, period - 1);
     }
 }

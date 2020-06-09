@@ -87,7 +87,7 @@ public class NetworkFragment extends Fragment implements Injectable,
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
 
         // Configure the recycler view
-        mNodeAdapter = new NodeAdapter(requireContext(), mViewModel.getNodes());
+        mNodeAdapter = new NodeAdapter(this, mViewModel.getNodes());
         mNodeAdapter.setOnItemClickListener(this);
         mRecyclerViewNodes.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerViewNodes.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));

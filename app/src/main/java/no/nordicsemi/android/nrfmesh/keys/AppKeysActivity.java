@@ -56,20 +56,24 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageAppKeyAdapter;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
+import static no.nordicsemi.android.nrfmesh.utils.Utils.ADD_APP_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.MANAGE_APP_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.PUBLICATION_APP_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_INDEX;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_LIST_SIZE;
+
 public class AppKeysActivity extends AppCompatActivity implements Injectable,
         ManageAppKeyAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
-
-    public static final String RESULT_APP_KEY = "RESULT_KEY";
-    public static final String RESULT_APP_KEY_INDEX = "RESULT_APP_KEY_INDEX";
-    public static final String RESULT_APP_KEY_LIST_SIZE = "RESULT_APP_KEY_LIST_SIZE";
-    public static final String EDIT_APP_KEY = "EDIT_APP_KEY";
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -86,7 +90,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_app_keys);
+        setContentView(R.layout.activity_keys);
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AppKeysViewModel.class);
 
         //Bind ui
@@ -107,10 +111,10 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
 
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            switch (bundle.getInt(Utils.EXTRA_DATA)) {
-                case Utils.MANAGE_APP_KEY:
+            switch (bundle.getInt(EXTRA_DATA)) {
+                case MANAGE_APP_KEY:
                     break;
-                case Utils.ADD_APP_KEY:
+                case ADD_APP_KEY:
                     getSupportActionBar().setTitle(R.string.title_select_app_key);
                     fab.hide();
                     mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData());
@@ -118,8 +122,8 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                     appKeysRecyclerView.setAdapter(mAdapter);
                     setUpObserver();
                     break;
-                case Utils.BIND_APP_KEY:
-                case Utils.PUBLICATION_APP_KEY:
+                case BIND_APP_KEY:
+                case PUBLICATION_APP_KEY:
                     getSupportActionBar().setTitle(R.string.title_select_app_key);
                     fab.hide();
                     //Get selected mesh node
@@ -127,7 +131,7 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
                     if (node != null) {
                         final List<NodeKey> applicationKeys = node.getAddedAppKeys();
                         if (!applicationKeys.isEmpty()) {
-                            mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData().getAppKeys(), applicationKeys);
+                            mAdapter = new ManageAppKeyAdapter(mViewModel.getNetworkLiveData().getAppKeys(), applicationKeys);
                             mAdapter.setOnItemClickListener(this);
                             appKeysRecyclerView.setAdapter(mAdapter);
                         } else {
@@ -184,9 +188,9 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     public void onBackPressed() {
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            if (bundle.getInt(Utils.EXTRA_DATA) == Utils.MANAGE_APP_KEY) {
+            if (bundle.getInt(EXTRA_DATA) == MANAGE_APP_KEY) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra(RESULT_APP_KEY_LIST_SIZE, mAdapter.getItemCount());
+                returnIntent.putExtra(RESULT_KEY_LIST_SIZE, mAdapter.getItemCount());
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
             }
@@ -198,20 +202,20 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            switch (bundle.getInt(Utils.EXTRA_DATA)) {
-                case Utils.ADD_APP_KEY:
-                case Utils.BIND_APP_KEY:
-                case Utils.PUBLICATION_APP_KEY:
+            switch (bundle.getInt(EXTRA_DATA)) {
+                case ADD_APP_KEY:
+                case BIND_APP_KEY:
+                case PUBLICATION_APP_KEY:
                     Intent returnIntent = new Intent();
-                    returnIntent.putExtra(RESULT_APP_KEY_INDEX, position);
-                    returnIntent.putExtra(RESULT_APP_KEY, appKey);
+                    returnIntent.putExtra(RESULT_KEY_INDEX, position);
+                    returnIntent.putExtra(RESULT_KEY, appKey);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
 
             }
         } else {
             final Intent intent = new Intent(this, EditAppKeyActivity.class);
-            intent.putExtra(EDIT_APP_KEY, appKey.getKeyIndex());
+            intent.putExtra(EDIT_KEY, appKey.getKeyIndex());
             startActivity(intent);
         }
     }

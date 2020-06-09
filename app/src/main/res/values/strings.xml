@@ -257,6 +257,7 @@
     <string name="format_vendor_model_id">Vendor Model ID: %s</string>
 
     <string name="title_publish_address">Publish Address</string>
+    <string name="title_subscription_address">Subscription Address</string>
     <string name="none">None</string>
     <string name="no_app_keys_bound">No app keys are bound to this model.</string>
     <string name="title_publish_address_configuration">Publish</string>
@@ -437,7 +438,7 @@
     <string name="resolution_summary_100_m">10 minutes</string>
 
     <string name="app_key_index">App key index %d</string>
-    <string name="app_key_name_and_index">Name: %s\nIndex: %d</string>
+    <string name="key_name_and_index">Name: %s\nIndex: %d</string>
 
     <string name="action_apply">Apply</string>
     <string name="action_save">Save</string>
@@ -547,4 +548,39 @@
 
     <string name="title_iv_test_mode">IV Test Mode</string>
     <string name="iv_test_mode_summary">Note this is setting is not restored upon restart.</string>
+    <string name="title_heartbeat_publication">Heartbeat Publication</string>
+    <string name="title_publication_count">Publication Count</string>
+    <string name="title_publication_period">Publication Period</string>
+    <string name="title_heartbeat_subscription">Heartbeat Subscription</string>
+    <string name="title_subscription_period">Subscription Period</string>
+    <string name="title_subscription_count">Subscription Count</string>
+    <string name="title_features">Features</string>
+    <string name="do_not_send_periodically">Do not send periodically</string>
+    <string name="send_indefinitely">Send indefinitely</string>
+    <string name="send_periodically">Send periodically</string>
+    <string name="relay">Relay</string>
+    <string name="proxy">Proxy</string>
+    <string name="friend">Friend</string>
+    <string name="low_power">Low Power</string>
+    <string name="title_net_key_index">Net Key Index</string>
+    <string name="count_summary">= %d</string>
+    <string name="equals">=</string>
+    <string name="seconds">%d seconds</string>
+    <string name="messages">%d messages</string>
+    <string name="count">Count</string>
+    <string name="title_heartbeat_publication_status">Heartbeat Publication Status</string>
+    <string name="title_heartbeat_subscription_status">Heartbeat Subscription Status</string>
+    <string name="source">Source</string>
+    <string name="source_address">Source Address</string>
+    <string name="destination">Destination</string>
+    <string name="destination_address">Destination Address</string>
+    <string name="hops">Hops</string>
+    <string name="min_hops">Minimum Hops</string>
+    <string name="max_hops">Maximum Hops</string>
+    <string name="dialog_summary_heartbeat_source">Source address must be the unassigned address or a
+        unicast address.</string>
+    <string name="dialog_summary_heartbeat_destination">Destination address must be the unassigned address, the primary unicast address of the node,
+        or a group address.</string>
+    <string name="invalid_heartbeat_subscription">Source address must be the Unassigned Address or a unicast address!</string>
+    <string name="hint_heartbeat_subscription_source">Unicast/Unassigned address</string>
 </resources>

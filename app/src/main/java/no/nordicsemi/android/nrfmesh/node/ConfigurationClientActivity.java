@@ -3,6 +3,7 @@ package no.nordicsemi.android.nrfmesh.node;
 import android.os.Bundle;
 
 import no.nordicsemi.android.mesh.models.ConfigurationClientModel;
+import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 
 
@@ -15,5 +16,10 @@ public class ConfigurationClientActivity extends BaseModelConfigurationActivity 
         if (model instanceof ConfigurationClientModel) {
             disableClickableViews();
         }
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        // DO nothing
     }
 }

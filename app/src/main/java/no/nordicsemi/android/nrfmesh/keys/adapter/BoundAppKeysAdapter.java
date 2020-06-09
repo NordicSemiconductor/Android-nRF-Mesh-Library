@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,13 +49,11 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
 
     private final ArrayList<ApplicationKey> appKeys = new ArrayList<>();
-    private final Context mContext;
 
-    public BoundAppKeysAdapter(@NonNull final Context context,
+    public BoundAppKeysAdapter(@NonNull final LifecycleOwner owner,
                                @NonNull final List<ApplicationKey> appKeys,
                                @NonNull final LiveData<MeshModel> meshModelLiveData) {
-        this.mContext = context;
-        meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
+        meshModelLiveData.observe(owner, meshModel -> {
             if (meshModel != null) {
                 this.appKeys.clear();
                 for (Integer index : meshModel.getBoundAppKeyIndexes()) {
@@ -75,7 +72,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
     @NonNull
     @Override
     public BoundAppKeysAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
         return new BoundAppKeysAdapter.ViewHolder(layoutView);
     }
 

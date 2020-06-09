@@ -25,10 +25,10 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity;
+import no.nordicsemi.android.nrfmesh.node.SettingsActivityAddress;
 
 /**
- * View Model class for {@link PublicationSettingsActivity}
+ * View Model class for {@link SettingsActivityAddress}
  */
 public class PublicationViewModel extends BaseViewModel {
 

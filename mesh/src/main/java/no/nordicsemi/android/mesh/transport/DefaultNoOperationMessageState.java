@@ -2,18 +2,18 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
+import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
@@ -24,6 +24,8 @@ import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
+
+import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
 
 class DefaultNoOperationMessageState extends MeshMessageState {
 
@@ -93,6 +95,21 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SceneStatus sceneStatus = new SceneStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(sceneStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), sceneStatus);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS) {
+                    final ConfigHeartbeatPublicationStatus status = new ConfigHeartbeatPublicationStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(status.getSrc());
+                            if (element != null) {
+                                final ConfigurationServerModel model = (ConfigurationServerModel) element.getMeshModels().get((int) CONFIGURATION_SERVER);
+                                if (model != null) {
+                                    model.setHeartbeatPublication(status.getHeartbeatPublication());
+                                }
+                            }
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -280,6 +297,21 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                                 }
                             }
                             createGroups(status.getSubscriptionAddresses());
+                        }
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS) {
+                    final ConfigHeartbeatSubscriptionStatus status = new ConfigHeartbeatSubscriptionStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(status.getSrc());
+                            if (element != null) {
+                                final ConfigurationServerModel model = (ConfigurationServerModel) element.getMeshModels().get((int) CONFIGURATION_SERVER);
+                                if (model != null) {
+                                    model.setHeartbeatSubscription(status.getHeartbeatSubscription());
+                                }
+                            }
                         }
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);

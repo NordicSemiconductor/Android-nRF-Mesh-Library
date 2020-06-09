@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,16 +50,14 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
 
     private final List<NetworkKey> netKeys = new ArrayList<>();
     private final List<NetworkKey> addedNetKeys = new ArrayList<>();
-    private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public AddedNetKeyAdapter(@NonNull final Context context,
+    public AddedNetKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<NetworkKey> netKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.mContext = context;
         this.netKeys.addAll(netKeys);
         Collections.sort(this.netKeys, Utils.netKeyComparator);
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
+        meshNodeLiveData.observe(owner, meshNode -> {
             addedNetKeys.clear();
             for (NodeKey nodeKey : meshNode.getAddedNetKeys()) {
                 for (NetworkKey networkKey : netKeys) {
@@ -81,7 +78,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
     @NonNull
     @Override
     public AddedNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.row_item_key, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item_key, parent, false);
         return new AddedNetKeyAdapter.ViewHolder(layoutView);
     }
 

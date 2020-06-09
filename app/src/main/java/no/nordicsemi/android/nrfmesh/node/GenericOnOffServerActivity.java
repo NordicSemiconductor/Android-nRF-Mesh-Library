@@ -27,7 +27,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
-public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
+public class GenericOnOffServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
 
@@ -43,6 +43,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericOnOffServerModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
@@ -165,10 +166,15 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     }
 
     @Override
+    public void onRefresh() {
+        super.onRefresh();
+    }
+
+    @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
+        mSwipe.setOnRefreshListener(this);
         if (meshMessage instanceof GenericOnOffStatus) {
-            hideProgressBar();
             final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
             final boolean presentState = status.getPresentState();
             final Boolean targetOnOff = status.getTargetState();
@@ -195,6 +201,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 remainingTime.setVisibility(View.VISIBLE);
             }
         }
+        hideProgressBar();
     }
 
 

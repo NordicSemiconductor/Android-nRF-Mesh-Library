@@ -46,15 +46,18 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
+import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentPublishTtl;
+import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.PublicationViewModel;
 
-public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
-        GroupCallbacks,
-        DialogFragmentPublishAddress.DialogFragmentPublicationListener,
-        DialogFragmentPublishTtl.DialogFragmentPublishTtlListener {
+import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
+
+public class SettingsActivityAddress extends AppCompatActivity implements Injectable,
+        GroupCallbacks, DestinationAddressCallbacks,
+        DialogFragmentTtl.DialogFragmentTtlListener {
 
     public static final int SET_PUBLICATION_SETTINGS = 2021;
     public static final String RESULT_LABEL_UUID = "RESULT_LABEL_UUID";
@@ -164,11 +167,11 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         actionPublishTtl.setOnClickListener(v -> {
             if (meshModel != null) {
                 if (meshModel.getPublicationSettings() != null) {
-                    final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl
+                    final DialogFragmentTtl fragmentPublishTtl = DialogFragmentPublishTtl
                             .newInstance(meshModel.getPublicationSettings().getPublishTtl());
                     fragmentPublishTtl.show(getSupportFragmentManager(), null);
                 } else {
-                    final DialogFragmentPublishTtl fragmentPublishTtl = DialogFragmentPublishTtl
+                    final DialogFragmentTtl fragmentPublishTtl = DialogFragmentPublishTtl
                             .newInstance(MeshParserUtils.USE_DEFAULT_TTL);
                     fragmentPublishTtl.show(getSupportFragmentManager(), null);
                 }
@@ -331,16 +334,11 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Utils.SELECT_KEY) {
             if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
+                final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
                 if (appKey != null) {
                     mAppKeyIndex = appKey.getKeyIndex();
                     mAppKeyView.setText(getString(R.string.app_key_index, appKey.getKeyIndex()));
@@ -364,7 +362,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     }
 
     @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mLabelUUID = (UUID) savedInstanceState.getSerializable(RESULT_LABEL_UUID);
         mPublishAddress = savedInstanceState.getInt(RESULT_PUBLISH_ADDRESS);
@@ -400,7 +398,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             if (network.addGroup(group)) {
-                onPublishAddressSet(group);
+                onDestinationAddressSet(group);
                 return true;
             }
         }
@@ -412,25 +410,23 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         if (network != null) {
             final Group group = network.createGroup(network.getSelectedProvisioner(), address, name);
-            if (group != null) {
-                if (network.addGroup(group)) {
-                    onPublishAddressSet(group);
-                    return true;
-                }
+            if (network.addGroup(group)) {
+                onDestinationAddressSet(group);
+                return true;
             }
         }
         return false;
     }
 
     @Override
-    public void onPublishAddressSet(final int address) {
+    public void onDestinationAddressSet(final int address) {
         mLabelUUID = null;
         mPublishAddress = address;
         mPublishAddressView.setText(MeshAddress.formatAddress(address, true));
     }
 
     @Override
-    public void onPublishAddressSet(@NonNull final Group group) {
+    public void onDestinationAddressSet(@NonNull final Group group) {
         mLabelUUID = group.getAddressLabel();
         mPublishAddress = group.getAddress();
         mPublishAddressView.setText(MeshAddress.formatAddress(group.getAddress(), true));
@@ -488,7 +484,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         if (network != null) {
             final ApplicationKey key = network.getAppKey(mAppKeyIndex);
             if (key != null) {
-                mAppKeyView.setText(getString(R.string.app_key_name_and_index, key.getName(), mAppKeyIndex));
+                mAppKeyView.setText(getString(R.string.key_name_and_index, key.getName(), mAppKeyIndex));
             } else {
                 mAppKeyView.setText(getString(R.string.unavailable));
             }
