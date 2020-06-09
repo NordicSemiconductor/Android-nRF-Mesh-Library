@@ -49,7 +49,7 @@ public class LightLcClient extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Light LC Server";
+        return "Light LC Client";
     }
 
     @Override
