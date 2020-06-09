@@ -18,10 +18,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.NodeKey;
+import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.utils.CompositionDataParser;
+import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
+import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
@@ -107,6 +112,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("name"))
                 node.nodeName = jsonObject.get("name").getAsString();
+            deserializeHeartbeat(context, jsonObject, node);
             nodes.add(node);
         }
 
@@ -166,6 +172,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             nodeJson.add("appKeys", serializeAddedIndexes(node.getAddedAppKeys()));
             nodeJson.add("elements", serializeElements(context, node.getElements()));
             nodeJson.addProperty("blacklisted", node.isBlackListed());
+            serializeHeartbeat(context, nodeJson, node);
             jsonArray.add(nodeJson);
         }
         return jsonArray;
@@ -219,7 +226,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * Returns a list of elements that contained in the json object elements
      *
      * @param context Deserializer context
-     * @param json    elements json object
+     * @param json    Elements json object
      */
     private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json) {
         Type elementList = new TypeToken<List<Element>>() {
@@ -230,8 +237,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Populates the require map of {@link MeshModel} where key is the model identifier and model is the value
      *
-     * @param unicastAddress unicast address of the node
-     * @param elementsList   list of MeshModels
+     * @param unicastAddress Unicast address of the node
+     * @param elementsList   List of MeshModels
      * @return Map of mesh models
      */
     private Map<Integer, Element> populateElements(final int unicastAddress, final List<Element> elementsList) {
@@ -260,5 +267,73 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             elements.add(elementEntry.getValue());
         }
         return elements;
+    }
+
+    /**
+     * Deserialize Heartbeat publication
+     *
+     * @param context    Deserialization context
+     * @param jsonObject JsonObject to deserialize from
+     * @param node       MeshNode
+     */
+    private void deserializeHeartbeat(@NonNull final JsonDeserializationContext context,
+                                      @NonNull final JsonObject jsonObject,
+                                      @NonNull final ProvisionedMeshNode node) {
+        final ConfigurationServerModel model = getConfigurationServerModel(node);
+        if (model != null) {
+            if (jsonObject.has("heartbeatPub")) {
+                model.setHeartbeatPublication(context.deserialize(jsonObject.get("heartbeatPub"), HeartbeatPublication.class));
+            }
+            if (jsonObject.has("heartbeatSub")) {
+                model.setHeartbeatSubscription(context.deserialize(jsonObject.get("heartbeatSub"), HeartbeatSubscription.class));
+            }
+        }
+    }
+
+    /**
+     * Deserialize Heartbeat publication
+     *
+     * @param context    Deserialization context
+     * @param jsonObject Json object to deserialize from
+     * @param node       MeshNode
+     */
+    private void serializeHeartbeat(@NonNull final JsonSerializationContext context,
+                                    @NonNull final JsonObject jsonObject,
+                                    @NonNull final ProvisionedMeshNode node) {
+        final ConfigurationServerModel model = getConfigurationServerModel(node);
+        if (model != null) {
+            if (model.getHeartbeatPublication() != null) {
+                final JsonObject result = context
+                        .serialize(model.getHeartbeatPublication(), HeartbeatPublication.class)
+                        .getAsJsonObject();
+                result.remove("count");
+                jsonObject.add("heartbeatPub", result);
+            }
+            if (model.getHeartbeatSubscription() != null) {
+                final JsonObject result = context
+                        .serialize(model.getHeartbeatSubscription(), HeartbeatSubscription.class)
+                        .getAsJsonObject();
+                result.remove("count");
+                result.remove("minHops");
+                result.remove("maxHops");
+                jsonObject.add("heartbeatSub", result);
+            }
+        }
+    }
+
+    /**
+     * Returns the configuration server model in the primary element of the node.
+     *
+     * @param node Mesh node
+     */
+    private ConfigurationServerModel getConfigurationServerModel(@NonNull final ProvisionedMeshNode node) {
+        final Element element = node.getElements().get(node.getUnicastAddress());
+        if (element != null) {
+            final MeshModel meshModel = element.getMeshModels().get((int) SigModelParser.CONFIGURATION_SERVER);
+            if (meshModel instanceof ConfigurationServerModel) {
+                return (ConfigurationServerModel) meshModel;
+            }
+        }
+        return null;
     }
 }

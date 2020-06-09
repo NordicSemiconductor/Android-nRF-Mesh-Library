@@ -1,6 +1,5 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.JsonArray;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -187,7 +187,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     @SuppressWarnings("ConstantConditions")
     private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
-        if(MeshAddress.isValidVirtualAddress(settings.getPublishAddress())){
+        if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress())) {
             publicationJson.addProperty("address", MeshParserUtils.uuidToHex(settings.getLabelUUID()));
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));

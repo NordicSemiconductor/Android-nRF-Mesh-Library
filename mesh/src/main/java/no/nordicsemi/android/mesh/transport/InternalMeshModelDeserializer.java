@@ -148,36 +148,35 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         final int modelId = jsonObject.get("mModelId").getAsInt();
         final MeshModel meshModel = getMeshModel(modelId);
 
-        if (jsonObject.has("heartbeatPub")) {
-            final JsonObject heartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
-            final int address = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
-            final int countLog = heartbeatPub.get("count").getAsInt();
-            final int period = (heartbeatPub.get("period").getAsInt());
-            final int ttl = heartbeatPub.get("ttl").getAsInt();
-            final int index = heartbeatPub.get("index").getAsInt();
+        if (meshModel instanceof ConfigurationServerModel) {
+            if (jsonObject.has("heartbeatPub")) {
+                final JsonObject heartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
+                final int address = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
+                final int countLog = heartbeatPub.get("count").getAsInt();
+                final int period = (heartbeatPub.get("period").getAsInt());
+                final int ttl = heartbeatPub.get("ttl").getAsInt();
+                final int index = heartbeatPub.get("index").getAsInt();
 
-            final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
-            final Features features = new Features(featuresJson.get("friend").getAsInt(),
-                    featuresJson.get("lowPower").getAsInt(),
-                    featuresJson.get("relay").getAsInt(),
-                    featuresJson.get("proxy").getAsInt());
-            if (modelId == SigModelParser.CONFIGURATION_SERVER) {
-                ((ConfigurationServerModel) meshModel).setHeartbeatPublication(new HeartbeatPublication(address, countLog,
+                final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
+                final Features features = new Features(featuresJson.get("friend").getAsInt(),
+                        featuresJson.get("lowPower").getAsInt(),
+                        featuresJson.get("relay").getAsInt(),
+                        featuresJson.get("proxy").getAsInt());
+                ((ConfigurationServerModel) meshModel)
+                        .setHeartbeatPublication(new HeartbeatPublication(address, countLog,
                         period, ttl, features, index));
             }
-        }
-
-        if (jsonObject.has("heartbeatSub")) {
-            final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
-            final int source = Integer.parseInt(heartbeatSub.get("source").getAsString(), 16);
-            final int destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
-            final int period = (heartbeatSub.get("period").getAsInt());
-            final int countLog = heartbeatSub.get("count").getAsInt();
-            final int minHops = heartbeatSub.get("minHops").getAsInt();
-            final int maxHops = heartbeatSub.get("maxHops").getAsInt();
-            if (modelId == SigModelParser.CONFIGURATION_SERVER) {
-                ((ConfigurationServerModel) meshModel).setHeartbeatSubscription(new HeartbeatSubscription(source, destination, period,
-                        countLog, minHops, maxHops));
+            if (jsonObject.has("heartbeatSub")) {
+                final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
+                final int source = Integer.parseInt(heartbeatSub.get("source").getAsString(), 16);
+                final int destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
+                final int period = (heartbeatSub.get("period").getAsInt());
+                final int countLog = heartbeatSub.get("count").getAsInt();
+                final int minHops = heartbeatSub.get("minHops").getAsInt();
+                final int maxHops = heartbeatSub.get("maxHops").getAsInt();
+                ((ConfigurationServerModel) meshModel)
+                        .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, period,
+                                countLog, minHops, maxHops));
             }
         }
 
