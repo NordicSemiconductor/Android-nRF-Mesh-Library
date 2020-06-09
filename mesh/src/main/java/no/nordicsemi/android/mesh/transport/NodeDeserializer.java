@@ -270,7 +270,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     }
 
     /**
-     * Deserialize Heartbeat publication
+     * Deserialize Heartbeat settings
      *
      * @param context    Deserialization context
      * @param jsonObject JsonObject to deserialize from
