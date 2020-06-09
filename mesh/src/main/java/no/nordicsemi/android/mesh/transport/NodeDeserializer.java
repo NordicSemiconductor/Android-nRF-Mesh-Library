@@ -291,10 +291,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     }
 
     /**
-     * Deserialize Heartbeat publication
+     * Serialize Heartbeat settings.
      *
-     * @param context    Deserialization context
-     * @param jsonObject Json object to deserialize from
+     * @param context    Serialization context
+     * @param jsonObject Json object
      * @param node       MeshNode
      */
     private void serializeHeartbeat(@NonNull final JsonSerializationContext context,
