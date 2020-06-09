@@ -261,6 +261,11 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         return elements;
     }
 
+    /**
+     * Populate the elements
+     *
+     * @param elementMap Elements map
+     */
     private List<Element> populateElements(final Map<Integer, Element> elementMap) {
         final List<Element> elements = new ArrayList<>();
         for (Map.Entry<Integer, Element> elementEntry : elementMap.entrySet()) {
