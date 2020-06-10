@@ -26,12 +26,11 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.UUID;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-
-import java.util.UUID;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -119,11 +118,13 @@ final class MeshTransport extends NetworkLayer {
      */
     final AccessMessage createMeshMessage(final int src,
                                           final int dst,
+                                          @Nullable final Integer ttl,
                                           final byte[] key,
                                           final int akf,
                                           final int aid,
                                           final int aszmic,
-                                          final int accessOpCode, final byte[] accessMessageParameters) {
+                                          final int accessOpCode,
+                                          final byte[] accessMessageParameters) {
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -141,7 +142,7 @@ final class MeshTransport extends NetworkLayer {
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(dst);
-        message.setTtl(node.getTtl());
+        message.setTtl(ttl == null ? node.getTtl() : ttl);
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         message.setSequenceNumber(sequenceNum);
         message.setDeviceKey(key);
@@ -176,6 +177,7 @@ final class MeshTransport extends NetworkLayer {
     final AccessMessage createMeshMessage(final int src,
                                           final int dst,
                                           @Nullable final UUID label,
+                                          @Nullable final Integer ttl,
                                           @NonNull final ApplicationKey key,
                                           final int akf,
                                           final int aid,
@@ -199,7 +201,7 @@ final class MeshTransport extends NetworkLayer {
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
         message.setDst(dst);
-        message.setTtl(node.getTtl());
+        message.setTtl(ttl == null ? node.getTtl() : ttl);
         if (label != null) {
             message.setLabel(label);
         }
@@ -238,6 +240,7 @@ final class MeshTransport extends NetworkLayer {
                                                 final int src,
                                                 final int dst,
                                                 @Nullable final UUID label,
+                                                @Nullable final Integer ttl,
                                                 @NonNull final ApplicationKey key,
                                                 final int akf,
                                                 final int aid,
@@ -262,7 +265,7 @@ final class MeshTransport extends NetworkLayer {
         message.setCompanyIdentifier(companyIdentifier);
         message.setSrc(src);
         message.setDst(dst);
-        message.setTtl(node.getTtl());
+        message.setTtl(ttl == null ? node.getTtl() : ttl);
         if (label != null) {
             message.setLabel(label);
         }
