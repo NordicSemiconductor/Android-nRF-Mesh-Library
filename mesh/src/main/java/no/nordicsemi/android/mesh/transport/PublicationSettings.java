@@ -371,6 +371,14 @@ public class PublicationSettings implements Parcelable {
     }
 
     /**
+     * Returns the minimum retransmit interval supported in milliseconds
+     */
+    @SuppressWarnings("PointlessArithmeticExpression")
+    public static int getMinRetransmissionInterval() {
+        return (DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS + 1) * 50;
+    }
+
+    /**
      * Returns the maximum retransmit interval supported in milliseconds
      */
     public static int getMaxRetransmissionInterval() {
