@@ -58,16 +58,17 @@ class VendorModelMessageUnackedState extends GenericMessageState {
 
     @Override
     protected final void createAccessMessage() {
-        final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
-        final ApplicationKey key = vendorModelMessageUnacked.getAppKey();
-        final int akf = vendorModelMessageUnacked.getAkf();
-        final int aid = vendorModelMessageUnacked.getAid();
-        final int aszmic = vendorModelMessageUnacked.getAszmic();
-        final int opCode = vendorModelMessageUnacked.getOpCode();
-        final byte[] parameters = vendorModelMessageUnacked.getParameters();
-        final int companyIdentifier = vendorModelMessageUnacked.getCompanyIdentifier();
-        message = mMeshTransport.createVendorMeshMessage(companyIdentifier, mSrc, mDst, mLabel, key, akf, aid, aszmic, opCode, parameters);
-        vendorModelMessageUnacked.setMessage(message);
+        final VendorModelMessageUnacked message = (VendorModelMessageUnacked) mMeshMessage;
+        final ApplicationKey key = message.getAppKey();
+        final int akf = message.getAkf();
+        final int aid = message.getAid();
+        final int aszmic = message.getAszmic();
+        final int opCode = message.getOpCode();
+        final byte[] parameters = message.getParameters();
+        final int companyIdentifier = message.getCompanyIdentifier();
+        this.message = mMeshTransport.createVendorMeshMessage(companyIdentifier, mSrc, mDst, mLabel, message.messageTtl,
+                key, akf, aid, aszmic, opCode, parameters);
+        message.setMessage(this.message);
     }
 
     @Override
