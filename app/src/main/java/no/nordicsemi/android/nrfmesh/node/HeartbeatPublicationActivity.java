@@ -58,7 +58,7 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatPublishTtl;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentTtl;
-import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatPublicationViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -93,7 +93,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     private static final String TTL = "TTL";
     private static final String NET_KEY = "NET_KEY";
 
-    private HeartbeatPublicationViewModel mViewModel;
+    private HeartbeatViewModel mViewModel;
     private ConfigurationServerModel mMeshModel;
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -153,7 +153,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         setContentView(R.layout.activity_heartbeat_publication);
         ButterKnife.bind(this);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatPublicationViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatViewModel.class);
 
         final ConfigurationServerModel meshModel = mMeshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
         if (meshModel == null)

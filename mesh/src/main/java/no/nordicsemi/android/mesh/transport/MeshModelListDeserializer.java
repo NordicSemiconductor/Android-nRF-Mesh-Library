@@ -102,8 +102,12 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final int publicationResolution = period & 0x03;
 
         final int publishRetransmitCount = publish.get("retransmit").getAsJsonObject().get("count").getAsInt();
-        final int publishRetransmitIntervalSteps = publish.get("retransmit").getAsJsonObject().get("interval").getAsInt();
-
+        // Here we should import the interval in to retransmit interval steps to maintain compatibility with iOS
+        // as well as the internal publication api
+        int publishRetransmitIntervalSteps = publish.get("retransmit").getAsJsonObject().get("interval").getAsInt();
+        if (publishRetransmitIntervalSteps >= 50) {
+            publishRetransmitIntervalSteps = PublicationSettings.parseRetransmitIntervalSteps(publishRetransmitIntervalSteps);
+        }
         final boolean credentials = publish.get("credentials").getAsInt() == 1;
 
         //Set the values
@@ -198,7 +202,8 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         final JsonObject retransmitJson = new JsonObject();
         retransmitJson.addProperty("count", settings.getPublishRetransmitCount());
-        retransmitJson.addProperty("interval", settings.getPublishRetransmitIntervalSteps());
+        // Here we should export the retransmit interval steps as an internal to be compatible with iOS
+        retransmitJson.addProperty("interval", settings.getRetransmissionInterval());
         publicationJson.add("retransmit", retransmitJson);
         publicationJson.addProperty("credentials", settings.getCredentialFlag() ? 1 : 0);
         return publicationJson;

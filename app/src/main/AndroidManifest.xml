@@ -116,7 +116,7 @@
             android:name="no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.SettingsActivityAddress"
+            android:name="no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity"
             android:launchMode="singleTop" />
         <activity
             android:name="no.nordicsemi.android.nrfmesh.node.NodeDetailsActivity"

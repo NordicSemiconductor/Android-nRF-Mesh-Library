@@ -51,7 +51,7 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatSource;
-import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatPublicationViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -76,7 +76,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
     private static final String MIN_HOPS = "MIN_HOPS";
     private static final String MAX_HOPS = "MAX_HOPS";
 
-    private HeartbeatPublicationViewModel mViewModel;
+    private HeartbeatViewModel mViewModel;
     private ConfigurationServerModel mMeshModel;
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -127,7 +127,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
         setContentView(R.layout.activity_heartbeat_subscription);
         ButterKnife.bind(this);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatPublicationViewModel.class);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatViewModel.class);
 
         final ConfigurationServerModel meshModel = mMeshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
         if (meshModel == null)

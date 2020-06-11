@@ -7,11 +7,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.PublicationViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 
-public class SettingsActivityAddress extends AppCompatActivity implements Injectable,
+public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
         GroupCallbacks, DestinationAddressCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
 
@@ -70,6 +70,8 @@ public class SettingsActivityAddress extends AppCompatActivity implements Inject
     public static final String RESULT_PUBLISH_RETRANSMIT_COUNT = "RESULT_PUBLISH_RETRANSMIT_COUNT";
     public static final String RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS = "RESULT_PUBLISH_RETRANSMIT_INTERVAL_STEPS";
 
+    private static final int MIN_PUBLICATION_INTERVAL = 0;
+    private static final int MAX_PUBLICATION_INTERVAL = 234;
     private static final int DEFAULT_PUB_RETRANSMIT_COUNT = 1;
     private static final int DEFAULT_PUB_RETRANSMIT_INTERVAL_STEPS = 1;
     private static final int DEFAULT_PUBLICATION_STEPS = 0;
@@ -104,12 +106,12 @@ public class SettingsActivityAddress extends AppCompatActivity implements Inject
     TextView mPublishTtlView;
     @BindView(R.id.friendship_credential_flag)
     Switch mActionFriendshipCredentialSwitch;
-    @BindView(R.id.retransmission_seek_bar)
-    SeekBar mRetransmissionCountSeekBar;
-    @BindView(R.id.interval_steps_seek_bar)
-    SeekBar mRetransmitIntervalSeekBar;
-    @BindView(R.id.publish_interval_seek_bar)
-    SeekBar mPublicationIntervalSeekBar;
+    @BindView(R.id.retransmission_slider)
+    Slider mRetransmissionCountSlider;
+    @BindView(R.id.interval_steps_slider)
+    Slider mRetransmitIntervalSlider;
+    @BindView(R.id.publish_interval_slider)
+    Slider mPublicationIntervalSlider;
     @BindView(R.id.pub_interval)
     TextView mPublicationInterval;
     @BindView(R.id.fab_apply)
@@ -178,12 +180,14 @@ public class SettingsActivityAddress extends AppCompatActivity implements Inject
             }
         });
 
-        mPublicationIntervalSeekBar.setMax(234);
-        mPublicationIntervalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mPublicationIntervalSlider.setValueFrom(MIN_PUBLICATION_INTERVAL);
+        mPublicationIntervalSlider.setValueTo(MAX_PUBLICATION_INTERVAL);
+        mPublicationIntervalSlider.addOnChangeListener(new Slider.OnChangeListener() {
             int lastValue = 0;
 
             @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
+            public void onValueChange(@NonNull final Slider slider, final float value, final boolean fromUser) {
+                final int progress = (int) value;
                 if (progress == 0) {
                     lastValue = progress;
                     mPublicationSteps = progress;
@@ -223,69 +227,33 @@ public class SettingsActivityAddress extends AppCompatActivity implements Inject
                     mPublicationInterval.setText(getString(R.string.time_m, PublicationSettings.getPublishPeriod(mPublicationResolution, mPublicationSteps)));
                 }
             }
+        });
 
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-
+        mRetransmitIntervalSlider.setValueFrom(PublicationSettings.MIN_PUBLICATION_RETRANSMIT_COUNT);
+        mRetransmissionCountSlider.setValueTo(PublicationSettings.MAX_PUBLICATION_RETRANSMIT_COUNT);
+        mRetransmissionCountSlider.setStepSize(1);
+        mRetransmissionCountSlider.addOnChangeListener((slider, progress, fromUser) -> {
+            mRetransmitCount = (int) progress;
+            if (progress == 0) {
+                mRetransmitCountView.setText(R.string.disabled);
+                mRetransmitInterval.setText(R.string.disabled);
+                mRetransmitIntervalSlider.setEnabled(false);
+            } else {
+                if (!mRetransmitIntervalSlider.isEnabled())
+                    mRetransmitIntervalSlider.setEnabled(true);
+                mRetransmitInterval.setText(getString(R.string.time_ms, PublicationSettings.
+                        getRetransmissionInterval(mRetransmitIntervalSteps)));
+                mRetransmitCountView.setText(getResources().getQuantityString(R.plurals.retransmit_count,
+                        (int) progress, (int) progress));
             }
         });
 
-        mRetransmissionCountSeekBar.setMax(PublicationSettings.MAX_PUBLICATION_RETRANSMIT_COUNT);
-        mRetransmissionCountSeekBar.incrementProgressBy(1);
-        mRetransmissionCountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-                if (fromUser) {
-                    mRetransmitCount = progress;
-                }
-                if (progress == 0) {
-                    mRetransmitCountView.setText(R.string.disabled);
-                    mRetransmitInterval.setText(R.string.disabled);
-                    mRetransmitIntervalSeekBar.setEnabled(false);
-                } else {
-                    if (!mRetransmitIntervalSeekBar.isEnabled())
-                        mRetransmitIntervalSeekBar.setEnabled(true);
-                    mRetransmitInterval.setText(getString(R.string.time_ms, PublicationSettings.
-                            parseRetransmitIntervalSteps(mRetransmitIntervalSeekBar.getProgress())));
-                    mRetransmitCountView.setText(getResources().getQuantityString(R.plurals.retransmit_count,
-                            progress, mRetransmitCount));
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-            }
-        });
-
-        mRetransmitIntervalSeekBar.setMax(PublicationSettings.getMaxRetransmissionInterval());
-        mRetransmitIntervalSeekBar.incrementProgressBy(1);
-        mRetransmitIntervalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-                mRetransmitInterval.setText(getString(R.string.time_ms, progress));
-                if (fromUser) {
-                    mRetransmitIntervalSteps = PublicationSettings.parseRetransmitIntervalSteps(progress);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-            }
+        mRetransmitIntervalSlider.setValueFrom(PublicationSettings.getMinRetransmissionInterval());
+        mRetransmitIntervalSlider.setValueTo(PublicationSettings.getMaxRetransmissionInterval());
+        mRetransmitIntervalSlider.setStepSize(50);
+        mRetransmitIntervalSlider.addOnChangeListener((slider, value, fromUser) -> {
+            mRetransmitInterval.setText(getString(R.string.time_ms, (int) value));
+            mRetransmitIntervalSteps = PublicationSettings.parseRetransmitIntervalSteps((int) value);
         });
 
         fabApply.setOnClickListener(v -> {
@@ -495,12 +463,12 @@ public class SettingsActivityAddress extends AppCompatActivity implements Inject
         mActionFriendshipCredentialSwitch.setChecked(credentialFlag);
 
         final int period = PublicationSettings.getPublishPeriod(mPublicationResolution, mPublicationSteps);
-        mPublicationIntervalSeekBar.setProgress(mPublicationSteps);
+        mPublicationIntervalSlider.setValue(mPublicationSteps);
         mPublicationInterval.setText(getString(R.string.time_ms, period));
 
-        mRetransmissionCountSeekBar.setProgress(mRetransmitCount);
+        mRetransmissionCountSlider.setValue(mRetransmitCount);
         final int retransmissionInterval = PublicationSettings.getRetransmissionInterval(mRetransmitIntervalSteps);
-        mRetransmitIntervalSeekBar.setProgress(retransmissionInterval);
+        mRetransmitIntervalSlider.setValue(retransmissionInterval);
 
     }
 

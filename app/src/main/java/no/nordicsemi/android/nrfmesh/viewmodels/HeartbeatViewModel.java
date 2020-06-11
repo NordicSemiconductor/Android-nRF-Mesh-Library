@@ -29,17 +29,17 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
-import no.nordicsemi.android.nrfmesh.node.SettingsActivityAddress;
+import no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity;
 
 /**
- * View Model class for {@link SettingsActivityAddress}
+ * View Model class for {@link HeartbeatPublicationActivity}
  */
-public class HeartbeatPublicationViewModel extends BaseViewModel {
+public class HeartbeatViewModel extends BaseViewModel {
 
     private Queue<MeshMessage> messageQueue = new LinkedList<>();
     
     @Inject
-    HeartbeatPublicationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
+    HeartbeatViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
 
