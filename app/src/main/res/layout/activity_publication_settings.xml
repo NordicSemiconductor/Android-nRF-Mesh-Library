@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -24,7 +23,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -66,7 +65,7 @@
                             app:logo="@drawable/ic_publish"
                             app:title="@string/title_address"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/container_publish_address"
@@ -76,8 +75,8 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
                             <com.google.android.material.textview.MaterialTextView
@@ -91,7 +90,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/image_pub_address"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/publish_address"
@@ -103,7 +102,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/image_pub_address"
                                 app:layout_constraintTop_toBottomOf="@id/publish_address_title"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <ImageView
                                 android:id="@+id/image_pub_address"
@@ -113,7 +112,7 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@+id/publish_address_title"
                                 app:srcCompat="@drawable/ic_lan_24dp"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
@@ -139,7 +138,7 @@
                             app:logo="@drawable/ic_security"
                             app:title="@string/title_security_credentials"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/container_app_key_index"
@@ -149,8 +148,8 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
                             <com.google.android.material.textview.MaterialTextView
@@ -164,7 +163,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_app_key"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/app_key"
@@ -176,7 +175,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_app_key"
                                 app:layout_constraintTop_toBottomOf="@id/title_appkey_index"
-                                tools:ignore="HardcodedText,RtlSymmetry"/>
+                                tools:ignore="HardcodedText,RtlSymmetry" />
 
                             <ImageView
                                 android:id="@+id/img_app_key"
@@ -186,7 +185,7 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@id/title_appkey_index"
                                 app:srcCompat="@drawable/ic_vpn_key_24dp"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -209,7 +208,7 @@
                                 android:textSize="16sp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_friendship_credentials"
-                                app:layout_constraintTop_toTopOf="parent"/>
+                                app:layout_constraintTop_toTopOf="parent" />
 
                             <Switch
                                 android:id="@+id/friendship_credential_flag"
@@ -220,7 +219,7 @@
                                 app:layout_constraintBottom_toBottomOf="@id/title_friendship_credential_flag"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintTop_toTopOf="@id/title_friendship_credential_flag"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <ImageView
                                 android:id="@+id/img_friendship_credentials"
@@ -230,7 +229,7 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@id/title_friendship_credential_flag"
                                 app:srcCompat="@drawable/ic_account_key"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
@@ -256,7 +255,7 @@
                             app:logo="@drawable/ic_timer"
                             app:title="@string/title_ttl"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/container_publication_ttl"
@@ -266,8 +265,8 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
                             <ImageView
@@ -278,7 +277,7 @@
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@id/title_ttl"
                                 app:srcCompat="@drawable/ic_timer"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/title_ttl"
@@ -291,7 +290,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_ttl"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/publication_ttl"
@@ -303,7 +302,7 @@
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/img_ttl"
                                 app:layout_constraintTop_toBottomOf="@id/title_ttl"
-                                tools:ignore="HardcodedText,RtlSymmetry"/>
+                                tools:ignore="HardcodedText,RtlSymmetry" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
@@ -329,25 +328,25 @@
                             app:logo="@drawable/ic_linear_scale"
                             app:title="@string/title_publish_period"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
                             <ImageView
                                 android:id="@+id/image_publication"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="@+id/publish_interval_seek_bar"
+                                app:layout_constraintBottom_toBottomOf="@id/publish_interval_slider"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@+id/pub_interval_title"
                                 app:srcCompat="@drawable/ic_index"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/pub_interval_title"
@@ -359,7 +358,7 @@
                                 android:textSize="16sp"
                                 app:layout_constraintStart_toEndOf="@id/image_publication"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/pub_interval"
@@ -370,18 +369,19 @@
                                 android:textSize="16sp"
                                 app:layout_constraintBaseline_toBaselineOf="@id/pub_interval_title"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                tools:ignore="HardcodedText,RtlSymmetry"/>
+                                tools:ignore="HardcodedText,RtlSymmetry" />
 
-                            <SeekBar
-                                android:id="@+id/publish_interval_seek_bar"
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/publish_interval_slider"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/item_padding_start"
                                 android:layout_marginTop="@dimen/activity_vertical_margin"
                                 android:layout_marginEnd="@dimen/item_padding_end"
+                                app:labelBehavior="gone"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/image_publication"
-                                app:layout_constraintTop_toBottomOf="@id/pub_interval_title"/>
+                                app:layout_constraintTop_toBottomOf="@id/pub_interval_title" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
@@ -407,14 +407,14 @@
                             app:logo="@drawable/ic_repeat"
                             app:title="@string/title_retransmission"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="@dimen/activity_horizontal_margin"
-                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
                             android:paddingBottom="@dimen/item_padding_bottom">
 
                             <com.google.android.material.textview.MaterialTextView
@@ -427,7 +427,7 @@
                                 android:textSize="16sp"
                                 app:layout_constraintStart_toEndOf="@id/image_retransmission"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/retransmit_count"
@@ -438,28 +438,29 @@
                                 android:textSize="16sp"
                                 app:layout_constraintBaseline_toBaselineOf="@id/retransmission_title"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                tools:ignore="HardcodedText,RtlSymmetry"/>
+                                tools:ignore="HardcodedText,RtlSymmetry" />
 
-                            <SeekBar
-                                android:id="@+id/retransmission_seek_bar"
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/retransmission_slider"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/item_padding_start"
                                 android:layout_marginTop="@dimen/activity_vertical_margin"
                                 android:layout_marginEnd="@dimen/item_padding_end"
+                                app:labelBehavior="gone"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/image_retransmission"
-                                app:layout_constraintTop_toBottomOf="@id/retransmission_title"/>
+                                app:layout_constraintTop_toBottomOf="@id/retransmission_title" />
 
                             <ImageView
                                 android:id="@+id/image_retransmission"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="@id/retransmission_seek_bar"
+                                app:layout_constraintBottom_toBottomOf="@id/retransmission_slider"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@+id/retransmission_title"
                                 app:srcCompat="@drawable/ic_numeric"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -472,11 +473,11 @@
                                 android:id="@+id/image_interval_steps"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="@+id/interval_steps_seek_bar"
+                                app:layout_constraintBottom_toBottomOf="@id/interval_steps_slider"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@+id/interval_steps_title"
                                 app:srcCompat="@drawable/ic_index"
-                                tools:ignore="ContentDescription"/>
+                                tools:ignore="ContentDescription" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/interval_steps_title"
@@ -488,7 +489,7 @@
                                 android:textSize="16sp"
                                 app:layout_constraintStart_toEndOf="@id/image_interval_steps"
                                 app:layout_constraintTop_toTopOf="parent"
-                                tools:ignore="RtlSymmetry"/>
+                                tools:ignore="RtlSymmetry" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/retransmit_interval"
@@ -499,18 +500,19 @@
                                 android:textSize="16sp"
                                 app:layout_constraintBaseline_toBaselineOf="@id/interval_steps_title"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                tools:ignore="HardcodedText,RtlSymmetry"/>
+                                tools:ignore="HardcodedText,RtlSymmetry" />
 
-                            <SeekBar
-                                android:id="@+id/interval_steps_seek_bar"
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/interval_steps_slider"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/item_padding_start"
                                 android:layout_marginTop="@dimen/activity_vertical_margin"
                                 android:layout_marginEnd="@dimen/item_padding_end"
+                                app:labelBehavior="gone"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toEndOf="@id/image_interval_steps"
-                                app:layout_constraintTop_toBottomOf="@id/interval_steps_title"/>
+                                app:layout_constraintTop_toBottomOf="@id/interval_steps_title" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -527,5 +529,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/activity_vertical_margin"
         android:text="@string/action_apply"
-        app:icon="@drawable/ic_done_all_white"/>
+        app:icon="@drawable/ic_done_all_white" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
