@@ -21,7 +21,7 @@ public class PublicationSettings implements Parcelable {
     private static final int DEFAULT_PUBLISH_TTL = 0x7F;
     private static final int DEFAULT_PUBLICATION_STEPS = 0;
     private static final int DEFAULT_PUBLICATION_RESOLUTION = 0b00;
-    private static final int DEFAULT_PUBLICATION_RETRANSMIT_COUNT = 0b000;
+    public static final int MIN_PUBLICATION_RETRANSMIT_COUNT = 0b000;
     public static final int MAX_PUBLICATION_RETRANSMIT_COUNT = 0b111;
     private static final int DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0b00000;
     private static final int MAX_PUBLICATION_RETRANSMIT_INTERVAL_STEPS = 0b11111;
@@ -41,7 +41,7 @@ public class PublicationSettings implements Parcelable {
     @Expose
     private int publicationResolution = DEFAULT_PUBLICATION_RESOLUTION;
     @Expose
-    private int publishRetransmitCount = DEFAULT_PUBLICATION_RETRANSMIT_COUNT;
+    private int publishRetransmitCount = MIN_PUBLICATION_RETRANSMIT_COUNT;
     @Expose
     private int publishRetransmitIntervalSteps = DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS;
 
@@ -67,7 +67,7 @@ public class PublicationSettings implements Parcelable {
                 DEFAULT_PUBLISH_TTL,
                 DEFAULT_PUBLICATION_STEPS,
                 DEFAULT_PUBLICATION_RESOLUTION,
-                DEFAULT_PUBLICATION_RETRANSMIT_COUNT,
+                MIN_PUBLICATION_RETRANSMIT_COUNT,
                 DEFAULT_PUBLICATION_RETRANSMIT_INTERVAL_STEPS);
     }
 
@@ -392,7 +392,7 @@ public class PublicationSettings implements Parcelable {
      */
     public static int parseRetransmitIntervalSteps(final int retransmitInterval) {
         if (retransmitInterval >= 0 && retransmitInterval <= getMaxRetransmissionInterval()) {
-            return ((retransmitInterval - 1) / 50);
+            return ((retransmitInterval / 50) - 1);
         }
         throw new IllegalArgumentException("Invalid retransmit interval");
     }
