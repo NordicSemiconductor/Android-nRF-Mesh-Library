@@ -461,10 +461,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         }
 
         mActionFriendshipCredentialSwitch.setChecked(credentialFlag);
-
-        final int period = PublicationSettings.getPublishPeriod(mPublicationResolution, mPublicationSteps);
-        mPublicationIntervalSlider.setValue(mPublicationSteps);
-        mPublicationInterval.setText(getString(R.string.time_ms, period));
+        updatePublishPeriodUi();
 
         mRetransmissionCountSlider.setValue(mRetransmitCount);
         final int retransmissionInterval = PublicationSettings.getRetransmissionInterval(mRetransmitIntervalSteps);
@@ -516,5 +513,36 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             return false;
         }
         return true;
+    }
+
+    private void updatePublishPeriodUi() {
+        final int sliderValue;
+        final int stringResource;
+        switch (mPublicationResolution) {
+            default:
+            case 0:
+                sliderValue = mPublicationSteps;
+                stringResource = R.string.time_ms;
+                break;
+            case 1:
+                sliderValue = 57 + mPublicationSteps;
+                stringResource = R.string.time_s;
+                break;
+            case 2:
+                sliderValue = 114 + mPublicationSteps;
+                stringResource = R.string.time_s;
+                break;
+            case 3:
+                sliderValue = 171 + mPublicationSteps;
+                stringResource = R.string.time_m;
+                break;
+        }
+        mPublicationIntervalSlider.setValue(sliderValue);
+        final int period = PublicationSettings.getPublishPeriod(mPublicationResolution, mPublicationSteps);
+        if (sliderValue == 0) {
+            mPublicationInterval.setText(R.string.disabled);
+        } else {
+            mPublicationInterval.setText(getString(stringResource, period));
+        }
     }
 }
