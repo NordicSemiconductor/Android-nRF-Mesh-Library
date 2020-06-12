@@ -144,7 +144,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         });
 
         mActionFriendshipCredentialSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-                mViewModel.setCredentialsFlag(isChecked));
+                mViewModel.setFriendshipCredentialsFlag(isChecked));
 
         actionPublishTtl.setOnClickListener(v -> {
             if (meshModel != null) {
@@ -352,7 +352,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             mAppKeyView.setText(getString(R.string.unavailable));
         }
 
-        mActionFriendshipCredentialSwitch.setChecked(mViewModel.getCredentialsFlag());
+        mActionFriendshipCredentialSwitch.setChecked(mViewModel.getFriendshipCredentialsFlag());
         updatePublishPeriodUi();
 
         mRetransmissionCountSlider.setValue(mViewModel.getRetransmitCount());

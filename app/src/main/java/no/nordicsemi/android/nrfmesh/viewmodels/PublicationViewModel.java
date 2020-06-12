@@ -34,7 +34,6 @@ import no.nordicsemi.android.mesh.transport.ConfigModelPublicationVirtualAddress
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
-import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.PublicationSettings;
 import no.nordicsemi.android.mesh.utils.AddressType;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -52,9 +51,6 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_1_S;
  * View Model class for {@link PublicationSettingsActivity}
  */
 public class PublicationViewModel extends BaseViewModel {
-
-    private static final int MIN_PUBLICATION_INTERVAL = 0;
-    private static final int MAX_PUBLICATION_INTERVAL = 234;
     private static final int DEFAULT_PUB_RETRANSMIT_COUNT = 1;
     private static final int DEFAULT_PUB_RETRANSMIT_INTERVAL_STEPS = 1;
     private static final int DEFAULT_PUBLICATION_STEPS = 0;
@@ -63,13 +59,13 @@ public class PublicationViewModel extends BaseViewModel {
 
     private UUID labelUUID;
     private int publishAddress;
-    private Integer appKeyIndex;
+    private int appKeyIndex;
     private int publishTtl = MeshParserUtils.USE_DEFAULT_TTL;
     private int publicationSteps = DEFAULT_PUBLICATION_STEPS;
     private int publicationResolution;
     private int retransmitCount = DEFAULT_PUB_RETRANSMIT_COUNT;
     private int retransmitIntervalSteps = DEFAULT_PUB_RETRANSMIT_INTERVAL_STEPS;
-    private boolean credentialsFlag;
+    private boolean friendshipCredentialsFlag;
 
 
     private int lastValue = 0;
@@ -79,85 +75,132 @@ public class PublicationViewModel extends BaseViewModel {
         super(nrfMeshRepository);
     }
 
+    /**
+     * Returns the label UUID
+     */
+    @Nullable
     public UUID getLabelUUID() {
         return labelUUID;
     }
 
-    public void setLabelUUID(final UUID labelUUID) {
+    /**
+     * Sets the Label UUID
+     *
+     * @param labelUUID Label UUID of the virtual address
+     */
+    public void setLabelUUID(@Nullable final UUID labelUUID) {
         this.labelUUID = labelUUID;
     }
 
+    /**
+     * Returns the publish address
+     */
     public int getPublishAddress() {
         return publishAddress;
     }
 
+    /**
+     * Sets the publish address
+     *
+     * @param publishAddress The address to which the node shall publish
+     */
     public void setPublishAddress(final int publishAddress) {
         this.publishAddress = publishAddress;
     }
 
+    /**
+     * Returns the app key Index
+     */
     public Integer getAppKeyIndex() {
         return appKeyIndex;
     }
 
-    public void setAppKeyIndex(final Integer appKeyIndex) {
+    /**
+     * Sets the app key index
+     */
+    public void setAppKeyIndex(final int appKeyIndex) {
         this.appKeyIndex = appKeyIndex;
     }
 
-    public boolean getCredentialsFlag() {
-        return credentialsFlag;
+    /**
+     * Returns the friendship credential flag
+     */
+    public boolean getFriendshipCredentialsFlag() {
+        return friendshipCredentialsFlag;
     }
 
-    public void setCredentialsFlag(final boolean credentialsFlag) {
-        this.credentialsFlag = credentialsFlag;
+    /**
+     * Sets the friendship credential flag
+     */
+    public void setFriendshipCredentialsFlag(final boolean friendshipCredentialsFlag) {
+        this.friendshipCredentialsFlag = friendshipCredentialsFlag;
     }
 
+    /**
+     * Returns the publication TTL
+     */
     public int getPublishTtl() {
         return publishTtl;
     }
 
+    /**
+     * Sets the publication ttl.
+     *
+     * @param publishTtl Publication TTL
+     */
     public void setPublishTtl(final int publishTtl) {
         this.publishTtl = publishTtl;
     }
 
+    /**
+     * Returns the publication steps.
+     */
     public int getPublicationSteps() {
         return publicationSteps;
     }
 
-    public void setPublicationSteps(final int publicationSteps) {
-        this.publicationSteps = publicationSteps;
-    }
-
+    /**
+     * Returns the publication resolution.
+     */
     public int getPublicationResolution() {
         return publicationResolution;
     }
 
-    public void setPublicationResolution(final int publicationResolution) {
-        this.publicationResolution = publicationResolution;
-    }
-
+    /**
+     * Returns the retransmit count.
+     */
     public int getRetransmitCount() {
         return retransmitCount;
     }
 
+    /**
+     * Sets the retransmit count.
+     *
+     * @param retransmitCount Retransmit count for publication
+     */
     public void setRetransmitCount(final int retransmitCount) {
         this.retransmitCount = retransmitCount;
     }
 
-    public int getRetransmitIntervalSteps() {
-        return retransmitIntervalSteps;
-    }
-
-    public void setRetransmitIntervalSteps(final int retransmitIntervalSteps) {
-        this.retransmitIntervalSteps = parseRetransmitIntervalSteps(retransmitIntervalSteps);
+    /**
+     * Sets the retransmit interval steps based on the retransmit interval.
+     *
+     * @param retransmitInterval Retransmit Interval
+     */
+    public void setRetransmitIntervalSteps(final int retransmitInterval) {
+        this.retransmitIntervalSteps = parseRetransmitIntervalSteps(retransmitInterval);
     }
 
     /**
-     * Calculates the publication period
+     * Calculates the publication period.
      */
     public int getPublishPeriod() {
         return PublicationSettings.getPublishPeriod(publicationResolution, publicationSteps);
     }
 
+    /**
+     * Returns the retransmission Interval based on the interval steps
+     */
     public int getRetransmissionInterval() {
         return PublicationSettings.getRetransmissionInterval(retransmitIntervalSteps);
     }
@@ -174,7 +217,7 @@ public class PublicationViewModel extends BaseViewModel {
             publishAddress = publicationSettings.getPublishAddress();
             labelUUID = publicationSettings.getLabelUUID();
 
-            credentialsFlag = publicationSettings.getCredentialFlag();
+            friendshipCredentialsFlag = publicationSettings.getCredentialFlag();
             publishTtl = publicationSettings.getPublishTtl();
 
             publicationSteps = publicationSettings.getPublicationSteps();
@@ -190,6 +233,11 @@ public class PublicationViewModel extends BaseViewModel {
         }
     }
 
+    /**
+     * Returns the String resource to be used based on the progress
+     *
+     * @param progress Publication period value
+     */
     public int getPublicationPeriodResolutionResource(final int progress) {
         final int resolutionResource;
         if (progress >= 1 && progress <= 63) {
@@ -233,6 +281,9 @@ public class PublicationViewModel extends BaseViewModel {
         return resolutionResource;
     }
 
+    /**
+     * Creates the ConfigModelPublicationSet message depending on the address type
+     */
     public MeshMessage createMessage() {
         final Element element = mNrfMeshRepository.getSelectedElement().getValue();
         final MeshModel model = mNrfMeshRepository.getSelectedModel().getValue();
@@ -242,7 +293,7 @@ public class PublicationViewModel extends BaseViewModel {
                 return new ConfigModelPublicationSet(element.getElementAddress(),
                         publishAddress,
                         appKeyIndex,
-                        credentialsFlag,
+                        friendshipCredentialsFlag,
                         publishTtl,
                         publicationSteps,
                         publicationResolution,
@@ -253,7 +304,7 @@ public class PublicationViewModel extends BaseViewModel {
                 return new ConfigModelPublicationVirtualAddressSet(element.getElementAddress(),
                         labelUUID,
                         appKeyIndex,
-                        credentialsFlag,
+                        friendshipCredentialsFlag,
                         publishTtl,
                         publicationSteps,
                         publicationResolution,
