@@ -10,7 +10,11 @@ import java.util.UUID;
 
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_100_MS;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_10_M;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_10_S;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_1_S;
 
 /**
  * Contains the publication settings of a mesh model
@@ -302,20 +306,20 @@ public class PublicationSettings implements Parcelable {
     }
 
     /**
-     * Encodes the publication period
+     * Encodes the publication period as an interval based on the resolution and the steps
      */
     int encodePublicationPeriod() {
-        return ((publicationSteps << 6) | publicationResolution);
-    }
-
-    /**
-     * Encodes the publication steps and publication resolution in to publication period
-     *
-     * @param publicationSteps      Publication steps
-     * @param publicationResolution Publication resolution
-     */
-    public static int encodePublicationPeriod(final int publicationSteps, final int publicationResolution) {
-        return ((publicationSteps << 6) | publicationResolution);
+        switch (publicationResolution) {
+            default:
+            case RESOLUTION_100_MS:
+                return publicationSteps * 100;
+            case RESOLUTION_1_S:
+                return publicationSteps * 1000;
+            case RESOLUTION_10_S:
+                return publicationSteps * 10 * 1000;
+            case RESOLUTION_10_M:
+                return publicationSteps * 10 * 10000 * 60;
+        }
     }
 
     /**
@@ -324,13 +328,13 @@ public class PublicationSettings implements Parcelable {
     public int getPublishPeriod() {
         switch (publicationResolution) {
             default:
-            case MeshParserUtils.RESOLUTION_100_MS:
+            case RESOLUTION_100_MS:
                 return ((100 * publicationSteps) / 1000);
-            case MeshParserUtils.RESOLUTION_1_S:
+            case RESOLUTION_1_S:
                 return publicationSteps;
-            case MeshParserUtils.RESOLUTION_10_S:
+            case RESOLUTION_10_S:
                 return (10 * publicationSteps);
-            case MeshParserUtils.RESOLUTION_10_M:
+            case RESOLUTION_10_M:
                 return (10 * publicationSteps) * 60;
         }
     }
@@ -348,7 +352,7 @@ public class PublicationSettings implements Parcelable {
             case 0b10:
                 return 10 * publicationSteps;
             case 0b11:
-                return 10 * publicationSteps;
+                return 10 * publicationSteps * 60;
         }
     }
 
