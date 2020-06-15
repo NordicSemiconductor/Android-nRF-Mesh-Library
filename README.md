@@ -93,35 +93,35 @@ The sample application uses the [Android BLE Library](https://github.com/NordicS
 ```
 When using your own ble library/module call the `mMeshManagerApi.handleNotifications(mtu, pdu);` and `mMeshManagerApi.handleWriteCallbacks(mtu, pdu);` to send and receive data.
 
-Provisioning a node in to the network can be done in three steps
-	1.	Connect to the node advertising with the Mesh Provisioning UUID
-	2.	Identify the node to be provisioned, where the devices will blink, vibrate or beep depending on the capabilities for pre-defined duration 
-		of 5 seconds. This is useful when provisioning multiple nodes. To identify a node call
-		```java
-			identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
-		``` by passing the device uuid of the unprovisioned mesh node.
-        or 
-		```java
-			identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
-		``` 
-		by passing the device uuid of the unprovisioned mesh node and the desired duration.
+Provisioning a node in to the network can be done in three steps,
 
-	3.	Depending on the identified device capabilities, call one of the following functions to provision the node.
-		```java
-		void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
-		```
-        or
-		```java
-		void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
-		```
-        or
-		```java
-    	void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
-		```
-        or
-		```java
-    	void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException;
-		```
+1.	Connect to the node advertising with the Mesh Provisioning UUID
+2.	Identify the node to be provisioned, where the devices will blink, vibrate or beep depending on the capabilities for pre-defined duration of 5 seconds. This is useful when provisioning multiple nodes. To identify a node call
+```java
+    identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
+``` by passing the device uuid of the unprovisioned mesh node.
+or 
+```java
+    identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
+``` 
+by passing the device uuid of the unprovisioned mesh node and the desired duration.
+
+3.	Depending on the identified device capabilities, call one of the following functions to provision the node.
+```java
+void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
+``` 
+or
+```java
+    void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
+``` 
+or
+```java
+void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
+``` 
+or
+```java
+void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException; 
+```
 
 Use the `MeshNetowrk` object to edit Mesh Network properties such as Network name, Provisioners and their properties (Name Address, TTL and Address Ranges), Network Keys, App Keys.
 
