@@ -130,7 +130,7 @@ final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
                                 new Random().nextInt(), transitionSteps, transitionStepResolution, delay);
 mMeshManagerAPi.createMeshPdu(address, genericOnOffSet);
 ```
-and Config messages an also be sent similarly. 
+and Config messages can also be sent similarly. 
 
 ## Author
 
