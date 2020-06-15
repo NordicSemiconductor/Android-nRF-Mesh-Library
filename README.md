@@ -101,7 +101,7 @@ Provisioning a node in to the network can be done in three steps,
     void identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException; 
 ```
 by passing the device uuid of the unprovisioned mesh node.
-or
+or call
 ```java
     void identifyNode(@NonNull final UUID deviceUUID, final int attentionTimer) throws IllegalArgumentException;
 ```
