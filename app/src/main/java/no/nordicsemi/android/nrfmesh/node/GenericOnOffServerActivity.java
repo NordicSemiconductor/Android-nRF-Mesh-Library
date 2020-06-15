@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Random;
+
 import javax.inject.Inject;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -249,7 +251,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
-                                node.getSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
+                                new Random().nextInt(), mTransitionSteps, mTransitionStepResolution, delay);
                         sendMessage(address, genericOnOffSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
