@@ -81,7 +81,7 @@ To start using the library in your own project take a look at the followign snip
 
 The sample application uses the [Android BLE Library](https://github.com/NordicSemiconductor/Android-BLE-Library/) by Nordic Semiconductor ASA and is recommended to use this dependency in your application. Follow the snippet below when using the Android-Ble-Library in combination with the Android-Mesh-Library to send and receive data.
 ```java
-	@Override
+    @Override
     public void onDataReceived(final BluetoothDevice bluetoothDevice, final int mtu, final byte[] pdu) {
         mMeshManagerApi.handleNotifications(mtu, pdu);
     }
@@ -98,31 +98,30 @@ Provisioning a node in to the network can be done in three steps,
 1.	Connect to the node advertising with the Mesh Provisioning UUID
 2.	Identify the node to be provisioned, where the devices will blink, vibrate or beep depending on the capabilities for pre-defined duration of 5 seconds. This is useful when provisioning multiple nodes. To identify a node call
 ```java
-    identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
-``` by passing the device uuid of the unprovisioned mesh node.
-or 
+    void identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException; 
+```
+by passing the device uuid of the unprovisioned mesh node.
+or
 ```java
-    identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
-``` 
+    void identifyNode(@NonNull final UUID deviceUUID, final int attentionTimer) throws IllegalArgumentException;
+```
 by passing the device uuid of the unprovisioned mesh node and the desired duration.
-
-3.	Depending on the identified device capabilities, call one of the following functions to provision the node.
+3.  Depending on the identified device capabilities, call one of the following functions to provision the node.
 ```java
-void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
-``` 
+    void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
+```
 or
 ```java
     void startProvisioningWithStaticOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
-``` 
-or
-```java
-void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
-``` 
-or
-```java
-void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException; 
 ```
-
+or
+```java
+    void startProvisioningWithOutputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, final OutputOOBAction oobAction) throws IllegalArgumentException;
+```
+or
+```java
+    void startProvisioningWithInputOOB(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode, @NonNull final InputOOBAction oobAction) throws IllegalArgumentException;
+```
 Use the `MeshNetowrk` object to edit Mesh Network properties such as Network name, Provisioners and their properties (Name Address, TTL and Address Ranges), Network Keys, App Keys.
 
 Following is an example on how to send a GenericOnOffSet message.
@@ -130,7 +129,8 @@ Following is an example on how to send a GenericOnOffSet message.
 final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
                                 new Random().nextInt(), transitionSteps, transitionStepResolution, delay);
                                 mMeshManagerAPi.createMeshPdu(address, genericOnOffSet);
-``` and Config messages an also be sent similarly. 
+```
+and Config messages an also be sent similarly. 
 
 ## Author
 
