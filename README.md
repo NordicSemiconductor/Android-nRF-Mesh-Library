@@ -128,7 +128,7 @@ Following is an example on how to send a GenericOnOffSet message.
 ```java
 final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
                                 new Random().nextInt(), transitionSteps, transitionStepResolution, delay);
-                                mMeshManagerAPi.createMeshPdu(address, genericOnOffSet);
+mMeshManagerAPi.createMeshPdu(address, genericOnOffSet);
 ```
 and Config messages an also be sent similarly. 
 
