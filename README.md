@@ -100,12 +100,12 @@ Provisioning a node in to the network can be done in three steps,
 ```java
     void identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException; 
 ```
-by passing the device uuid of the unprovisioned mesh node.
+    by passing the device uuid of the unprovisioned mesh node.
 or
 ```java
     void identifyNode(@NonNull final UUID deviceUUID, final int attentionTimer) throws IllegalArgumentException;
 ```
-by passing the device uuid of the unprovisioned mesh node and the desired duration.
+    by passing the device uuid of the unprovisioned mesh node and the desired duration.
 3.  Depending on the identified device capabilities, call one of the following functions to provision the node.
 ```java
     void startProvisioning(@NonNull final UnprovisionedMeshNode unprovisionedMeshNode) throws IllegalArgumentException;
