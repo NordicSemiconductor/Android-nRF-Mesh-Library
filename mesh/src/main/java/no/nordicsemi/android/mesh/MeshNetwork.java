@@ -3,17 +3,16 @@ package no.nordicsemi.android.mesh;
 
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.Entity;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.Entity;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -112,7 +111,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     /**
-     * Returns the next unicast address for a provisioner based on the allocated range and the number of elements
+     * Returns the next unicast address for a node based on the number of elements
+     * and the range allocated to the provisioner.
+     * P.S. When setting up a new network don't forget to assign an address to the provisioner.
+     * When importing a network make sure to create a new provisioner with a different address
+     * which is the recommended approach. However you can also use the same provisioner
+     * with a different address.
      *
      * @param elementCount Element count
      * @param provisioner  provisioner
