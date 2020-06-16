@@ -403,6 +403,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * @param node provisioned mesh node
      */
     void setSelectedMeshNode(final ProvisionedMeshNode node) {
+        mProvisionedMeshNode = node;
         mExtendedMeshNode.postValue(node);
     }
 
@@ -711,7 +712,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     public void onUnknownPduReceived(final int src, final byte[] accessPayload) {
         final ProvisionedMeshNode node = mMeshNetwork.getNode(src);
         if (node != null) {
-            mProvisionedMeshNode = node;
             updateNode(node);
         }
     }
@@ -890,7 +890,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             } else if (meshMessage instanceof ConfigHeartbeatSubscriptionStatus) {
                 if (updateNode(node)) {
                     final Element element = node.getElements().get(meshMessage.getSrc());
-                    final MeshModel model = element.getMeshModels().get((int)SigModelParser.CONFIGURATION_SERVER);
+                    final MeshModel model = element.getMeshModels().get((int) SigModelParser.CONFIGURATION_SERVER);
                     mMeshMessageLiveData.postValue(meshMessage);
                 }
             } else if (meshMessage instanceof ConfigProxyStatus) {
