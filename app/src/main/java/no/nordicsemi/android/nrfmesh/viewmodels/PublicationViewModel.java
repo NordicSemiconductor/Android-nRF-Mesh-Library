@@ -111,7 +111,7 @@ public class PublicationViewModel extends BaseViewModel {
     /**
      * Returns the app key Index
      */
-    public Integer getAppKeyIndex() {
+    public int getAppKeyIndex() {
         return appKeyIndex;
     }
 
