@@ -1,17 +1,18 @@
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.slider.Slider;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
@@ -47,20 +48,22 @@ public class BottomSheetOnOffDialogFragment extends BottomSheetDialogFragment {
         final View nodeControlsContainer = inflater.inflate(R.layout.layout_generic_on_off_bottom_sheet, container, false);
 
         final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-        final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
-        transitionTimeSeekBar.setProgress(0);
-        transitionTimeSeekBar.incrementProgressBy(1);
-        transitionTimeSeekBar.setMax(230);
+        final Slider transitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+        transitionTimeSlider.setValueFrom(0);
+        transitionTimeSlider.setValueTo(230);
+        transitionTimeSlider.setStepSize(1);
+        transitionTimeSlider.setValue(0);
 
-        final SeekBar delaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
-        delaySeekBar.setProgress(0);
-        delaySeekBar.setMax(255);
+        final Slider delaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+        delaySlider.setValueFrom(0);
+        delaySlider.setValueTo(255);
+        delaySlider.setValue(0);
         final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
         final Button actionOn = nodeControlsContainer.findViewById(R.id.action_on);
         actionOn.setOnClickListener(v -> {
             try {
-                ((BottomSheetOnOffListener) requireActivity()).toggle(mKeyIndex, true, mTransitionSteps, mTransitionStepResolution, delaySeekBar.getProgress());
+                ((BottomSheetOnOffListener) requireActivity()).toggle(mKeyIndex, true, mTransitionSteps, mTransitionStepResolution, (int) delaySlider.getValue());
             } catch (IllegalArgumentException ex) {
                 Toast.makeText(requireContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -69,19 +72,18 @@ public class BottomSheetOnOffDialogFragment extends BottomSheetDialogFragment {
         final Button actionOff = nodeControlsContainer.findViewById(R.id.action_off);
         actionOff.setOnClickListener(v -> {
             try {
-                ((BottomSheetOnOffListener) requireActivity()).toggle(mKeyIndex, false, mTransitionSteps, mTransitionStepResolution, delaySeekBar.getProgress());
+                ((BottomSheetOnOffListener) requireActivity()).toggle(mKeyIndex, false, mTransitionSteps, mTransitionStepResolution, (int) delaySlider.getValue());
             } catch (IllegalArgumentException ex) {
                 Toast.makeText(requireContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
-        transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        transitionTimeSlider.addOnChangeListener(new Slider.OnChangeListener() {
             int lastValue = 0;
             double res = 0.0;
 
             @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-
+            public void onValueChange(@NonNull final Slider slider, final float value, final boolean fromUser) {
+                final int progress = (int) value;
                 if (progress >= 0 && progress <= 62) {
                     lastValue = progress;
                     mTransitionStepResolution = 0;
@@ -118,32 +120,12 @@ public class BottomSheetOnOffDialogFragment extends BottomSheetDialogFragment {
                     time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "min"));
                 }
             }
-
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-
-            }
         });
 
-        delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        delaySlider.addOnChangeListener(new Slider.OnChangeListener() {
             @Override
-            public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-                delayTime.setText(getString(R.string.transition_time_interval, String.valueOf(progress * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
-            }
-
-            @Override
-            public void onStartTrackingTouch(final SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(final SeekBar seekBar) {
-
+            public void onValueChange(@NonNull final Slider slider, final float value, final boolean fromUser) {
+                delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
             }
         });
         return nodeControlsContainer;

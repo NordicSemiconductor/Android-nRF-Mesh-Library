@@ -37,11 +37,11 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
     Switch relaySwitch;
     @BindView(R.id.dialog_relay_retransmit_count)
     TextView relayRetransmitCountText;
-    @BindView(R.id.dialog_relay_retransmit_count_seekbar)
+    @BindView(R.id.dialog_relay_retransmit_count_slider)
     SeekBar retransmitCountSeekBar;
     @BindView(R.id.dialog_relay_interval_steps)
     TextView relayRetransmitIntervalStepsText;
-    @BindView(R.id.dialog_relay_interval_steps_seekbar)
+    @BindView(R.id.dialog_relay_interval_steps_slider)
     SeekBar retransmitIntervalStepsSeekBar;
 
     private int mRelay = 0;

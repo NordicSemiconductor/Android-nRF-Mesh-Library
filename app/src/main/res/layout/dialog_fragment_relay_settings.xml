@@ -87,8 +87,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="HardcodedText"/>
 
-        <SeekBar
-            android:id="@+id/dialog_relay_retransmit_count_seekbar"
+        <com.google.android.material.slider.Slider
+            android:id="@+id/dialog_relay_retransmit_count_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/item_padding_bottom"
@@ -155,8 +155,8 @@
             app:layout_constraintTop_toTopOf="@id/dialog_relay_interval_steps_title"
             tools:ignore="HardcodedText"/>
 
-        <SeekBar
-            android:id="@+id/dialog_relay_interval_steps_seekbar"
+        <com.google.android.material.slider.Slider
+            android:id="@+id/dialog_relay_interval_steps_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/item_padding_top"

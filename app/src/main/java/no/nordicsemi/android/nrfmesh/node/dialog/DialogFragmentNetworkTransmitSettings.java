@@ -33,11 +33,11 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
 
     @BindView(R.id.dialog_network_transmit_count)
     TextView networkTransmitCountText;
-    @BindView(R.id.dialog_network_transmit_count_seekbar)
+    @BindView(R.id.dialog_network_transmit_count_slider)
     SeekBar transmitCountBar;
     @BindView(R.id.dialog_network_transmit_interval_steps)
     TextView networkTransmitIntervalStepsText;
-    @BindView(R.id.dialog_network_transmit_interval_steps_seekbar)
+    @BindView(R.id.dialog_network_transmit_interval_steps_slider)
     SeekBar transmitIntervalStepsBar;
 
     private int mTransmitCount = 0;

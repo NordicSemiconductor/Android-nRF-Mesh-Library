@@ -54,8 +54,8 @@
             app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_count_title"
             tools:ignore="HardcodedText"/>
 
-        <SeekBar
-            android:id="@+id/dialog_network_transmit_count_seekbar"
+        <com.google.android.material.slider.Slider
+            android:id="@+id/dialog_network_transmit_count_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/item_padding_top"
@@ -125,8 +125,8 @@
             app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
             tools:ignore="HardcodedText"/>
 
-        <SeekBar
-            android:id="@+id/dialog_network_transmit_interval_steps_seekbar"
+        <com.google.android.material.slider.Slider
+            android:id="@+id/dialog_network_transmit_interval_steps_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/item_padding_top"
