@@ -66,7 +66,8 @@ class ConfigMessageState extends MeshMessageState {
         final int aszmic = configMessage.getAszmic();
         final int opCode = configMessage.getOpCode();
         final byte[] parameters = configMessage.getParameters();
-        message = mMeshTransport.createMeshMessage(mSrc, mDst, mDeviceKey, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, configMessage.messageTtl,
+                mDeviceKey, akf, aid, aszmic, opCode, parameters);
         configMessage.setMessage(message);
     }
 }

@@ -30,8 +30,8 @@ import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
+import no.nordicsemi.android.nrfmesh.node.GenericModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity;
-import no.nordicsemi.android.nrfmesh.node.ModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
@@ -110,7 +110,7 @@ abstract class BaseViewModel extends ViewModel {
         } else if (model instanceof VendorModel) {
             intent = new Intent(context, VendorModelActivity.class);
         } else {
-            intent = new Intent(context, ModelConfigurationActivity.class);
+            intent = new Intent(context, GenericModelConfigurationActivity.class);
         }
         context.startActivity(intent);
     }

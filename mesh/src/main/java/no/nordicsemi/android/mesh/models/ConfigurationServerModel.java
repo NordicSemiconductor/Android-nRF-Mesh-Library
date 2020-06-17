@@ -24,8 +24,22 @@ package no.nordicsemi.android.mesh.models;
 
 import android.os.Parcel;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import androidx.annotation.Nullable;
+import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
+import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
+
 @SuppressWarnings("WeakerAccess")
 public class ConfigurationServerModel extends SigModel {
+
+    @Expose
+    @SerializedName("heartbeatPub")
+    private HeartbeatPublication heartbeatPublication = null;
+    @Expose
+    @SerializedName("heartbeatSub")
+    private HeartbeatSubscription heartbeatSubscription = null;
 
     public static final Creator<ConfigurationServerModel> CREATOR = new Creator<ConfigurationServerModel>() {
         @Override
@@ -43,7 +57,7 @@ public class ConfigurationServerModel extends SigModel {
         super(modelId);
     }
 
-    private ConfigurationServerModel(Parcel in){
+    private ConfigurationServerModel(Parcel in) {
         super(in);
     }
 
@@ -60,5 +74,38 @@ public class ConfigurationServerModel extends SigModel {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         super.parcelMeshModel(dest, flags);
+    }
+
+    /**
+     * Returns the Heartbeat publication.
+     */
+    @Nullable
+    public HeartbeatPublication getHeartbeatPublication() {
+        return heartbeatPublication;
+    }
+
+    /**
+     * Sets the Heartbeat publication.
+     *
+     * @param heartbeatPublication Heartbeat publication.
+     */
+    public void setHeartbeatPublication(final HeartbeatPublication heartbeatPublication) {
+        this.heartbeatPublication = heartbeatPublication;
+    }
+
+    /**
+     * Returns the Heartbeat subscription.
+     */
+    public HeartbeatSubscription getHeartbeatSubscription() {
+        return heartbeatSubscription;
+    }
+
+    /**
+     * Sets the Heartbeat subscription.
+     *
+     * @param heartbeatSubscription Heartbeat subscription.
+     */
+    public void setHeartbeatSubscription(final HeartbeatSubscription heartbeatSubscription) {
+        this.heartbeatSubscription = heartbeatSubscription;
     }
 }

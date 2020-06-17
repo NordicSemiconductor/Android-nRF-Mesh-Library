@@ -63,4 +63,40 @@ public class DeviceFeatureUtils {
     public static boolean supportsLowPowerFeature(final int feature) {
         return ((feature & (1 << 3)) > 0);
     }
+
+    /**
+     * Returns the relay feature state value
+     *
+     * @param feature 16-bit feature value
+     */
+    public static int getRelayFeature(final int feature) {
+        return feature & (1 << 0);
+    }
+
+    /**
+     * Returns the proxy feature state value
+     *
+     * @param feature 16-bit feature value
+     */
+    public static int getProxyFeature(final int feature) {
+        return feature & (1 << 1);
+    }
+
+    /**
+     * Returns the friend feature state value
+     *
+     * @param feature 16-bit feature value
+     */
+    public static int getFriendFeature(final int feature) {
+        return feature & (1 << 2);
+    }
+
+    /**
+     * Returns the low power feature state value
+     *
+     * @param feature 16-bit feature value
+     */
+    public static int getLowPowerFeature(final int feature) {
+        return feature & (1 << 3);
+    }
 }

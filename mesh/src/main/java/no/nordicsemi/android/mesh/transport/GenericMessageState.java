@@ -73,7 +73,8 @@ class GenericMessageState extends MeshMessageState {
         final int aszmic = genericMessage.getAszmic();
         final int opCode = genericMessage.getOpCode();
         final byte[] parameters = genericMessage.getParameters();
-        message = mMeshTransport.createMeshMessage(mSrc, mDst, mLabel, key, akf, aid, aszmic, opCode, parameters);
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mLabel, genericMessage.messageTtl,
+                key, akf, aid, aszmic, opCode, parameters);
         genericMessage.setMessage(message);
     }
 

@@ -5,13 +5,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Random;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.mesh.ApplicationKey;
@@ -27,7 +30,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
-public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
+public class GenericOnOffServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
 
@@ -43,6 +46,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericOnOffServerModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
@@ -50,23 +54,26 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
             onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
             remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
-            final SeekBar transitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
-            transitionTimeSeekBar.setProgress(0);
-            transitionTimeSeekBar.incrementProgressBy(1);
-            transitionTimeSeekBar.setMax(230);
+            final Slider transitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+            transitionTimeSlider.setValueFrom(0);
+            transitionTimeSlider.setValueTo(230);
+            transitionTimeSlider.setValue(0);
+            transitionTimeSlider.setStepSize(1);
 
-            final SeekBar delaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
-            delaySeekBar.setProgress(0);
-            delaySeekBar.setMax(255);
+            final Slider delaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+            delaySlider.setValueFrom(0);
+            delaySlider.setValueTo(255);
+            delaySlider.setValue(0);
+            delaySlider.setStepSize(1);
             final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
             mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on);
             mActionOnOff.setOnClickListener(v -> {
                 try {
                     if (mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))) {
-                        sendGenericOnOff(true, delaySeekBar.getProgress());
+                        sendGenericOnOff(true, (int) delaySlider.getValue());
                     } else {
-                        sendGenericOnOff(false, delaySeekBar.getProgress());
+                        sendGenericOnOff(false, (int) delaySlider.getValue());
                     }
                 } catch (IllegalArgumentException ex) {
                     mViewModel.displaySnackBar(this, mContainer, ex.getMessage(), Snackbar.LENGTH_LONG);
@@ -76,13 +83,13 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> sendGenericOnOffGet());
 
-            transitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            transitionTimeSlider.addOnChangeListener(new Slider.OnChangeListener() {
                 int lastValue = 0;
                 double res = 0.0;
 
                 @Override
-                public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-
+                public void onValueChange(@NonNull final Slider slider, final float value, final boolean fromUser) {
+                    final int progress = (int) value;
                     if (progress >= 0 && progress <= 62) {
                         lastValue = progress;
                         mTransitionStepResolution = 0;
@@ -119,34 +126,8 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "min"));
                     }
                 }
-
-                @Override
-                public void onStartTrackingTouch(final SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(final SeekBar seekBar) {
-
-                }
             });
-
-            delaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-                    delayTime.setText(getString(R.string.transition_time_interval, String.valueOf(progress * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
-                }
-
-                @Override
-                public void onStartTrackingTouch(final SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(final SeekBar seekBar) {
-
-                }
-            });
+            delaySlider.addOnChangeListener((slider, value, fromUser) -> delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
         }
     }
 
@@ -165,10 +146,15 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
     }
 
     @Override
+    public void onRefresh() {
+        super.onRefresh();
+    }
+
+    @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         super.updateMeshMessage(meshMessage);
+        mSwipe.setOnRefreshListener(this);
         if (meshMessage instanceof GenericOnOffStatus) {
-            hideProgressBar();
             final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
             final boolean presentState = status.getPresentState();
             final Boolean targetOnOff = status.getTargetState();
@@ -195,6 +181,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                 remainingTime.setVisibility(View.VISIBLE);
             }
         }
+        hideProgressBar();
     }
 
 
@@ -242,7 +229,7 @@ public class GenericOnOffServerActivity extends BaseModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
-                                node.getSequenceNumber(), mTransitionSteps, mTransitionStepResolution, delay);
+                                new Random().nextInt(), mTransitionSteps, mTransitionStepResolution, delay);
                         sendMessage(address, genericOnOffSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);

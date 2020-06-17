@@ -3,7 +3,6 @@ package no.nordicsemi.android.mesh;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.IntDef;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -11,6 +10,7 @@ import com.google.gson.annotations.SerializedName;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import androidx.annotation.IntDef;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 
 /**
@@ -62,6 +62,16 @@ public class Features implements Parcelable {
         lowPower = in.readInt();
         proxy = in.readInt();
         relay = in.readInt();
+    }
+
+    @Override
+    public String toString() {
+        return "Features{" +
+                "friend=" + friend +
+                ", lowPower=" + lowPower +
+                ", proxy=" + proxy +
+                ", relay=" + relay +
+                '}';
     }
 
     @Override
@@ -213,4 +223,22 @@ public class Features implements Parcelable {
         }
     }
 
+    public int assembleFeatures() {
+        int features = bitValue(relay) << 15;
+        features = features | bitValue(proxy) << 14;
+        features = features | bitValue(friend) << 13;
+        features = features | bitValue(lowPower) << 12;
+        return features;
+    }
+
+    private short bitValue(final int feature) {
+        switch (feature) {
+            default:
+            case UNSUPPORTED:
+            case DISABLED:
+                return 0;
+            case ENABLED:
+                return 1;
+        }
+    }
 }

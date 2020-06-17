@@ -76,6 +76,8 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisioningViewModel;
 
+import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
+
 public class ProvisioningActivity extends AppCompatActivity implements Injectable,
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
@@ -293,7 +295,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Utils.SELECT_KEY) {
             if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(AppKeysActivity.RESULT_APP_KEY);
+                final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
                 if (appKey != null) {
                     mViewModel.getNetworkLiveData().setSelectedAppKey(appKey);
                 }

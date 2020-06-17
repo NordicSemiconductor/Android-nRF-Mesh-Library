@@ -2,10 +2,6 @@ package no.nordicsemi.android.mesh;
 
 import android.util.SparseIntArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.TypeConverter;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -15,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.TypeConverter;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ElementDbMigrator;
 import no.nordicsemi.android.mesh.transport.InternalMeshModelDeserializer;
@@ -146,8 +145,8 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public static IvIndex fromJsonToIvIndex(final String ivIndex){
-        final Type newIvIndex = new TypeToken<IvIndex>(){
+    public static IvIndex fromJsonToIvIndex(final String ivIndex) {
+        final Type newIvIndex = new TypeToken<IvIndex>() {
         }.getType();
         return new Gson().fromJson(ivIndex, newIvIndex);
     }

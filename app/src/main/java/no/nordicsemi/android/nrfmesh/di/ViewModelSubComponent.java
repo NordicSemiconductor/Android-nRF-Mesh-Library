@@ -32,6 +32,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.EditAppKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.GroupControlsViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.NodeConfigurationViewModel;
@@ -97,6 +98,8 @@ public interface ViewModelSubComponent {
     ModelConfigurationViewModel modelConfigurationViewModel();
 
     PublicationViewModel publicationViewModel();
+
+    HeartbeatViewModel heartbeatPublicationViewModel();
 
     ReconnectViewModel reconnectViewModule();
 }

@@ -1,6 +1,5 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.JsonArray;
@@ -18,10 +17,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_100_MS;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_10_M;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_10_S;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_1_S;
 
 /**
  * Class for deserializing a list of elements stored in the Mesh Configuration Database
@@ -38,7 +43,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
             final MeshModel meshModel = getMeshModel(modelId);
             if (meshModel != null) {
-                meshModel.mPublicationSettings = getPublicationSettings(jsonObject);
+                meshModel.mPublicationSettings = deserializePublicationSettings(jsonObject);
                 setSubscriptionAddresses(meshModel, jsonObject);
                 final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
                 meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
@@ -77,7 +82,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      * @param jsonObject json object
      * @return {@link PublicationSettings}
      */
-    private PublicationSettings getPublicationSettings(final JsonObject jsonObject) {
+    private PublicationSettings deserializePublicationSettings(final JsonObject jsonObject) {
         if (!jsonObject.has("publish"))
             return null;
 
@@ -96,14 +101,36 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final int index = publish.get("index").getAsInt();
         final int ttl = publish.get("ttl").getAsByte();
 
-        //Unpack publish period
+        //Previous version stored the publication period as resolution and steps.
+        //Now it's stored as an interval in ms
         final int period = publish.get("period").getAsInt();
-        final int publicationSteps = period >> 6;
-        final int publicationResolution = period & 0x03;
+        final int publicationResolution;
+        final int publicationSteps;
+        if (period % 600000 == 0) {
+            publicationResolution = RESOLUTION_10_M;
+            publicationSteps = period / 600000;
+        } else if (period % 10000 == 0) {
+            publicationResolution = RESOLUTION_10_S;
+            publicationSteps = period / 10000;
+        } else if (period % 1000 == 0) {
+            publicationResolution = RESOLUTION_1_S;
+            publicationSteps = period / 1000;
+        } else if (period % 100 == 0) {
+            publicationResolution = RESOLUTION_100_MS;
+            publicationSteps = period / 100;
+        } else {
+            // This is to maintain backward compatibility between older json files
+            publicationResolution = period & 0x03;
+            publicationSteps = period >> 6;
+        }
 
         final int publishRetransmitCount = publish.get("retransmit").getAsJsonObject().get("count").getAsInt();
-        final int publishRetransmitIntervalSteps = publish.get("retransmit").getAsJsonObject().get("interval").getAsInt();
-
+        // Here we should import the interval in to retransmit interval steps to maintain compatibility with iOS
+        // as well as the internal publication api
+        int publishRetransmitIntervalSteps = publish.get("retransmit").getAsJsonObject().get("interval").getAsInt();
+        if (publishRetransmitIntervalSteps >= 50) {
+            publishRetransmitIntervalSteps = PublicationSettings.parseRetransmitIntervalSteps(publishRetransmitIntervalSteps);
+        }
         final boolean credentials = publish.get("credentials").getAsInt() == 1;
 
         //Set the values
@@ -187,7 +214,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     @SuppressWarnings("ConstantConditions")
     private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
-        if(MeshAddress.isValidVirtualAddress(settings.getPublishAddress())){
+        if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress())) {
             publicationJson.addProperty("address", MeshParserUtils.uuidToHex(settings.getLabelUUID()));
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
@@ -198,7 +225,8 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         final JsonObject retransmitJson = new JsonObject();
         retransmitJson.addProperty("count", settings.getPublishRetransmitCount());
-        retransmitJson.addProperty("interval", settings.getPublishRetransmitIntervalSteps());
+        // Here we should export the retransmit interval steps as an internal to be compatible with iOS
+        retransmitJson.addProperty("interval", settings.getRetransmissionInterval());
         publicationJson.add("retransmit", retransmitJson);
         publicationJson.addProperty("credentials", settings.getCredentialFlag() ? 1 : 0);
         return publicationJson;

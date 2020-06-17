@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,17 +50,15 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     private final List<ApplicationKey> appKeys = new ArrayList<>();
     private final List<ApplicationKey> addedAppKeys = new ArrayList<>();
-    private final Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public AddedAppKeyAdapter(@NonNull final Context context,
+    public AddedAppKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<ApplicationKey> appKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.mContext = context;
         this.appKeys.clear();
         this.appKeys.addAll(appKeys);
         Collections.sort(this.appKeys, Utils.appKeyComparator);
-        meshNodeLiveData.observe((LifecycleOwner) context, meshNode -> {
+        meshNodeLiveData.observe((LifecycleOwner) owner, meshNode -> {
             addedAppKeys.clear();
             for (NodeKey nodeKey : meshNode.getAddedAppKeys()) {
                 for (ApplicationKey applicationKey : appKeys) {
@@ -82,7 +79,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     @NonNull
     @Override
     public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.row_item_key, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item_key, parent, false);
         return new AddedAppKeyAdapter.ViewHolder(layoutView);
     }
 

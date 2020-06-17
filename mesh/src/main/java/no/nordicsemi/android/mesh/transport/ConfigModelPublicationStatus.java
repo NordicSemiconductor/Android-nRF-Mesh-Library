@@ -24,12 +24,12 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -95,8 +95,8 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         publicationSteps = publishPeriod & 0x3F;
         publicationResolution = publishPeriod >> 6;
         final int publishRetransmission = MeshParserUtils.unsignedByteToInt(mParameters[9]);
-        publishRetransmitCount = publishRetransmission >> 5;
-        publishRetransmitIntervalSteps = publishRetransmission & 0x1F;
+        publishRetransmitCount = publishRetransmission & 0x07;
+        publishRetransmitIntervalSteps = publishRetransmission >> 3;
 
         final byte[] modelIdentifier;
         if (mParameters.length == CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH) {

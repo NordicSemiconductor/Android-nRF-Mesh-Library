@@ -11,8 +11,12 @@ import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.UUID;
 
+import no.nordicsemi.android.mesh.Features;
+import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
+import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
+import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
@@ -20,8 +24,10 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
  * Do not touch this class, implemented for mesh model deserialization
  */
 public final class InternalMeshModelDeserializer implements JsonDeserializer<MeshModel> {
+
     @Override
-    public MeshModel deserialize(final JsonElement json, final Type typeOfT,
+    public MeshModel deserialize(final JsonElement json,
+                                 final Type typeOfT,
                                  final JsonDeserializationContext context) throws JsonParseException {
         final JsonObject jsonObject;
         if (json.getAsJsonObject().has("data")) {
@@ -142,6 +148,38 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         final int modelId = jsonObject.get("mModelId").getAsInt();
         final MeshModel meshModel = getMeshModel(modelId);
 
+        if (meshModel instanceof ConfigurationServerModel) {
+            if (jsonObject.has("heartbeatPub")) {
+                final JsonObject heartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
+                final int address = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
+                final int countLog = heartbeatPub.get("count").getAsInt();
+                final int period = (heartbeatPub.get("period").getAsInt());
+                final int ttl = heartbeatPub.get("ttl").getAsInt();
+                final int index = heartbeatPub.get("index").getAsInt();
+
+                final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
+                final Features features = new Features(featuresJson.get("friend").getAsInt(),
+                        featuresJson.get("lowPower").getAsInt(),
+                        featuresJson.get("relay").getAsInt(),
+                        featuresJson.get("proxy").getAsInt());
+                ((ConfigurationServerModel) meshModel)
+                        .setHeartbeatPublication(new HeartbeatPublication(address, countLog,
+                        period, ttl, features, index));
+            }
+            if (jsonObject.has("heartbeatSub")) {
+                final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
+                final int source = Integer.parseInt(heartbeatSub.get("source").getAsString(), 16);
+                final int destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
+                final int period = (heartbeatSub.get("period").getAsInt());
+                final int countLog = heartbeatSub.get("count").getAsInt();
+                final int minHops = heartbeatSub.get("minHops").getAsInt();
+                final int maxHops = heartbeatSub.get("maxHops").getAsInt();
+                ((ConfigurationServerModel) meshModel)
+                        .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, period,
+                                countLog, minHops, maxHops));
+            }
+        }
+
         final JsonArray jsonArrayBoundKeyIndexes = jsonObject.getAsJsonArray("mBoundAppKeyIndexes");
         for (int i = 0; i < jsonArrayBoundKeyIndexes.size(); i++) {
             final int index = jsonArrayBoundKeyIndexes.get(i).getAsInt();
@@ -204,7 +242,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                         publishAddress = jsonElement.getAsInt();
                     }
 
-                    if(jsonPublicationSettings.has("labelUUID")){
+                    if (jsonPublicationSettings.has("labelUUID")) {
                         final String uuid = jsonPublicationSettings.get("labelUUID").getAsString();
                         labelUUID = UUID.fromString(uuid);
                     }
@@ -243,5 +281,4 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             return SigModelParser.getSigModel(modelId);
         }
     }
-
 }

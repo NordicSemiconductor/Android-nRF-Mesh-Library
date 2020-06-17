@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Random;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.mesh.ApplicationKey;
@@ -26,7 +29,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
-public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
+public class GenericLevelServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
 
@@ -36,9 +39,9 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     private TextView level;
     private TextView time;
     private TextView remainingTime;
-    private SeekBar mTransitionTimeSeekBar;
-    private SeekBar mDelaySeekBar;
-    private SeekBar mLevelSeekBar;
+    private Slider mTransitionTimeSlider;
+    private Slider mDelaySlider;
+    private Slider mLevelSlider;
 
     private int mTransitionStepResolution;
     private int mTransitionSteps;
@@ -46,37 +49,42 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericLevelServerModel) {
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, container);
             time = nodeControlsContainer.findViewById(R.id.transition_time);
             remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
-            mTransitionTimeSeekBar = nodeControlsContainer.findViewById(R.id.transition_seekbar);
-            mTransitionTimeSeekBar.setProgress(0);
-            mTransitionTimeSeekBar.incrementProgressBy(1);
-            mTransitionTimeSeekBar.setMax(230);
+            mTransitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+            mTransitionTimeSlider.setValueFrom(0);
+            mTransitionTimeSlider.setValueTo(230);
+            mTransitionTimeSlider.setValue(0);
+            mTransitionTimeSlider.setStepSize(1);
 
-            mDelaySeekBar = nodeControlsContainer.findViewById(R.id.delay_seekbar);
-            mDelaySeekBar.setProgress(0);
-            mDelaySeekBar.setMax(255);
+            mDelaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+            mDelaySlider.setValueFrom(0);
+            mDelaySlider.setValueTo(255);
+            mDelaySlider.setValue(0);
+            mDelaySlider.setStepSize(1);
             final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
 
             level = nodeControlsContainer.findViewById(R.id.level);
-            mLevelSeekBar = nodeControlsContainer.findViewById(R.id.level_seek_bar);
-            mLevelSeekBar.setProgress(0);
-            mLevelSeekBar.setMax(100);
+            mLevelSlider = nodeControlsContainer.findViewById(R.id.level_seek_bar);
+            mLevelSlider.setValueTo(0);
+            mLevelSlider.setValueTo(100);
+            mLevelSlider.setValue(0);
+            mLevelSlider.setStepSize(1);
 
             mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
             mActionRead.setOnClickListener(v -> sendGenericLevelGet());
-
-            mTransitionTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            mTransitionTimeSlider.addOnChangeListener(new Slider.OnChangeListener() {
                 int lastValue = 0;
                 double res = 0.0;
 
                 @Override
-                public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-
+                public void onValueChange(@NonNull final Slider slider, final float value, final boolean fromUser) {
+                    final int progress = (int) value;
                     if (progress >= 0 && progress <= 62) {
                         lastValue = progress;
                         mTransitionStepResolution = 0;
@@ -113,50 +121,24 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                         time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "min"));
                     }
                 }
-
-                @Override
-                public void onStartTrackingTouch(final SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(final SeekBar seekBar) {
-
-                }
             });
 
-            mDelaySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            mDelaySlider.addOnChangeListener((slider, value, fromUser) ->
+                    delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
+
+            mLevelSlider.addOnChangeListener((slider, value, fromUser) ->
+                    level.setText(getString(R.string.generic_level_percent, (int) value)));
+
+            mLevelSlider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                 @Override
-                public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-                    delayTime.setText(getString(R.string.transition_time_interval, String.valueOf(progress * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
-                }
-
-                @Override
-                public void onStartTrackingTouch(final SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(final SeekBar seekBar) {
-
-                }
-            });
-
-            mLevelSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(final SeekBar seekBar, final int progress, final boolean fromUser) {
-                    level.setText(getString(R.string.generic_level_percent, progress));
-                }
-
-                @Override
-                public void onStartTrackingTouch(final SeekBar seekBar) {
+                public void onStartTrackingTouch(@NonNull final Slider slider) {
 
                 }
 
                 @Override
-                public void onStopTrackingTouch(final SeekBar seekBar) {
-                    final int level = seekBar.getProgress();
-                    final int delay = mDelaySeekBar.getProgress();
+                public void onStopTrackingTouch(@NonNull final Slider slider) {
+                    final int level = (int) slider.getValue();
+                    final int delay = (int) mDelaySlider.getValue();
                     final int genericLevel = ((level * 65535) / 100) - 32768;
                     sendGenericLevel(genericLevel, delay);
                 }
@@ -167,17 +149,22 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
-        mTransitionTimeSeekBar.setEnabled(true);
-        mDelaySeekBar.setEnabled(true);
-        mLevelSeekBar.setEnabled(true);
+        mTransitionTimeSlider.setEnabled(true);
+        mDelaySlider.setEnabled(true);
+        mLevelSlider.setEnabled(true);
     }
 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
-        mTransitionTimeSeekBar.setEnabled(false);
-        mDelaySeekBar.setEnabled(false);
-        mLevelSeekBar.setEnabled(false);
+        mTransitionTimeSlider.setEnabled(false);
+        mDelaySlider.setEnabled(false);
+        mLevelSlider.setEnabled(false);
+    }
+
+    @Override
+    public void onRefresh() {
+        super.onRefresh();
     }
 
     @Override
@@ -201,10 +188,10 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                 remainingTime.setText(getString(R.string.remaining_time, MeshParserUtils.getRemainingTransitionTime(resolution, steps)));
                 remainingTime.setVisibility(View.VISIBLE);
             }
-            mLevelSeekBar.setProgress(levelPercent);
+            mLevelSlider.setValue(levelPercent);
         }
+        hideProgressBar();
     }
-
 
     /**
      * Send generic on off get to mesh node
@@ -249,7 +236,7 @@ public class GenericLevelServerActivity extends BaseModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,
-                                node.getSequenceNumber());
+                                new Random().nextInt());
                         sendMessage(address, genericLevelSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);

@@ -53,6 +53,8 @@ import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditAppKeyViewModel;
 
+import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
+
 public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         MeshKeyListener,
         ManageBoundNetKeyAdapter.OnItemClickListener {
@@ -72,7 +74,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditAppKeyViewModel.class);
         ButterKnife.bind(this);
         //noinspection ConstantConditions
-        final int index = getIntent().getExtras().getInt(AppKeysActivity.EDIT_APP_KEY);
+        final int index = getIntent().getExtras().getInt(EDIT_KEY);
         appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(index);
 
         //Bind ui
@@ -108,7 +110,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(this, mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
+        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
         mAdapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(mAdapter);
 

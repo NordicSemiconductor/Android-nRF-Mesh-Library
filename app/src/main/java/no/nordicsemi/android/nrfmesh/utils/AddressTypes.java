@@ -6,13 +6,14 @@ package no.nordicsemi.android.nrfmesh.utils;
 @SuppressWarnings("unused")
 public enum AddressTypes {
 
-    UNICAST_ADDRESS(0),
-    GROUP_ADDRESS(1),
-    ALL_PROXIES(2),
-    ALL_FRIENDS(3),
-    ALL_RELAYS(4),
-    ALL_NODES(5),
-    VIRTUAL_ADDRESS(6);
+    UNASSIGNED_ADDRESS(0),
+    UNICAST_ADDRESS(1),
+    GROUP_ADDRESS(2),
+    ALL_PROXIES(3),
+    ALL_FRIENDS(4),
+    ALL_RELAYS(5),
+    ALL_NODES(6),
+    VIRTUAL_ADDRESS(7);
 
     private int type;
 
@@ -40,20 +41,21 @@ public enum AddressTypes {
     public static AddressTypes fromValue(final int method) {
         switch (method) {
             default:
-                return null;
             case 0:
-                return UNICAST_ADDRESS;
+                return UNASSIGNED_ADDRESS;
             case 1:
-                return GROUP_ADDRESS;
+                return UNICAST_ADDRESS;
             case 2:
-                return ALL_PROXIES;
+                return GROUP_ADDRESS;
             case 3:
-                return ALL_FRIENDS;
+                return ALL_PROXIES;
             case 4:
-                return ALL_RELAYS;
+                return ALL_FRIENDS;
             case 5:
-                return ALL_NODES;
+                return ALL_RELAYS;
             case 6:
+                return ALL_NODES;
+            case 7:
                 return VIRTUAL_ADDRESS;
         }
     }
@@ -66,6 +68,9 @@ public enum AddressTypes {
     public static String getTypeName(final AddressTypes type) {
         switch (type) {
             default:
+            case UNASSIGNED_ADDRESS:
+                return "Unassigned Address";
+            case UNICAST_ADDRESS:
                 return "Unicast Address";
             case GROUP_ADDRESS:
                 return "Group Address";

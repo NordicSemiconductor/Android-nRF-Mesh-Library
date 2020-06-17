@@ -62,6 +62,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         creators.put(AddKeysViewModel.class, viewModelSubComponent::addKeysViewModel);
         creators.put(ModelConfigurationViewModel.class, viewModelSubComponent::modelConfigurationViewModel);
         creators.put(PublicationViewModel.class, viewModelSubComponent::publicationViewModel);
+        creators.put(HeartbeatViewModel.class, viewModelSubComponent::heartbeatPublicationViewModel);
         creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
     }
 

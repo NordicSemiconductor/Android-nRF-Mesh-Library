@@ -113,14 +113,6 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private AddressTypeAdapter mAdapterSpinner;
     private Group mGroup;
 
-    public interface DialogFragmentPublicationListener {
-
-        void onPublishAddressSet(final int publishAddress);
-
-        void onPublishAddressSet(@NonNull final Group group);
-
-    }
-
     public static DialogFragmentPublishAddress newInstance(@NonNull final PublicationSettings publicationSettings,
                                                            @NonNull final ArrayList<Group> groups) {
         DialogFragmentPublishAddress fragmentPublishAddress = new DialogFragmentPublishAddress();
@@ -259,8 +251,8 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
-                    ((DialogFragmentPublicationListener) requireActivity())
-                            .onPublishAddressSet(address);
+                    ((DestinationAddressCallbacks) requireActivity())
+                            .onDestinationAddressSet(address);
                     dismiss();
                 }
                 break;
@@ -271,8 +263,8 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                         final String groupAddress = addressInput.getEditableText().toString().trim();
                         if (validateInput(name, groupAddress)) {
                             if (mGroup != null) {
-                                ((DialogFragmentPublicationListener) requireActivity()).
-                                        onPublishAddressSet(mGroup);
+                                ((DestinationAddressCallbacks) requireActivity()).
+                                        onDestinationAddressSet(mGroup);
                                 dismiss();
                             } else {
                                 if (((GroupCallbacks) requireActivity())
@@ -283,7 +275,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                         }
                     } else {
                         final Group group = (Group) groups.getSelectedItem();
-                        ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(group);
+                        ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(group);
                         dismiss();
                     }
                 } catch (IllegalArgumentException ex) {
@@ -291,19 +283,19 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 }
                 break;
             case ALL_PROXIES:
-                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_PROXIES_ADDRESS);
+                ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(MeshAddress.ALL_PROXIES_ADDRESS);
                 dismiss();
                 break;
             case ALL_FRIENDS:
-                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_FRIENDS_ADDRESS);
+                ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(MeshAddress.ALL_FRIENDS_ADDRESS);
                 dismiss();
                 break;
             case ALL_RELAYS:
-                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_RELAYS_ADDRESS);
+                ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(MeshAddress.ALL_RELAYS_ADDRESS);
                 dismiss();
                 break;
             case ALL_NODES:
-                ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(MeshAddress.ALL_NODES_ADDRESS);
+                ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(MeshAddress.ALL_NODES_ADDRESS);
                 dismiss();
                 break;
             case VIRTUAL_ADDRESS:
@@ -319,7 +311,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                     }
                 } catch (IllegalArgumentException ex) {
                     if (group != null) {
-                        ((DialogFragmentPublicationListener) requireActivity()).onPublishAddressSet(group);
+                        ((DestinationAddressCallbacks) requireActivity()).onDestinationAddressSet(group);
                         dismiss();
                     }
                 }

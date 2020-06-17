@@ -124,7 +124,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
         final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final ManageBoundNetKeyAdapter adapter = new ManageBoundNetKeyAdapter(this, mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
+        final ManageBoundNetKeyAdapter adapter = new ManageBoundNetKeyAdapter(mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
         adapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(adapter);
 

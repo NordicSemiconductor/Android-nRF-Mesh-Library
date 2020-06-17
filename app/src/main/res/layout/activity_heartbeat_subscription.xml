@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-8dp"
+            android:layout_marginBottom="-7dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:visibility="invisible"
+            tools:ignore="UnusedAttribute" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/publish_address_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <com.google.android.material.appbar.MaterialToolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_lan_24dp"
+                            app:title="@string/title_address"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/container_src_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingBottom="@dimen/item_padding_bottom">
+
+                            <ImageView
+                                android:id="@+id/image_pub_address"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBottom_toBottomOf="@+id/source_address"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="@+id/source_address_title"
+                                app:srcCompat="@drawable/ic_lan_24dp"
+                                tools:ignore="ContentDescription" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/source_address_title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="@string/source"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_pub_address"
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="RtlSymmetry" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/source_address"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="0x0000"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_pub_address"
+                                app:layout_constraintTop_toBottomOf="@id/source_address_title"
+                                tools:ignore="HardcodedText,RtlSymmetry" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/container_dst_address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingBottom="@dimen/item_padding_bottom">
+
+                            <ImageView
+                                android:id="@+id/image_dst_address"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBottom_toBottomOf="@+id/destination_address"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="@+id/destination_address_title"
+                                app:srcCompat="@drawable/ic_lan_24dp"
+                                tools:ignore="ContentDescription" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/destination_address_title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="@string/destination"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_dst_address"
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="RtlSymmetry" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/destination_address"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="0x0000"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_dst_address"
+                                app:layout_constraintTop_toBottomOf="@id/destination_address_title"
+                                tools:ignore="HardcodedText,RtlSymmetry" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/subscription_period_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <com.google.android.material.appbar.MaterialToolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_time"
+                            app:title="@string/title_subscription_period"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                        <RadioGroup
+                            android:id="@+id/publication_period_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin">
+
+                            <RadioButton
+                                android:id="@+id/subscription_period_rb_1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/do_not_send_periodically" />
+
+                            <RadioButton
+                                android:id="@+id/subscription_period_rb_2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/send_periodically" />
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/subscription_period_container"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
+                                tools:visibility="visible">
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/title_period"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/item_padding_start"
+                                    android:paddingEnd="@dimen/item_padding_end"
+                                    android:text="@string/interval"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/period"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/item_padding_start"
+                                    android:paddingEnd="@dimen/item_padding_end"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    tools:text="20 seconds" />
+
+                                <com.google.android.material.slider.Slider
+                                    android:id="@+id/period_slider"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/item_padding_top"
+                                    app:labelBehavior="gone"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/title_period" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </RadioGroup>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <com.google.android.material.appbar.MaterialToolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_numeric"
+                            app:title="@string/title_subscription_count"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                        <RadioGroup
+                            android:id="@+id/subscription_count_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin">
+
+                            <RadioButton
+                                android:id="@+id/subscription_count_1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:enabled="false"
+                                android:text="@string/do_not_send_periodically" />
+
+                            <RadioButton
+                                android:id="@+id/subscription_count_2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:enabled="false"
+                                android:text="@string/send_periodically" />
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/subscription_count_container"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:enabled="false"
+                                android:visibility="gone"
+                                tools:visibility="visible">
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/title_count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/item_padding_start"
+                                    android:paddingEnd="@dimen/item_padding_end"
+                                    android:text="@string/count"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/count"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingStart="@dimen/item_padding_start"
+                                    android:paddingEnd="@dimen/item_padding_end"
+                                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    tools:text="20 seconds" />
+
+                                <com.google.android.material.slider.Slider
+                                    android:id="@+id/count_slider"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/item_padding_top"
+                                    app:labelBehavior="gone"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/title_count" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                            <RadioButton
+                                android:id="@+id/subscription_count_3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:enabled="false"
+                                android:text="@string/send_indefinitely" />
+                        </RadioGroup>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/hops_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="@dimen/item_padding_bottom">
+
+                        <com.google.android.material.appbar.MaterialToolbar
+                            android:id="@+id/hops_toolbar"
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_debug_step_over"
+                            app:title="@string/hops"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/container_hops"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingEnd="@dimen/activity_horizontal_margin"
+                            android:paddingBottom="@dimen/item_padding_bottom">
+
+                            <ImageView
+                                android:id="@+id/img_min_hops"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBottom_toBottomOf="@+id/min_hops"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="@id/title_min_hops"
+                                app:srcCompat="@drawable/ic_debug_step_over"
+                                tools:ignore="ContentDescription" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/title_min_hops"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="@string/min_hops"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/img_min_hops"
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:ignore="RtlSymmetry" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/min_hops"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="@string/unknown"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/img_min_hops"
+                                app:layout_constraintTop_toBottomOf="@id/title_min_hops"
+                                tools:ignore="RtlSymmetry" />
+
+                            <ImageView
+                                android:id="@+id/img_max_hops"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintBottom_toBottomOf="@+id/max_hops"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="@id/title_max_hops"
+                                app:srcCompat="@drawable/ic_debug_step_over"
+                                tools:ignore="ContentDescription" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/title_max_hops"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/item_padding_top"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="@string/max_hops"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/img_max_hops"
+                                app:layout_constraintTop_toBottomOf="@id/min_hops"
+                                tools:ignore="RtlSymmetry" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/max_hops"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="@dimen/activity_horizontal_margin"
+                                android:text="@string/unknown"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/img_max_hops"
+                                app:layout_constraintTop_toBottomOf="@id/title_max_hops"
+                                tools:ignore="RtlSymmetry" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_apply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:text="@string/action_apply"
+        app:icon="@drawable/ic_done_all_white" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

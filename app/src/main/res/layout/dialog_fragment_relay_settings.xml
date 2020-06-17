@@ -18,10 +18,10 @@
             android:id="@+id/dialog_image_relay_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_state_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/dialog_relay_state_title"
-            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_state_title"
-            tools:ignore="ContentDescription"/>
+            tools:ignore="ContentDescription" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_relay_state_title"
@@ -39,9 +39,9 @@
             android:id="@+id/switch_relay_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/dialog_relay_state_title"
             app:layout_constraintBottom_toBottomOf="@id/dialog_relay_state_title"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/dialog_relay_state_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -58,11 +58,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_retransmit_count_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/dialog_relay_retransmit_count_title"
-            app:layout_constraintBottom_toBottomOf="@id/dialog_relay_retransmit_count_title"
             app:srcCompat="@drawable/ic_numeric"
-            tools:ignore="ContentDescription"/>
+            tools:ignore="ContentDescription" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_relay_retransmit_count_title"
@@ -85,14 +85,15 @@
             android:textSize="16sp"
             app:layout_constraintBaseline_toBaselineOf="@id/dialog_relay_retransmit_count_title"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:ignore="HardcodedText"/>
+            tools:ignore="HardcodedText" />
 
-        <SeekBar
-            android:id="@+id/dialog_relay_retransmit_count_seekbar"
+        <com.google.android.material.slider.Slider
+            android:id="@+id/dialog_relay_retransmit_count_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/item_padding_bottom"
             android:paddingTop="@dimen/item_padding_top"
+            android:paddingBottom="@dimen/item_padding_bottom"
+            app:labelBehavior="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/dialog_image_relay_retransmit_count"
@@ -113,11 +114,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/steps_summary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/dialog_relay_interval_steps_title"
-            app:layout_constraintBottom_toBottomOf="@id/steps_summary"
             app:srcCompat="@drawable/ic_index"
-            tools:ignore="ContentDescription"/>
+            tools:ignore="ContentDescription" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_relay_interval_steps_title"
@@ -140,8 +141,8 @@
             android:paddingEnd="@dimen/activity_horizontal_margin"
             android:text="@string/network_transmit_interval_steps_summary"
             android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@id/dialog_relay_interval_steps_title"
-            app:layout_constraintStart_toStartOf="@id/dialog_relay_interval_steps_title" />
+            app:layout_constraintStart_toStartOf="@id/dialog_relay_interval_steps_title"
+            app:layout_constraintTop_toBottomOf="@id/dialog_relay_interval_steps_title" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_relay_interval_steps"
@@ -153,17 +154,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/dialog_relay_interval_steps_title"
             app:layout_constraintTop_toTopOf="@id/dialog_relay_interval_steps_title"
-            tools:ignore="HardcodedText"/>
+            tools:ignore="HardcodedText" />
 
-        <SeekBar
-            android:id="@+id/dialog_relay_interval_steps_seekbar"
+        <com.google.android.material.slider.Slider
+            android:id="@+id/dialog_relay_interval_steps_slider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/item_padding_top"
             android:paddingBottom="@dimen/item_padding_bottom"
-            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_interval_steps"
+            app:labelBehavior="gone"
             app:layout_constraintEnd_toEndOf="@id/dialog_relay_interval_steps"
-            app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
+            app:layout_constraintStart_toEndOf="@id/dialog_image_relay_interval_steps"
+            app:layout_constraintTop_toBottomOf="@id/steps_summary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
