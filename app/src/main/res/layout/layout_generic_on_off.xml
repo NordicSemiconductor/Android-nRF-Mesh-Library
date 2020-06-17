@@ -67,9 +67,9 @@
                     android:paddingEnd="@dimen/item_padding_end"
                     android:text="@string/transition_time"
                     android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/transition_seekbar"
+                    app:layout_constraintBottom_toTopOf="@+id/transition_slider"
                     app:layout_constraintEnd_toStartOf="@id/transition_time"
-                    app:layout_constraintStart_toStartOf="@id/transition_seekbar"
+                    app:layout_constraintStart_toStartOf="@id/transition_slider"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -84,19 +84,20 @@
                     android:paddingEnd="@dimen/item_padding_end"
                     android:text="0 ms"
                     android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="@id/transition_seekbar"
+                    app:layout_constraintEnd_toEndOf="@id/transition_slider"
                     app:layout_constraintStart_toEndOf="@id/transition"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:ignore="HardcodedText" />
 
-                <SeekBar
-                    android:id="@+id/transition_seekbar"
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/transition_slider"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    app:labelBehavior="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/transition" />
@@ -115,8 +116,8 @@
                     android:text="@string/generic_on_off_step_delay"
                     android:textSize="18sp"
                     app:layout_constraintEnd_toStartOf="@id/transition_time"
-                    app:layout_constraintStart_toStartOf="@id/delay_seekbar"
-                    app:layout_constraintTop_toBottomOf="@id/transition_seekbar" />
+                    app:layout_constraintStart_toStartOf="@id/delay_slider"
+                    app:layout_constraintTop_toBottomOf="@id/transition_slider" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/delay_time"
@@ -130,19 +131,20 @@
                     android:paddingEnd="@dimen/item_padding_end"
                     android:text="0 ms"
                     android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="@id/transition_seekbar"
-                    app:layout_constraintStart_toStartOf="@id/delay_seekbar"
-                    app:layout_constraintTop_toBottomOf="@id/transition_seekbar"
+                    app:layout_constraintEnd_toEndOf="@id/transition_slider"
+                    app:layout_constraintStart_toStartOf="@id/delay_slider"
+                    app:layout_constraintTop_toBottomOf="@id/transition_slider"
                     tools:ignore="HardcodedText" />
 
-                <SeekBar
-                    android:id="@+id/delay_seekbar"
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/delay_slider"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    app:labelBehavior="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

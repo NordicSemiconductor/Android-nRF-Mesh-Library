@@ -6,8 +6,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.google.android.material.slider.Slider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,12 +34,12 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
 
     @BindView(R.id.dialog_network_transmit_count)
     TextView networkTransmitCountText;
-    @BindView(R.id.dialog_network_transmit_count_seekbar)
-    SeekBar transmitCountBar;
+    @BindView(R.id.dialog_network_transmit_count_slider)
+    Slider transmitCountSlider;
     @BindView(R.id.dialog_network_transmit_interval_steps)
     TextView networkTransmitIntervalStepsText;
-    @BindView(R.id.dialog_network_transmit_interval_steps_seekbar)
-    SeekBar transmitIntervalStepsBar;
+    @BindView(R.id.dialog_network_transmit_interval_steps_slider)
+    Slider transmitIntervalStepsSlider;
 
     private int mTransmitCount = 0;
     private int mTransmitIntervalSteps = 0;
@@ -65,50 +66,22 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_network_transmit_settings, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_network_transmit_settings, null);
         ButterKnife.bind(this, rootView);
 
         setTransmitCount(mTransmitCount);
         setTransmitIntervalSteps(mTransmitIntervalSteps);
 
-        transmitCountBar.setProgress(mTransmitCount);
-        transmitCountBar.setMax(MAX_TRANSMIT_COUNT);
-        transmitCountBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                setTransmitCount(i);
-            }
+        transmitCountSlider.setValueFrom(MIN_TRANSMIT_COUNT);
+        transmitCountSlider.setValueTo(MAX_TRANSMIT_COUNT);
+        transmitCountSlider.setStepSize(1);
+        transmitCountSlider.setValue(mTransmitCount);
+        transmitCountSlider.addOnChangeListener((slider, value, fromUser) -> setTransmitCount((int) value));
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        transmitIntervalStepsBar.setProgress(mTransmitIntervalSteps);
-        transmitIntervalStepsBar.setMax(MAX_TRANSMIT_INTERVAL_STEPS);
-        transmitIntervalStepsBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                setTransmitIntervalSteps(i);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
+        transmitIntervalStepsSlider.setValueFrom(MIN_TRANSMIT_INTERVAL_STEPS);
+        transmitIntervalStepsSlider.setValueTo(MAX_TRANSMIT_INTERVAL_STEPS);
+        transmitIntervalStepsSlider.setValue(mTransmitIntervalSteps);
+        transmitIntervalStepsSlider.addOnChangeListener((slider, value, fromUser) -> setTransmitIntervalSteps((int) value));
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
