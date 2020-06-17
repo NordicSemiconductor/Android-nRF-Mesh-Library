@@ -5,9 +5,10 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.google.android.material.slider.Slider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,18 +39,18 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
     @BindView(R.id.dialog_relay_retransmit_count)
     TextView relayRetransmitCountText;
     @BindView(R.id.dialog_relay_retransmit_count_slider)
-    SeekBar retransmitCountSeekBar;
+    Slider retransmitCountSlider;
     @BindView(R.id.dialog_relay_interval_steps)
     TextView relayRetransmitIntervalStepsText;
     @BindView(R.id.dialog_relay_interval_steps_slider)
-    SeekBar retransmitIntervalStepsSeekBar;
+    Slider retransmitIntervalStepsSlider;
 
     private int mRelay = 0;
     private int mTransmitCount = 0;
     private int mTransmitIntervalSteps = 0;
 
     public static DialogRelayRetransmitSettings newInstance(final int relay, final int transmitCount, final int transmitIntervalSteps) {
-        DialogRelayRetransmitSettings fragment = new DialogRelayRetransmitSettings();
+        final DialogRelayRetransmitSettings fragment = new DialogRelayRetransmitSettings();
         final Bundle args = new Bundle();
         args.putInt(RELAY, relay);
         args.putInt(TRANSMIT_COUNT, transmitCount);
@@ -72,8 +73,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_fragment_relay_settings, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_fragment_relay_settings, null);
         ButterKnife.bind(this, rootView);
 
         setRelay(mRelay);
@@ -82,43 +82,16 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
 
         relaySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> mRelay = isChecked ? 1 : 0);
 
-        retransmitCountSeekBar.setProgress(mTransmitCount);
-        retransmitCountSeekBar.setMax(MAX_RETRANSMIT_COUNT);
-        retransmitCountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                setRelayRetransmitCount(i);
-            }
+        retransmitCountSlider.setValueFrom(MIN_RETRANSMIT_COUNT);
+        retransmitCountSlider.setValueTo(MAX_RETRANSMIT_COUNT);
+        retransmitCountSlider.setValue(mTransmitCount);
+        retransmitCountSlider.setStepSize(1);
+        retransmitCountSlider.addOnChangeListener((slider, value, fromUser) -> setRelayRetransmitCount((int) value));
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        retransmitIntervalStepsSeekBar.setProgress(mTransmitIntervalSteps);
-        retransmitIntervalStepsSeekBar.setMax(MAX_RETRANSMIT_INTERVAL_STEPS);
-        retransmitIntervalStepsSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                setRelayRetransmitIntervalSteps(i);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
+        retransmitIntervalStepsSlider.setValueFrom(MIN_RETRANSMIT_INTERVAL_STEPS);
+        retransmitIntervalStepsSlider.setValueTo(MAX_RETRANSMIT_INTERVAL_STEPS);
+        retransmitIntervalStepsSlider.setValue(mTransmitIntervalSteps);
+        retransmitIntervalStepsSlider.addOnChangeListener((slider, value, fromUser) -> setRelayRetransmitIntervalSteps((int) value));
 
         return new AlertDialog.Builder(requireContext())
                 .setView(rootView)

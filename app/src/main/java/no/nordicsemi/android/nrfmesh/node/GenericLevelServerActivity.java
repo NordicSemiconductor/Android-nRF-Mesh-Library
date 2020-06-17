@@ -9,6 +9,8 @@ import android.widget.TextView;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Random;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -234,7 +236,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
                         final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,
-                                node.getSequenceNumber());
+                                new Random().nextInt());
                         sendMessage(address, genericLevelSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,7 +26,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/dialog_network_transmit_count_title"
             app:srcCompat="@drawable/ic_numeric"
-            tools:ignore="ContentDescription"/>
+            tools:ignore="ContentDescription" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_count_title"
@@ -40,7 +39,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_count"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_count"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_count"
@@ -52,7 +51,7 @@
             app:layout_constraintBaseline_toBaselineOf="@id/dialog_network_transmit_count_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_count_title"
-            tools:ignore="HardcodedText"/>
+            tools:ignore="HardcodedText" />
 
         <com.google.android.material.slider.Slider
             android:id="@+id/dialog_network_transmit_count_slider"
@@ -60,10 +59,11 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/item_padding_top"
             android:paddingBottom="@dimen/item_padding_bottom"
+            app:labelBehavior="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_count"
-            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_count_title"/>
+            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_count_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -87,7 +87,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
             app:srcCompat="@drawable/ic_index"
-            tools:ignore="ContentDescription"/>
+            tools:ignore="ContentDescription" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_interval_steps_title"
@@ -100,7 +100,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/steps_summary"
@@ -111,7 +111,7 @@
             android:text="@string/network_transmit_interval_steps_summary"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/dialog_network_transmit_interval_steps_title"
-            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title"/>
+            app:layout_constraintTop_toBottomOf="@id/dialog_network_transmit_interval_steps_title" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/dialog_network_transmit_interval_steps"
@@ -123,7 +123,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/dialog_network_transmit_interval_steps_title"
             app:layout_constraintTop_toTopOf="@id/dialog_network_transmit_interval_steps_title"
-            tools:ignore="HardcodedText"/>
+            tools:ignore="HardcodedText" />
 
         <com.google.android.material.slider.Slider
             android:id="@+id/dialog_network_transmit_interval_steps_slider"
@@ -131,9 +131,10 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/item_padding_top"
             android:paddingBottom="@dimen/item_padding_bottom"
+            app:labelBehavior="gone"
             app:layout_constraintEnd_toEndOf="@+id/dialog_network_transmit_interval_steps"
             app:layout_constraintStart_toEndOf="@id/dialog_image_network_transmit_interval_steps"
-            app:layout_constraintTop_toBottomOf="@id/steps_summary"/>
+            app:layout_constraintTop_toBottomOf="@id/steps_summary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
