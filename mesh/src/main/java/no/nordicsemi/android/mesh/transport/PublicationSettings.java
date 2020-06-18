@@ -318,7 +318,7 @@ public class PublicationSettings implements Parcelable {
             case RESOLUTION_10_S:
                 return publicationSteps * 10 * 1000;
             case RESOLUTION_10_M:
-                return publicationSteps * 10 * 10000 * 60;
+                return publicationSteps * 10 * 1000 * 60;
         }
     }
 
