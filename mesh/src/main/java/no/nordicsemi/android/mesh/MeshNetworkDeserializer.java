@@ -2,8 +2,6 @@ package no.nordicsemi.android.mesh;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -22,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -81,7 +80,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     public JsonElement serialize(final MeshNetwork network,
                                  final Type typeOfSrc,
                                  final JsonSerializationContext context) {
-        final String meshUuid = MeshParserUtils.uuidToHex(network.getMeshUUID());
+        final String meshUuid = network.getMeshUUID().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(network.getMeshUUID())*/;
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("$schema", network.getSchema());
         jsonObject.addProperty("id", network.getId());
@@ -246,7 +245,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         for (Provisioner provisioner : provisioners) {
             final JsonObject provisionerJson = new JsonObject();
             provisionerJson.addProperty("provisionerName", provisioner.getProvisionerName());
-            provisionerJson.addProperty("UUID", MeshParserUtils.uuidToHex(provisioner.getProvisionerUuid()));
+            provisionerJson.addProperty("UUID", provisioner.getProvisionerUuid().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(provisioner.getProvisionerUuid())*/);
             provisionerJson.add("allocatedUnicastRange",
                     serializeAllocatedUnicastRanges(context, provisioner.allocatedUnicastRanges));
 
@@ -385,7 +384,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             if (group.getAddressLabel() == null) {
                 groupObj.addProperty("address", MeshAddress.formatAddress(group.getAddress(), false));
             } else {
-                groupObj.addProperty("address", MeshParserUtils.uuidToHex(group.getAddressLabel()));
+                groupObj.addProperty("address", group.getAddressLabel().toString().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(group.getAddressLabel())*/);
             }
             groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getParentAddress(), false));
             groupsArray.add(groupObj);

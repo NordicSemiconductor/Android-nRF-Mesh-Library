@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -124,7 +125,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         final JsonArray jsonArray = new JsonArray();
         for (ProvisionedMeshNode node : nodes) {
             final JsonObject nodeJson = new JsonObject();
-            nodeJson.addProperty("UUID", MeshParserUtils.uuidToHex(node.getUuid()));
+            nodeJson.addProperty("UUID", node.getUuid().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(node.getUuid())*/);
             nodeJson.addProperty("name", node.getNodeName());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
             nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));

@@ -47,9 +47,6 @@ public class MeshParserUtils {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
-    private static final int TAI_YEAR = 2000;
-    private static final int TAI_MONTH = 1;
-    private static final int TAI_DATE = 1;
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
@@ -655,24 +652,6 @@ public class MeshParserUtils {
     }
 
     /**
-     * Returns UUID as a hex
-     *
-     * @param uuid UUID
-     */
-    public static String uuidToHex(@NonNull final UUID uuid) {
-        return uuid.toString().replace("-", "").toUpperCase(Locale.US);
-    }
-
-    /**
-     * Returns UUID as a hex
-     *
-     * @param uuid UUID
-     */
-    public static String uuidToHex(@NonNull final String uuid) {
-        return uuid.replace("-", "").toUpperCase(Locale.US);
-    }
-
-    /**
      * Returns UUID in bytes
      *
      * @param uuid UUID
@@ -688,13 +667,15 @@ public class MeshParserUtils {
      */
     public static String formatUuid(@NonNull final String uuidHex) {
         if (isUuidPattern(uuidHex)) {
-            return new StringBuffer(uuidHex).
-                    insert(8, "-").
-                    insert(13, "-").
-                    insert(18, "-").
-                    insert(23, "-").toString();
+            return new StringBuffer(uuidHex)
+                    .insert(8, "-")
+                    .insert(13, "-")
+                    .insert(18, "-")
+                    .insert(23, "-")
+                    .toString()
+                    .toUpperCase(Locale.US);
         }
-        return null;
+        return uuidHex;
     }
 
     public static boolean isUuidPattern(@NonNull final String uuidHex) {
@@ -707,13 +688,14 @@ public class MeshParserUtils {
      * @param uuidHex Hex string
      */
     public static UUID getUuid(@NonNull final String uuidHex) {
-        if (uuidHex.matches(PATTERN_UUID_HEX)) {
-            return UUID.fromString(new StringBuffer(uuidHex).
-                    insert(8, "-").
-                    insert(4, "-").
-                    insert(4, "-").
-                    insert(4, "-").toString());
-        }
+        if (uuidHex.matches(PATTERN_UUID_HEX))
+            return UUID.fromString(new StringBuffer(uuidHex)
+                    .insert(8, "-")
+                    .insert(4, "-")
+                    .insert(4, "-")
+                    .insert(4, "-")
+                    .toString());
+
         return null;
     }
 

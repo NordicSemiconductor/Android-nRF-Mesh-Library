@@ -197,8 +197,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final JsonArray subscriptionsJson = new JsonArray();
         for (Integer address : model.getSubscribedAddresses()) {
             if (MeshAddress.isValidVirtualAddress(address)) {
-                final UUID uuid = model.getLabelUUID(address);
-                subscriptionsJson.add(MeshParserUtils.uuidToHex(uuid));
+                subscriptionsJson.add(model.getLabelUUID(address).toString().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(uuid)*/);
             } else {
                 subscriptionsJson.add(MeshAddress.formatAddress(address, false));
             }
@@ -215,7 +214,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
         if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress())) {
-            publicationJson.addProperty("address", MeshParserUtils.uuidToHex(settings.getLabelUUID()));
+            publicationJson.addProperty("address", settings.getLabelUUID().toString().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(settings.getLabelUUID())*/);
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
         }
