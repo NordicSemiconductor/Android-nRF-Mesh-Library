@@ -103,26 +103,33 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         //Previous version stored the publication period as resolution and steps.
         //Now it's stored as an interval in ms
-        final int period = publish.get("period").getAsInt();
+        final JsonObject periodJson = publish.get("period").getAsJsonObject();
         final int publicationResolution;
         final int publicationSteps;
-        if (period % 600000 == 0) {
-            publicationResolution = RESOLUTION_10_M;
-            publicationSteps = period / 600000;
-        } else if (period % 10000 == 0) {
-            publicationResolution = RESOLUTION_10_S;
-            publicationSteps = period / 10000;
-        } else if (period % 1000 == 0) {
-            publicationResolution = RESOLUTION_1_S;
-            publicationSteps = period / 1000;
-        } else if (period % 100 == 0) {
-            publicationResolution = RESOLUTION_100_MS;
-            publicationSteps = period / 100;
+        if (periodJson == null) {
+            final int period = publish.get("period").getAsInt();
+            if (period % 600000 == 0) {
+                publicationResolution = RESOLUTION_10_M;
+                publicationSteps = period / 600000;
+            } else if (period % 10000 == 0) {
+                publicationResolution = RESOLUTION_10_S;
+                publicationSteps = period / 10000;
+            } else if (period % 1000 == 0) {
+                publicationResolution = RESOLUTION_1_S;
+                publicationSteps = period / 1000;
+            } else if (period % 100 == 0) {
+                publicationResolution = RESOLUTION_100_MS;
+                publicationSteps = period / 100;
+            } else {
+                // This is to maintain backward compatibility between older json files
+                publicationResolution = period & 0x03;
+                publicationSteps = period >> 6;
+            }
         } else {
-            // This is to maintain backward compatibility between older json files
-            publicationResolution = period & 0x03;
-            publicationSteps = period >> 6;
+            publicationSteps = periodJson.get("numberOfSteps").getAsInt();
+            publicationResolution = periodJson.get("resolution").getAsInt();
         }
+
 
         final int publishRetransmitCount = publish.get("retransmit").getAsJsonObject().get("count").getAsInt();
         // Here we should import the interval in to retransmit interval steps to maintain compatibility with iOS
@@ -220,7 +227,11 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         }
         publicationJson.addProperty("index", settings.getAppKeyIndex());
         publicationJson.addProperty("ttl", settings.getPublishTtl());
-        publicationJson.addProperty("period", settings.encodePublicationPeriod());
+
+        final JsonObject periodJson = new JsonObject();
+        periodJson.addProperty("numberOfSteps", settings.getPublicationSteps());
+        periodJson.addProperty("resolution", settings.encodePublicationPeriod());
+        publicationJson.add("period", periodJson);
 
         final JsonObject retransmitJson = new JsonObject();
         retransmitJson.addProperty("count", settings.getPublishRetransmitCount());
