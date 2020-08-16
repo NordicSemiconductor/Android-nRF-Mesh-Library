@@ -125,6 +125,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ProvisioningViewModel.class);
+        mViewModel.getNetworkLiveData().setMacAddress(deviceAddress);
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
 
@@ -250,6 +251,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
             final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
             if (node == null) {
                 device.setName(mViewModel.getNetworkLiveData().getNodeName());
+
                 mViewModel.getNrfMeshRepository().identifyNode(device);
                 return;
             }
@@ -548,6 +550,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
+                node.setMacAddress(mViewModel.getNetworkLiveData().getMacAddress());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioning(node);
@@ -563,6 +566,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
+                node.setMacAddress(mViewModel.getNetworkLiveData().getMacAddress());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
@@ -578,6 +582,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
+                node.setMacAddress(mViewModel.getNetworkLiveData().getMacAddress());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
@@ -593,6 +598,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
+                node.setMacAddress(mViewModel.getNetworkLiveData().getMacAddress());
                 setupProvisionerStateObservers(provisioningStatusContainer);
                 mProvisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);

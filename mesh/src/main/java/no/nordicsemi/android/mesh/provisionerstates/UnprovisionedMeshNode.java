@@ -41,6 +41,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         isProvisioned = in.readByte() != 0;
         isConfigured = in.readByte() != 0;
         nodeName = in.readString();
+        macAddress = in.readString();
         provisionerPublicKeyXY = in.createByteArray();
         provisioneePublicKeyXY = in.createByteArray();
         sharedECDHSecret = in.createByteArray();
@@ -74,6 +75,7 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         dest.writeByte((byte) (isProvisioned ? 1 : 0));
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
+        dest.writeString(macAddress);
         dest.writeByteArray(provisionerPublicKeyXY);
         dest.writeByteArray(provisioneePublicKeyXY);
         dest.writeByteArray(sharedECDHSecret);

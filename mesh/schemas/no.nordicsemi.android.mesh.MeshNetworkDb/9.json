@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 9,
-    "identityHash": "dc74c1727a65404e3d1795816f05be43",
+    "identityHash": "1f01ef21443ee8b4019502ac5283b926",
     "entities": [
       {
         "tableName": "mesh_network",
@@ -311,7 +311,7 @@
       },
       {
         "tableName": "nodes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timestamp` INTEGER NOT NULL, `name` TEXT, `ttl` INTEGER, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` INTEGER NOT NULL, `configured` INTEGER NOT NULL, `device_key` BLOB, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `netKeys` TEXT, `appKeys` TEXT, `mElements` TEXT, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timestamp` INTEGER NOT NULL, `name` TEXT, `MAC` TEXT, `ttl` INTEGER, `blacklisted` INTEGER NOT NULL, `secureNetworkBeacon` INTEGER, `mesh_uuid` TEXT, `uuid` TEXT NOT NULL, `security` INTEGER NOT NULL, `unicast_address` INTEGER NOT NULL, `configured` INTEGER NOT NULL, `device_key` BLOB, `seq_number` INTEGER NOT NULL, `cid` INTEGER, `pid` INTEGER, `vid` INTEGER, `crpl` INTEGER, `netKeys` TEXT, `appKeys` TEXT, `mElements` TEXT, `networkTransmitCount` INTEGER, `networkIntervalSteps` INTEGER, `relayTransmitCount` INTEGER, `relayIntervalSteps` INTEGER, `friend` INTEGER, `lowPower` INTEGER, `proxy` INTEGER, `relay` INTEGER, PRIMARY KEY(`uuid`), FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "mTimeStampInMillis",
@@ -322,6 +322,12 @@
           {
             "fieldPath": "nodeName",
             "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "macAddr",
+            "columnName": "MAC",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -646,7 +652,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dc74c1727a65404e3d1795816f05be43')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1f01ef21443ee8b4019502ac5283b926')"
     ]
   }
 }

@@ -41,6 +41,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     private MeshNetwork meshNetwork;
     private ApplicationKey selectedAppKey;
     private String nodeName;
+    private String macAddress;
 
     MeshNetworkLiveData() {
 
@@ -149,5 +150,22 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      */
     public String getNodeName() {
         return nodeName;
+    }
+
+    /**
+     * Returns the node MAC Address
+     */
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    /**
+     * Sets the node MAC Address
+     *
+     * @param macAddress node mac address
+     */
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+        postValue(this);
     }
 }

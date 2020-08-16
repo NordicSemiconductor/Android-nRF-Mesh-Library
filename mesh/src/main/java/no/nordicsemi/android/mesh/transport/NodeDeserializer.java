@@ -112,6 +112,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("name"))
                 node.nodeName = jsonObject.get("name").getAsString();
+
+            if (jsonObject.has("MAC"))
+                node.macAddr = jsonObject.get("MAC").getAsString();
+
             deserializeHeartbeat(context, jsonObject, node);
             nodes.add(node);
         }
@@ -126,6 +130,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             final JsonObject nodeJson = new JsonObject();
             nodeJson.addProperty("UUID", MeshParserUtils.uuidToHex(node.getUuid()));
             nodeJson.addProperty("name", node.getNodeName());
+            nodeJson.addProperty("MAC", node.getMacAddr());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
             nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
             nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "high" : "low");

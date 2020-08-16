@@ -92,6 +92,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         uuid = node.getDeviceUuid().toString();
         isConfigured = node.isConfigured();
         nodeName = node.getNodeName();
+        macAddr = node.getMacAddress();
         mAddedNetKeys.add(new NodeKey(node.getKeyIndex()));
         mFlags = node.getFlags();
         unicastAddress = node.getUnicastAddress();
@@ -147,6 +148,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         uuid = in.readString();
         isConfigured = in.readByte() != 1;
         nodeName = in.readString();
+        macAddr = in.readString();
         in.readList(mAddedNetKeys, NodeKey.class.getClassLoader());
         mFlags = in.createByteArray();
         unicastAddress = in.readInt();
@@ -175,6 +177,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeString(uuid);
         dest.writeByte((byte) (isConfigured ? 1 : 0));
         dest.writeString(nodeName);
+        dest.writeString(macAddr);
         dest.writeList(mAddedNetKeys);
         dest.writeByteArray(mFlags);
         dest.writeInt(unicastAddress);
