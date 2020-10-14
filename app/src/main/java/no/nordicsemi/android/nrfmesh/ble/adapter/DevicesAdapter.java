@@ -23,9 +23,6 @@
 package no.nordicsemi.android.nrfmesh.ble.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +32,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmesh.R;
@@ -116,7 +116,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHold
 
             view.findViewById(R.id.device_container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    if(getAdapterPosition() > -1) {
+                    if(getAdapterPosition() > -1 && mDevices.size() > 0) {
                         mOnItemClickListener.onItemClick(mDevices.get(getAdapterPosition()));
                     }
                 }
