@@ -172,9 +172,9 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     @Override
     public void onItemClick(final ExtendedBluetoothDevice device) {
         //We must disconnect from any nodes that we are connected to before we start scanning.
-        mViewModel.disconnect();
+        if (mViewModel.getBleMeshManager().isConnected())
+            mViewModel.disconnect();
         final Intent intent;
-        stopScan();
         if (mScanWithProxyService) {
             intent = new Intent(this, ProvisioningActivity.class);
             intent.putExtra(Utils.EXTRA_DEVICE, device);
@@ -184,6 +184,7 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
             intent.putExtra(Utils.EXTRA_DEVICE, device);
             startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
         }
+        //stopScan();
     }
 
     @Override
