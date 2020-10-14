@@ -60,7 +60,7 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
         }
         // Update RSSI and name
         device.setRssi(result.getRssi());
-        device.setName(result.getScanRecord().getDeviceName());
+        device.setName(getDeviceName(result));
 
         postValue(this);
     }
@@ -79,7 +79,7 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
         }
         // Update RSSI and name
         device.setRssi(result.getRssi());
-        device.setName(result.getScanRecord().getDeviceName());
+        device.setName(getDeviceName(result));
 
         postValue(this);
     }
