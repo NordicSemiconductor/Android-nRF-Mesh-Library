@@ -242,6 +242,7 @@ public class ScannerRepository {
         final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
         scanner.stopScan(mScanCallbacks);
         mScannerStateLiveData.scanningStopped();
+        mScannerLiveData.clear();
     }
 
     /**
