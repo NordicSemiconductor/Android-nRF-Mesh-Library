@@ -95,7 +95,7 @@ public final class MeshAddress {
             return false;
         }
 
-        return isValidUnicastAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
+        return isValidUnicastAddress(MeshParserUtils.unsignedBytesToInt(address[1], address[0]));
     }
 
     /**
@@ -118,7 +118,7 @@ public final class MeshAddress {
         if (!isAddressInRange(address)) {
             return false;
         }
-        return isValidVirtualAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
+        return isValidVirtualAddress(MeshParserUtils.unsignedBytesToInt(address[1], address[0]));
     }
 
     /**
@@ -137,7 +137,7 @@ public final class MeshAddress {
     public static boolean isValidGroupAddress(final byte[] address) {
         if (!isAddressInRange(address))
             return false;
-        return isValidGroupAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
+        return isValidGroupAddress(MeshParserUtils.unsignedBytesToInt(address[1], address[0]));
     }
 
     /**
