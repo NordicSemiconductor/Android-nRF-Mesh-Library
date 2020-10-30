@@ -591,4 +591,7 @@
     <string name="heartbeat_subscription_not_set">Not subscribed to heartbeat messages.</string>
     <string name="heartbeat_publication_not_set">Not publishing heartbeat messages.</string>
     <string name="period">Period</string>
+    <string name="info">Info</string>
+    <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
+        without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
 </resources>

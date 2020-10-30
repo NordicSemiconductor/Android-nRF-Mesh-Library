@@ -51,6 +51,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImportMsg;
@@ -150,6 +151,10 @@ public class SettingsFragment extends Fragment implements Injectable,
         actionChangeIvTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
         actionChangeIvTestMode.setOnClickListener(v ->
                 mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(actionChangeIvTestMode.isChecked()));
+        containerIvTestMode.setOnClickListener(v ->
+                DialogFragmentError.newInstance(getString(R.string.info), getString(R.string.iv_test_mode_info))
+                        .show(getChildFragmentManager(), null)
+        );
 
         final View containerAbout = rootView.findViewById(R.id.container_version);
         containerAbout.setClickable(false);
@@ -160,7 +165,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView version = containerAbout.findViewById(R.id.text);
         version.setVisibility(View.VISIBLE);
         try {
-            version.setText(getContext().getPackageManager().getPackageInfo(requireContext().getPackageName(), 0).versionName);
+            version.setText(requireContext().getPackageManager().getPackageInfo(requireContext().getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
