@@ -27,7 +27,8 @@
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground"
     android:clickable="true"
-    android:padding="@dimen/activity_horizontal_margin">
+    android:padding="@dimen/activity_horizontal_margin"
+    android:focusable="true">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
@@ -58,6 +59,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"
         app:srcCompat="@drawable/ic_auto_fix_black"
-        tools:ignore="VectorDrawableCompat" />
+        tools:ignore="ContentDescription,VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

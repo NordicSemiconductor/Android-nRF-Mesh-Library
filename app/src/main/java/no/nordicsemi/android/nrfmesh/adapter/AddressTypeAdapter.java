@@ -32,16 +32,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import no.nordicsemi.android.mesh.utils.AddressType;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.utils.AddressTypes;
 
 public class AddressTypeAdapter extends BaseAdapter {
 
-    private final AddressTypes[] mAddressTypes;
+    private final AddressType[] mAddressTypes;
     private final Context mContext;
 
     public AddressTypeAdapter(@NonNull final Context context,
-                              @NonNull final AddressTypes[] addressTypes) {
+                              @NonNull final AddressType[] addressTypes) {
         this.mContext = context;
         mAddressTypes = addressTypes;
         notifyDataSetChanged();
@@ -53,7 +53,7 @@ public class AddressTypeAdapter extends BaseAdapter {
     }
 
     @Override
-    public AddressTypes getItem(final int position) {
+    public AddressType getItem(final int position) {
         return mAddressTypes[position];
     }
 
@@ -75,11 +75,11 @@ public class AddressTypeAdapter extends BaseAdapter {
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            final AddressTypes addressType = mAddressTypes[position];
-            if (addressType == AddressTypes.GROUP_ADDRESS) {
+            final AddressType addressType = mAddressTypes[position];
+            if (addressType == AddressType.GROUP_ADDRESS) {
                 viewHolder.addressName.setText(R.string.action_groups);
             } else {
-                viewHolder.addressName.setText(AddressTypes.getTypeName(addressType));
+                viewHolder.addressName.setText(AddressType.getTypeName(addressType));
             }
             return view;
         } else {

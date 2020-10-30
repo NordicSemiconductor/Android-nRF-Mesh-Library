@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -16,7 +15,6 @@ import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -29,7 +27,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Features;
@@ -38,21 +35,17 @@ import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
-import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
-import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
@@ -60,18 +53,15 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatPublishT
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static no.nordicsemi.android.mesh.Features.DISABLED;
 import static no.nordicsemi.android.mesh.Features.ENABLED;
-import static no.nordicsemi.android.mesh.Features.UNSUPPORTED;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.COUNT_MAX;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.COUNT_MIN;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.DEFAULT_PUBLICATION_TTL;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.DO_NOT_SEND_PERIODICALLY;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_MAX;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_MIN;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.SEND_INDEFINITELY;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_LOG_MAX;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_LOG_MIN;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatCount;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPeriod;
+import static no.nordicsemi.android.mesh.utils.PeriodLogStateRange.periodToTime;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.HEARTBEAT_PUBLICATION_NET_KEY;
@@ -81,7 +71,7 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 public class HeartbeatPublicationActivity extends AppCompatActivity implements Injectable,
         GroupCallbacks,
         DestinationAddressCallbacks,
-        DialogFragmentTtl.DialogFragmentTtlListener, SwipeRefreshLayout.OnRefreshListener {
+        DialogFragmentTtl.DialogFragmentTtlListener {
 
     private static final String ADDRESS = "ADDRESS";
     private static final String COUNT_LOG = "COUNT_LOG";
@@ -104,16 +94,12 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     ExtendedFloatingActionButton fabApply;
     @BindView(R.id.publish_address)
     TextView destinationAddress;
-    @BindView(R.id.publication_count_group)
-    RadioGroup publicationCountGroup;
     @BindView(R.id.publication_count_container)
     ConstraintLayout publicationCountContainer;
     @BindView(R.id.count)
     TextView publicationCount;
     @BindView(R.id.count_slider)
     Slider countSlider;
-    @BindView(R.id.publication_period_group)
-    RadioGroup publicationPeriodGroup;
     @BindView(R.id.period_slider)
     Slider periodSlider;
     @BindView(R.id.publication_period_container)
@@ -134,19 +120,16 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     TextView heartbeatTtl;
     @BindView(R.id.container_net_key_index)
     View actionNetKeyIndex;
-    @BindView(R.id.net_key_index)
+    @BindView(R.id.net_key)
     TextView netKeyIndex;
-    @BindView(R.id.swipe_refresh)
-    SwipeRefreshLayout mSwipe;
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
 
     private boolean mIsConnected;
-    private int mPublishAddress;
-    private int mTtl = 5;
+    private int mDestination;
+    private static int DEFAULT_TTL = 5;
     private NetworkKey mNetKey;
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,11 +145,9 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         //Setup views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
         getSupportActionBar().setTitle(R.string.title_heartbeat_publication);
-        mSwipe.setOnRefreshListener(this);
 
         final NestedScrollView scrollView = findViewById(R.id.scroll_view);
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
@@ -185,65 +166,52 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         });
 
         findViewById(R.id.container_publish_address).setOnClickListener(v -> {
-            List<Group> groups = mViewModel.getNetworkLiveData().getMeshNetwork().getGroups();
+            final ArrayList<Group> groups = new ArrayList<>();
+            for (Group group : mViewModel.getNetworkLiveData().getMeshNetwork().getGroups()) {
+                if (MeshAddress.isValidGroupAddress(group.getAddress()))
+                    groups.add(group);
+            }
             final DialogFragmentHeartbeatDestination destination = DialogFragmentHeartbeatDestination.
-                    newInstance(meshModel.getHeartbeatPublication(), (ArrayList<Group>) groups);
+                    newInstance(2, groups);
             destination.show(getSupportFragmentManager(), null);
         });
 
         countSlider.setValueFrom(COUNT_MIN);
-        countSlider.setValueTo(COUNT_MAX);
-        countSlider.addOnChangeListener((slider, value, fromUser) ->
-                publicationCount.setText(String.format(getString(R.string.messages),
-                        MeshParserUtils.calculateHeartbeatPublicationCount((int) value))));
-
-        publicationCountGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId) {
-                case R.id.publication_count_2:
-                    enableDisableRadioGroup(true);
-                    enableDisableViews(publicationPeriodContainer, true);
-                    publicationCountContainer.setVisibility(VISIBLE);
+        countSlider.setValueTo(0x12);
+        countSlider.setStepSize(1);
+        countSlider.addOnChangeListener((slider, value, fromUser) -> {
+            switch ((int) value) {
+                case 0:
+                    publicationCount.setText(getString(R.string.disabled));
+                    periodSlider.setEnabled(false);
                     break;
-                case R.id.publication_count_1:
-                case R.id.publication_count_3:
-                    enableDisableRadioGroup(false);
-                    publicationCountContainer.setVisibility(GONE);
-                    if (publicationPeriodGroup.getCheckedRadioButtonId() == R.id.publication_period_rb_1)
-                        publicationPeriodContainer.setVisibility(GONE);
-                    else enableDisableViews(publicationPeriodContainer, false);
+                case 0x12:
+                    publicationCount.setText(getString(R.string.indefinitely));
+                    periodSlider.setEnabled(true);
                     break;
+                default:
+                    publicationCount.setText(String.valueOf(calculateHeartbeatCount((int) value)));
+                    periodSlider.setEnabled(true);
             }
         });
 
-        periodSlider.setValueFrom(PERIOD_MIN);
-        periodSlider.setValueTo(PERIOD_MAX);
+        periodSlider.setValueFrom(PERIOD_LOG_MIN);
+        periodSlider.setValueTo(PERIOD_LOG_MAX);
+        periodSlider.setStepSize(1);
         periodSlider.addOnChangeListener((slider, value, fromUser) ->
-                publicationPeriod.setText(String.format(getString(R.string.seconds),
-                        MeshParserUtils.calculateHeartbeatPublicationPeriod((int) value))));
-
-        publicationPeriodGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId) {
-                case R.id.publication_period_rb_1:
-                    publicationPeriodContainer.setVisibility(GONE);
-                    break;
-                case R.id.publication_period_rb_2:
-                    enableDisableViews(publicationPeriodContainer, true);
-                    if (publicationPeriodContainer.getVisibility() != VISIBLE)
-                        publicationPeriodContainer.setVisibility(VISIBLE);
-                    break;
-            }
-        });
+                publicationPeriod.setText(periodToTime(calculateHeartbeatPeriod((short) value))));
 
         actionPublishTtl.setOnClickListener(v -> {
-            if (meshModel != null && meshModel.getHeartbeatPublication() != null) {
-                final DialogFragmentTtl fragmentPublishTtl = DialogFragmentHeartbeatPublishTtl
+            final DialogFragmentTtl fragmentPublishTtl;
+            final HeartbeatPublication publication = meshModel.getHeartbeatPublication();
+            if (publication != null && publication.isEnabled()) {
+                fragmentPublishTtl = DialogFragmentHeartbeatPublishTtl
                         .newInstance(meshModel.getHeartbeatPublication().getTtl());
-                fragmentPublishTtl.show(getSupportFragmentManager(), null);
             } else {
-                final DialogFragmentTtl fragmentPublishTtl = DialogFragmentHeartbeatPublishTtl
+                fragmentPublishTtl = DialogFragmentHeartbeatPublishTtl
                         .newInstance(DEFAULT_PUBLICATION_TTL);
-                fragmentPublishTtl.show(getSupportFragmentManager(), null);
             }
+            fragmentPublishTtl.show(getSupportFragmentManager(), null);
         });
 
         actionNetKeyIndex.setOnClickListener(v -> {
@@ -257,21 +225,18 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             setPublication();
         });
 
-        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
-
-        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
-            if (transactionStatus != null) {
-                mSwipe.setRefreshing(false);
-                progressBar.setVisibility(GONE);
-                final String message = getString(R.string.operation_timed_out);
-                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
-                fragmentMessage.show(getSupportFragmentManager(), null);
-            }
-        });
         countSlider.setValue(1);
         periodSlider.setValue(1);
-        if (savedInstanceState == null) {
-            updatePublicationValues();
+        updateDestinationAddress(mDestination);
+        updateTtl(5);
+        updateNetKeyIndex(mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey());
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        if (node != null) {
+            final Features features = node.getNodeFeatures();
+            updateFeatures(features.isRelayFeatureSupported(), features.getRelay(),
+                    features.isProxyFeatureSupported(), features.getProxy(),
+                    features.isFriendFeatureSupported(), features.getFriend(),
+                    features.isLowPowerFeatureSupported(), features.getLowPower());
         }
     }
 
@@ -318,9 +283,9 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
     @Override
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(ADDRESS, mPublishAddress);
-        outState.putInt(COUNT_LOG, getCountLog());
-        outState.putInt(PERIOD_LOG, getPeriodLog());
+        outState.putInt(ADDRESS, mDestination);
+        outState.putByte(COUNT_LOG, getCountLog());
+        outState.putByte(PERIOD_LOG, getPeriodLog());
         //if (checkBoxRelay.isEnabled())
         outState.putBoolean(RELAY, checkBoxRelay.isChecked());
         //if (checkBoxProxy.isEnabled())
@@ -335,9 +300,9 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
 
     @Override
     protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
-        updateDestinationAddress(mPublishAddress = savedInstanceState.getInt(ADDRESS, 0));
-        updatePeriodLog(savedInstanceState.getInt(PERIOD_LOG));
-        updateCountLog(savedInstanceState.getInt(COUNT_LOG));
+        updateDestinationAddress(mDestination = savedInstanceState.getInt(ADDRESS, 0));
+        updatePeriodLog(savedInstanceState.getByte(PERIOD_LOG));
+        updateCountLog(savedInstanceState.getByte(COUNT_LOG));
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Features features = node.getNodeFeatures();
@@ -352,7 +317,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             }
             updateNetKeyIndex(mNetKey);
         }
-        updateTtl(mTtl = savedInstanceState.getInt(TTL, DEFAULT_PUBLICATION_TTL));
+        updateTtl(savedInstanceState.getInt(TTL, DEFAULT_PUBLICATION_TTL));
     }
 
     @Override
@@ -400,94 +365,32 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
 
     @Override
     public void onDestinationAddressSet(final int address) {
-        updateDestinationAddress(mPublishAddress = address);
+        updateDestinationAddress(mDestination = address);
     }
 
     @Override
     public void onDestinationAddressSet(@NonNull final Group group) {
-        updateDestinationAddress(mPublishAddress = group.getAddress());
+        updateDestinationAddress(mDestination = group.getAddress());
     }
 
     @Override
     public void setPublishTtl(final int ttl) {
-        updateTtl(mTtl = ttl);
-    }
-
-    protected void updateMeshMessage(final MeshMessage meshMessage) {
-        if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
-            mViewModel.removeMessage();
-            mSwipe.setRefreshing(false);
-            progressBar.setVisibility(GONE);
-            updatePublicationValues();
-            mViewModel.displaySnackBar(this, mContainer,
-                    getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-        }
-    }
-
-    private void updatePublicationValues() {
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-        final HeartbeatPublication publication = mMeshModel.getHeartbeatPublication();
-        final Features features;
-        if (publication != null) {
-            mPublishAddress = publication.getDstAddress();
-            mTtl = publication.getTtl();
-            final int keyIndex = publication.getNetKeyIndex();
-            mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(keyIndex);
-            updateDestinationAddress(mPublishAddress);
-            updateCountLog(publication.getCountLog());
-            updatePeriodLog(publication.getPeriodLog());
-            features = publication.getFeatures();
-            updateFeatures(features.isRelayFeatureSupported(), features.getRelay(),
-                    features.isProxyFeatureSupported(), features.getProxy(),
-                    features.isFriendFeatureSupported(), features.getFriend(),
-                    features.isLowPowerFeatureSupported(), features.getLowPower());
-            updateTtl(mTtl);
-            updateNetKeyIndex(mNetKey);
-        } else {
-            if (node != null) {
-                updateDestinationAddress(MeshAddress.UNASSIGNED_ADDRESS);
-                features = node.getNodeFeatures();
-                updateCountLog(DO_NOT_SEND_PERIODICALLY);
-                updatePeriodLog(DO_NOT_SEND_PERIODICALLY);
-                updateFeatures(features.isRelayFeatureSupported(), features.getRelay(),
-                        features.isProxyFeatureSupported(), features.getProxy(),
-                        features.isFriendFeatureSupported(), features.getFriend(),
-                        features.isLowPowerFeatureSupported(), features.getLowPower());
-                updateTtl(mTtl);
-                final NodeKey nodeKey = node.getAddedNetKeys().get(0);
-                mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(nodeKey.getIndex());
-                updateNetKeyIndex(mNetKey);
-            }
-        }
+        updateTtl(ttl);
     }
 
     private void updateDestinationAddress(final int address) {
-        destinationAddress.setText(MeshAddress.formatAddress(address, true));
+        if (address == 0) {
+            destinationAddress.setText(getString(R.string.not_assigned));
+        } else
+            destinationAddress.setText(MeshAddress.formatAddress(address, true));
     }
 
     private void updateCountLog(final int countLog) {
-        switch (countLog) {
-            case DO_NOT_SEND_PERIODICALLY:
-                publicationCountGroup.check(R.id.publication_count_1);
-                break;
-            case SEND_INDEFINITELY:
-                publicationCountGroup.check(R.id.publication_count_3);
-                break;
-            default:
-                publicationCountGroup.check(R.id.publication_count_2);
-                publicationCountContainer.setVisibility(VISIBLE);
-                countSlider.setValue(countLog);
-                break;
-        }
+        countSlider.setValue(countLog);
     }
 
     private void updatePeriodLog(final int periodLog) {
-        if (periodLog == DO_NOT_SEND_PERIODICALLY) {
-            publicationPeriodGroup.check(R.id.publication_period_rb_1);
-        } else {
-            publicationPeriodGroup.check(R.id.publication_period_rb_2);
-            periodSlider.setValue(periodLog);
-        }
+        periodSlider.setValue(periodLog == 0 ? 1 : periodLog);
     }
 
     private void updateFeatures(final boolean relaySupported,
@@ -522,45 +425,39 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         }
     }
 
-    private int getCountLog() {
-        switch (publicationCountGroup.getCheckedRadioButtonId()) {
-            default:
-            case R.id.publication_count_1:
-                return DO_NOT_SEND_PERIODICALLY;
-            case R.id.publication_count_2:
-                return (int) countSlider.getValue();
-            case R.id.publication_count_3:
-                return SEND_INDEFINITELY;
-        }
+    private byte getCountLog() {
+        return (byte) countSlider.getValue();
     }
 
-    private int getPeriodLog() {
-        switch (publicationPeriodGroup.getCheckedRadioButtonId()) {
-            default:
-            case R.id.publication_period_rb_1:
-                return DO_NOT_SEND_PERIODICALLY;
-            case R.id.publication_period_rb_2:
-                return (int) periodSlider.getValue();
-        }
+    private byte getPeriodLog() {
+        return (byte) periodSlider.getValue();
+    }
+
+    private int getDefaultTtl() {
+        return Integer.parseInt(heartbeatTtl.getText().toString());
     }
 
     public Features getFeatures() {
-        final int relay = checkBoxRelay.isEnabled() ? checkBoxRelay.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
-        final int proxy = checkBoxProxy.isEnabled() ? checkBoxProxy.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
-        final int friend = checkBoxFriend.isEnabled() ? checkBoxFriend.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
-        final int lowPower = checkBoxLowPower.isEnabled() ? checkBoxLowPower.isChecked() ? ENABLED : DISABLED : UNSUPPORTED;
+        final int relay = (!checkBoxRelay.isEnabled() || !checkBoxRelay.isChecked()) ? DISABLED : ENABLED;
+        final int proxy = (!checkBoxProxy.isEnabled() || !checkBoxProxy.isChecked()) ? DISABLED : ENABLED;
+        final int friend = (!checkBoxFriend.isEnabled() || !checkBoxFriend.isChecked()) ? DISABLED : ENABLED;
+        final int lowPower = (!checkBoxLowPower.isEnabled() || !checkBoxLowPower.isChecked()) ? DISABLED : ENABLED;
         return new Features(friend, lowPower, proxy, relay);
     }
 
     private void setPublication() {
+        if (mDestination == 0) {
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_set_dst), Snackbar.LENGTH_SHORT);
+            return;
+        }
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         final Element element = mViewModel.getSelectedElement().getValue();
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         final MeshMessage configHeartbeatPublicationSet;
         if (node != null && element != null && model != null) {
             try {
-                configHeartbeatPublicationSet = new ConfigHeartbeatPublicationSet(mPublishAddress,
-                        getCountLog(), getPeriodLog(), mTtl,
+                configHeartbeatPublicationSet = new ConfigHeartbeatPublicationSet(mDestination,
+                        getCountLog(), getPeriodLog(), getDefaultTtl(),
                         getFeatures(), mNetKey.getKeyIndex());
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), configHeartbeatPublicationSet);
             } catch (IllegalArgumentException ex) {
@@ -581,40 +478,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
             return false;
         }
         return true;
-    }
-
-    private void enableDisableRadioGroup(final boolean flag) {
-        for (int i = 0; i < publicationPeriodGroup.getChildCount(); i++) {
-            publicationPeriodGroup.getChildAt(i).setEnabled(flag);
-        }
-    }
-
-    private void enableDisableViews(final ConstraintLayout view, final boolean flag) {
-        for (int i = 0; i < view.getChildCount(); i++) {
-            view.getChildAt(i).setEnabled(flag);
-        }
-    }
-
-    @Override
-    public void onRefresh() {
-        progressBar.setVisibility(VISIBLE);
-        final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (!checkConnectivity() || model == null) {
-            mSwipe.setRefreshing(false);
-            progressBar.setVisibility(GONE);
-        }
-        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-        final Element element = mViewModel.getSelectedElement().getValue();
-        if (node != null && element != null &&
-                model instanceof ConfigurationServerModel) {
-            mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
-            mViewModel.getMessageQueue().add(new ConfigHeartbeatPublicationGet());
-            //noinspection ConstantConditions
-            sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
-        } else {
-            mSwipe.setRefreshing(false);
-            progressBar.setVisibility(GONE);
-        }
     }
 
     protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {

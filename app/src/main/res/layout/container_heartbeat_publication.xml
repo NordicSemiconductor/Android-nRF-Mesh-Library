@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/publication_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/item_padding_bottom">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/heartbeat_dst_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/destination"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_sub2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/heartbeat_dst"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:text="@string/none"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_sub2"
+            app:layout_constraintTop_toBottomOf="@id/heartbeat_dst_title"
+            tools:ignore="HardcodedText,RtlSymmetry" />
+
+        <ImageView
+            android:id="@+id/image_heartbeat_sub2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/heartbeat_dst"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/heartbeat_dst_title"
+            app:srcCompat="@drawable/ic_lan_24dp"
+            tools:ignore="ContentDescription" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/remaining_count_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/remaining_count"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_count"
+            app:layout_constraintTop_toBottomOf="@id/heartbeat_dst" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/remaining_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:text="@string/unknown"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_sub2"
+            app:layout_constraintTop_toBottomOf="@id/remaining_count_title"
+            tools:ignore="HardcodedText,RtlSymmetry" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/period_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:text="@string/period"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_period"
+            app:layout_constraintTop_toBottomOf="@id/remaining_count" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/period"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:text="@string/unknown"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_period"
+            app:layout_constraintTop_toBottomOf="@id/period_title"
+            tools:ignore="HardcodedText,RtlSymmetry" />
+
+        <ImageView
+            android:id="@+id/image_heartbeat_period"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/period"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/period_title"
+            app:srcCompat="@drawable/ic_time"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/image_heartbeat_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/remaining_count"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/remaining_count_title"
+            app:srcCompat="@drawable/ic_numeric"
+            tools:ignore="ContentDescription" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title_features"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:text="@string/title_features"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image_heartbeat_count"
+            app:layout_constraintTop_toBottomOf="@id/period"
+            tools:ignore="RtlSymmetry" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/features"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/img_features"
+            app:layout_constraintTop_toBottomOf="@id/title_features"
+            tools:ignore="HardcodedText,RtlSymmetry"
+            tools:text="Relay, Proxy, Friend, Low Power" />
+
+        <ImageView
+            android:id="@+id/img_features"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/features"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/title_features"
+            app:srcCompat="@drawable/ic_auto_fix_black"
+            tools:ignore="ContentDescription" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title_net_key"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_padding_top"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:text="@string/title_net_key"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/img_net_key"
+            app:layout_constraintTop_toBottomOf="@id/features"
+            tools:ignore="RtlSymmetry" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/net_key"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/img_net_key"
+            app:layout_constraintTop_toBottomOf="@id/title_net_key"
+            tools:ignore="HardcodedText,RtlSymmetry"
+            tools:text="Primary Net Key" />
+
+        <ImageView
+            android:id="@+id/img_net_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/net_key"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/title_net_key"
+            app:srcCompat="@drawable/ic_vpn_key_24dp"
+            tools:ignore="ContentDescription" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/heartbeat_publication_not_set"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/item_padding_top"
+        android:paddingBottom="@dimen/item_padding_bottom"
+        android:text="@string/heartbeat_publication_not_set"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textColor="@color/textColorSecondary"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</LinearLayout>

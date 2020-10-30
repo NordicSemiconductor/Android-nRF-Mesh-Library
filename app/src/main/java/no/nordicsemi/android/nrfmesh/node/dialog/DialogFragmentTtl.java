@@ -126,7 +126,6 @@ public class DialogFragmentTtl extends DialogFragment {
         });
 
         if (savedInstanceState == null) {
-
             //Update ui
             if (MeshParserUtils.isDefaultPublishTtl(mPublishTtl)) {
                 chkPublishTtl.setChecked(true);

@@ -59,7 +59,7 @@ public class DialogFragmentHeartbeatSource extends DialogFragment {
     @BindView(R.id.text_input)
     TextInputEditText unicastAddressInput;
 
-    private int mAddress = 0;
+    private int mAddress = 2;
 
     public static DialogFragmentHeartbeatSource newInstance(@Nullable final HeartbeatSubscription subscription) {
         final DialogFragmentHeartbeatSource fragment = new DialogFragmentHeartbeatSource();
@@ -147,11 +147,15 @@ public class DialogFragmentHeartbeatSource extends DialogFragment {
                 return false;
             }
             final int address = Integer.parseInt(input, 16);
-            return MeshAddress.isValidHeartbeatSubscriptionSource(address);
+            if(!MeshAddress.isValidUnicastAddress(address)){
+                unicastAddressInputLayout.setError(getString(R.string.invalid_heartbeat_subscription));
+                return false;
+            }
         } catch (IllegalArgumentException ex) {
             unicastAddressInputLayout.setError(ex.getMessage());
             return false;
         }
+        return true;
     }
 
     public interface SubscriptionAddressCallbacks {

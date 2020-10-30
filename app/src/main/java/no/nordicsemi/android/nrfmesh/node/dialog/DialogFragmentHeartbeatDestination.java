@@ -43,37 +43,36 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.utils.AddressType;
-import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.AddressTypeAdapter;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAdapterSpinner;
-import no.nordicsemi.android.nrfmesh.utils.AddressTypes;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.GROUP_ADDRESS;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.UNASSIGNED_ADDRESS;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.UNICAST_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_FRIENDS;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_NODES;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_PROXIES;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_RELAYS;
+import static no.nordicsemi.android.mesh.utils.AddressType.GROUP_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.AddressType.UNICAST_ADDRESS;
 
 public class DialogFragmentHeartbeatDestination extends DialogFragment {
 
-    private static final String PUBLICATION_SETTINGS = "PUBLICATION_SETTINGS";
+    private static final String DST = "DST";
     private static final String GROUPS = "GROUPS";
     private static final String GROUP = "GROUP";
     private ArrayList<Group> mGroups = new ArrayList<>();
-    private HeartbeatPublication mHeartbeatPublication;
-    private static final AddressTypes[] addressTypes = {UNASSIGNED_ADDRESS, UNICAST_ADDRESS, GROUP_ADDRESS};
+    private static final AddressType[] ADDRESS_TYPES = {UNICAST_ADDRESS, GROUP_ADDRESS, ALL_PROXIES, ALL_FRIENDS, ALL_RELAYS, ALL_NODES};
 
     //UI Bindings
     @BindView(R.id.summary)
@@ -101,26 +100,16 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     @BindView(R.id.no_groups_configured)
     TextView noGroups;
 
-    private AddressTypeAdapter mAdapterSpinner;
+    private AddressTypeAdapter mAddressTypeAdapter;
     private Group mGroup;
 
-    public static DialogFragmentHeartbeatDestination newInstance(@NonNull final HeartbeatPublication publication,
-                                                                 @NonNull final ArrayList<Group> groups) {
+    public static DialogFragmentHeartbeatDestination newInstance(final int dst, @NonNull final ArrayList<Group> groups) {
         final DialogFragmentHeartbeatDestination fragmentPublishAddress = new DialogFragmentHeartbeatDestination();
         final Bundle args = new Bundle();
-        args.putParcelable(PUBLICATION_SETTINGS, publication);
+        args.putInt(DST, dst);
         args.putParcelableArrayList(GROUPS, groups);
         fragmentPublishAddress.setArguments(args);
         return fragmentPublishAddress;
-    }
-
-    @Override
-    public void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mHeartbeatPublication = getArguments().getParcelable(PUBLICATION_SETTINGS);
-            mGroups = getArguments().getParcelableArrayList(GROUPS);
-        }
     }
 
     @NonNull
@@ -128,6 +117,11 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).
                 inflate(R.layout.dialog_fragment_group_subscription, null);
+        int address = 0;
+        if (getArguments() != null) {
+            address = getArguments().getInt(DST);
+            mGroups = getArguments().getParcelableArrayList(GROUPS);
+        }
 
         //Bind ui
         ButterKnife.bind(this, rootView);
@@ -137,12 +131,12 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
             mGroup = ((GroupCallbacks) requireActivity()).createGroup();
         }
 
-        setAddressType();
+        setAddressType(address);
         summary.setText(R.string.dialog_summary_heartbeat_destination);
         addressTypesSpinnerView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
-                updateAddress(mAdapterSpinner.getItem(position));
+                updateAddress(mAddressTypeAdapter.getItem(position));
             }
 
             @Override
@@ -227,10 +221,9 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     private void setPublishAddress() {
         final String input = addressInput.getEditableText().toString().trim();
         final int address;
-        final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
+        final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
         switch (type) {
             default:
-            case UNASSIGNED_ADDRESS:
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
                     address = Integer.parseInt(input, 16);
@@ -268,14 +261,9 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
         }
     }
 
-    private void setAddressType() {
-        int address = 0;
-        if (mHeartbeatPublication != null) {
-            address = mHeartbeatPublication.getDstAddress();
-        }
-
-        mAdapterSpinner = new AddressTypeAdapter(requireContext(), addressTypes);
-        addressTypesSpinnerView.setAdapter(mAdapterSpinner);
+    private void setAddressType(final int address) {
+        mAddressTypeAdapter = new AddressTypeAdapter(requireContext(), ADDRESS_TYPES);
+        addressTypesSpinnerView.setAdapter(mAddressTypeAdapter);
         final AddressType type = MeshAddress.getAddressType(address);
         if (type != null) {
             switch (type) {
@@ -289,24 +277,15 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
         }
     }
 
-    private void updateAddress(@NonNull final AddressTypes addressType) {
-        int address = 0;
-        if (mHeartbeatPublication != null) {
-            address = mHeartbeatPublication.getDstAddress();
-        }
-
+    private void updateAddress(@NonNull final AddressType addressType) {
         switch (addressType) {
             default:
-            case UNASSIGNED_ADDRESS:
-                addressInput.getEditableText().clear();
-                updateFixedGroupAddressVisibility(0, true);
-                break;
             case UNICAST_ADDRESS:
                 addressInput.getEditableText().clear();
                 updateFixedGroupAddressVisibility(2, true);
                 break;
             case GROUP_ADDRESS:
-                final int index = getGroupIndex(address);
+                final int index = getGroupIndex(0);
                 groups.setSelection(index);
                 addressInputLayout.setEnabled(false);
                 groupNameInputLayout.setVisibility(VISIBLE);
@@ -317,6 +296,18 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
                 if (group != null) {
                     addressInput.setText(MeshAddress.formatAddress(group.getAddress(), false));
                 }
+                break;
+            case ALL_PROXIES:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_PROXIES_ADDRESS, false);
+                break;
+            case ALL_FRIENDS:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_FRIENDS_ADDRESS, false);
+                break;
+            case ALL_RELAYS:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_RELAYS_ADDRESS, false);
+                break;
+            case ALL_NODES:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_NODES_ADDRESS, false);
                 break;
         }
     }
@@ -346,12 +337,11 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
-            final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
+            final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
 
             final int address = Integer.parseInt(input, 16);
             switch (type) {
                 default:
-                case UNASSIGNED_ADDRESS:
                     if (!MeshAddress.isValidUnassignedAddress(address)) {
                         addressInputLayout.setError(getString(R.string.invalid_address_value));
                         return false;

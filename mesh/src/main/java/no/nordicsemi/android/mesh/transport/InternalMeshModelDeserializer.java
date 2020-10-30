@@ -151,7 +151,12 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
         if (meshModel instanceof ConfigurationServerModel) {
             if (jsonObject.has("heartbeatPub")) {
                 final JsonObject heartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
-                final int address = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
+                final int destination;
+                if(heartbeatPub.has("address") && !heartbeatPub.has("destination")){
+                    destination = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
+                } else {
+                    destination = Integer.parseInt(heartbeatPub.get("destination").getAsString(), 16);
+                }
                 final int countLog = heartbeatPub.get("count").getAsInt();
                 final int period = (heartbeatPub.get("period").getAsInt());
                 final int ttl = heartbeatPub.get("ttl").getAsInt();
@@ -163,20 +168,25 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                         featuresJson.get("relay").getAsInt(),
                         featuresJson.get("proxy").getAsInt());
                 ((ConfigurationServerModel) meshModel)
-                        .setHeartbeatPublication(new HeartbeatPublication(address, countLog,
-                        period, ttl, features, index));
+                        .setHeartbeatPublication(new HeartbeatPublication(destination, (byte)countLog,
+                                (byte)period, ttl, features, index));
             }
             if (jsonObject.has("heartbeatSub")) {
                 final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
                 final int source = Integer.parseInt(heartbeatSub.get("source").getAsString(), 16);
-                final int destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
+                final int destination;
+                if(heartbeatSub.has("address") && !heartbeatSub.has("destination")){
+                    destination = Integer.parseInt(heartbeatSub.get("address").getAsString(), 16);
+                } else {
+                    destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
+                }
                 final int period = (heartbeatSub.get("period").getAsInt());
                 final int countLog = heartbeatSub.get("count").getAsInt();
                 final int minHops = heartbeatSub.get("minHops").getAsInt();
                 final int maxHops = heartbeatSub.get("maxHops").getAsInt();
                 ((ConfigurationServerModel) meshModel)
-                        .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, period,
-                                countLog, minHops, maxHops));
+                        .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, (byte)period,
+                                (byte)countLog, minHops, maxHops));
             }
         }
 
