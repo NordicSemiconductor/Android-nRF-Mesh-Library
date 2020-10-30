@@ -4,15 +4,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseIntArray;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.ColumnInfo;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -26,6 +17,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -33,7 +32,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
-@SuppressWarnings({"unused", "WeakerAccess", "UnusedReturnValue"})
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 abstract class BaseMeshNetwork {
     private static final String TAG = "BaseMeshNetwork";
     // Key refresh phases
@@ -606,7 +605,6 @@ abstract class BaseMeshNetwork {
      * @return {@link Provisioner}
      * @throws IllegalArgumentException if the name is empty
      */
-    @SuppressWarnings("ConstantConditions")
     public Provisioner createProvisioner(@NonNull final String name,
                                          @NonNull final AllocatedUnicastRange unicastRange,
                                          @NonNull final AllocatedGroupRange groupRange,
@@ -977,6 +975,20 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
                 nodes.remove(node);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the given node is a provisioner node
+     * @param node {@link ProvisionedMeshNode}
+     * @return True if the node is a provisioner or false otherwise
+     */
+    public boolean isProvisioner(@NonNull final ProvisionedMeshNode node) {
+        for (Provisioner provisioner : provisioners) {
+            if (provisioner.getMeshUuid().equalsIgnoreCase(node.getMeshUuid())) {
                 return true;
             }
         }

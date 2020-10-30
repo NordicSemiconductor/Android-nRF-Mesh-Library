@@ -767,19 +767,6 @@ public class MeshParserUtils {
     }
 
     /**
-     * Validates heart beat period log.
-     *
-     * @param periodLog Heartbeat publication period.
-     * @return true if valid or false otherwise.
-     * @throws IllegalArgumentException if the value does not range from 0 to 17.
-     */
-    public static boolean isValidHeartbeatPeriodLog(final int periodLog) {
-        if (periodLog >= 0x00 && periodLog < 0x12)
-            return true;
-        throw new IllegalArgumentException("Period log must be within the range of 0 to 17!");
-    }
-
-    /**
      * Validates heart beat publication ttl.
      *
      * @param ttl Heartbeat publication ttl.
@@ -789,21 +776,4 @@ public class MeshParserUtils {
         return ttl <= 0x7F;
     }
 
-    /**
-     * Calculates the heart beat publication count which are the number of publications to be sent
-     *
-     * @param count count value
-     */
-    public static int calculateHeartbeatPublicationCount(final int count) {
-        return (int) Math.pow(2, count - 1);
-    }
-
-    /**
-     * Calculates the heart beat publication period interval in seconds
-     *
-     * @param period period value
-     */
-    public static int calculateHeartbeatPublicationPeriod(final int period) {
-        return (int) Math.pow(2, period - 1);
-    }
 }

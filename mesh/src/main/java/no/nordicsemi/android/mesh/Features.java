@@ -16,7 +16,7 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 /**
  * Defines the features supported by a {@link ProvisionedMeshNode}
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class Features implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
@@ -224,10 +224,10 @@ public class Features implements Parcelable {
     }
 
     public int assembleFeatures() {
-        int features = bitValue(relay) << 15;
-        features = features | bitValue(proxy) << 14;
-        features = features | bitValue(friend) << 13;
-        features = features | bitValue(lowPower) << 12;
+        int features = bitValue(lowPower) << 3;
+        features = features | bitValue(friend) << 2;
+        features = features | bitValue(proxy) << 1;
+        features = features | bitValue(relay);
         return features;
     }
 

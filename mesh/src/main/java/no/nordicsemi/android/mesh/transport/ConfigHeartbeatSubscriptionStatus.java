@@ -34,7 +34,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 /**
  * ConfigHeartbeatPublicationStatus message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigHeartbeatSubscriptionStatus.class.getSimpleName();
@@ -57,7 +57,6 @@ public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage imple
         @Override
         public ConfigHeartbeatSubscriptionStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new ConfigHeartbeatSubscriptionStatus(message);
         }
 
@@ -83,7 +82,7 @@ public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage imple
         final int minHops = MeshParserUtils.unsignedByteToInt(mParameters[7]);
         final int maxHops = MeshParserUtils.unsignedByteToInt(mParameters[8]);
 
-        heartbeatSubscription = new HeartbeatSubscription(srcAddress, dstAddress, periodLog, countLog, minHops, maxHops);
+        heartbeatSubscription = new HeartbeatSubscription(srcAddress, dstAddress, (byte)periodLog, (byte)countLog, minHops, maxHops);
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.d(TAG, "Heartbeat subscription: " + heartbeatSubscription.toString());

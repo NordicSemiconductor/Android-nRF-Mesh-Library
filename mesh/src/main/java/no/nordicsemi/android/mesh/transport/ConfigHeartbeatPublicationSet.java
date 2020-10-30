@@ -30,20 +30,23 @@ import java.nio.ByteOrder;
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.Heartbeat.isValidHeartbeatPeriodLog;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidHeartbeatPublicationDestination;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.addKeyIndexPadding;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.isValidHeartbeatCountLog;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.isValidHeartbeatPublicationTtl;
 
 /**
  * To be used as a wrapper class to create the ConfigHeartbeatPublicationSet message.
  */
-@SuppressWarnings("unused")
 public class ConfigHeartbeatPublicationSet extends ConfigMessage {
 
     private static final String TAG = ConfigHeartbeatPublicationSet.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_SET;
     private final int dstAddress;
-    private int countLog;
-    private int periodLog;
+    private byte countLog;
+    private byte periodLog;
     private final int ttl;
     private final Features features;
     private final int netKeyIndex;
@@ -62,20 +65,20 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigHeartbeatPublicationSet(final int dstAddress,
-                                         final int countLog,
-                                         final int periodLog,
+                                         final byte countLog,
+                                         final byte periodLog,
                                          final int ttl,
                                          @NonNull final Features features,
                                          final int netKeyIndex) throws IllegalArgumentException {
-        if (!MeshAddress.isValidHeartbeatPublicationDestination(dstAddress))
+        if (!isValidHeartbeatPublicationDestination(dstAddress))
             throw new IllegalArgumentException("Destination address must be an unassigned address, " +
                     "a unicast address, or a group address, all other values are Prohibited!");
         this.dstAddress = dstAddress;
-        if (MeshParserUtils.isValidHeartbeatCountLog(countLog))
+        if (isValidHeartbeatCountLog(countLog))
             this.countLog = countLog;
-        if (MeshParserUtils.isValidHeartbeatPeriodLog(periodLog))
+        if (isValidHeartbeatPeriodLog((byte) periodLog))
             this.periodLog = periodLog;
-        if (!MeshParserUtils.isValidHeartbeatPublicationTtl(ttl))
+        if (!isValidHeartbeatPublicationTtl(ttl))
             throw new IllegalArgumentException("Heartbeat ttl must be within the range of 0x00 to 0x7F!");
         this.ttl = ttl;
         this.features = features;
@@ -96,7 +99,7 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
         Log.d(TAG, "TTL: " + Integer.toHexString(dstAddress));
         Log.d(TAG, "Features: " + features.toString());
         Log.d(TAG, "Net key index: " + Integer.toHexString(netKeyIndex));
-        final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(this.netKeyIndex);
+        final byte[] netKeyIndex = addKeyIndexPadding(this.netKeyIndex);
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(9).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.putShort((short) dstAddress);
         paramsBuffer.put((byte) countLog);

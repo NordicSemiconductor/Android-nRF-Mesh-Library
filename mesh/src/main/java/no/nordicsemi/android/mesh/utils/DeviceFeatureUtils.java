@@ -70,7 +70,7 @@ public class DeviceFeatureUtils {
      * @param feature 16-bit feature value
      */
     public static int getRelayFeature(final int feature) {
-        return feature & (1 << 0);
+        return feature & 1;
     }
 
     /**
@@ -79,7 +79,7 @@ public class DeviceFeatureUtils {
      * @param feature 16-bit feature value
      */
     public static int getProxyFeature(final int feature) {
-        return feature & (1 << 1);
+        return (feature >> 1) & 1;
     }
 
     /**
@@ -88,7 +88,7 @@ public class DeviceFeatureUtils {
      * @param feature 16-bit feature value
      */
     public static int getFriendFeature(final int feature) {
-        return feature & (1 << 2);
+        return (feature >> 2) & 1;
     }
 
     /**
@@ -97,6 +97,6 @@ public class DeviceFeatureUtils {
      * @param feature 16-bit feature value
      */
     public static int getLowPowerFeature(final int feature) {
-        return feature & (1 << 3);
+        return (feature >> 3) & 1;
     }
 }

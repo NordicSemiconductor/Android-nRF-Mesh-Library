@@ -23,12 +23,12 @@ apply plugin: 'com.android.library'
 
 android {
 
-    compileSdkVersion 29
+    compileSdkVersion 30
     group 'no.nordicsemi.android.mesh'
 
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 66
         versionName VERSION_NAME
 
@@ -58,11 +58,11 @@ android {
 
 dependencies {
     // Required -- JUnit 4 framework
-    testImplementation 'junit:junit:4.13'
-    testImplementation 'org.mockito|:mockito-core:2.19.0'
-    androidTestImplementation 'org.mockito:mockito-android:2.6.3'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.mockito:mockito-core:3.5.13'
+    androidTestImplementation 'org.mockito:mockito-android:3.5.13'
     implementation 'androidx.annotation:annotation:1.1.0'
-    api 'no.nordicsemi.android:log:2.2.0'
+    api 'no.nordicsemi.android:log:2.3.0'
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
