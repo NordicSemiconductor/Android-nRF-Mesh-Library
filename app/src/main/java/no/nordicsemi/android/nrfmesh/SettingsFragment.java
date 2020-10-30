@@ -35,9 +35,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
@@ -50,6 +51,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImportMsg;
@@ -85,7 +87,6 @@ public class SettingsFragment extends Fragment implements Injectable,
         setHasOptionsMenu(true);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater,
@@ -114,10 +115,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView provisionerSummary = containerProvisioner.findViewById(R.id.text);
         provisionerSummary.setVisibility(View.VISIBLE);
         provisionerTitle.setText(R.string.title_provisioners);
-        containerProvisioner.setOnClickListener(v -> {
-            final Intent intent = new Intent(requireContext(), ProvisionersActivity.class);
-            startActivity(intent);
-        });
+        containerProvisioner.setOnClickListener(v -> startActivity(new Intent(requireContext(), ProvisionersActivity.class)));
 
         final View containerNetKey = rootView.findViewById(R.id.container_net_keys);
         containerNetKey.findViewById(R.id.image)
@@ -138,11 +136,8 @@ public class SettingsFragment extends Fragment implements Injectable,
         ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
         final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);
-        containerAppKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(requireContext(), AppKeysActivity.class);
-            startActivity(intent);
-        });
-
+        containerAppKey.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AppKeysActivity.class)));
 
         final View containerIvTestMode = rootView.findViewById(R.id.container_iv_test_mode);
         containerIvTestMode.findViewById(R.id.image).
@@ -151,16 +146,15 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView ivTestModeSummary = containerIvTestMode.findViewById(R.id.text);
         ivTestModeSummary.setText(R.string.iv_test_mode_summary);
         ivTestModeSummary.setVisibility(View.VISIBLE);
-        final Switch actionChangeIvTestMode = containerIvTestMode.findViewById(R.id.action_change_test_mode);
+        final SwitchMaterial actionChangeIvTestMode = containerIvTestMode.findViewById(R.id.action_change_test_mode);
         actionChangeIvTestMode.setVisibility(View.VISIBLE);
         actionChangeIvTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
-        actionChangeIvTestMode.setOnClickListener(v -> {
-            mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(actionChangeIvTestMode.isChecked());
-        });
-        containerIvTestMode.setOnClickListener(v -> {
-            final Intent intent = new Intent(requireContext(), AppKeysActivity.class);
-            startActivity(intent);
-        });
+        actionChangeIvTestMode.setOnClickListener(v ->
+                mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(actionChangeIvTestMode.isChecked()));
+        containerIvTestMode.setOnClickListener(v ->
+                DialogFragmentError.newInstance(getString(R.string.info), getString(R.string.iv_test_mode_info))
+                        .show(getChildFragmentManager(), null)
+        );
 
         final View containerAbout = rootView.findViewById(R.id.container_version);
         containerAbout.setClickable(false);
@@ -171,7 +165,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         final TextView version = containerAbout.findViewById(R.id.text);
         version.setVisibility(View.VISIBLE);
         try {
-            version.setText(getContext().getPackageManager().getPackageInfo(requireContext().getPackageName(), 0).versionName);
+            version.setText(requireContext().getPackageManager().getPackageInfo(requireContext().getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -232,7 +226,6 @@ public class SettingsFragment extends Fragment implements Injectable,
         return false;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

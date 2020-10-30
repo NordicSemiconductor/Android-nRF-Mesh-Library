@@ -22,10 +22,6 @@
 
 package no.nordicsemi.android.mesh.models;
 
-import android.util.Log;
-
-import java.util.Locale;
-
 @SuppressWarnings("WeakerAccess")
 public class SigModelParser {
     private static final String TAG = SigModelParser.class.getSimpleName();
@@ -215,10 +211,8 @@ public class SigModelParser {
                 return new LightLcSetupServer(modelId);
             case LIGHT_LC_CLIENT:
                 return new LightLcClient(modelId);
-            default: {
-                Log.v(TAG, "Model ID: " + String.format(Locale.US, "%04X", modelId));
-                return null;
-            }
+            default:
+                return new UnknownModel(modelId);
         }
     }
 }

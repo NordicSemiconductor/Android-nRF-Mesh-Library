@@ -8,10 +8,12 @@ import com.google.gson.annotations.SerializedName;
 
 import androidx.annotation.NonNull;
 
+import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
+
 /**
  * Class containing the Heartbeat subscription configuration.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("FieldMayBeFinal")
 public class HeartbeatSubscription extends Heartbeat implements Parcelable {
 
 
@@ -19,20 +21,11 @@ public class HeartbeatSubscription extends Heartbeat implements Parcelable {
     @SerializedName("source")
     private final int src;
     @Expose
-    @SerializedName("destination")
-    private final int dst;
-    @Expose
-    @SerializedName("period")
-    private final int periodLog;
-    @Expose
-    @SerializedName("count")
-    private final int countLog;
-    @Expose
     @SerializedName("minHops")
-    private final int minHops;
+    private int minHops;
     @Expose
     @SerializedName("maxHops")
-    private final int maxHops;
+    private int maxHops;
 
     /**
      * Heartbeat subscription.
@@ -44,28 +37,22 @@ public class HeartbeatSubscription extends Heartbeat implements Parcelable {
      * @param minHops   Minimum hops when receiving Heartbeat messages.
      * @param maxHops   Maximum hops when receiving Heartbeat messages.
      */
-    public HeartbeatSubscription(final int src, final int dst, final int periodLog, final int countLog, final int minHops, final int maxHops) {
+    public HeartbeatSubscription(final int src, final int dst, final byte periodLog, final byte countLog, final int minHops, final int maxHops) {
+        super(dst, periodLog, countLog);
         this.src = src;
-        this.dst = dst;
-        this.periodLog = periodLog;
-        this.countLog = countLog;
         this.minHops = minHops;
         this.maxHops = maxHops;
-    }
-
-    private HeartbeatSubscription(Parcel in) {
-        src = in.readInt();
-        dst = in.readInt();
-        periodLog = in.readInt();
-        countLog = in.readInt();
-        minHops = in.readInt();
-        maxHops = in.readInt();
     }
 
     public static final Creator<HeartbeatSubscription> CREATOR = new Creator<HeartbeatSubscription>() {
         @Override
         public HeartbeatSubscription createFromParcel(Parcel in) {
-            return new HeartbeatSubscription(in);
+            return new HeartbeatSubscription(in.readInt(),
+                    in.readInt(),
+                    in.readByte(),
+                    in.readByte(),
+                    in.readInt(),
+                    in.readInt());
         }
 
         @Override
@@ -83,8 +70,8 @@ public class HeartbeatSubscription extends Heartbeat implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeInt(src);
         dest.writeInt(dst);
-        dest.writeInt(periodLog);
-        dest.writeInt(countLog);
+        dest.writeByte(periodLog);
+        dest.writeByte(countLog);
         dest.writeInt(minHops);
         dest.writeInt(maxHops);
     }
@@ -108,27 +95,6 @@ public class HeartbeatSubscription extends Heartbeat implements Parcelable {
     }
 
     /**
-     * Returns the destination address.
-     */
-    public int getDst() {
-        return dst;
-    }
-
-    /**
-     * Returns the period for processing.
-     */
-    public int getPeriodLog() {
-        return periodLog;
-    }
-
-    /**
-     * Returns the subscriptions count.
-     */
-    public int getCountLog() {
-        return countLog;
-    }
-
-    /**
      * Returns the minimum number of hopes when receiving heartbeat messages.
      */
     public int getMinHops() {
@@ -140,5 +106,12 @@ public class HeartbeatSubscription extends Heartbeat implements Parcelable {
      */
     public int getMaxHops() {
         return maxHops;
+    }
+
+    /**
+     * Returns true if the heartbeat subscriptions are enabled.
+     */
+    public boolean isEnabled() {
+        return src != UNASSIGNED_ADDRESS && dst != UNASSIGNED_ADDRESS && periodLog != DO_NOT_SEND_PERIODICALLY;
     }
 }

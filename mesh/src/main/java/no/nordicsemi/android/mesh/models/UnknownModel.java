@@ -23,23 +23,43 @@
 package no.nordicsemi.android.mesh.models;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
-import no.nordicsemi.android.mesh.transport.MeshModel;
+@SuppressWarnings("WeakerAccess")
+public class UnknownModel extends SigModel {
 
-public abstract class SigModel extends MeshModel implements Parcelable {
+    public static final Creator<UnknownModel> CREATOR = new Creator<UnknownModel>() {
+        @Override
+        public UnknownModel createFromParcel(final Parcel source) {
+            return new UnknownModel(source);
+        }
 
-    SigModel(final int sigModelId) {
-        super(sigModelId);
-    }
+        @Override
+        public UnknownModel[] newArray(final int size) {
+            return new UnknownModel[size];
+        }
+    };
 
-    SigModel(final Parcel in) {
+    private UnknownModel(Parcel in){
         super(in);
     }
 
+    public UnknownModel(final int modelId) {
+        super(modelId);
+    }
+
     @Override
-    public int getModelId() {
-        return mModelId;
+    public String getModelName() {
+        return "Unknown";
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        super.parcelMeshModel(dest, flags);
     }
 
 }

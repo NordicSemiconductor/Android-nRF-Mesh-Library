@@ -13,6 +13,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import no.nordicsemi.android.mesh.Features;
+import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
@@ -30,18 +32,28 @@ import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.Heartbeat;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
+import no.nordicsemi.android.mesh.utils.PeriodLogState;
+import no.nordicsemi.android.mesh.utils.PeriodLogStateDisabled;
+import no.nordicsemi.android.mesh.utils.PeriodLogStateExact;
+import no.nordicsemi.android.mesh.utils.PeriodLogStateInvalid;
+import no.nordicsemi.android.mesh.utils.PeriodLogStateRange;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogRelayRetransmitSettings;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.DEFAULT_PUBLICATION_TTL;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.DO_NOT_SEND_PERIODICALLY;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatCount;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
 
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
         DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener,
@@ -52,12 +64,30 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private static final int NETWORK_TRANSMIT_SETTING_UNKNOWN = -1;
     private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = -1;
 
-    private TextView mHeartbeatPublicationText;
+
+    private View mContainerHeartbeatPublication;
+    private TextView mHeartbeatPublicationDisabled;
+    private TextView mHeartbeatPublicationDst;
+    private TextView mHeartbeatPublicationPeriod;
+    private TextView mHeartbeatPublicationCount;
+    private TextView mHeartbeatPublicationFeatures;
+    private TextView mHeartbeatPublicationKey;
+    private Button mRefreshPublication;
     private Button mClearPublication;
     private Button mSetPublication;
-    private TextView mHeartbeatSubscriptionText;
+
+    private View mContainerHeartbeatSubscription;
+    private TextView mHeartbeatSubscriptionDisabled;
+    private TextView mHeartbeatSubscriptionSrc;
+    private TextView mHeartbeatSubscriptionDst;
+    private TextView mHeartbeatSubscriptionPeriod;
+    private TextView mHeartbeatSubscriptionCount;
+    private TextView mHeartbeatSubscriptionMinHops;
+    private TextView mHeartbeatSubscriptionMaxHops;
+    private Button mRefreshSubscription;
     private Button mClearSubscription;
     private Button mSetSubscription;
+
     private TextView mRelayRetransmitCountText;
     private TextView mRelayRetransmitIntervalStepsText;
     private TextView mNetworkTransmitCountText;
@@ -76,15 +106,31 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof ConfigurationServerModel) {
             //Hide the app key binding, publication adn subscription views since the ConfigurationServerModel does not support app key binding
-            mContainerAppKeyBinding.setVisibility(View.GONE);
-            mContainerPublication.setVisibility(View.GONE);
-            mContainerSubscribe.setVisibility(View.GONE);
+            mContainerAppKeyBinding.setVisibility(GONE);
+            mContainerPublication.setVisibility(GONE);
+            mContainerSubscribe.setVisibility(GONE);
             final ConstraintLayout view = findViewById(R.id.node_controls_container);
             final View nodeControlsContainer = LayoutInflater.from(this)
                     .inflate(R.layout.layout_config_server_model, view);
 
-            mHeartbeatPublicationText = nodeControlsContainer.findViewById(R.id.heartbeat_publication);
-            mHeartbeatSubscriptionText = nodeControlsContainer.findViewById(R.id.heartbeat_subscription);
+            final View containerPublication = nodeControlsContainer.findViewById(R.id.container_heartbeat_publication);
+            mContainerHeartbeatPublication = containerPublication.findViewById(R.id.publication_container);
+            mHeartbeatPublicationDisabled = containerPublication.findViewById(R.id.heartbeat_publication_not_set);
+            mHeartbeatPublicationDst = containerPublication.findViewById(R.id.heartbeat_dst);
+            mHeartbeatPublicationPeriod = containerPublication.findViewById(R.id.period);
+            mHeartbeatPublicationCount = containerPublication.findViewById(R.id.remaining_count);
+            mHeartbeatPublicationFeatures = containerPublication.findViewById(R.id.features);
+            mHeartbeatPublicationKey = containerPublication.findViewById(R.id.net_key);
+
+            final View containerSubscription = nodeControlsContainer.findViewById(R.id.container_heartbeat_subscription);
+            mContainerHeartbeatSubscription = containerSubscription.findViewById(R.id.subscription_container);
+            mHeartbeatSubscriptionDisabled = containerSubscription.findViewById(R.id.heartbeat_subscription_not_set);
+            mHeartbeatSubscriptionSrc = containerSubscription.findViewById(R.id.heartbeat_src);
+            mHeartbeatSubscriptionDst = containerSubscription.findViewById(R.id.heartbeat_dst);
+            mHeartbeatSubscriptionPeriod = containerSubscription.findViewById(R.id.remaining_period);
+            mHeartbeatSubscriptionCount = containerSubscription.findViewById(R.id.count);
+            mHeartbeatSubscriptionMinHops = containerSubscription.findViewById(R.id.min_hops);
+            mHeartbeatSubscriptionMaxHops = containerSubscription.findViewById(R.id.max_hops);
 
             final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
             if (meshNode != null) {
@@ -93,7 +139,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 mRelayRetransmitCountText = nodeControlsContainer.findViewById(R.id.relay_retransmit_count);
                 if (meshNode.getNodeFeatures().isRelayFeatureSupported()) {
                     final CardView relayCardView = findViewById(R.id.config_relay_set_card);
-                    relayCardView.setVisibility(View.VISIBLE);
+                    relayCardView.setVisibility(VISIBLE);
 
                     mActionSetRelayState.setOnClickListener(v -> {
                         if (!checkConnectivity()) return;
@@ -103,11 +149,16 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                             mRelayRetransmitIntervalSteps = meshNode.getRelaySettings().getRelayIntervalSteps();
                         }
                         //Assuming relay is enabled by default
-                        final DialogRelayRetransmitSettings fragment = DialogRelayRetransmitSettings.newInstance(1, mRelayRetransmitCount, mRelayRetransmitIntervalSteps);
+                        final DialogRelayRetransmitSettings fragment = DialogRelayRetransmitSettings
+                                .newInstance(1, mRelayRetransmitCount, mRelayRetransmitIntervalSteps);
                         fragment.show(getSupportFragmentManager(), null);
                     });
                 }
             }
+
+            mRefreshPublication = nodeControlsContainer.findViewById(R.id.action_refresh_heartbeat_publication);
+            mRefreshPublication.setOnClickListener(v -> sendMessage(new ConfigHeartbeatPublicationGet()));
+
             mClearPublication = nodeControlsContainer.findViewById(R.id.action_clear_heartbeat_publication);
             mClearPublication.setOnClickListener(v -> clearPublication());
 
@@ -116,6 +167,9 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 final Intent heartbeatPublication = new Intent(this, HeartbeatPublicationActivity.class);
                 startActivityForResult(heartbeatPublication, Utils.HEARTBEAT_SETTINGS_SET);
             });
+
+            mRefreshSubscription = nodeControlsContainer.findViewById(R.id.action_refresh_heartbeat_subscription);
+            mRefreshSubscription.setOnClickListener(v -> sendMessage(new ConfigHeartbeatSubscriptionGet()));
 
             mClearSubscription = nodeControlsContainer.findViewById(R.id.action_clear_heartbeat_subscription);
             mClearSubscription.setOnClickListener(v -> clearSubscription());
@@ -171,12 +225,10 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 model instanceof ConfigurationServerModel) {
             mViewModel.displaySnackBar(this, mContainer,
                     getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
-            mViewModel.getMessageQueue().add(new ConfigHeartbeatSubscriptionGet());
             mViewModel.getMessageQueue().add(new ConfigHeartbeatPublicationGet());
             mViewModel.getMessageQueue().add(new ConfigHeartbeatSubscriptionGet());
             mViewModel.getMessageQueue().add(new ConfigRelayGet());
             mViewModel.getMessageQueue().add(new ConfigNetworkTransmitGet());
-            //noinspection ConstantConditions
             sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
         } else {
             mSwipe.setRefreshing(false);
@@ -226,9 +278,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
+        mRefreshPublication.setEnabled(true);
         mClearPublication.setEnabled(true);
         mSetPublication.setEnabled(true);
         mSetSubscription.setEnabled(true);
+        mRefreshSubscription.setEnabled(true);
         mClearSubscription.setEnabled(true);
         mActionSetRelayState.setEnabled(true);
         mSetNetworkTransmitStateButton.setEnabled(true);
@@ -237,8 +291,10 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
+        mRefreshPublication.setEnabled(false);
         mClearPublication.setEnabled(false);
         mSetPublication.setEnabled(false);
+        mRefreshSubscription.setEnabled(false);
         mClearSubscription.setEnabled(false);
         mSetSubscription.setEnabled(false);
         mActionSetRelayState.setEnabled(false);
@@ -317,10 +373,27 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void updateHeartbeatPublication() {
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null) {
-            final HeartbeatPublication heartbeatPublication = ((ConfigurationServerModel) model).getHeartbeatPublication();
-            if (heartbeatPublication != null) {
-                mHeartbeatPublicationText.setText(MeshAddress.formatAddress(heartbeatPublication.getDstAddress(), true));
-                mClearPublication.setVisibility(View.VISIBLE);
+            final HeartbeatPublication publication = ((ConfigurationServerModel) model).getHeartbeatPublication();
+            if (publication != null && publication.isEnabled()) {
+                mContainerHeartbeatPublication.setVisibility(VISIBLE);
+                mHeartbeatPublicationDisabled.setVisibility(GONE);
+                mClearPublication.setVisibility(VISIBLE);
+                mRefreshPublication.setVisibility(VISIBLE);
+                mHeartbeatPublicationDst.setText(formatAddress(publication.getDstAddress(), true));
+                mHeartbeatPublicationCount.setText(createHeartbeatCountSummary(publication.getCountLog()));
+                if (publication.getCountLog() > Heartbeat.COUNT_MIN) {
+                    mHeartbeatPublicationPeriod.setText(createHeartbeatPeriodSummary(publication.getPeriod()));
+                } else {
+                    mHeartbeatPublicationPeriod.setText(getString(R.string.disabled));
+                }
+                final NetworkKey key = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(publication.getNetKeyIndex());
+                mHeartbeatPublicationFeatures.setText(parseFeatures(publication.getFeatures()));
+                mHeartbeatPublicationKey.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
+            } else {
+                mContainerHeartbeatPublication.setVisibility(GONE);
+                mHeartbeatPublicationDisabled.setVisibility(VISIBLE);
+                mClearPublication.setVisibility(GONE);
+                mRefreshPublication.setVisibility(GONE);
             }
         }
     }
@@ -329,9 +402,22 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null) {
             final HeartbeatSubscription subscription = ((ConfigurationServerModel) model).getHeartbeatSubscription();
-            if (subscription != null) {
-                mHeartbeatSubscriptionText.setText(MeshAddress.formatAddress(subscription.getDst(), true));
-                mClearSubscription.setVisibility(View.VISIBLE);
+            if (subscription != null && subscription.isEnabled()) {
+                mContainerHeartbeatSubscription.setVisibility(VISIBLE);
+                mHeartbeatSubscriptionDisabled.setVisibility(GONE);
+                mClearSubscription.setVisibility(VISIBLE);
+                mRefreshSubscription.setVisibility(VISIBLE);
+                mHeartbeatSubscriptionSrc.setText(formatAddress(subscription.getSrc(), true));
+                mHeartbeatSubscriptionDst.setText(formatAddress(subscription.getDst(), true));
+                mHeartbeatSubscriptionPeriod.setText(createHeartbeatPeriodSummary(subscription.getPeriod()));
+                mHeartbeatSubscriptionCount.setText(String.valueOf(calculateHeartbeatCount(subscription.getCountLog())));
+                mHeartbeatSubscriptionMinHops.setText(String.valueOf(subscription.getMinHops()));
+                mHeartbeatSubscriptionMaxHops.setText(String.valueOf(subscription.getMaxHops()));
+            } else {
+                mContainerHeartbeatSubscription.setVisibility(GONE);
+                mHeartbeatSubscriptionDisabled.setVisibility(VISIBLE);
+                mClearSubscription.setVisibility(GONE);
+                mRefreshSubscription.setVisibility(GONE);
             }
         }
     }
@@ -343,15 +429,15 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             final HeartbeatPublication publication = serverModel.getHeartbeatPublication();
             final ConfigHeartbeatPublicationSet message;
             if (publication != null) {
-                message = new ConfigHeartbeatPublicationSet(MeshAddress.UNASSIGNED_ADDRESS,
+                message = new ConfigHeartbeatPublicationSet(UNASSIGNED_ADDRESS,
                         publication.getCountLog(), publication.getPeriodLog(), publication.getTtl(),
                         publication.getFeatures(), publication.getNetKeyIndex());
                 sendMessage(message);
             } else {
                 final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                 if (node != null) {
-                    message = new ConfigHeartbeatPublicationSet(MeshAddress.UNASSIGNED_ADDRESS,
-                            DO_NOT_SEND_PERIODICALLY, DO_NOT_SEND_PERIODICALLY, DEFAULT_PUBLICATION_TTL,
+                    message = new ConfigHeartbeatPublicationSet(UNASSIGNED_ADDRESS,
+                            (byte) DO_NOT_SEND_PERIODICALLY, (byte) DO_NOT_SEND_PERIODICALLY, DEFAULT_PUBLICATION_TTL,
                             node.getNodeFeatures(), node.getAddedNetKeys().get(0).getIndex());
                     sendMessage(message);
                 }
@@ -366,15 +452,63 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             final HeartbeatSubscription subscription = serverModel.getHeartbeatSubscription();
             final ConfigHeartbeatSubscriptionSet message;
             if (subscription != null) {
-                message = new ConfigHeartbeatSubscriptionSet(MeshAddress.UNASSIGNED_ADDRESS,
-                        MeshAddress.UNASSIGNED_ADDRESS,
+                message = new ConfigHeartbeatSubscriptionSet(UNASSIGNED_ADDRESS,
+                        UNASSIGNED_ADDRESS,
                         subscription.getPeriodLog());
             } else {
-                message = new ConfigHeartbeatSubscriptionSet(MeshAddress.UNASSIGNED_ADDRESS,
-                        MeshAddress.UNASSIGNED_ADDRESS,
-                        DO_NOT_SEND_PERIODICALLY);
+                message = new ConfigHeartbeatSubscriptionSet(UNASSIGNED_ADDRESS,
+                        UNASSIGNED_ADDRESS,
+                        (byte) 0x01);
             }
             sendMessage(message);
         }
+    }
+
+    private String createHeartbeatPeriodSummary(final PeriodLogState periodLogState) {
+        if (periodLogState instanceof PeriodLogStateDisabled)
+            return ((PeriodLogStateDisabled) periodLogState).getPeriodDescription();
+        else if (periodLogState instanceof PeriodLogStateExact)
+            return String.valueOf(((PeriodLogStateExact) periodLogState).getValue());
+        else if (periodLogState instanceof PeriodLogStateRange)
+            return ((PeriodLogStateRange) periodLogState).getPeriodDescription();
+        else return ((PeriodLogStateInvalid) periodLogState).getPeriodDescription();
+    }
+
+    private String createHeartbeatCountSummary(final byte countLog) {
+        switch (countLog) {
+            case 0:
+                return getString(R.string.disabled);
+            case 0x12:
+                return (getString(R.string.indefinitely));
+            default:
+                return (String.valueOf(calculateHeartbeatCount((int) countLog)));
+        }
+    }
+
+    /**
+     * Returns a String representation of the features
+     */
+    private String parseFeatures(final Features features) {
+        String result = "";
+        if (isEnabled(features.getRelay()))
+            result += "Relay";
+        if (isEnabled(features.getProxy())) {
+            result = append(result) + "Proxy";
+        }
+        if (isEnabled(features.getFriend())) {
+            result = append(result) + "Friend";
+        }
+        if (isEnabled(features.getLowPower())) {
+            result = append(result) + "Low Power";
+        }
+        return result;
+    }
+
+    private boolean isEnabled(final int feature) {
+        return feature == Features.ENABLED;
+    }
+
+    private String append(final String result) {
+        return !result.isEmpty() ? result + ", " : result;
     }
 }

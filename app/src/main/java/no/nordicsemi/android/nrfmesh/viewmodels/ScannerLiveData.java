@@ -22,13 +22,12 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import androidx.lifecycle.LiveData;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.mesh.MeshBeacon;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
@@ -61,7 +60,7 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
         }
         // Update RSSI and name
         device.setRssi(result.getRssi());
-        device.setName(result.getScanRecord().getDeviceName());
+        device.setName(getDeviceName(result));
 
         postValue(this);
     }
@@ -80,8 +79,29 @@ public class ScannerLiveData extends LiveData<ScannerLiveData> {
         }
         // Update RSSI and name
         device.setRssi(result.getRssi());
-        device.setName(result.getScanRecord().getDeviceName());
+        device.setName(getDeviceName(result));
 
+        postValue(this);
+    }
+
+    /**
+     * Returns the device name from a scan record
+     *
+     * @param result ScanResult
+     * @return Device name found in the scan record or unknown
+     */
+    private String getDeviceName(final ScanResult result) {
+        if (result.getScanRecord() != null)
+            return result.getScanRecord().getDeviceName();
+        return "Unknown";
+    }
+
+    /**
+     * Clears the list of devices found.
+     */
+    void clear() {
+        mDevices.clear();
+        mUpdatedDeviceIndex = null;
         postValue(this);
     }
 

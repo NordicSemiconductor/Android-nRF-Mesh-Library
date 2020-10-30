@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 /**
  * Abstract class for bluetooth mesh addresses
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess"})
 public final class MeshAddress {
 
     private static final byte[] VTAD = "vtad".getBytes(Charset.forName("US-ASCII"));
@@ -95,7 +95,7 @@ public final class MeshAddress {
             return false;
         }
 
-        return isValidUnicastAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
+        return isValidUnicastAddress(MeshParserUtils.unsignedBytesToInt(address[1], address[0]));
     }
 
     /**
@@ -118,7 +118,7 @@ public final class MeshAddress {
         if (!isAddressInRange(address)) {
             return false;
         }
-        return isValidVirtualAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
+        return isValidVirtualAddress(MeshParserUtils.unsignedBytesToInt(address[1], address[0]));
     }
 
     /**
@@ -137,7 +137,7 @@ public final class MeshAddress {
     public static boolean isValidGroupAddress(final byte[] address) {
         if (!isAddressInRange(address))
             return false;
-        return isValidGroupAddress(MeshParserUtils.unsignedBytesToInt(address[0], address[1]));
+        return isValidGroupAddress(MeshParserUtils.unsignedBytesToInt(address[1], address[0]));
     }
 
     /**
@@ -146,7 +146,6 @@ public final class MeshAddress {
      * @param address 16-bit address
      * @return true if the address is valid and false otherwise
      */
-    @SuppressWarnings({"ConstantConditions"})
     public static boolean isValidGroupAddress(final int address) {
         if (!isAddressInRange(address))
             return false;
@@ -162,12 +161,11 @@ public final class MeshAddress {
     }
 
     /**
-     * Returns true if the its a valid group address
+     * Returns true if the its a valid fixed group address. Fixed group addresses include all proxies, all friends, all relays and all nodes address.
      *
      * @param address 16-bit address
      * @return true if the address is valid and false otherwise
      */
-    @SuppressWarnings({"ConstantConditions"})
     public static boolean isValidFixedGroupAddress(final int address) {
         if (!isAddressInRange(address))
             return false;
@@ -358,7 +356,8 @@ public final class MeshAddress {
     public static boolean isValidHeartbeatPublicationDestination(final int address) {
         return isValidUnassignedAddress(address) ||
                 isValidUnicastAddress(address) ||
-                isValidGroupAddress(address);
+                isValidGroupAddress(address) ||
+                isValidFixedGroupAddress(address);
     }
 
     /**

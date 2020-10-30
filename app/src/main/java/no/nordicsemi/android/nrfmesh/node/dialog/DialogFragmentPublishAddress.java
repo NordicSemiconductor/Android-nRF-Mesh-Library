@@ -59,17 +59,16 @@ import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.AddressTypeAdapter;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAdapterSpinner;
-import no.nordicsemi.android.nrfmesh.utils.AddressTypes;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.ALL_FRIENDS;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.ALL_NODES;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.ALL_PROXIES;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.ALL_RELAYS;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.GROUP_ADDRESS;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.UNICAST_ADDRESS;
-import static no.nordicsemi.android.nrfmesh.utils.AddressTypes.VIRTUAL_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_FRIENDS;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_NODES;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_PROXIES;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_RELAYS;
+import static no.nordicsemi.android.mesh.utils.AddressType.GROUP_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.AddressType.UNICAST_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.AddressType.VIRTUAL_ADDRESS;
 
 public class DialogFragmentPublishAddress extends DialogFragment {
 
@@ -79,7 +78,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private static final String UUID_KEY = "UUID";
     private ArrayList<Group> mGroups = new ArrayList<>();
     private PublicationSettings mPublicationSettings;
-    private static final AddressTypes[] addressTypes = {UNICAST_ADDRESS, GROUP_ADDRESS, ALL_PROXIES, ALL_FRIENDS, ALL_RELAYS, ALL_NODES, VIRTUAL_ADDRESS};
+    private static final AddressType[] ADDRESS_TYPES = {UNICAST_ADDRESS, GROUP_ADDRESS, ALL_PROXIES, ALL_FRIENDS, ALL_RELAYS, ALL_NODES, VIRTUAL_ADDRESS};
 
     //UI Bindings
     @BindView(R.id.summary)
@@ -246,7 +245,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
     private void setPublishAddress() {
         final String input = addressInput.getEditableText().toString().trim();
         final int address;
-        final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
+        final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
         switch (type) {
             case UNICAST_ADDRESS:
                 if (validateInput(input)) {
@@ -325,7 +324,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             address = mPublicationSettings.getPublishAddress();
         }
 
-        mAdapterSpinner = new AddressTypeAdapter(requireContext(), addressTypes);
+        mAdapterSpinner = new AddressTypeAdapter(requireContext(), ADDRESS_TYPES);
         addressTypesSpinnerView.setAdapter(mAdapterSpinner);
         final AddressType type = MeshAddress.getAddressType(address);
         if (type != null) {
@@ -348,13 +347,13 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                     addressTypesSpinnerView.setSelection(1);
                     break;
                 case VIRTUAL_ADDRESS:
-                    addressTypesSpinnerView.setSelection(addressTypes.length - 1);
+                    addressTypesSpinnerView.setSelection(ADDRESS_TYPES.length - 1);
                     break;
             }
         }
     }
 
-    private void updateAddress(@NonNull final AddressTypes addressType) {
+    private void updateAddress(@NonNull final AddressType addressType) {
         int address = 0;
         if (mPublicationSettings != null) {
             address = mPublicationSettings.getPublishAddress();
@@ -439,7 +438,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
                 addressInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
-            final AddressTypes type = (AddressTypes) addressTypesSpinnerView.getSelectedItem();
+            final AddressType type = (AddressType) addressTypesSpinnerView.getSelectedItem();
 
             final int address = Integer.parseInt(input, 16);
             switch (type) {

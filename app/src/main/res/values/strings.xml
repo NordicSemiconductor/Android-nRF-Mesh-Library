@@ -556,8 +556,7 @@
     <string name="title_subscription_count">Subscription Count</string>
     <string name="title_features">Features</string>
     <string name="do_not_send_periodically">Do not send periodically</string>
-    <string name="send_indefinitely">Send indefinitely</string>
-    <string name="send_periodically">Send periodically</string>
+    <string name="indefinitely">Send indefinitely</string>
     <string name="relay">Relay</string>
     <string name="proxy">Proxy</string>
     <string name="friend">Friend</string>
@@ -566,21 +565,33 @@
     <string name="count_summary">= %d</string>
     <string name="equals">=</string>
     <string name="seconds">%d seconds</string>
+    <string name="minutes_seconds">%d min %d sec</string>
+    <string name="hours_minutes_seconds">%d h %d min %d sec</string>
     <string name="messages">%d messages</string>
     <string name="count">Count</string>
+    <string name="remaining_count">Remaining count</string>
     <string name="title_heartbeat_publication_status">Heartbeat Publication Status</string>
     <string name="title_heartbeat_subscription_status">Heartbeat Subscription Status</string>
     <string name="source">Source</string>
     <string name="source_address">Source Address</string>
     <string name="destination">Destination</string>
     <string name="destination_address">Destination Address</string>
+    <string name="error_set_src">Error, set source address.</string>
+    <string name="error_set_dst">Error, set destination address.</string>
+    <string name="remaining_period">Remaining Period</string>
     <string name="hops">Hops</string>
-    <string name="min_hops">Minimum Hops</string>
-    <string name="max_hops">Maximum Hops</string>
-    <string name="dialog_summary_heartbeat_source">Source address must be the unassigned address or a
-        unicast address.</string>
-    <string name="dialog_summary_heartbeat_destination">Destination address must be the unassigned address, the primary unicast address of the node,
+    <string name="min_hops">Min Hops</string>
+    <string name="max_hops">Max Hops</string>
+    <string name="dialog_summary_heartbeat_source">Source address must be a unicast address.</string>
+    <string name="dialog_summary_heartbeat_destination">Destination address must be the primary unicast address of the node,
         or a group address.</string>
-    <string name="invalid_heartbeat_subscription">Source address must be the Unassigned Address or a unicast address!</string>
-    <string name="hint_heartbeat_subscription_source">Unicast/Unassigned address</string>
+    <string name="invalid_heartbeat_subscription">Source address must be a unicast address!</string>
+    <string name="hint_heartbeat_subscription_source">Unicast address</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="heartbeat_subscription_not_set">Not subscribed to heartbeat messages.</string>
+    <string name="heartbeat_publication_not_set">Not publishing heartbeat messages.</string>
+    <string name="period">Period</string>
+    <string name="info">Info</string>
+    <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
+        without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
 </resources>
