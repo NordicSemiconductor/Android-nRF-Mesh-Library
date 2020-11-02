@@ -217,7 +217,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             nameView.setText(meshNetworkLiveData.getNodeName());
             final ApplicationKey applicationKey = meshNetworkLiveData.getSelectedAppKey();
-            appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
+            if (applicationKey != null) {
+                appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
+            } else {
+                appKeyView.setText(getString(R.string.no_app_keys));
+            }
             unicastAddressView.setText(getString(R.string.hex_format,
                     String.format(Locale.US, "%04X", meshNetworkLiveData.getMeshNetwork().getUnicastAddress())));
         });
@@ -398,7 +402,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                             if (fragment != null)
                                 fragment.dismiss();
                             break;
-                        case NETWORK_TRANSMIT_STATUS_RECEIVED:
+                        case APP_KEY_STATUS_RECEIVED:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_CONFIGURATION_STATUS) == null) {
                                 DialogFragmentConfigurationComplete fragmentConfigComplete = DialogFragmentConfigurationComplete.
                                         newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
@@ -437,10 +441,10 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                     returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
                     if (mViewModel.isDefaultTtlReceived()) {
                         returnIntent.putExtra(Utils.DEFAULT_GET_COMPLETED, true);
-                        if (mViewModel.isAppKeyAddCompleted()) {
-                            returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
-                            if (mViewModel.isNetworkRetransmitSetCompleted()) {
-                                returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                        if (mViewModel.isNetworkRetransmitSetCompleted()) {
+                            returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                            if (mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys().isEmpty() || mViewModel.isAppKeyAddCompleted()) {
+                                returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
                             }
                         }
                     }

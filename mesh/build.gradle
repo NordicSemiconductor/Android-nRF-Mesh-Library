@@ -29,7 +29,7 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 67
+        versionCode 68
         versionName VERSION_NAME
 
         javaCompileOptions {

@@ -232,6 +232,7 @@
     <string name="title_select_net_key">Select Net Key</string>
     <string name="hint_app_key">App key</string>
     <string name="no_app_keys_title">NO APP KEYS AVAILABLE</string>
+    <string name="no_app_keys">No app keys available.</string>
     <string name="no_app_keys_rationale">App keys are required to configure a mesh node.
         Please add an app key in the network settings.</string>
     <string name="no_added_app_keys_rationale">Binding an app key to a model requires it to be added to a provisioned mesh node.

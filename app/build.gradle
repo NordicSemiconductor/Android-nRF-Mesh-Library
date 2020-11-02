@@ -30,7 +30,7 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 67
+        versionCode 68
         versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -84,8 +84,8 @@ dependencies {
     implementation 'com.google.dagger:dagger-android-support:2.27'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.29.1'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
-    //implementation 'no.nordicsemi.android:mesh:2.3.0'
-    implementation project(':mesh')
+    implementation 'no.nordicsemi.android:mesh:2.4.3'
+    //implementation project(':mesh')
 }
 repositories {
     mavenCentral()
