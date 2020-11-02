@@ -28,7 +28,6 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -188,7 +187,7 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_key_index));
         }
 
-        final Integer keyIndex;
+        final int keyIndex;
 
         try {
             keyIndex = Integer.parseInt(input);
@@ -216,7 +215,7 @@ public class MeshParserUtils {
             throw new IllegalArgumentException(context.getString(R.string.error_empty_iv_index));
         }
 
-        final Integer ivIndex;
+        final int ivIndex;
         try {
             ivIndex = Integer.parseInt(input, 16);
         } catch (NumberFormatException ex) {
@@ -715,15 +714,6 @@ public class MeshParserUtils {
                     insert(4, "-").toString());
         }
         return null;
-    }
-
-    /**
-     * Converts the timestamp to long
-     *
-     * @param timestamp timestamp
-     */
-    public static Long parseTimeStamp(@NonNull final String timestamp) throws ParseException {
-        return SDF.parse(timestamp).getTime();
     }
 
     /**

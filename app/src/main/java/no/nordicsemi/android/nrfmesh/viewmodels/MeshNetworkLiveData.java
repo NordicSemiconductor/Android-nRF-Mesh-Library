@@ -98,7 +98,7 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      * @return app key
      */
     public ApplicationKey getSelectedAppKey() {
-        if (selectedAppKey == null)
+        if (selectedAppKey == null && !meshNetwork.getAppKeys().isEmpty())
             selectedAppKey = meshNetwork.getAppKeys().get(0);
         return selectedAppKey;
     }
