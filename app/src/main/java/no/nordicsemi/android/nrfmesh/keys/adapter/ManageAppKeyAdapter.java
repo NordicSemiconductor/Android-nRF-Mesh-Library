@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -127,6 +129,8 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            final ImageView image = view.findViewById(R.id.icon);
+            image.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
             container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final ApplicationKey key = appKeys.get(getAdapterPosition());
