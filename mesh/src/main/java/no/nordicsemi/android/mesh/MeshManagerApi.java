@@ -25,6 +25,7 @@ package no.nordicsemi.android.mesh;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -136,18 +137,11 @@ public class MeshManagerApi implements MeshMngrApi {
 
     /**
      * The mesh manager api constructor.
-     * <p>
-     * After constructing the manager, the meshProvision following callbacks must be set
-     * {@link #setMeshManagerCallbacks(MeshManagerCallbacks)}.
-     * {@link #setProvisioningStatusCallbacks(MeshProvisioningStatusCallbacks)}.
-     * {@link #setMeshStatusCallbacks(MeshStatusCallbacks)}.
-     * <p>
-     *
      * @param context context
      */
     public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
         initBouncyCastle();
@@ -618,7 +612,6 @@ public class MeshManagerApi implements MeshMngrApi {
         mMeshProvisioningHandler.sendProvisioningConfirmation(authentication);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public UUID getDeviceUuid(@NonNull final byte[] serviceData) throws IllegalArgumentException {
@@ -632,7 +625,6 @@ public class MeshManagerApi implements MeshMngrApi {
         return new UUID(msb, lsb);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
         if (advertisementData == null)
@@ -651,7 +643,6 @@ public class MeshManagerApi implements MeshMngrApi {
         return false;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
     public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) throws IllegalArgumentException {

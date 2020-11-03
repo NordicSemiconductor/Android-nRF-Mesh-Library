@@ -35,9 +35,10 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                                    final JsonDeserializationContext context) throws JsonParseException {
 
         final JsonObject jsonObject = json.getAsJsonObject();
-        if (!isValidMeshObject(jsonObject))
+        if (!isValidMeshObject(jsonObject)) {
             throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database, " +
                     "Mesh Network must follow the Mesh Provisioning/Configuration Database format.");
+        }
 
         final String uuid = jsonObject.get("meshUUID").getAsString();
         final String meshUuid = MeshParserUtils.formatUuid(uuid);
@@ -88,6 +89,8 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.addProperty("meshUUID", meshUuid);
         jsonObject.addProperty("meshName", network.getMeshName());
         jsonObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(network.getTimestamp()));
+        //TODO handle partial export
+        jsonObject.addProperty("partial", "False");
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
@@ -108,13 +111,19 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @return true if valid and false otherwise
      */
     private boolean isValidMeshObject(@NonNull final JsonObject mesh) {
-        return mesh.has("meshUUID") &&
+        return mesh.has("$schema") &&
+                mesh.has("id") &&
+                mesh.has("version") &&
+                mesh.has("meshUUID") &&
                 mesh.has("meshName") &&
                 mesh.has("timestamp") &&
+                mesh.has("partial") &&
                 mesh.has("provisioners") &&
                 mesh.has("netKeys") &&
                 mesh.has("appKeys") &&
-                mesh.has("nodes");
+                mesh.has("nodes") &&
+                mesh.has("groups") &&
+                mesh.has("scenes");
     }
 
     /**
