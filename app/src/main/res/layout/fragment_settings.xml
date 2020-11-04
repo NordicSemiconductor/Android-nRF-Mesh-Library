@@ -40,71 +40,59 @@
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             app:cardElevation="1dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/network_settings_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/network_settings_toolbar"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="?actionBarSize"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:logo="@drawable/ic_certificate"
                     app:title="@string/network_settings"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText"/>
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
 
                 <include
                     android:id="@+id/container_network_name"
                     layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/network_settings_toolbar" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <include
                     android:id="@+id/container_provisioners"
                     layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_network_name" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <include
                     android:id="@+id/container_net_keys"
                     layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_provisioners" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <include
                     android:id="@+id/container_app_keys"
                     layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_net_keys" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/container_scenes"
+                    layout="@layout/layout_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <include
                     android:id="@+id/container_iv_test_mode"
                     layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_app_keys" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
@@ -114,19 +102,17 @@
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             app:cardElevation="1dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/about_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/item_padding_bottom">
 
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/about_tool_bar"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="?actionBarSize"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:logo="@drawable/ic_info_24dp"
                     app:title="@string/title_about"
                     app:titleMarginStart="@dimen/toolbar_title_margin"
@@ -135,13 +121,10 @@
                 <include
                     android:id="@+id/container_version"
                     layout="@layout/layout_container"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/about_tool_bar" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </ScrollView>

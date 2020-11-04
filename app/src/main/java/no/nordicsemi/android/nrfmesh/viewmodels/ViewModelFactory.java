@@ -64,6 +64,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         creators.put(PublicationViewModel.class, viewModelSubComponent::publicationViewModel);
         creators.put(HeartbeatViewModel.class, viewModelSubComponent::heartbeatPublicationViewModel);
         creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
+        creators.put(ScenesViewModel.class, viewModelSubComponent::scenesViewModel);
     }
 
     @SuppressWarnings("unchecked")

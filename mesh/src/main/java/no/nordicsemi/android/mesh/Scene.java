@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -16,7 +17,6 @@ import static androidx.room.ForeignKey.CASCADE;
 /**
  * Class definitions for creating scenes in a mesh network
  */
-@SuppressWarnings("unused")
 @Entity(tableName = "scene",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -41,7 +41,7 @@ public class Scene {
     @Expose
     private int number;
 
-    public Scene(final int number, final List<Integer> addresses, final String meshUuid) {
+    public Scene(final int number, @NonNull final List<Integer> addresses, @NonNull final String meshUuid) {
         this.number = number;
         this.addresses = addresses;
         this.meshUuid = meshUuid;

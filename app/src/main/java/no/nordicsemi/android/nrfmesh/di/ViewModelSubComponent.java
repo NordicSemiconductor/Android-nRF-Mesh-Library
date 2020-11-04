@@ -43,6 +43,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.PublicationViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.RangesViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.ReconnectViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.ScannerViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.ScenesViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.SplashViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.ViewModelFactory;
@@ -102,4 +103,6 @@ public interface ViewModelSubComponent {
     HeartbeatViewModel heartbeatPublicationViewModel();
 
     ReconnectViewModel reconnectViewModule();
+
+    ScenesViewModel scenesViewModel();
 }

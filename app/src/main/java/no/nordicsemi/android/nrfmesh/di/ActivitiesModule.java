@@ -53,6 +53,7 @@ import no.nordicsemi.android.nrfmesh.provisioners.AddProvisionerActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.EditProvisionerActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.RangesActivity;
+import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -92,6 +93,12 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector()
     abstract EditAppKeyActivity contributeEditAppKeyActivity();
+
+    @ContributesAndroidInjector()
+    abstract ScenesActivity contributeScenesActivity();
+
+    //@ContributesAndroidInjector()
+    //abstract EditScenesActivity contributeEditScenesActivity();
 
     @ContributesAndroidInjector()
     abstract ProvisioningActivity contributeMeshProvisionerActivity();

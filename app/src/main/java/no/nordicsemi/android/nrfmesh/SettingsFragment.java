@@ -61,6 +61,7 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity;
+import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
@@ -139,6 +140,15 @@ public class SettingsFragment extends Fragment implements Injectable,
         containerAppKey.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), AppKeysActivity.class)));
 
+        final View containerScenes = rootView.findViewById(R.id.container_scenes);
+        containerScenes.findViewById(R.id.image).
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_palette_24dp));
+        ((TextView) containerScenes.findViewById(R.id.title)).setText(R.string.title_scenes);
+        final TextView scenesSummary = containerScenes.findViewById(R.id.text);
+        scenesSummary.setVisibility(View.VISIBLE);
+        containerScenes.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ScenesActivity.class)));
+
         final View containerIvTestMode = rootView.findViewById(R.id.container_iv_test_mode);
         containerIvTestMode.findViewById(R.id.image).
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
@@ -176,6 +186,7 @@ public class SettingsFragment extends Fragment implements Injectable,
                 netKeySummary.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
                 provisionerSummary.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
                 appKeySummary.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
+                scenesSummary.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
             }
         });
 
