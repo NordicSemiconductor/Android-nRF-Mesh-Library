@@ -419,24 +419,20 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             try {
                 final JsonObject jsonGroup = jsonGroups.get(i).getAsJsonObject();
                 final String name = jsonGroup.get("name").getAsString();
-                final String address = MeshParserUtils.formatUuid(jsonGroup.get("address").getAsString());
-                final String parentAddress = MeshParserUtils.formatUuid(jsonGroup.get("parentAddress").getAsString());
+                final String address = jsonGroup.get("address").getAsString();
+                final String parentAddress = jsonGroup.get("parentAddress").getAsString();
                 final Group group;
-                if (address == null) {
-                    if (parentAddress == null) {
-                        group = new Group(Integer.parseInt(jsonGroup.get("address").getAsString(), 16),
-                                Integer.parseInt(jsonGroup.get("parentAddress").getAsString(), 16), meshUuid);
+                if (MeshParserUtils.isUuidPattern(address)) {
+                    if (MeshParserUtils.isUuidPattern(address)) {
+                        group = new Group(UUID.fromString(address), UUID.fromString(parentAddress), meshUuid);
                     } else {
-                        group = new Group(Integer.parseInt(jsonGroup.get("address").getAsString(), 16),
-                                UUID.fromString(parentAddress), meshUuid);
+                        group = new Group(UUID.fromString(address), Integer.parseInt(parentAddress, 16), meshUuid);
                     }
                 } else {
-                    if (parentAddress == null) {
-                        group = new Group(UUID.fromString(address),
-                                Integer.parseInt(jsonGroup.get("parentAddress").getAsString(), 16), meshUuid);
+                    if (MeshParserUtils.isUuidPattern(address)) {
+                        group = new Group(Integer.parseInt(address, 16), UUID.fromString(parentAddress), meshUuid);
                     } else {
-                        group = new Group(UUID.fromString(address),
-                                UUID.fromString(parentAddress), meshUuid);
+                        group = new Group(Integer.parseInt(address, 16), Integer.parseInt(address, 16), meshUuid);
                     }
                 }
                 group.setName(name);
