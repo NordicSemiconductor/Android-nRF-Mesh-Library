@@ -121,6 +121,9 @@ abstract class BaseMeshNetwork {
     protected final Comparator<Group> groupComparator = (group1, group2) ->
             Integer.compare(group1.getAddress(), group2.getAddress());
     @Ignore
+    protected final Comparator<Scene> sceneComparator = (scene1, scene2) ->
+            Integer.compare(scene1.getNumber(), scene2.getNumber());
+    @Ignore
     protected final Comparator<AllocatedUnicastRange> unicastRangeComparator = (range1, range2) ->
             Integer.compare(range1.getLowAddress(), range2.getLowAddress());
     @Ignore
@@ -983,6 +986,7 @@ abstract class BaseMeshNetwork {
 
     /**
      * Returns true if the given node is a provisioner node
+     *
      * @param node {@link ProvisionedMeshNode}
      * @return True if the node is a provisioner or false otherwise
      */
