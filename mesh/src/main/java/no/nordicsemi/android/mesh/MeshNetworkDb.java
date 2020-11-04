@@ -8,14 +8,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseIntArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -24,6 +16,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import no.nordicsemi.android.mesh.data.ApplicationKeyDao;
 import no.nordicsemi.android.mesh.data.ApplicationKeysDao;
 import no.nordicsemi.android.mesh.data.GroupDao;
@@ -360,6 +359,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 meshNetwork.nodes = nodesDao.getNodes(meshNetwork.getMeshUUID());
                 meshNetwork.provisioners = provisionersDao.getProvisioners(meshNetwork.getMeshUUID());
                 meshNetwork.groups = groupsDao.loadGroups(meshNetwork.getMeshUUID());
+                meshNetwork.scenes = sceneDao.loadScenes(meshNetwork.getMeshUUID());
             }
             return meshNetwork;
         }
