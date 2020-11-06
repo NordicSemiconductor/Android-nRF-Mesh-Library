@@ -588,6 +588,20 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * @param provisioner provisioner
      * @return a group or null if creation failed
      */
+    public Scene createScene(@NonNull final Provisioner provisioner) {
+        final Integer address = nextAvailableSceneNumber(provisioner);
+        if (address != null) {
+            return new Scene(address, meshUUID);
+        }
+        return null;
+    }
+
+    /**
+     * Creates a group using the next available group address based on the provisioners allocated group range
+     *
+     * @param provisioner provisioner
+     * @return a group or null if creation failed
+     */
     public Scene createScene(@NonNull final Provisioner provisioner, @NonNull final String name) {
         if (TextUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Scene name cannot be empty");
@@ -595,7 +609,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
         final Integer address = nextAvailableSceneNumber(provisioner);
         if (address != null) {
-            final Scene scene = new Scene(address, new ArrayList<Integer>(), meshUUID);
+            final Scene scene = new Scene(address, meshUUID);
             scene.setName(name);
             return scene;
         }
@@ -612,8 +626,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      */
     public Scene createScene(@NonNull final Provisioner provisioner,
                              final int number,
-                             @NonNull final String name,
-                             @NonNull List<Integer> addresses) throws IllegalArgumentException {
+                             @NonNull final String name) throws IllegalArgumentException {
         if (provisioner.getAllocatedSceneRanges().isEmpty()) {
             throw new IllegalArgumentException("Unable to create scene," +
                     " there is no scene range allocated to the current provisioner");
@@ -626,7 +639,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
             }
         }
 
-        final Scene scene = new Scene(number, addresses, meshUUID);
+        final Scene scene = new Scene(number, meshUUID);
         if (!TextUtils.isEmpty(name))
             scene.setName(name);
         return scene;

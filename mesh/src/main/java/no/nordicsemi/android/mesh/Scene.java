@@ -1,13 +1,19 @@
 package no.nordicsemi.android.mesh;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
@@ -23,10 +29,10 @@ import static androidx.room.ForeignKey.CASCADE;
                 childColumns = "mesh_uuid",
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
-public class Scene {
+public class Scene implements Parcelable {
     @ColumnInfo(name = "mesh_uuid")
     @Expose
-    private String meshUuid;
+    private final String meshUuid;
 
     @ColumnInfo(name = "name")
     @Expose
@@ -34,25 +40,44 @@ public class Scene {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<Integer> addresses;
+    private List<Integer> addresses = new ArrayList<>();
 
     @PrimaryKey
     @ColumnInfo(name = "number")
     @Expose
     private int number;
 
-    public Scene(final int number, @NonNull final List<Integer> addresses, @NonNull final String meshUuid) {
+    public Scene(final int number, @NonNull final String meshUuid) {
         this.number = number;
-        this.addresses = addresses;
         this.meshUuid = meshUuid;
     }
+    @Ignore
+    public Scene(final int number, @NonNull final List<Integer> addresses, @NonNull final String meshUuid) {
+        this.number = number;
+        this.addresses.addAll(addresses);
+        this.meshUuid = meshUuid;
+    }
+
+    protected Scene(Parcel in) {
+        meshUuid = in.readString();
+        name = in.readString();
+        number = in.readInt();
+    }
+
+    public static final Creator<Scene> CREATOR = new Creator<Scene>() {
+        @Override
+        public Scene createFromParcel(Parcel in) {
+            return new Scene(in);
+        }
+
+        @Override
+        public Scene[] newArray(int size) {
+            return new Scene[size];
+        }
+    };
 
     public String getMeshUuid() {
         return meshUuid;
-    }
-
-    public void setMeshUuid(final String meshUuid) {
-        this.meshUuid = meshUuid;
     }
 
     /**
@@ -99,8 +124,41 @@ public class Scene {
         this.number = number;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(final Parcel dest, final int flags) {
+        dest.writeString(meshUuid);
+        dest.writeString(name);
+        dest.writeInt(number);
+    }
+
     public static boolean isValidScene(final int scene) {
-        return scene >= 0x0000 && scene <= 0xFFFF;
+        return scene > 0x0000 && scene <= 0xFFFF;
+    }
+
+    /**
+     * Formats the scene number in to a 4 character hexadecimal String
+     *
+     * @param number Scene number
+     * @param add0x  Sets "0x" as prefix if set to true or false otherwise
+     */
+    public static String formatSceneNumber(final int number, final boolean add0x) {
+        return add0x ?
+                "0x" + String.format(Locale.US, "%04X", number) :
+                String.format(Locale.US, "%04X", number);
+    }
+
+    @Override
+    public String toString() {
+        return "Scene{" +
+                "meshUuid='" + meshUuid + '\'' +
+                ", name='" + name + '\'' +
+                ", addresses=" + addresses +
+                ", number=" + number +
+                '}';
     }
 }

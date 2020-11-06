@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.scenes;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,29 +44,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
-import no.nordicsemi.android.nrfmesh.keys.EditAppKeyActivity;
-import no.nordicsemi.android.nrfmesh.keys.adapter.ManageAppKeyAdapter;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.ManageScenesAdapter;
+import no.nordicsemi.android.nrfmesh.scenes.dialog.DialogFragmentCreateScene;
+import no.nordicsemi.android.nrfmesh.scenes.dialog.DialogFragmentEditScene;
 import no.nordicsemi.android.nrfmesh.viewmodels.ScenesViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-import static no.nordicsemi.android.nrfmesh.utils.Utils.ADD_APP_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.PUBLICATION_APP_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_INDEX;
-
 public class ScenesActivity extends AppCompatActivity implements Injectable,
-        ManageAppKeyAdapter.OnItemClickListener,
+        ManageScenesAdapter.OnItemClickListener,
+        SceneCallbacks,
         ItemTouchHelperAdapter {
 
     @Inject
@@ -108,11 +98,9 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(scenesRecyclerView);
         scenesRecyclerView.setAdapter(mAdapter = new ManageScenesAdapter(this, mViewModel.getNetworkLiveData()));
+        mAdapter.setOnItemClickListener(this);
 
-        fab.setOnClickListener(v -> {
-            /*final Intent intent = new Intent(this, AddAppKeyActivity.class);
-            startActivity(intent);*/
-        });
+        fab.setOnClickListener(v -> DialogFragmentCreateScene.newInstance(createScene()).show(getSupportFragmentManager(), null));
 
         scenesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -137,28 +125,6 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
-        final Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            switch (bundle.getInt(EXTRA_DATA)) {
-                case ADD_APP_KEY:
-                case BIND_APP_KEY:
-                case PUBLICATION_APP_KEY:
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(RESULT_KEY_INDEX, position);
-                    returnIntent.putExtra(RESULT_KEY, appKey);
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
-
-            }
-        } else {
-            final Intent intent = new Intent(this, EditAppKeyActivity.class);
-            intent.putExtra(EDIT_KEY, appKey.getKeyIndex());
-            startActivity(intent);
-        }
     }
 
     @Override
@@ -193,5 +159,44 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorSecondary))
                 .show();
+    }
+
+    @Override
+    public void onItemClick(final int position, @NonNull final Scene scene) {
+        DialogFragmentEditScene.newInstance(scene).show(getSupportFragmentManager(), null);
+    }
+
+    @Override
+    public Scene createScene() {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return network.createScene(network.getSelectedProvisioner());
+    }
+
+    @Override
+    public Scene createScene(@NonNull final String name) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return mViewModel.getNetworkLiveData().getMeshNetwork().createScene(network.getSelectedProvisioner(), name);
+    }
+
+    @Override
+    public Scene createScene(@NonNull final String name, final int number) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return mViewModel.getNetworkLiveData().getMeshNetwork().createScene(network.getSelectedProvisioner(), number, name);
+    }
+
+    @Override
+    public boolean onSceneAdded(@NonNull final String name, final int number) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        return mViewModel.getNetworkLiveData().getMeshNetwork().addScene(network.createScene(network.getSelectedProvisioner(), number, name));
+    }
+
+    @Override
+    public boolean onSceneAdded(@NonNull final Scene scene) {
+        return mViewModel.getNetworkLiveData().getMeshNetwork().addScene(scene);
+    }
+
+    @Override
+    public boolean onSceneUpdated(@NonNull final Scene scene) {
+        return mViewModel.getNetworkLiveData().getMeshNetwork().updateScene(scene);
     }
 }

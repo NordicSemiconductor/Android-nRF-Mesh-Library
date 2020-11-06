@@ -599,4 +599,9 @@
     <string name="action_add_scene">Add Scene</string>
     <string name="title_manage_scenes">Manage Scenes</string>
     <string name="scene_deleted">Scene deleted!</string>
+    <string name="add_scene">Add Scene</string>
+    <string name="edit_scene">Edit Scene</string>
+    <string name="number">Number</string>
+    <string name="scene_number_rationale">Valid range 0x0001–0xFFFF</string>
+    <string name="invalid_scene_number">Invalid value, valid range 0x0000–0xFFFF</string>
 </resources>
