@@ -51,6 +51,7 @@ public class Scene implements Parcelable {
         this.number = number;
         this.meshUuid = meshUuid;
     }
+
     @Ignore
     public Scene(final int number, @NonNull final List<Integer> addresses, @NonNull final String meshUuid) {
         this.number = number;
@@ -136,8 +137,15 @@ public class Scene implements Parcelable {
         dest.writeInt(number);
     }
 
-    public static boolean isValidScene(final int scene) {
-        return scene > 0x0000 && scene <= 0xFFFF;
+    /**
+     * Validates the excene number
+     *
+     * @param sceneNumber Scene number
+     * @return true if is a valid or throws an IllegalArgument exception
+     */
+    public static boolean isValidSceneNumber(final int sceneNumber) {
+        if (sceneNumber > 0x0000 && sceneNumber <= 0xFFFF) return true;
+        throw new IllegalArgumentException("Scene number must range from 0x0001 to 0xFFFF!");
     }
 
     /**

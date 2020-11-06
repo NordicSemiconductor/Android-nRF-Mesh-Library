@@ -1,26 +1,27 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
+import static no.nordicsemi.android.mesh.Scene.isValidSceneNumber;
+
 /**
  * To be used as a wrapper class when creating a SceneDeleteUnacknowledged message.
  */
-@SuppressWarnings("unused")
 public class SceneDeleteUnacknowledged extends GenericMessage {
 
     private static final String TAG = SceneDeleteUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_DELETE_UNACKNOWLEDGED;
     private static final int SCENE_DELETE_PARAMS_LENGTH = 2;
 
-    private final int mSceneNumber;
+    private int mSceneNumber;
 
     /**
      * Constructs SceneDeleteUnacknowledged message.
@@ -32,7 +33,8 @@ public class SceneDeleteUnacknowledged extends GenericMessage {
     public SceneDeleteUnacknowledged(@NonNull final ApplicationKey appKey,
                                      final int sceneNumber) {
         super(appKey);
-        this.mSceneNumber = sceneNumber;
+        if (isValidSceneNumber(sceneNumber))
+            this.mSceneNumber = sceneNumber;
         assembleMessageParameters();
     }
 
