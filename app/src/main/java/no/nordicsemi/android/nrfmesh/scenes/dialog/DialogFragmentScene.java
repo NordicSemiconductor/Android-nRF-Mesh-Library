@@ -49,7 +49,7 @@ import no.nordicsemi.android.nrfmesh.scenes.SceneCallbacks;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
-import static no.nordicsemi.android.mesh.Scene.isValidScene;
+import static no.nordicsemi.android.mesh.Scene.isValidSceneNumber;
 
 
 public abstract class DialogFragmentScene extends DialogFragment {
@@ -148,15 +148,10 @@ public abstract class DialogFragmentScene extends DialogFragment {
                 return false;
             }
 
-            if (!isValidScene(Integer.parseInt(input, 16))) {
-                sceneNumberInputLayout.setError(getString(R.string.invalid_scene_number));
-                return false;
-            }
+            return (isValidSceneNumber(Integer.parseInt(input, 16)));
         } catch (IllegalArgumentException ex) {
             sceneNumberInputLayout.setError(ex.getMessage());
             return false;
         }
-
-        return true;
     }
 }
