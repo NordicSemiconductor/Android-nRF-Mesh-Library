@@ -45,7 +45,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
  * and publication settings belonging to a mesh model.
  * </p>
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess"})
 public abstract class MeshModel implements Parcelable {
 
     @Expose
@@ -60,6 +60,8 @@ public abstract class MeshModel implements Parcelable {
     final List<UUID> labelUuids = new ArrayList<>();
     @Expose
     PublicationSettings mPublicationSettings;
+    @Expose
+    protected List<Integer> sceneNumbers = new ArrayList<>();
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
@@ -81,6 +83,7 @@ public abstract class MeshModel implements Parcelable {
         mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
         in.readList(subscriptionAddresses, Integer.class.getClassLoader());
         in.readList(labelUuids, UUID.class.getClassLoader());
+        in.readList(sceneNumbers, Integer.class.getClassLoader());
     }
 
     /**
@@ -97,6 +100,7 @@ public abstract class MeshModel implements Parcelable {
         dest.writeValue(mPublicationSettings);
         dest.writeList(subscriptionAddresses);
         dest.writeList(labelUuids);
+        dest.writeList(sceneNumbers);
     }
 
     /**

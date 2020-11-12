@@ -26,6 +26,7 @@ import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 
 import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SETUP_SERVER;
 
 class DefaultNoOperationMessageState extends MeshMessageState {
 
@@ -363,10 +364,39 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightHslStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
-                    final SceneRegisterStatus registerStatus = new SceneRegisterStatus(message);
-                    registerStatus.parseStatusParameters();
-                    mInternalTransportCallbacks.updateMeshNetwork(registerStatus);
-                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), registerStatus);
+                    if (mMeshMessage instanceof SceneStore) {
+                        final SceneRegisterStatus status = new SceneRegisterStatus(message);
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(message.getSrc());
+                            if (element != null) {
+                                final MeshModel model = element.getMeshModels().get((int) SCENE_SETUP_SERVER);
+                                if (model != null) {
+                                    mInternalTransportCallbacks.storeScene(status.getSrc(), status.getCurrentScene(), status.getSceneList());
+                                    if (!model.sceneNumbers.contains(status.getCurrentScene()))
+                                        model.sceneNumbers.add(status.getCurrentScene());
+                                }
+                            }
+                        }
+                        mInternalTransportCallbacks.updateMeshNetwork(status);
+                        mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                    } else if (mMeshMessage instanceof SceneDelete) {
+                        final SceneRegisterStatus status = new SceneRegisterStatus(message);
+                        if (status.isSuccessful()) {
+                            final Element element = node.getElements().get(message.getSrc());
+                            if (element != null) {
+                                final MeshModel model = element.getMeshModels().get((int) SCENE_SETUP_SERVER);
+                                if (model != null) {
+                                    final int deletedScene = ((SceneDelete) mMeshMessage).getSceneNumber();
+                                    mInternalTransportCallbacks.deleteScene(status.getSrc(), deletedScene, status.getSceneList());
+                                    if (model.sceneNumbers.contains(deletedScene))
+                                        model.sceneNumbers.remove((Integer) deletedScene);
+                                }
+                            }
+                        }
+                        mInternalTransportCallbacks.updateMeshNetwork(status);
+                        mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                    }
+
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -451,7 +481,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      * @param currentFilter Proxy filter that is currently set on this node
      * @param filterType    Type of {@link ProxyFilterType} that was received by the status message
      */
-    private ProxyFilter updateProxyFilter(final ProxyFilter currentFilter, final ProxyFilterType filterType) {
+    private ProxyFilter updateProxyFilter(final ProxyFilter currentFilter,
+                                          final ProxyFilterType filterType) {
         if (currentFilter != null && currentFilter.getFilterType().getType() == filterType.getType()) {
             return currentFilter;
         } else {

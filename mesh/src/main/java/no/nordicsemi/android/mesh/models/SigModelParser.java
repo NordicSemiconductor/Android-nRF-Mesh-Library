@@ -64,8 +64,8 @@ public class SigModelParser {
     private static final short TIME_SERVER = 0x1200;
     private static final short TIME_SETUP_SERVER = 0x1201;
     private static final short TIME_CLIENT = 0x1202;
-    private static final short SCENE_SERVER = 0x1203;
-    private static final short SCENE_SETUP_SERVER = 0x1204;
+    public static final short SCENE_SERVER = 0x1203;
+    public static final short SCENE_SETUP_SERVER = 0x1204;
     private static final short SCENE_CLIENT = 0x1205;
     private static final short SCHEDULER_SERVER = 0x1206;
     private static final short SCHEDULER_SETUP_SERVER = 0x1207;

@@ -25,7 +25,7 @@ package no.nordicsemi.android.mesh.models;
 import android.os.Parcel;
 
 @SuppressWarnings("WeakerAccess")
-public class SceneSetupServer extends SigModel {
+public class SceneSetupServer extends SceneServer {
 
     public static final Creator<SceneSetupServer> CREATOR = new Creator<SceneSetupServer>() {
         @Override
@@ -43,7 +43,7 @@ public class SceneSetupServer extends SigModel {
         super(modelId);
     }
 
-    private SceneSetupServer(final Parcel source) {
+    SceneSetupServer(final Parcel source) {
         super(source);
     }
 

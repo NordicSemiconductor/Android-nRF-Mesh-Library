@@ -24,32 +24,32 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 /**
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public final class SceneRegisterStatus extends GenericStatusMessage implements Parcelable {
     private static final int SCENE_REGISTER_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneRegisterStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
     private int mStatus;
     private int mCurrentScene;
-    private int[] mSceneList;
+    private final ArrayList<Integer> mSceneList = new ArrayList<>();
 
     private static final Creator<SceneRegisterStatus> CREATOR = new Creator<SceneRegisterStatus>() {
         @Override
         public SceneRegisterStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new SceneRegisterStatus(message);
         }
 
@@ -82,16 +82,15 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
         Log.v(TAG, "Current Scene: " + mCurrentScene);
         if (buffer.limit() > SCENE_REGISTER_STATUS_MANDATORY_LENGTH) {
             int sceneCount = (buffer.limit() - SCENE_REGISTER_STATUS_MANDATORY_LENGTH) / 2;
-            mSceneList = new int[sceneCount];
             for (int i = 0; i < sceneCount; i++) {
-                mSceneList[i] = buffer.getShort() & 0xFFFF;
+                mSceneList.add(buffer.getShort() & 0xFFFF);
             }
             Log.v(TAG, "Scenes stored: " + sceneCount);
         }
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return OP_CODE;
     }
 
@@ -102,6 +101,24 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
      */
     public final int getStatus() {
         return mStatus;
+    }
+
+    public final String getStatusMessage() {
+        switch (mStatus) {
+            case 0x00:
+                return "Success.";
+            case 0x01:
+                return "Scene Register Full.";
+            case 0x02:
+                return "Scene Not Found.";
+            default:
+                return "Reserved for Future Use";
+
+        }
+    }
+
+    public boolean isSuccessful() {
+        return mStatus == 0x00;
     }
 
     /**
@@ -118,7 +135,7 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
      *
      * @return scene list
      */
-    public int[] getSceneList() {
+    public ArrayList<Integer> getSceneList() {
         return mSceneList;
     }
 

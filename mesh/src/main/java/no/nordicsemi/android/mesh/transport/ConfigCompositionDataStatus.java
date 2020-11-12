@@ -24,7 +24,6 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -33,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
@@ -42,7 +42,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the ConfigCompositionDataStatus Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class ConfigCompositionDataStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigCompositionDataStatus.class.getSimpleName();
@@ -63,7 +63,6 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
         @Override
         public ConfigCompositionDataStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new ConfigCompositionDataStatus(message);
         }
 
@@ -307,7 +306,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return OP_CODE;
     }
 

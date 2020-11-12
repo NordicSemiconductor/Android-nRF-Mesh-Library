@@ -137,6 +137,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     /**
      * The mesh manager api constructor.
+     *
      * @param context context
      */
     public MeshManagerApi(@NonNull final Context context) {
@@ -957,6 +958,22 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public MeshNetwork getMeshNetwork() {
             return mMeshNetwork;
+        }
+
+        @Override
+        public void storeScene(final int address, final int currentScene, final List<Integer> scenes) {
+            final Scene scene = mMeshNetwork.getScene(currentScene);
+            if (!scene.getAddresses().contains(address)) {
+                scene.addresses.add(address);
+            }
+        }
+
+        @Override
+        public void deleteScene(final int address, final int currentScene, final List<Integer> scenes) {
+            final Scene scene = mMeshNetwork.getScene(currentScene);
+            if (scene != null && scene.getAddresses().contains(address)) {
+                scene.addresses.remove((Integer) address);
+            }
         }
 
         private void updateNetwork(final ProvisionedMeshNode meshNode) {

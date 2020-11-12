@@ -29,7 +29,7 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_10_S;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_1_S;
 
 /**
- * Class for deserializing a list of elements stored in the Mesh Configuration Database
+ * Class for de-serializing a list of elements stored in the Mesh Configuration Database
  */
 public final class MeshModelListDeserializer implements JsonSerializer<List<MeshModel>>, JsonDeserializer<List<MeshModel>> {
 
@@ -217,7 +217,6 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      *
      * @param settings publication settings for this node
      */
-    @SuppressWarnings("ConstantConditions")
     private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
         if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress())) {

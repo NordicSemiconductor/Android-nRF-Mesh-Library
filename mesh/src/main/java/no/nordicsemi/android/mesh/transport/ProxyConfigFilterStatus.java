@@ -1,8 +1,8 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilterType;
@@ -25,7 +25,7 @@ public class ProxyConfigFilterStatus extends ProxyConfigStatusMessage {
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return ProxyConfigMessageOpCodes.FILTER_STATUS;
     }
 

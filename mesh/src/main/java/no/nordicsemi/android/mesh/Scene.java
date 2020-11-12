@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,7 +41,7 @@ public class Scene implements Parcelable {
 
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    private List<Integer> addresses = new ArrayList<>();
+    protected List<Integer> addresses = new ArrayList<>();
 
     @PrimaryKey
     @ColumnInfo(name = "number")
@@ -105,7 +106,7 @@ public class Scene implements Parcelable {
      * @return 2 byte address
      */
     public List<Integer> getAddresses() {
-        return addresses;
+        return Collections.unmodifiableList(addresses);
     }
 
     /**
@@ -114,7 +115,8 @@ public class Scene implements Parcelable {
      * @param addresses list of addresses
      */
     public void setAddresses(final List<Integer> addresses) {
-        this.addresses = addresses;
+        this.addresses.clear();
+        this.addresses.addAll(addresses);
     }
 
     public int getNumber() {

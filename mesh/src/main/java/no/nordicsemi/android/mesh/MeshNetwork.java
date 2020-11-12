@@ -739,6 +739,27 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     /**
+     * Returns a list of scenes applied on a given node.
+     *
+     * @param address node address
+     */
+    public ArrayList<Scene> getStoredScenes(final int address) {
+        if (!MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Invalid address, address must be a unicast address");
+        }
+        final ArrayList<Scene> scenesList = new ArrayList<>();
+        for (Scene scene : scenes) {
+            for (Integer addr : scene.getAddresses()) {
+                if (addr == address) {
+                    scenesList.add(scene);
+                    break;
+                }
+            }
+        }
+        return scenesList;
+    }
+
+    /**
      * Returns a list of elements assigned to a particular group
      *
      * @param group group
