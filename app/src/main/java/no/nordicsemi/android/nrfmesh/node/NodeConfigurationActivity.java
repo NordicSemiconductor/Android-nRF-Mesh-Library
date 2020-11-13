@@ -24,9 +24,6 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -35,7 +32,6 @@ import android.widget.TextView;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
@@ -66,7 +62,6 @@ import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentProxySet;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.AddNetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.adapter.ElementAdapter;
@@ -75,9 +70,10 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 import no.nordicsemi.android.nrfmesh.viewmodels.NodeConfigurationViewModel;
 
-public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
+public class NodeConfigurationActivity extends BaseActivity implements Injectable,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentElementName.DialogFragmentElementNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
@@ -116,27 +112,17 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
 
-    private NodeConfigurationViewModel mViewModel;
-    private Handler mHandler;
     private boolean mProxyState;
     private boolean mRequestedState = true;
-    private boolean mIsConnected;
 
-    private final Runnable mRunnableOperationTimeout = () -> {
-        hideProgressBar();
-        if (mViewModel.isActivityVisibile()) {
-            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
-                    newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-            fragmentMessage.show(getSupportFragmentManager(), null);
-        }
-    };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node_configuration);
-        ButterKnife.bind(this);
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
+        init();
+        ButterKnife.bind(this);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
@@ -150,14 +136,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             mProxyState = savedInstanceState.getBoolean(PROXY_STATE, true);
         }
 
-        mHandler = new Handler();
         if (mViewModel.getSelectedMeshNode().getValue() == null) {
             finish();
         }
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.title_node_configuration);
 
@@ -174,10 +158,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             fragment.show(getSupportFragmentManager(), null);
         });
         final Button actionDetails = findViewById(R.id.action_show_details);
-        actionDetails.setOnClickListener(v -> {
-            final Intent intent = new Intent(NodeConfigurationActivity.this, NodeDetailsActivity.class);
-            startActivity(intent);
-        });
+        actionDetails.setOnClickListener(v -> startActivity(new Intent(NodeConfigurationActivity.this, NodeDetailsActivity.class)));
 
         final TextView noElementsFound = findViewById(R.id.no_elements);
         final View compositionActionContainer = findViewById(R.id.composition_action_container);
@@ -194,10 +175,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         keyTitle.setText(R.string.title_net_keys);
         final TextView netKeySummary = containerNetKey.findViewById(R.id.text);
         netKeySummary.setVisibility(View.VISIBLE);
-        containerNetKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddNetKeysActivity.class);
-            startActivity(intent);
-        });
+        containerNetKey.setOnClickListener(v -> startActivity(new Intent(this, AddNetKeysActivity.class)));
 
         final View containerAppKey = findViewById(R.id.container_app_keys);
         containerAppKey.findViewById(R.id.image).
@@ -205,10 +183,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
         final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
         appKeySummary.setVisibility(View.VISIBLE);
-        containerAppKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddAppKeysActivity.class);
-            startActivity(intent);
-        });
+        containerAppKey.setOnClickListener(v -> startActivity(new Intent(this, AddAppKeysActivity.class)));
 
         final View containerDefaultTtl = findViewById(R.id.container_ttl);
         containerDefaultTtl.findViewById(R.id.image).
@@ -257,13 +232,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionGetCompositionData.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+            if (!checkConnectivity(mContainer)) return;
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
             sendMessage(configCompositionDataGet);
         });
 
         actionGetDefaultTtl.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+            if (!checkConnectivity(mContainer)) return;
             final ConfigDefaultTtlGet defaultTtlGet = new ConfigDefaultTtlGet();
             sendMessage(defaultTtlGet);
         });
@@ -277,7 +252,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionGetProxyState.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+            if (!checkConnectivity(mContainer)) return;
             final ConfigProxyGet configProxyGet = new ConfigProxyGet();
             sendMessage(configProxyGet);
         });
@@ -295,44 +270,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         });
 
         actionResetNode.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+            if (!checkConnectivity(mContainer)) return;
             final DialogFragmentResetNode resetNodeFragment = DialogFragmentResetNode.
                     newInstance(getString(R.string.title_reset_node), getString(R.string.reset_node_rationale_summary));
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
-            if (transactionStatus != null) {
-                hideProgressBar();
-                final String message;
-                if (transactionStatus.isIncompleteTimerExpired()) {
-                    message = getString(R.string.segments_not_received_timed_out);
-                } else {
-                    message = getString(R.string.operation_timed_out);
-                }
-                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), message);
-                fragmentMessage.show(getSupportFragmentManager(), null);
-            }
-        });
-
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if (isConnected != null) {
-                mIsConnected = isConnected;
-                hideProgressBar();
-            }
-            updateClickableViews();
-            invalidateOptionsMenu();
-        });
-
-        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
-
         updateProxySettingsCardUi();
-
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null) {
-            mIsConnected = isConnectedToNetwork;
-        }
-        invalidateOptionsMenu();
     }
 
     @Override
@@ -342,44 +286,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mIsConnected) {
-            getMenuInflater().inflate(R.menu.disconnect, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.connect, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         mViewModel.setActivityVisible(false);
         if (isFinishing()) {
             mHandler.removeCallbacksAndMessages(null);
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     @Override
@@ -453,19 +365,20 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         }
     }
 
-    private void showProgressbar() {
+
+    protected void showProgressBar() {
         mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
 
-    private void hideProgressBar() {
+    protected void hideProgressBar() {
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
 
-    private void enableClickableViews() {
+    protected void enableClickableViews() {
         actionGetCompositionData.setEnabled(true);
         actionGetDefaultTtl.setEnabled(true);
         actionSetDefaultTtl.setEnabled(true);
@@ -474,7 +387,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionResetNode.setEnabled(true);
     }
 
-    private void disableClickableViews() {
+
+    protected void disableClickableViews() {
         actionGetCompositionData.setEnabled(false);
         actionGetDefaultTtl.setEnabled(false);
         actionSetDefaultTtl.setEnabled(false);
@@ -483,7 +397,8 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         actionResetNode.setEnabled(false);
     }
 
-    private void updateMeshMessage(final MeshMessage meshMessage) {
+
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigFilterStatus) {
             hideProgressBar();
         }
@@ -502,15 +417,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         }
     }
 
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, mContainer);
-            return false;
-        }
-        return true;
-    }
-
-    private void updateClickableViews() {
+    protected void updateClickableViews() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.isConfigured() &&
                 !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
@@ -519,12 +426,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private void sendMessage(final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(mContainer))
                 return;
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
-                showProgressbar();
+                showProgressBar();
             }
         } catch (IllegalArgumentException ex) {
             hideProgressBar();

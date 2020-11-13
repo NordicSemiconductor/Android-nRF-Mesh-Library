@@ -20,15 +20,12 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package no.nordicsemi.android.nrfmesh.keys;
+package no.nordicsemi.android.nrfmesh.scenes;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
@@ -45,119 +42,84 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.mesh.transport.ConfigAppKeyList;
-import no.nordicsemi.android.mesh.transport.ConfigAppKeyStatus;
-import no.nordicsemi.android.mesh.transport.ConfigNetKeyStatus;
+import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
+import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.transport.SceneGet;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
+import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
-import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddedScenesViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
-public abstract class AddKeysActivity extends BaseActivity implements Injectable, SwipeRefreshLayout.OnRefreshListener {
+public class StoredScenesActivity extends BaseActivity implements Injectable,
+        StoredScenesAdapter.OnItemListener, SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
 
+    //UI Bindings
     @BindView(R.id.container)
-    protected CoordinatorLayout container;
-    @BindView(R.id.recycler_view_keys)
-    protected RecyclerView recyclerViewKeys;
-    @BindView(R.id.fab_add)
-    protected ExtendedFloatingActionButton fab;
-    @BindView(R.id.configuration_progress_bar)
-    protected ProgressBar mProgressbar;
+    CoordinatorLayout mContainer;
+    @BindView(R.id.empty_scenes)
+    View mEmptyView;
     @BindView(R.id.swipe_refresh)
-    protected SwipeRefreshLayout mSwipe;
+    SwipeRefreshLayout mSwipe;
+    @BindView(R.id.recycler_view_scenes)
+    RecyclerView mRecyclerviewScenes;
+    @BindView(R.id.configuration_progress_bar)
+    ProgressBar mProgressbar;
 
-    protected View mEmptyView;
-
-    protected AddKeysViewModel mViewModel;
-    protected boolean mIsConnected;
-
-    abstract void enableAdapterClickListener(final boolean enable);
+    private StoredScenesAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddKeysViewModel.class);
-        setContentView(R.layout.activity_add_keys);
+        setContentView(R.layout.activity_scenes);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddedScenesViewModel.class);
+        init();
+
+        //Bind ui
         ButterKnife.bind(this);
-        mHandler = new Handler(Looper.getMainLooper());
+
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mSwipe.setOnRefreshListener(this);
-        recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
-        final DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerViewKeys.addItemDecoration(dividerItemDecoration);
-        recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
-        fab.hide();
+        getSupportActionBar().setTitle(R.string.title_stored_scenes);
 
-        mViewModel.getMeshMessage().observe(this, meshMessage -> {
-            if (meshMessage instanceof ConfigNetKeyStatus) {
-                final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
-                if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-                } else {
-                    showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
-                }
-            } else if (meshMessage instanceof ConfigAppKeyStatus) {
-                final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
-                if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-                } else {
-                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                }
-            } else if (meshMessage instanceof ConfigAppKeyList) {
-                final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
-                if (!mViewModel.getMessageQueue().isEmpty())
-                    mViewModel.getMessageQueue().remove();
-                if (status.isSuccessful()) {
-                    handleStatuses();
-                } else {
-                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                }
-            }
-            hideProgressBar();
-        });
+        findViewById(R.id.fab_add).setVisibility(View.GONE);
+        mRecyclerviewScenes = findViewById(R.id.recycler_view_scenes);
+        mRecyclerviewScenes.setLayoutManager(new LinearLayoutManager(this));
+        final DividerItemDecoration dividerItemDecoration =
+                new DividerItemDecoration(mRecyclerviewScenes.getContext(), DividerItemDecoration.VERTICAL);
+        mRecyclerviewScenes.addItemDecoration(dividerItemDecoration);
+        mRecyclerviewScenes.setItemAnimator(new DefaultItemAnimator());
+        mSwipe.setOnRefreshListener(this);
 
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (isFinishing()) {
-            mHandler.removeCallbacksAndMessages(null);
-        }
+    public void onItemClick(final int position, @NonNull final Scene scene) {
+        //TODO bottom sheet
     }
 
-    private void showDialogFragment(@NonNull final String title, @NonNull final String message) {
-        if (getSupportFragmentManager().findFragmentByTag(Utils.DIALOG_FRAGMENT_KEY_STATUS) == null) {
-            final DialogFragmentConfigStatus fragmentKeyStatus = DialogFragmentConfigStatus.newInstance(title, message);
-            fragmentKeyStatus.show(getSupportFragmentManager(), Utils.DIALOG_FRAGMENT_KEY_STATUS);
-        }
+    @Override
+    protected void updateClickableViews() {
+
     }
 
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, container);
-            return false;
-        }
-        return true;
-    }
-
+    @Override
     protected void showProgressBar() {
         mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
 
+    @Override
     protected final void hideProgressBar() {
         mSwipe.setRefreshing(false);
         enableClickableViews();
@@ -165,16 +127,23 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
         mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
 
+    @Override
     protected void enableClickableViews() {
         enableAdapterClickListener(true);
-        recyclerViewKeys.setEnabled(true);
-        recyclerViewKeys.setClickable(true);
+        mRecyclerviewScenes.setEnabled(true);
+        mRecyclerviewScenes.setClickable(true);
     }
 
+    @Override
     protected void disableClickableViews() {
         enableAdapterClickListener(false);
-        recyclerViewKeys.setEnabled(false);
-        recyclerViewKeys.setClickable(false);
+        mRecyclerviewScenes.setEnabled(false);
+        mRecyclerviewScenes.setClickable(false);
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+
     }
 
     private void handleStatuses() {
@@ -182,13 +151,13 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
         if (message != null) {
             sendMessage(message);
         } else {
-            mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
         }
     }
 
     protected void sendMessage(final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(mContainer))
                 return;
             showProgressBar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
@@ -203,10 +172,38 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
         }
     }
 
+    private void displaySnackBar(@NonNull final Scene scene) {
+        Snackbar.make(mContainer, getString(R.string.scene_deleted), Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.undo), view -> {
+                    mEmptyView.setVisibility(View.INVISIBLE);
+                    mViewModel.getNetworkLiveData().getMeshNetwork().addScene(scene);
+                })
+                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                .show();
+    }
+
+    void enableAdapterClickListener(final boolean enable) {
+        mAdapter.setOnItemClickListener(enable ? this : null);
+    }
+
     @Override
     public void onRefresh() {
-        if (!checkConnectivity()) {
-            mSwipe.setRefreshing(false);
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
+            final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+            final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+            mViewModel.getMessageQueue().add(new SceneGet(appKey));
+            sendMessage(mViewModel.getMessageQueue().peek());
+        } else {
+            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (isFinishing()) {
+            mHandler.removeCallbacksAndMessages(null);
         }
     }
 }

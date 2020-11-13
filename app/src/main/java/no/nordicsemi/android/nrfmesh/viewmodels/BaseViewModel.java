@@ -6,7 +6,9 @@ import android.content.Intent;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -14,10 +16,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
-import no.nordicsemi.android.mesh.models.ConfigurationClientModel;
-import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
-import no.nordicsemi.android.mesh.models.GenericLevelServerModel;
-import no.nordicsemi.android.mesh.models.GenericOnOffServerModel;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
@@ -32,16 +30,27 @@ import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity;
+import no.nordicsemi.android.nrfmesh.node.SceneServerModelActivity;
+import no.nordicsemi.android.nrfmesh.node.SceneSetupServerModelActivity;
 import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+
+import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_CLIENT;
+import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_LEVEL_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_ON_OFF_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SETUP_SERVER;
 
 /**
  * abstract base class for ViewModels
  */
-abstract class BaseViewModel extends ViewModel {
+public abstract class BaseViewModel extends ViewModel {
 
+    protected Queue<MeshMessage> messageQueue = new LinkedList<>();
     final NrfMeshRepository mNrfMeshRepository;
-    boolean isActivityVisibile = false;
+    boolean isActivityVisible = false;
+
 
     /**
      * Constructs {@link BaseViewModel}
@@ -69,6 +78,15 @@ abstract class BaseViewModel extends ViewModel {
      */
     public final BleMeshManager getBleMeshManager() {
         return mNrfMeshRepository.getBleMeshManager();
+    }
+
+    public Queue<MeshMessage> getMessageQueue() {
+        return messageQueue;
+    }
+
+    public void removeMessage() {
+        if (!messageQueue.isEmpty())
+            messageQueue.remove();
     }
 
     /**
@@ -99,14 +117,18 @@ abstract class BaseViewModel extends ViewModel {
      */
     public void navigateToModelActivity(@NonNull final Activity context, @NonNull final MeshModel model) {
         final Intent intent;
-        if (model instanceof ConfigurationServerModel) {
+        if (model.getModelId() == CONFIGURATION_SERVER) {
             intent = new Intent(context, ConfigurationServerActivity.class);
-        } else if (model instanceof ConfigurationClientModel) {
+        } else if (model.getModelId() == CONFIGURATION_CLIENT) {
             intent = new Intent(context, ConfigurationClientActivity.class);
-        } else if (model instanceof GenericOnOffServerModel) {
+        } else if (model.getModelId() == GENERIC_ON_OFF_SERVER) {
             intent = new Intent(context, GenericOnOffServerActivity.class);
-        } else if (model instanceof GenericLevelServerModel) {
+        } else if (model.getModelId() == GENERIC_LEVEL_SERVER) {
             intent = new Intent(context, GenericLevelServerActivity.class);
+        } else if (model.getModelId() == SCENE_SERVER) {
+            intent = new Intent(context, SceneServerModelActivity.class);
+        } else if (model.getModelId() == SCENE_SETUP_SERVER) {
+            intent = new Intent(context, SceneSetupServerModelActivity.class);
         } else if (model instanceof VendorModel) {
             intent = new Intent(context, VendorModelActivity.class);
         } else {
@@ -267,7 +289,6 @@ abstract class BaseViewModel extends ViewModel {
         return mNrfMeshRepository.getTransactionStatus();
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isModelExists(final int modelId) {
         final ProvisionedMeshNode node = getSelectedMeshNode().getValue();
         return node != null && node.isExist(modelId);
@@ -299,5 +320,13 @@ abstract class BaseViewModel extends ViewModel {
         Snackbar.make(container, message, duration)
                 .setActionTextColor(context.getResources().getColor(R.color.colorSecondary))
                 .show();
+    }
+
+    public boolean isActivityVisible() {
+        return isActivityVisible;
+    }
+
+    public void setActivityVisible(final boolean visible) {
+        isActivityVisible = visible;
     }
 }

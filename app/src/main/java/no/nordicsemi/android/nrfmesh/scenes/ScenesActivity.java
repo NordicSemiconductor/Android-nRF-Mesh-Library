@@ -22,6 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh.scenes;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,6 +58,9 @@ import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
+import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
+import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_SCENE;
+
 public class ScenesActivity extends AppCompatActivity implements Injectable,
         ManageScenesAdapter.OnItemClickListener,
         SceneCallbacks,
@@ -85,7 +90,6 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_manage_scenes);
 
         final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
         final RecyclerView scenesRecyclerView = findViewById(R.id.recycler_view_scenes);
@@ -94,9 +98,6 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
                 new DividerItemDecoration(scenesRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         scenesRecyclerView.addItemDecoration(dividerItemDecoration);
         scenesRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(scenesRecyclerView);
         scenesRecyclerView.setAdapter(mAdapter = new ManageScenesAdapter(this, mViewModel.getNetworkLiveData()));
         mAdapter.setOnItemClickListener(this);
 
@@ -116,6 +117,18 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
                 }
             }
         });
+
+
+        final Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.getInt(EXTRA_DATA) == SELECT_SCENE) {
+            fab.setVisibility(View.GONE);
+            getSupportActionBar().setTitle(R.string.title_select_scene);
+        } else {
+            final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+            final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+            itemTouchHelper.attachToRecyclerView(scenesRecyclerView);
+            getSupportActionBar().setTitle(R.string.title_manage_scenes);
+        }
     }
 
     @Override
@@ -163,7 +176,14 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public void onItemClick(final int position, @NonNull final Scene scene) {
-        DialogFragmentEditScene.newInstance(scene).show(getSupportFragmentManager(), null);
+        final Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.getInt(EXTRA_DATA) == SELECT_SCENE) {
+            final Intent returnIntent = new Intent();
+            returnIntent.putExtra(EXTRA_DATA, scene);
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        } else
+            DialogFragmentEditScene.newInstance(scene).show(getSupportFragmentManager(), null);
     }
 
     @Override
@@ -198,5 +218,10 @@ public class ScenesActivity extends AppCompatActivity implements Injectable,
     @Override
     public boolean onSceneUpdated(@NonNull final Scene scene) {
         return mViewModel.getNetworkLiveData().getMeshNetwork().updateScene(scene);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

@@ -30,6 +30,7 @@ import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.UnprovisionedBeacon;
 import no.nordicsemi.android.mesh.models.SigModelParser;
+import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ConfigAppKeyAdd;
@@ -38,8 +39,6 @@ import no.nordicsemi.android.mesh.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.mesh.transport.ConfigCompositionDataStatus;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlGet;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlStatus;
-import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
-import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionStatus;
@@ -56,6 +55,7 @@ import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ProxyConfigFilterStatus;
+import no.nordicsemi.android.mesh.transport.SceneRegisterStatus;
 import no.nordicsemi.android.mesh.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
@@ -70,6 +70,21 @@ import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
+import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_DEFAULT_TTL_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_GATT_PROXY_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_RELAY_STATUS;
 import static no.nordicsemi.android.nrfmesh.ble.BleMeshManager.MESH_PROXY_UUID;
 
 public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshStatusCallbacks, MeshManagerCallbacks, BleMeshManagerCallbacks {
@@ -503,7 +518,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onDeviceDisconnected(@NonNull final BluetoothDevice device) {
         Log.v(TAG, "Disconnected");
@@ -769,12 +783,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onMeshMessageReceived(final int src, @NonNull final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = mMeshNetwork.getNode(src);
         if (node != null)
-            if (meshMessage instanceof ProxyConfigFilterStatus) {
+            if (meshMessage.getOpCode() == ProxyConfigMessageOpCodes.FILTER_STATUS) {
                 mProvisionedMeshNode = node;
                 setSelectedMeshNode(node);
                 final ProxyConfigFilterStatus status = (ProxyConfigFilterStatus) meshMessage;
@@ -782,8 +795,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 Log.v(TAG, "Proxy configuration source: " + MeshAddress.formatAddress(status.getSrc(), false));
                 mConnectedProxyAddress.postValue(unicastAddress);
                 mMeshMessageLiveData.postValue(status);
-            } else if (meshMessage instanceof ConfigCompositionDataStatus) {
-                final ConfigCompositionDataStatus status = (ConfigCompositionDataStatus) meshMessage;
+            } else if (meshMessage.getOpCode() == CONFIG_COMPOSITION_DATA_STATUS) {
                 if (mSetupProvisionedNode) {
                     mIsCompositionDataReceived = true;
                     mProvisionedMeshNodeLiveData.postValue(node);
@@ -796,7 +808,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 } else {
                     updateNode(node);
                 }
-            } else if (meshMessage instanceof ConfigDefaultTtlStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_DEFAULT_TTL_STATUS) {
                 final ConfigDefaultTtlStatus status = (ConfigDefaultTtlStatus) meshMessage;
                 if (mSetupProvisionedNode) {
                     mIsDefaultTtlReceived = true;
@@ -810,7 +822,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     updateNode(node);
                     mMeshMessageLiveData.postValue(status);
                 }
-            } else if (meshMessage instanceof ConfigNetworkTransmitStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_NETWORK_TRANSMIT_STATUS) {
                 if (mSetupProvisionedNode) {
                     mIsNetworkRetransmitSetCompleted = true;
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.NETWORK_TRANSMIT_STATUS_RECEIVED);
@@ -831,7 +843,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
                     mMeshMessageLiveData.postValue(status);
                 }
-            } else if (meshMessage instanceof ConfigAppKeyStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_APPKEY_STATUS) {
                 final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
                 if (mSetupProvisionedNode) {
                     mSetupProvisionedNode = false;
@@ -844,7 +856,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     updateNode(node);
                     mMeshMessageLiveData.postValue(status);
                 }
-            } else if (meshMessage instanceof ConfigModelAppStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_MODEL_APP_STATUS) {
                 if (updateNode(node)) {
                     final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;
                     final Element element = node.getElements().get(status.getElementAddress());
@@ -854,7 +866,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         mSelectedModel.postValue(model);
                     }
                 }
-            } else if (meshMessage instanceof ConfigModelPublicationStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_MODEL_PUBLICATION_STATUS) {
                 if (updateNode(node)) {
                     final ConfigModelPublicationStatus status = (ConfigModelPublicationStatus) meshMessage;
                     if (node.getElements().containsKey(status.getElementAddress())) {
@@ -865,7 +877,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     }
                 }
 
-            } else if (meshMessage instanceof ConfigModelSubscriptionStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_MODEL_SUBSCRIPTION_STATUS) {
                 if (updateNode(node)) {
                     final ConfigModelSubscriptionStatus status = (ConfigModelSubscriptionStatus) meshMessage;
                     if (node.getElements().containsKey(status.getElementAddress())) {
@@ -876,34 +888,38 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     }
                 }
 
-            } else if (meshMessage instanceof ConfigNodeResetStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_NODE_RESET_STATUS) {
                 mBleMeshManager.setClearCacheRequired();
                 final ConfigNodeResetStatus status = (ConfigNodeResetStatus) meshMessage;
                 mExtendedMeshNode.postValue(null);
                 loadNodes();
                 mMeshMessageLiveData.postValue(status);
 
-            } else if (meshMessage instanceof ConfigRelayStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_RELAY_STATUS) {
                 if (updateNode(node)) {
                     final ConfigRelayStatus status = (ConfigRelayStatus) meshMessage;
                     mMeshMessageLiveData.postValue(status);
                 }
-            } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
-                if (updateNode(node)) {
-                    mMeshMessageLiveData.postValue(meshMessage);
-                }
-            } else if (meshMessage instanceof ConfigHeartbeatSubscriptionStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_HEARTBEAT_PUBLICATION_STATUS) {
                 if (updateNode(node)) {
                     final Element element = node.getElements().get(meshMessage.getSrc());
                     final MeshModel model = element.getMeshModels().get((int) SigModelParser.CONFIGURATION_SERVER);
+                    mSelectedModel.postValue(model);
                     mMeshMessageLiveData.postValue(meshMessage);
                 }
-            } else if (meshMessage instanceof ConfigProxyStatus) {
+            } else if (meshMessage.getOpCode() == CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS) {
+                if (updateNode(node)) {
+                    final Element element = node.getElements().get(meshMessage.getSrc());
+                    final MeshModel model = element.getMeshModels().get((int) SigModelParser.CONFIGURATION_SERVER);
+                    mSelectedModel.postValue(model);
+                    mMeshMessageLiveData.postValue(meshMessage);
+                }
+            } else if (meshMessage.getOpCode() == CONFIG_GATT_PROXY_STATUS) {
                 if (updateNode(node)) {
                     final ConfigProxyStatus status = (ConfigProxyStatus) meshMessage;
                     mMeshMessageLiveData.postValue(status);
                 }
-            } else if (meshMessage instanceof GenericOnOffStatus) {
+            } else if (meshMessage.getOpCode() == GENERIC_ON_OFF_STATUS) {
                 if (updateNode(node)) {
                     final GenericOnOffStatus status = (GenericOnOffStatus) meshMessage;
                     if (node.getElements().containsKey(status.getSrcAddress())) {
@@ -913,7 +929,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         mSelectedModel.postValue(model);
                     }
                 }
-            } else if (meshMessage instanceof GenericLevelStatus) {
+            } else if (meshMessage.getOpCode() == GENERIC_LEVEL_STATUS) {
 
                 if (updateNode(node)) {
                     final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
@@ -921,6 +937,17 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         final Element element = node.getElements().get(status.getSrcAddress());
                         mSelectedElement.postValue(element);
                         final MeshModel model = element.getMeshModels().get((int) SigModelParser.GENERIC_LEVEL_SERVER);
+                        mSelectedModel.postValue(model);
+                    }
+                }
+
+            } else if (meshMessage.getOpCode() == SCENE_REGISTER_STATUS) {
+                if (updateNode(node)) {
+                    final SceneRegisterStatus status = (SceneRegisterStatus) meshMessage;
+                    if (node.getElements().containsKey(status.getSrcAddress())) {
+                        final Element element = node.getElements().get(status.getSrcAddress());
+                        mSelectedElement.postValue(element);
+                        final MeshModel model = element.getMeshModels().get((int) SigModelParser.SCENE_SETUP_SERVER);
                         mSelectedModel.postValue(model);
                     }
                 }

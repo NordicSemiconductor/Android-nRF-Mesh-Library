@@ -95,6 +95,8 @@ public class Utils {
     public static final int ADD_APP_KEY = 3;
     public static final int BIND_APP_KEY = 4;
     public static final int PUBLICATION_APP_KEY = 5;
+    public static final int STORE_SCENE = 6;
+    public static final int SELECT_SCENE = 6;
 
     // Heartbeat publication key
     public static final int HEARTBEAT_SETTINGS_SET = 2022;

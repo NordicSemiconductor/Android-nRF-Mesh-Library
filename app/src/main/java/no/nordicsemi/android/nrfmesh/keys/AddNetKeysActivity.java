@@ -42,9 +42,18 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
     private AddedNetKeyAdapter adapter;
 
     @Override
+    protected void updateClickableViews() {
+
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+
+    }
+
+    @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_added_net_keys);
         mEmptyView = findViewById(R.id.empty_net_keys);
         adapter = new AddedNetKeyAdapter(this,

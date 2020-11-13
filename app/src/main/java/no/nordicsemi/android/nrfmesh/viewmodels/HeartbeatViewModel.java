@@ -37,7 +37,7 @@ import no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity;
 public class HeartbeatViewModel extends BaseViewModel {
 
     private Queue<MeshMessage> messageQueue = new LinkedList<>();
-    
+
     @Inject
     HeartbeatViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
@@ -48,14 +48,5 @@ public class HeartbeatViewModel extends BaseViewModel {
         super.onCleared();
         mNrfMeshRepository.clearTransactionStatus();
         messageQueue.clear();
-    }
-
-    public Queue<MeshMessage> getMessageQueue() {
-        return messageQueue;
-    }
-
-    public void removeMessage() {
-        if (!messageQueue.isEmpty())
-            messageQueue.remove();
     }
 }

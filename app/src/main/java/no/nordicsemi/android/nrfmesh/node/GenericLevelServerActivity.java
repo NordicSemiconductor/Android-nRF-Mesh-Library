@@ -143,6 +143,14 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
                     sendGenericLevel(genericLevel, delay);
                 }
             });
+
+            mViewModel.getSelectedModel().observe(this, meshModel -> {
+                if (meshModel != null) {
+                    updateAppStatusUi(meshModel);
+                    updatePublicationUi(meshModel);
+                    updateSubscriptionUi(meshModel);
+                }
+            });
         }
     }
 
@@ -197,7 +205,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericLevelGet() {
-        if (!checkConnectivity()) return;
+        if (!checkConnectivity(mContainer)) return;
         final Element element = mViewModel.getSelectedElement().getValue();
         if (element != null) {
             final MeshModel model = mViewModel.getSelectedModel().getValue();
@@ -224,7 +232,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
-        if (!checkConnectivity()) return;
+        if (!checkConnectivity(mContainer)) return;
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Element element = mViewModel.getSelectedElement().getValue();

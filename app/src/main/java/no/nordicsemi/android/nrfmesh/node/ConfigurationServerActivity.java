@@ -142,7 +142,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                     relayCardView.setVisibility(VISIBLE);
 
                     mActionSetRelayState.setOnClickListener(v -> {
-                        if (!checkConnectivity()) return;
+                        if (!checkConnectivity(mContainer)) return;
                         final RelaySettings relaySettings = meshNode.getRelaySettings();
                         if (relaySettings != null) {
                             mRelayRetransmitCount = meshNode.getRelaySettings().getRelayTransmitCount();
@@ -185,7 +185,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
             mSetNetworkTransmitStateButton = nodeControlsContainer.findViewById(R.id.action_network_transmit_configure);
             mSetNetworkTransmitStateButton.setOnClickListener(v -> {
-                if (!checkConnectivity()) return;
+                if (!checkConnectivity(mContainer)) return;
                 if (meshNode != null && meshNode.getNetworkTransmitSettings() != null) {
                     mNetworkTransmitCount = meshNode.getNetworkTransmitSettings().getNetworkTransmitCount();
                     mNetworkTransmitIntervalSteps = meshNode.getNetworkTransmitSettings().getNetworkIntervalSteps();
@@ -216,7 +216,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     @Override
     public void onRefresh() {
         final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (!checkConnectivity() || model == null) {
+        if (!checkConnectivity(mContainer) || model == null) {
             mSwipe.setRefreshing(false);
         }
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();

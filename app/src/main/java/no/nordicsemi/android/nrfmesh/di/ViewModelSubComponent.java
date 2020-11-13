@@ -27,6 +27,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.AddAppKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddNetKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddProvisionerViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddedScenesViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditAppKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
@@ -105,4 +106,6 @@ public interface ViewModelSubComponent {
     ReconnectViewModel reconnectViewModule();
 
     ScenesViewModel scenesViewModel();
+
+    AddedScenesViewModel addScenesViewModel();
 }
