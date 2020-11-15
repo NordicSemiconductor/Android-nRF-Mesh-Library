@@ -56,6 +56,7 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.mesh.transport.SceneRegisterStatus;
+import no.nordicsemi.android.mesh.transport.SceneStatus;
 import no.nordicsemi.android.mesh.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
@@ -73,6 +74,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.GENERIC_LEVEL_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SCENE_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_APPKEY_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_COMPOSITION_DATA_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_DEFAULT_TTL_STATUS;
@@ -930,7 +932,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     }
                 }
             } else if (meshMessage.getOpCode() == GENERIC_LEVEL_STATUS) {
-
                 if (updateNode(node)) {
                     final GenericLevelStatus status = (GenericLevelStatus) meshMessage;
                     if (node.getElements().containsKey(status.getSrcAddress())) {
@@ -940,18 +941,22 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                         mSelectedModel.postValue(model);
                     }
                 }
-
+            } else if (meshMessage.getOpCode() == SCENE_STATUS) {
+                if (updateNode(node)) {
+                    final SceneStatus status = (SceneStatus) meshMessage;
+                    if (node.getElements().containsKey(status.getSrcAddress())) {
+                        final Element element = node.getElements().get(status.getSrcAddress());
+                        mSelectedElement.postValue(element);
+                    }
+                }
             } else if (meshMessage.getOpCode() == SCENE_REGISTER_STATUS) {
                 if (updateNode(node)) {
                     final SceneRegisterStatus status = (SceneRegisterStatus) meshMessage;
                     if (node.getElements().containsKey(status.getSrcAddress())) {
                         final Element element = node.getElements().get(status.getSrcAddress());
                         mSelectedElement.postValue(element);
-                        final MeshModel model = element.getMeshModels().get((int) SigModelParser.SCENE_SETUP_SERVER);
-                        mSelectedModel.postValue(model);
                     }
                 }
-
             } else if (meshMessage instanceof VendorModelMessageStatus) {
 
                 if (updateNode(node)) {

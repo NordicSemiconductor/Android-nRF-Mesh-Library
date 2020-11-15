@@ -27,7 +27,7 @@ public class SceneStoreUnacknowledged extends GenericMessage {
      * Constructs SceneStoreUnacknowledged message.
      *
      * @param appKey      {@link ApplicationKey} for this message
-     * @param sceneNumber scene number of SceneStoreUnacknowledged message
+     * @param sceneNumber Scene number of SceneStoreUnacknowledged message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public SceneStoreUnacknowledged(@NonNull final ApplicationKey appKey,
@@ -47,7 +47,7 @@ public class SceneStoreUnacknowledged extends GenericMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "State Number: " + mSceneNumber);
+        Log.v(TAG, "Scenes Number: " + mSceneNumber);
         paramsBuffer = ByteBuffer.allocate(SCENE_STORE_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.putShort((short) mSceneNumber);
         mParameters = paramsBuffer.array();

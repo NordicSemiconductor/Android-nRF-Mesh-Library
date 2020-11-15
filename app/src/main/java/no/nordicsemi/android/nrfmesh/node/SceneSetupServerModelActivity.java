@@ -17,6 +17,7 @@ import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
+import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.SceneDelete;
 import no.nordicsemi.android.mesh.transport.SceneStore;
 import no.nordicsemi.android.nrfmesh.R;
@@ -35,8 +36,6 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.STORE_SCENE;
 public class SceneSetupServerModelActivity extends SceneServerModelActivity
         implements ItemTouchHelperAdapter {
 
-    private static final String TAG = SceneSetupServerModelActivity.class.getSimpleName();
-
     private RecyclerView mRecyclerViewScenes;
     private Button mActionStoreScene;
     private MaterialTextView noScenesAvailable;
@@ -44,13 +43,14 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null && model.getModelId() == SigModelParser.SCENE_SETUP_SERVER) {
             mSwipe.setOnRefreshListener(this);
             mContainerPublication.setVisibility(GONE);
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
             final View layoutSceneServer = LayoutInflater.from(this).inflate(R.layout.layout_scene_setup_server, container);
             mRecyclerViewScenes = layoutSceneServer.findViewById(R.id.recycler_view_scenes);
-            noScenesAvailable = layoutSceneServer.findViewById(R.id.no_scenes_available);
+            noScenesAvailable = layoutSceneServer.findViewById(R.id.no_current_scene_available);
             mActionStoreScene = layoutSceneServer.findViewById(R.id.action_store);
 
             mRecyclerViewScenes.setLayoutManager(new LinearLayoutManager(this));
@@ -58,16 +58,12 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
             final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
             final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
             itemTouchHelper.attachToRecyclerView(mRecyclerViewScenes);
-            mRecyclerViewScenes.setAdapter(mScenesAdapter = new StoredScenesAdapter(this,
-                    mViewModel.getSelectedModel(), mViewModel.getNetworkLiveData()));
+            mRecyclerViewScenes.setAdapter(mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
 
             mActionStoreScene.setOnClickListener(v -> startActivityForResult(new Intent(this, ScenesActivity.class).putExtra(EXTRA_DATA, SELECT_SCENE), STORE_SCENE));
-            mViewModel.getSelectedModel().observe(this, model -> {
-                if (model != null) {
-                    updateAppStatusUi(model);
-                    updatePublicationUi(model);
-                    updateSubscriptionUi(model);
-                    updateScenesUi();
+            mViewModel.getSelectedModel().observe(this, meshModel -> {
+                if (meshModel != null) {
+                    updateUi(meshModel);
                 }
             });
         }
@@ -119,7 +115,7 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     }
 
     private void sendSceneStore(final Scene scene) {
-        final ApplicationKey key = getApplicationKey();
+        final ApplicationKey key = getDefaultApplicationKey();
         if (key != null) {
             final SceneStore sceneStore = new SceneStore(key, scene.getNumber());
             sendMessage(sceneStore);
@@ -127,28 +123,28 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     }
 
     private void sendSceneDelete(final Scene scene) {
-        final ApplicationKey key = getApplicationKey();
+        final ApplicationKey key = getDefaultApplicationKey();
         if (key != null) {
             final SceneDelete sceneStore = new SceneDelete(key, scene.getNumber());
             sendMessage(sceneStore);
         }
     }
 
-    private ApplicationKey getApplicationKey() {
-        if (meshModel != null && !model.getBoundAppKeyIndexes().isEmpty()) {
-            return mViewModel.getNetworkLiveData().getAppKeys().get(model.getBoundAppKeyIndexes().get(0));
-        }
-        return null;
+    protected void updateUi(final MeshModel model) {
+        super.updateUi(model);
+        updateScenesUi(model);
     }
 
     @Override
-    protected void updateScenesUi() {
-        if (mScenesAdapter.getItemCount() == 0) {
-            mRecyclerViewScenes.setVisibility(GONE);
-            noScenesAvailable.setVisibility(VISIBLE);
-        } else {
-            mRecyclerViewScenes.setVisibility(VISIBLE);
-            noScenesAvailable.setVisibility(GONE);
+    protected void updateScenesUi(final MeshModel model) {
+        if (mScenesAdapter != null) {
+            if (mScenesAdapter.getItemCount() == 0) {
+                mRecyclerViewScenes.setVisibility(GONE);
+                noScenesAvailable.setVisibility(VISIBLE);
+            } else {
+                mRecyclerViewScenes.setVisibility(VISIBLE);
+                noScenesAvailable.setVisibility(GONE);
+            }
         }
     }
 }

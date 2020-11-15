@@ -50,7 +50,7 @@
             </androidx.core.widget.NestedScrollView>
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/no_scenes_available"
+                android:id="@+id/no_current_scene_available"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -73,7 +73,7 @@
                 android:layout_height="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/no_scenes_available" />
+                app:layout_constraintTop_toBottomOf="@id/no_current_scene_available" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_store"

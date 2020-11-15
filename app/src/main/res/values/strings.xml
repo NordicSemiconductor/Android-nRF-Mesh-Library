@@ -611,4 +611,12 @@
     <string name="hint_delete_scene">Hint: Swipe to delete scene.</string>
     <string name="title_select_scene">Select Scene</string>
     <string name="no_scenes_stored">No scenes stored.</string>
+    <string name="no_scenes_stored_rationale">No scenes stored, store a scene via the Scene Setup Server.</string>
+    <string name="title_current_Scene">Current Scene</string>
+    <string name="action_get">GET</string>
+    <string name="action_read">READ</string>
+    <string name="title_recall_scene">Recall Scene</string>
+    <string name="hint_current_scene">Hint: Read to get current scene.</string>
+    <string name="custom_transition_time_and_delay">Custom Transition Time and Delay</string>
+    <string name="action_recall">Recall</string>
 </resources>

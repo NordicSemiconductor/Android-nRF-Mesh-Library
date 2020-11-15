@@ -13,7 +13,7 @@ import java.util.UUID;
 
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
-import no.nordicsemi.android.mesh.models.SceneSetupServer;
+import no.nordicsemi.android.mesh.models.SceneServer;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
@@ -191,7 +191,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             }
         }
 
-        if (meshModel instanceof SceneSetupServer) {
+        if (meshModel instanceof SceneServer) {
             if (jsonObject.has("sceneNumbers")) {
                 final JsonArray scenesArray = jsonObject.get("sceneNumbers").getAsJsonArray();
                 for (JsonElement element : scenesArray) {

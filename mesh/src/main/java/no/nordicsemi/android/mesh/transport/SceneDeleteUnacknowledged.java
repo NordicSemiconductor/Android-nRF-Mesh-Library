@@ -21,7 +21,7 @@ public class SceneDeleteUnacknowledged extends GenericMessage {
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_DELETE_UNACKNOWLEDGED;
     private static final int SCENE_DELETE_PARAMS_LENGTH = 2;
 
-    private int mSceneNumber;
+    private int sceneNumber;
 
     /**
      * Constructs SceneDeleteUnacknowledged message.
@@ -34,7 +34,7 @@ public class SceneDeleteUnacknowledged extends GenericMessage {
                                      final int sceneNumber) {
         super(appKey);
         if (isValidSceneNumber(sceneNumber))
-            this.mSceneNumber = sceneNumber;
+            this.sceneNumber = sceneNumber;
         assembleMessageParameters();
     }
 
@@ -47,9 +47,13 @@ public class SceneDeleteUnacknowledged extends GenericMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Scene Number: " + mSceneNumber);
+        Log.v(TAG, "Scene Number: " + sceneNumber);
         paramsBuffer = ByteBuffer.allocate(SCENE_DELETE_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.putShort((short) mSceneNumber);
+        paramsBuffer.putShort((short) sceneNumber);
         mParameters = paramsBuffer.array();
+    }
+
+    public int getSceneNumber() {
+        return sceneNumber;
     }
 }

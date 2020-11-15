@@ -38,7 +38,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
 @SuppressWarnings({"WeakerAccess"})
-public final class SceneRegisterStatus extends GenericStatusMessage implements Parcelable {
+public final class SceneRegisterStatus extends GenericStatusMessage implements Parcelable, SceneStatuses {
     private static final int SCENE_REGISTER_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneRegisterStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_REGISTER_STATUS;
@@ -101,20 +101,6 @@ public final class SceneRegisterStatus extends GenericStatusMessage implements P
      */
     public final int getStatus() {
         return mStatus;
-    }
-
-    public final String getStatusMessage() {
-        switch (mStatus) {
-            case 0x00:
-                return "Success.";
-            case 0x01:
-                return "Scene Register Full.";
-            case 0x02:
-                return "Scene Not Found.";
-            default:
-                return "Reserved for Future Use";
-
-        }
     }
 
     public boolean isSuccessful() {

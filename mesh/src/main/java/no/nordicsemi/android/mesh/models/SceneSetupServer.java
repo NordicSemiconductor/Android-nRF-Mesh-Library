@@ -25,7 +25,7 @@ package no.nordicsemi.android.mesh.models;
 import android.os.Parcel;
 
 @SuppressWarnings("WeakerAccess")
-public class SceneSetupServer extends SceneServer {
+public class SceneSetupServer extends SigModel {
 
     public static final Creator<SceneSetupServer> CREATOR = new Creator<SceneSetupServer>() {
         @Override

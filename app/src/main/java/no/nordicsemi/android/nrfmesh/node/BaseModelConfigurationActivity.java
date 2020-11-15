@@ -159,7 +159,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
         init();
         ButterKnife.bind(this);
-
+        final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
         final String modelName = meshModel.getModelName();
 
         // Set up views

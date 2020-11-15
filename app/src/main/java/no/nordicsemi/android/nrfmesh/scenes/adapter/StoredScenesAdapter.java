@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.elevation.ElevationOverlayProvider;
 
 import java.util.ArrayList;
@@ -44,31 +45,39 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Scene;
-import no.nordicsemi.android.mesh.models.SceneSetupServer;
-import no.nordicsemi.android.mesh.transport.MeshModel;
+import no.nordicsemi.android.mesh.models.SceneServer;
+import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
+
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
 
 public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapter.ViewHolder> {
 
     private final List<Scene> scenes = new ArrayList<>();
     private OnItemListener mOnItemListener;
     private MeshNetwork network;
+    private int currentScene = 0;
 
     /**
      * Constructs an adapter with the scenes added to a given node
      *
-     * @param owner             Lifecycle owner
-     * @param meshModelLiveData LiveData mesh model
-     * @param networkLiveData   Network live data
+     * @param owner           Lifecycle owner
+     * @param elementLiveData LiveData element
+     * @param networkLiveData Network live data
      */
     public StoredScenesAdapter(@NonNull final LifecycleOwner owner,
-                               @NonNull final LiveData<MeshModel> meshModelLiveData, final MeshNetworkLiveData networkLiveData) {
+                               @NonNull final LiveData<Element> elementLiveData,
+                               @NonNull final MeshNetworkLiveData networkLiveData) {
         networkLiveData.observe(owner, meshNetworkLiveData -> network = meshNetworkLiveData.getMeshNetwork());
-        meshModelLiveData.observe(owner, meshModel -> {
-            final List<Integer> scenesNumbers = ((SceneSetupServer) meshModel).getScenesNumbers();
+        elementLiveData.observe(owner, element -> {
+            final SceneServer sceneServer = (SceneServer) element.getMeshModels().get((int) SCENE_SERVER);
+            currentScene = sceneServer.getCurrentScene();
+            final List<Integer> scenesNumbers = sceneServer.getScenesNumbers();
             this.scenes.clear();
             for (int sceneNumber : scenesNumbers) {
                 final Scene scene = network.getScene(sceneNumber);
@@ -89,7 +98,7 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
     @NonNull
     @Override
     public StoredScenesAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.checkable_row_item, parent, false);
         return new StoredScenesAdapter.ViewHolder(layoutView);
     }
 
@@ -101,6 +110,13 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
             final String number = "0x" + String.format(Locale.US, "%04X", scene.getNumber());
             holder.sceneNumber.setText(number);
             holder.getSwipeableView().setTag(scene);
+            if (currentScene > 0 && currentScene == scene.getNumber()) {
+                holder.checkBox.setChecked(true);
+                holder.checkBox.setVisibility(VISIBLE);
+            } else {
+                holder.checkBox.setChecked(false);
+                holder.checkBox.setVisibility(INVISIBLE);
+            }
         }
     }
 
@@ -126,12 +142,17 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
         TextView sceneName;
         @BindView(R.id.subtitle)
         TextView sceneNumber;
+        @BindView(R.id.check)
+        MaterialCheckBox checkBox;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
             ((ImageView) view.findViewById(R.id.icon))
                     .setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_baseline_palette_24dp));
+            checkBox.setClickable(false);
+            checkBox.setVisibility(INVISIBLE);
+            checkBox.setButtonDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_done_all_black));
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);

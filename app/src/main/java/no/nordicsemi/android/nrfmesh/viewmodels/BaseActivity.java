@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
-import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
@@ -18,7 +17,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected BaseViewModel mViewModel;
     protected Handler mHandler;
     protected boolean mIsConnected;
-    protected MeshModel meshModel;
 
     protected abstract void updateClickableViews();
 
@@ -84,11 +82,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected final void init() {
         mHandler = new Handler(Looper.getMainLooper());
-        meshModel = mViewModel.getSelectedModel().getValue();
-        if (meshModel == null) {
-            return;
-        }
-        mViewModel.getSelectedModel().observe(this, model -> meshModel = model);
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if (isConnected != null) {
                 mIsConnected = isConnected;

@@ -60,6 +60,8 @@ public abstract class MeshModel implements Parcelable {
     final List<UUID> labelUuids = new ArrayList<>();
     @Expose
     PublicationSettings mPublicationSettings;
+    protected int currentScene;
+    protected int targetScene;
     @Expose
     protected List<Integer> sceneNumbers = new ArrayList<>();
 
@@ -93,7 +95,6 @@ public abstract class MeshModel implements Parcelable {
      * @param flags Additional flags about how the object should be written.
      *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
      */
-    @SuppressWarnings("unused")
     protected final void parcelMeshModel(final Parcel dest, final int flags) {
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);

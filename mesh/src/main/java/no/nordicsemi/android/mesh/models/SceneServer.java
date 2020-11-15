@@ -48,6 +48,7 @@ public class SceneServer extends SigModel {
 
     SceneServer(final Parcel source) {
         super(source);
+        currentScene = source.readInt();
     }
 
     @Override
@@ -63,9 +64,14 @@ public class SceneServer extends SigModel {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         super.parcelMeshModel(dest, flags);
+        dest.writeInt(currentScene);
     }
 
     public List<Integer> getScenesNumbers() {
         return Collections.unmodifiableList(sceneNumbers);
+    }
+
+    public int getCurrentScene() {
+        return currentScene;
     }
 }
