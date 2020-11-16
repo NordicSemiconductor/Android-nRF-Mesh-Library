@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.elevation.ElevationOverlayProvider;
 
 import java.util.ArrayList;
@@ -98,7 +97,7 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
     @NonNull
     @Override
     public StoredScenesAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.checkable_row_item, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
         return new StoredScenesAdapter.ViewHolder(layoutView);
     }
 
@@ -111,11 +110,9 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
             holder.sceneNumber.setText(number);
             holder.getSwipeableView().setTag(scene);
             if (currentScene > 0 && currentScene == scene.getNumber()) {
-                holder.checkBox.setChecked(true);
-                holder.checkBox.setVisibility(VISIBLE);
+                holder.image.setVisibility(VISIBLE);
             } else {
-                holder.checkBox.setChecked(false);
-                holder.checkBox.setVisibility(INVISIBLE);
+                holder.image.setVisibility(INVISIBLE);
             }
         }
     }
@@ -142,17 +139,14 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
         TextView sceneName;
         @BindView(R.id.subtitle)
         TextView sceneNumber;
-        @BindView(R.id.check)
-        MaterialCheckBox checkBox;
+        @BindView(R.id.image)
+        ImageView image;
 
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
             ((ImageView) view.findViewById(R.id.icon))
                     .setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_baseline_palette_24dp));
-            checkBox.setClickable(false);
-            checkBox.setVisibility(INVISIBLE);
-            checkBox.setButtonDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_done_all_black));
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);
