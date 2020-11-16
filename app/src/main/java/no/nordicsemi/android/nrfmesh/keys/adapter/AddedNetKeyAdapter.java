@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,7 +46,6 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
-import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.ViewHolder> {
 
@@ -78,7 +79,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
     @NonNull
     @Override
     public AddedNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item_key, parent, false);
+        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.checkable_row_item, parent, false);
         return new AddedNetKeyAdapter.ViewHolder(layoutView);
     }
 
@@ -88,11 +89,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         holder.keyName.setText(key.getName());
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
-        if (addedNetKeys.contains(key)) {
-            holder.check.setChecked(true);
-        } else {
-            holder.check.setChecked(false);
-        }
+        holder.check.setChecked(addedNetKeys.contains(key));
     }
 
     @Override
@@ -114,8 +111,10 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         void onItemClick(final NetworkKey appKey);
     }
 
-    final class ViewHolder extends RemovableViewHolder {
+    final class ViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.icon)
+        ImageView icon;
         @BindView(R.id.title)
         TextView keyName;
         @BindView(R.id.subtitle)
@@ -126,6 +125,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
             check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     check.setChecked(!check.isChecked());

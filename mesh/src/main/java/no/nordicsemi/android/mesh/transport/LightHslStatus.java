@@ -24,12 +24,12 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -37,7 +37,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class to create generic level status message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public final class LightHslStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = LightHslStatus.class.getSimpleName();
@@ -53,7 +53,6 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
         @Override
         public LightHslStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new LightHslStatus(message);
         }
 
@@ -95,7 +94,7 @@ public final class LightHslStatus extends GenericStatusMessage implements Parcel
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return OP_CODE;
     }
 

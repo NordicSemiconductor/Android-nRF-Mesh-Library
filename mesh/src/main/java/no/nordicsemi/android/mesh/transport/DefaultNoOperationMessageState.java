@@ -14,6 +14,7 @@ import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.models.SceneServer;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
@@ -26,6 +27,7 @@ import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 
 import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
 
 class DefaultNoOperationMessageState extends MeshMessageState {
 
@@ -93,18 +95,23 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_STATUS) {
                     final SceneStatus sceneStatus = new SceneStatus(message);
+                    if (sceneStatus.isSuccessful()) {
+                        final MeshModel model = getMeshModel(node, sceneStatus.getSrc(), SCENE_SERVER);
+                        if (model != null) {
+                            final SceneServer sceneServer = ((SceneServer) model);
+                            sceneServer.currentScene = sceneStatus.getCurrentScene();
+                            sceneServer.targetScene = sceneStatus.getTargetScene();
+                        }
+                    }
                     mInternalTransportCallbacks.updateMeshNetwork(sceneStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), sceneStatus);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_HEARTBEAT_PUBLICATION_STATUS) {
                     final ConfigHeartbeatPublicationStatus status = new ConfigHeartbeatPublicationStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getSrc());
-                            if (element != null) {
-                                final ConfigurationServerModel model = (ConfigurationServerModel) element.getMeshModels().get((int) CONFIGURATION_SERVER);
-                                if (model != null) {
-                                    model.setHeartbeatPublication(status.getHeartbeatPublication());
-                                }
+                            final MeshModel model = getMeshModel(node, status.getSrc(), CONFIGURATION_SERVER);
+                            if (model != null) {
+                                ((ConfigurationServerModel) model).setHeartbeatPublication(status.getHeartbeatPublication());
                             }
                         }
                     }
@@ -188,9 +195,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigSigModelAppList appKeyList = new ConfigSigModelAppList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (appKeyList.isSuccessful()) {
-                            final Element element = node.getElements().get(appKeyList.getElementAddress());
-                            if (element != null) {
-                                final MeshModel model = element.getMeshModels().get(appKeyList.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, appKeyList.getSrc(), appKeyList.getModelIdentifier());
+                            if (model != null) {
                                 if (model != null) {
                                     model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
                                 }
@@ -203,9 +209,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigVendorModelAppList appKeyList = new ConfigVendorModelAppList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (appKeyList.isSuccessful()) {
-                            final Element element = node.getElements().get(appKeyList.getElementAddress());
-                            if (element != null) {
-                                final MeshModel model = element.getMeshModels().get(appKeyList.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, appKeyList.getSrc(), appKeyList.getModelIdentifier());
+                            if (model != null) {
                                 if (model != null) {
                                     model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
                                 }
@@ -218,9 +223,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigModelPublicationStatus status = new ConfigModelPublicationStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getElementAddress());
-                            if (element != null) {
-                                final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            if (model != null) {
                                 if (model != null) {
                                     if (mMeshMessage instanceof ConfigModelPublicationGet) {
                                         model.updatePublicationStatus(status);
@@ -241,28 +245,25 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigModelSubscriptionStatus status = new ConfigModelSubscriptionStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getElementAddress());
-                            if (element != null) {
-                                final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                                if (model != null) {
-                                    if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
-                                        model.addSubscriptionAddress(status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressAdd) {
-                                        model.addSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressAdd) mMeshMessage).
-                                                getLabelUuid(), status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionOverwrite) {
-                                        model.overwriteSubscriptionAddress(status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressOverwrite) {
-                                        model.overwriteSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressOverwrite) mMeshMessage).
-                                                getLabelUuid(), status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
-                                        model.removeSubscriptionAddress(status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
-                                        model.removeSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
-                                                getLabelUuid(), status.getSubscriptionAddress());
-                                    } else if (mMeshMessage instanceof ConfigModelSubscriptionDeleteAll) {
-                                        model.removeAllSubscriptionAddresses();
-                                    }
+                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            if (model != null) {
+                                if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
+                                    model.addSubscriptionAddress(status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressAdd) {
+                                    model.addSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressAdd) mMeshMessage).
+                                            getLabelUuid(), status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionOverwrite) {
+                                    model.overwriteSubscriptionAddress(status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressOverwrite) {
+                                    model.overwriteSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressOverwrite) mMeshMessage).
+                                            getLabelUuid(), status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionDelete) {
+                                    model.removeSubscriptionAddress(status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionVirtualAddressDelete) {
+                                    model.removeSubscriptionAddress(((ConfigModelSubscriptionVirtualAddressDelete) mMeshMessage).
+                                            getLabelUuid(), status.getSubscriptionAddress());
+                                } else if (mMeshMessage instanceof ConfigModelSubscriptionDeleteAll) {
+                                    model.removeAllSubscriptionAddresses();
                                 }
                             }
                         }
@@ -273,12 +274,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigSigModelSubscriptionList status = new ConfigSigModelSubscriptionList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getElementAddress());
-                            if (element != null) {
-                                final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                                if (model != null) {
-                                    model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
-                                }
+                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            if (model != null) {
+                                model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                             }
                             createGroups(status.getSubscriptionAddresses());
                         }
@@ -289,12 +287,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigVendorModelSubscriptionList status = new ConfigVendorModelSubscriptionList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getElementAddress());
-                            if (element != null) {
-                                final MeshModel model = element.getMeshModels().get(status.getModelIdentifier());
-                                if (model != null) {
-                                    model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
-                                }
+                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            if (model != null) {
+                                model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                             }
                             createGroups(status.getSubscriptionAddresses());
                         }
@@ -305,12 +300,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigHeartbeatSubscriptionStatus status = new ConfigHeartbeatSubscriptionStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final Element element = node.getElements().get(status.getSrc());
-                            if (element != null) {
-                                final ConfigurationServerModel model = (ConfigurationServerModel) element.getMeshModels().get((int) CONFIGURATION_SERVER);
-                                if (model != null) {
-                                    model.setHeartbeatSubscription(status.getHeartbeatSubscription());
-                                }
+                            final MeshModel model = getMeshModel(node, message.getSrc(), CONFIGURATION_SERVER);
+                            if (model != null) {
+                                ((ConfigurationServerModel) model).setHeartbeatSubscription(status.getHeartbeatSubscription());
                             }
                         }
                     }
@@ -363,10 +355,23 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightHslStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
-                    final SceneRegisterStatus registerStatus = new SceneRegisterStatus(message);
-                    registerStatus.parseStatusParameters();
-                    mInternalTransportCallbacks.updateMeshNetwork(registerStatus);
-                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), registerStatus);
+                    if (mMeshMessage instanceof SceneStore) {
+                        final SceneRegisterStatus status = new SceneRegisterStatus(message);
+                        storeScene(node, status);
+                        mInternalTransportCallbacks.updateMeshNetwork(status);
+                        mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                    } else if (mMeshMessage instanceof SceneRecall) {
+                        final SceneStatus status = new SceneStatus(message);
+                        storeScene(node, status);
+                        mInternalTransportCallbacks.updateMeshNetwork(status);
+                        mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                    } else if (mMeshMessage instanceof SceneDelete) {
+                        final SceneRegisterStatus status = new SceneRegisterStatus(message);
+                        deleteScene(node, status);
+                        mInternalTransportCallbacks.updateMeshNetwork(status);
+                        mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                    }
+
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -451,7 +456,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
      * @param currentFilter Proxy filter that is currently set on this node
      * @param filterType    Type of {@link ProxyFilterType} that was received by the status message
      */
-    private ProxyFilter updateProxyFilter(final ProxyFilter currentFilter, final ProxyFilterType filterType) {
+    private ProxyFilter updateProxyFilter(final ProxyFilter currentFilter,
+                                          final ProxyFilterType filterType) {
         if (currentFilter != null && currentFilter.getFilterType().getType() == filterType.getType()) {
             return currentFilter;
         } else {
@@ -490,6 +496,48 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 group = new Group(groupAddress, network.getMeshUUID());
                 group.setName("Unknown Group");
                 network.getGroups().add(group);
+            }
+        }
+    }
+
+    private MeshModel getMeshModel(final ProvisionedMeshNode node, final int src, final int modelId) {
+        final Element element = node.getElements().get(src);
+        if (element != null) {
+            return element.getMeshModels().get(modelId);
+        }
+        return null;
+    }
+
+    private void storeScene(final ProvisionedMeshNode node, final SceneRegisterStatus status) {
+        if (status.isSuccessful()) {
+            final SceneServer sceneServer = (SceneServer) getMeshModel(node, status.getSrc(), SCENE_SERVER);
+            if (sceneServer != null) {
+                mInternalTransportCallbacks.storeScene(status.getSrc(), status.getCurrentScene(), status.getSceneList());
+                if (!sceneServer.sceneNumbers.contains(status.getCurrentScene())) {
+                    sceneServer.sceneNumbers.add(status.getCurrentScene());
+                }
+                sceneServer.currentScene = status.getCurrentScene();
+            }
+        }
+    }
+
+    private void storeScene(final ProvisionedMeshNode node, final SceneStatus status) {
+        if (status.isSuccessful()) {
+            final SceneServer sceneServer = (SceneServer) getMeshModel(node, status.getSrc(), SCENE_SERVER);
+            if (sceneServer != null) {
+                sceneServer.currentScene = status.getCurrentScene();
+            }
+        }
+    }
+
+    private void deleteScene(final ProvisionedMeshNode node, final SceneRegisterStatus status) {
+        if (status.isSuccessful()) {
+            final SceneServer sceneServer = (SceneServer) getMeshModel(node, status.getSrc(), SCENE_SERVER);
+            if (sceneServer != null) {
+                final int deletedScene = ((SceneDelete) mMeshMessage).getSceneNumber();
+                mInternalTransportCallbacks.deleteScene(status.getSrc(), deletedScene, status.getSceneList());
+                if (sceneServer.sceneNumbers.contains(deletedScene))
+                    sceneServer.sceneNumbers.remove((Integer) deletedScene);
             }
         }
     }

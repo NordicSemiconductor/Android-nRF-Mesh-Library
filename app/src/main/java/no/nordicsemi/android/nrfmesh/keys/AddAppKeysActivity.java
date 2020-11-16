@@ -48,9 +48,18 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
     private AddedAppKeyAdapter adapter;
 
     @Override
+    protected void updateClickableViews() {
+
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+
+    }
+
+    @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_added_app_keys);
         mEmptyView = findViewById(R.id.empty_app_keys);
         adapter = new AddedAppKeyAdapter(this,

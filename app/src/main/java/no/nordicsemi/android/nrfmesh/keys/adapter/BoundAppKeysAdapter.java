@@ -25,6 +25,7 @@ package no.nordicsemi.android.nrfmesh.keys.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.elevation.ElevationOverlayProvider;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
@@ -122,6 +124,8 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
         private ViewHolder(final View view) {
             super(view);
             ButterKnife.bind(this, view);
+            final ImageView image = view.findViewById(R.id.icon);
+            image.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);

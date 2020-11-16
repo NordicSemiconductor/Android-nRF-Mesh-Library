@@ -12,11 +12,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModelProvider;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.GenericOnOffServerModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -33,9 +30,6 @@ import no.nordicsemi.android.nrfmesh.R;
 public class GenericOnOffServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     private TextView onOffState;
     private TextView remainingTime;
@@ -70,11 +64,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
             mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on);
             mActionOnOff.setOnClickListener(v -> {
                 try {
-                    if (mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on))) {
-                        sendGenericOnOff(true, (int) delaySlider.getValue());
-                    } else {
-                        sendGenericOnOff(false, (int) delaySlider.getValue());
-                    }
+                    sendGenericOnOff(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on)), (int) delaySlider.getValue());
                 } catch (IllegalArgumentException ex) {
                     mViewModel.displaySnackBar(this, mContainer, ex.getMessage(), Snackbar.LENGTH_LONG);
                 }
@@ -128,6 +118,14 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
                 }
             });
             delaySlider.addOnChangeListener((slider, value, fromUser) -> delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
+
+            mViewModel.getSelectedModel().observe(this, meshModel -> {
+                if (meshModel != null) {
+                    updateAppStatusUi(meshModel);
+                    updatePublicationUi(meshModel);
+                    updateSubscriptionUi(meshModel);
+                }
+            });
         }
     }
 
@@ -184,12 +182,11 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
         hideProgressBar();
     }
 
-
     /**
      * Send generic on off get to mesh node
      */
     public void sendGenericOnOffGet() {
-        if (!checkConnectivity()) return;
+        if (!checkConnectivity(mContainer)) return;
         final Element element = mViewModel.getSelectedElement().getValue();
         if (element != null) {
             final MeshModel model = mViewModel.getSelectedModel().getValue();
@@ -217,7 +214,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericOnOff(final boolean state, final Integer delay) {
-        if (!checkConnectivity()) return;
+        if (!checkConnectivity(mContainer)) return;
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Element element = mViewModel.getSelectedElement().getValue();

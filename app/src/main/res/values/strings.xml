@@ -595,4 +595,28 @@
     <string name="info">Info</string>
     <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
         without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
+
+
+    <string name="title_stored_scenes">Stored Scenes</string>
+    <string name="no_scenes_title">No scenes available</string>
+    <string name="action_add_scene">Add Scene</string>
+    <string name="title_manage_scenes">Manage Scenes</string>
+    <string name="scene_deleted">Scene deleted!</string>
+    <string name="add_scene">Add Scene</string>
+    <string name="store_scene">Store Scene</string>
+    <string name="edit_scene">Edit Scene</string>
+    <string name="number">Number</string>
+    <string name="scene_number_rationale">Valid range 0x0001–0xFFFF</string>
+    <string name="invalid_scene_number">Invalid value, valid range 0x0000–0xFFFF</string>
+    <string name="hint_delete_scene">Hint: Swipe to delete scene.</string>
+    <string name="title_select_scene">Select Scene</string>
+    <string name="no_scenes_stored">No scenes stored.</string>
+    <string name="no_scenes_stored_rationale">No scenes stored, store a scene via the Scene Setup Server.</string>
+    <string name="title_current_Scene">Current Scene</string>
+    <string name="action_get">GET</string>
+    <string name="action_read">READ</string>
+    <string name="title_recall_scene">Recall Scene</string>
+    <string name="hint_current_scene">Hint: Click on a scene to recall.</string>
+    <string name="custom_transition_time_and_delay">Custom Transition Time and Delay</string>
+    <string name="action_recall">Recall</string>
 </resources>

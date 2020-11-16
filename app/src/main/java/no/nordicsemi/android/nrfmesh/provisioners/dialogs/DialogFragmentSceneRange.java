@@ -182,9 +182,8 @@ public class DialogFragmentSceneRange extends DialogFragment {
         try {
 
             final int address = Integer.parseInt(firstScene, 16);
-            if (!Scene.isValidScene(address)) {
-                fistSceneInputLayout.setError("first scene value must range from 0x0001 - 0xFFFF");
-                return false;
+            if (Scene.isValidSceneNumber(address)) {
+                return true;
             }
         } catch (IllegalArgumentException ex) {
             fistSceneInputLayout.setError(ex.getMessage());
@@ -197,10 +196,7 @@ public class DialogFragmentSceneRange extends DialogFragment {
         try {
 
             final int address = Integer.parseInt(lastScene, 16);
-            if (!Scene.isValidScene(address)) {
-                lastSceneInputLayout.setError("last scene value must range from 0x0001 - 0xFFFF");
-                return false;
-            }
+            if (Scene.isValidSceneNumber(address)) return true;
         } catch (IllegalArgumentException ex) {
             lastSceneInputLayout.setError(ex.getMessage());
             return false;

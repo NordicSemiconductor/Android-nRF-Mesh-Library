@@ -57,8 +57,7 @@
             android:scaleType="center"
             app:layout_constraintBottom_toBottomOf="@id/subtitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/title"
-            app:srcCompat="@drawable/ic_vpn_key_24dp" />
+            app:layout_constraintTop_toTopOf="@id/title" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title"
@@ -68,12 +67,12 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="Living Room Key"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image"
             app:layout_constraintStart_toEndOf="@id/icon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            tools:text="Title" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/subtitle"
@@ -81,11 +80,22 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="00112233445566778899001122334455"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image"
             app:layout_constraintStart_toStartOf="@id/title"
             app:layout_constraintTop_toBottomOf="@id/title"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            tools:text="Subtitle" />
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/subtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/title"
+            app:srcCompat="@drawable/ic_done_all_nordic_lake"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

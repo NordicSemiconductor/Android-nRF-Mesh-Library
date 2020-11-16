@@ -3,15 +3,13 @@ package no.nordicsemi.android.nrfmesh.node;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.slider.Slider;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -46,6 +43,7 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentPublishAddress;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentPublishTtl;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 import no.nordicsemi.android.nrfmesh.viewmodels.PublicationViewModel;
 
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_100_MS;
@@ -53,14 +51,13 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.USE_DEFAULT_TTL;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.isDefaultPublishTtl;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 
-public class PublicationSettingsActivity extends AppCompatActivity implements Injectable,
+public class PublicationSettingsActivity extends BaseActivity implements Injectable,
         GroupCallbacks, DestinationAddressCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
 
     public static final int SET_PUBLICATION_SETTINGS = 2021;
     private static final int MIN_PUBLICATION_INTERVAL = 0;
     private static final int MAX_PUBLICATION_INTERVAL = 234;
-    @SuppressWarnings("unused")
     private static final int DEFAULT_PUBLICATION_RESOLUTION = RESOLUTION_100_MS;
 
     private PublicationViewModel mViewModel;
@@ -82,7 +79,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     @BindView(R.id.publication_ttl)
     TextView mPublishTtlView;
     @BindView(R.id.friendship_credential_flag)
-    Switch mActionFriendshipCredentialSwitch;
+    SwitchMaterial friendshipCredentials;
     @BindView(R.id.retransmission_slider)
     Slider mRetransmissionCountSlider;
     @BindView(R.id.interval_steps_slider)
@@ -93,8 +90,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
     TextView mPublicationInterval;
     @BindView(R.id.fab_apply)
     ExtendedFloatingActionButton fabApply;
-
-    private boolean mIsConnected;
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -143,7 +138,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             startActivityForResult(bindAppKeysIntent, Utils.SELECT_KEY);
         });
 
-        mActionFriendshipCredentialSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+        friendshipCredentials.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mViewModel.setFriendshipCredentialsFlag(isChecked));
 
         actionPublishTtl.setOnClickListener(v -> {
@@ -199,15 +194,8 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         });
 
         fabApply.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+            if (!checkConnectivity(mContainer)) return;
             setPublication();
-        });
-
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if (isConnected != null) {
-                mIsConnected = isConnected;
-            }
-            invalidateOptionsMenu();
         });
 
         if (savedInstanceState == null) {
@@ -215,33 +203,6 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             mViewModel.setPublicationValues(meshModel.getPublicationSettings(), meshModel.getBoundAppKeyIndexes());
         }
         updatePublicationValues();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mIsConnected) {
-            getMenuInflater().inflate(R.menu.disconnect, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.connect, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
-        }
     }
 
     @Override
@@ -352,7 +313,7 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
             mAppKeyView.setText(getString(R.string.unavailable));
         }
 
-        mActionFriendshipCredentialSwitch.setChecked(mViewModel.getFriendshipCredentialsFlag());
+        friendshipCredentials.setChecked(mViewModel.getFriendshipCredentialsFlag());
         updatePublishPeriodUi();
 
         mRetransmissionCountSlider.setValue(mViewModel.getRetransmitCount());
@@ -392,12 +353,34 @@ public class PublicationSettingsActivity extends AppCompatActivity implements In
         finish();
     }
 
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, mContainer);
-            return false;
-        }
-        return true;
+    @Override
+    protected void updateClickableViews() {
+        //Do nothing
+    }
+
+    @Override
+    protected void showProgressBar() {
+        //Do nothing
+    }
+
+    @Override
+    protected void hideProgressBar() {
+        //Do nothing
+    }
+
+    @Override
+    protected void enableClickableViews() {
+        //Do nothing
+    }
+
+    @Override
+    protected void disableClickableViews() {
+        //Do nothing
+    }
+
+    @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        //Do nothing
     }
 
     private void updatePublishPeriodUi() {

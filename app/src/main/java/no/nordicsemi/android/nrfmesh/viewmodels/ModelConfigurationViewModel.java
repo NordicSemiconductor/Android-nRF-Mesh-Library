@@ -22,13 +22,9 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
@@ -43,7 +39,6 @@ import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
  */
 public class ModelConfigurationViewModel extends BaseViewModel {
 
-    private Queue<MeshMessage> messageQueue = new LinkedList<>();
 
     @Inject
     ModelConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
@@ -57,20 +52,11 @@ public class ModelConfigurationViewModel extends BaseViewModel {
         messageQueue.clear();
     }
 
-    public Queue<MeshMessage> getMessageQueue() {
-        return messageQueue;
-    }
-
-    public void removeMessage() {
-        if (!messageQueue.isEmpty())
-            messageQueue.remove();
-    }
-
     public boolean isActivityVisible() {
-        return isActivityVisibile;
+        return isActivityVisible;
     }
 
     public void setActivityVisible(final boolean visible) {
-        isActivityVisibile = visible;
+        isActivityVisible = visible;
     }
 }

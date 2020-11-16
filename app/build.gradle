@@ -72,20 +72,20 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     // Butter Knife
-    implementation 'com.jakewharton:butterknife:10.2.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     // Android BLE Library
     implementation 'no.nordicsemi.android:ble:2.1.1'
 
     implementation 'com.google.dagger:dagger:2.29.1'
-    implementation 'com.google.dagger:dagger-android:2.27'
-    implementation 'com.google.dagger:dagger-android-support:2.27'
+    implementation 'com.google.dagger:dagger-android:2.29.1'
+    implementation 'com.google.dagger:dagger-android-support:2.29.1'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.29.1'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.27'
-    implementation 'no.nordicsemi.android:mesh:2.4.3'
-    //implementation project(':mesh')
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.29.1'
+    //implementation 'no.nordicsemi.android:mesh:2.4.3'
+    implementation project(':mesh')
 }
 repositories {
     mavenCentral()

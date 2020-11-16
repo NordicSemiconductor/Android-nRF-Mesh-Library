@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardElevation="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/node_controls_tool_bar"
+                android:layout_width="0dp"
+                android:layout_height="?actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:logo="@drawable/ic_sparkles"
+                app:title="@string/title_stored_scenes"
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/nested_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_scenes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:scrollbars="none"
+                    tools:listitem="@layout/removable_row_item" />
+
+            </androidx.core.widget.NestedScrollView>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/no_current_scene_available"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:paddingBottom="@dimen/item_padding_bottom"
+                android:text="@string/no_scenes_stored"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/div3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/nested_scroll_view"
+                tools:visibility="visible" />
+
+            <include
+                android:id="@+id/div3"
+                layout="@layout/layout_divider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/no_current_scene_available" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_store"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/item_padding_start"
+                android:padding="@dimen/item_padding_end"
+                android:text="@string/store_scene"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div3" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/activity_horizontal_margin"
+                android:text="@string/hint_delete_scene"
+                android:textColor="?android:textColorSecondary"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div3"
+                app:layout_constraintVertical_bias="0.0"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

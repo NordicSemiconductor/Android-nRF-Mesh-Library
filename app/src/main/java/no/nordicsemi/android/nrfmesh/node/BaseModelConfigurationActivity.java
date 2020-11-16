@@ -24,9 +24,6 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -42,7 +39,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -90,19 +86,19 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.adapter.BoundAppKeysAdapter;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.MESSAGE_TIME_OUT;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 
-public abstract class BaseModelConfigurationActivity extends AppCompatActivity implements Injectable,
+public abstract class BaseModelConfigurationActivity extends BaseActivity implements Injectable,
         GroupCallbacks,
         ItemTouchHelperAdapter,
         DialogFragmentDisconnected.DialogFragmentDisconnectedListener, SwipeRefreshLayout.OnRefreshListener {
@@ -146,8 +142,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout mSwipe;
 
-    protected Handler mHandler;
-    protected ModelConfigurationViewModel mViewModel;
     protected List<Integer> mGroupAddress = new ArrayList<>();
     protected List<Integer> mKeyIndexes = new ArrayList<>();
     protected GroupAddressAdapter mSubscriptionAdapter;
@@ -157,24 +151,20 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     protected Button mSetNetworkTransmitStateButton;
 
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
-    protected boolean mIsConnected;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_model_configuration);
-        ButterKnife.bind(this);
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
-        mHandler = new Handler();
-
+        init();
+        ButterKnife.bind(this);
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
-        //noinspection ConstantConditions
         final String modelName = meshModel.getModelName();
 
         // Set up views
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
         final int modelId = meshModel.getModelId();
@@ -201,7 +191,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             if (node != null && !node.isExist(SigModelParser.CONFIGURATION_SERVER)) {
                 return;
             }
-            if (!checkConnectivity()) return;
+            if (!checkConnectivity(mContainer)) return;
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(EXTRA_DATA, BIND_APP_KEY);
             startActivityForResult(bindAppKeysIntent, SELECT_KEY);
@@ -213,19 +203,10 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         mActionClearPublication.setOnClickListener(v -> clearPublication());
 
         mActionSubscribe.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
-            //noinspection ConstantConditions
+            if (!checkConnectivity(mContainer)) return;
             final ArrayList<Group> groups = new ArrayList<>(mViewModel.getGroups().getValue());
             final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
             fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
-        });
-
-        mViewModel.getSelectedModel().observe(this, model -> {
-            if (model != null) {
-                updateAppStatusUi(model);
-                updatePublicationUi(model);
-                updateSubscriptionUi(model);
-            }
         });
 
         mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
@@ -236,56 +217,12 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 fragmentMessage.show(getSupportFragmentManager(), null);
             }
         });
-
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if (isConnected != null) {
-                mIsConnected = isConnected;
-                hideProgressBar();
-                updateClickableViews();
-            }
-            invalidateOptionsMenu();
-        });
-
-        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
-
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null) {
-            mIsConnected = isConnectedToNetwork;
-        }
-        invalidateOptionsMenu();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mViewModel.setActivityVisible(true);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mIsConnected) {
-            getMenuInflater().inflate(R.menu.disconnect, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.connect, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
-        }
     }
 
     @Override
@@ -321,7 +258,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             case Utils.HEARTBEAT_SETTINGS_SET:
             case PublicationSettingsActivity.SET_PUBLICATION_SETTINGS:
                 if (resultCode == RESULT_OK) {
-                    showProgressbar();
+                    showProgressBar();
                 }
                 break;
         }
@@ -413,7 +350,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
     @Override
     public void onRefresh() {
         final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (!checkConnectivity() || model == null) {
+        if (!checkConnectivity(mContainer) || model == null) {
             mSwipe.setRefreshing(false);
         }
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
@@ -427,7 +364,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                     mViewModel.getMessageQueue().add(appGet);
                     mViewModel.getMessageQueue().add(subscriptionGet);
                     queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
-                    //noinspection ConstantConditions
                     sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
                 } else {
                     mSwipe.setRefreshing(false);
@@ -440,7 +376,6 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
                 mViewModel.getMessageQueue().add(appGet);
                 mViewModel.getMessageQueue().add(subscriptionGet);
                 queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
-                //noinspection ConstantConditions
                 sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
             }
         }
@@ -472,7 +407,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private void unbindAppKey(final int position) {
         if (mBoundAppKeyAdapter.getItemCount() != 0) {
-            if (!checkConnectivity()) {
+            if (!checkConnectivity(mContainer)) {
                 mBoundAppKeyAdapter.notifyItemChanged(position);
                 return;
             }
@@ -521,7 +456,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     private void deleteSubscription(final int position) {
         if (mSubscriptionAdapter.getItemCount() != 0) {
-            if (!checkConnectivity()) {
+            if (!checkConnectivity(mContainer)) {
                 mSubscriptionAdapter.notifyItemChanged(position);
                 return;
             }
@@ -550,29 +485,22 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    protected final void showProgressbar() {
-        mHandler.postDelayed(mOperationTimeout, MESSAGE_TIME_OUT);
+    @Override
+    protected final void showProgressBar() {
+        mHandler.postDelayed(mRunnableOperationTimeout, MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
 
+    @Override
     protected final void hideProgressBar() {
         mSwipe.setRefreshing(false);
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
-        mHandler.removeCallbacks(mOperationTimeout);
+        mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
 
-    private final Runnable mOperationTimeout = () -> {
-        hideProgressBar();
-        mViewModel.getMessageQueue().clear();
-        if (mViewModel.isActivityVisible()) {
-            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
-                    newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-            fragmentMessage.show(getSupportFragmentManager(), null);
-        }
-    };
-
+    @Override
     protected void enableClickableViews() {
         mActionBindAppKey.setEnabled(true);
         mActionSetPublication.setEnabled(true);
@@ -588,6 +516,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             mActionRead.setEnabled(true);
     }
 
+    @Override
     protected void disableClickableViews() {
         mActionBindAppKey.setEnabled(false);
         mActionSetPublication.setEnabled(false);
@@ -602,14 +531,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
             mActionRead.setEnabled(false);
     }
 
-    /**
-     * Update the mesh message
-     *
-     * @param meshMessage {@link MeshMessage} mesh message status
-     */
-    protected abstract void updateMeshMessage(final MeshMessage meshMessage);
-
-    private void updateAppStatusUi(final MeshModel meshModel) {
+    protected void updateAppStatusUi(final MeshModel meshModel) {
         final List<Integer> keys = meshModel.getBoundAppKeyIndexes();
         mKeyIndexes.clear();
         mKeyIndexes.addAll(keys);
@@ -624,7 +546,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    private void updatePublicationUi(final MeshModel meshModel) {
+    protected void updatePublicationUi(final MeshModel meshModel) {
         final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
         if (publicationSettings != null) {
             final int publishAddress = publicationSettings.getPublishAddress();
@@ -647,7 +569,7 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    private void updateSubscriptionUi(final MeshModel meshModel) {
+    protected void updateSubscriptionUi(final MeshModel meshModel) {
         final List<Integer> subscriptionAddresses = meshModel.getSubscribedAddresses();
         mGroupAddress.clear();
         mGroupAddress.addAll(subscriptionAddresses);
@@ -662,22 +584,14 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
         }
     }
 
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, mContainer);
-            return false;
-        }
-        return true;
-    }
-
     protected void sendMessage(@NonNull final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(mContainer))
                 return;
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
-                showProgressbar();
+                showProgressBar();
             }
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
@@ -700,19 +614,19 @@ public abstract class BaseModelConfigurationActivity extends AppCompatActivity i
 
     protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(mContainer))
                 return;
             mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
-            showProgressbar();
+            showProgressBar();
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
-            final DialogFragmentError message = DialogFragmentError.
-                    newInstance(getString(R.string.title_error), ex.getMessage());
-            message.show(getSupportFragmentManager(), null);
+            DialogFragmentError
+                    .newInstance(getString(R.string.title_error), ex.getMessage())
+                    .show(getSupportFragmentManager(), null);
         }
     }
 
-    private void updateClickableViews() {
+    protected void updateClickableViews() {
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null && model.getModelId() == SigModelParser.CONFIGURATION_CLIENT)
             disableClickableViews();

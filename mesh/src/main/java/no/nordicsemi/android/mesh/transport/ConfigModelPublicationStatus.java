@@ -37,11 +37,11 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 /**
  * To be used as a wrapper class for when creating the ConfigModelAppStatus Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class ConfigModelPublicationStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigModelPublicationStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS;
     private static final int CONFIG_MODEL_PUBLICATION_STATUS_SIG_MODEL_PDU_LENGTH = 12;
     private static final int CONFIG_MODEL_APP_BIND_STATUS_VENDOR_MODEL_PDU_LENGTH = 14;
     private int mElementAddress;
@@ -59,7 +59,6 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
         @Override
         public ConfigModelPublicationStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new ConfigModelPublicationStatus(message);
         }
 

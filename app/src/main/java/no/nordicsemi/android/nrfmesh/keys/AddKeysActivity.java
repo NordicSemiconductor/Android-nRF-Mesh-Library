@@ -24,8 +24,7 @@ package no.nordicsemi.android.nrfmesh.keys;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -36,7 +35,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -56,11 +54,11 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
-public abstract class AddKeysActivity extends AppCompatActivity implements Injectable, SwipeRefreshLayout.OnRefreshListener {
+public abstract class AddKeysActivity extends BaseActivity implements Injectable, SwipeRefreshLayout.OnRefreshListener {
 
     @Inject
     ViewModelProvider.Factory mViewModelFactory;
@@ -76,7 +74,6 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     @BindView(R.id.swipe_refresh)
     protected SwipeRefreshLayout mSwipe;
 
-    protected Handler mHandler;
     protected View mEmptyView;
 
     protected AddKeysViewModel mViewModel;
@@ -90,10 +87,9 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddKeysViewModel.class);
         setContentView(R.layout.activity_add_keys);
         ButterKnife.bind(this);
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSwipe.setOnRefreshListener(this);
         recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
@@ -131,47 +127,6 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
             hideProgressBar();
         });
 
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if (isConnected != null) {
-                mIsConnected = isConnected;
-                hideProgressBar();
-            }
-            invalidateOptionsMenu();
-        });
-
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null) {
-            mIsConnected = isConnectedToNetwork;
-        }
-        invalidateOptionsMenu();
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mIsConnected) {
-            getMenuInflater().inflate(R.menu.disconnect, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.connect, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
-        }
     }
 
     @Override
@@ -197,8 +152,8 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         return true;
     }
 
-    protected final void showProgressbar() {
-        mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
+    protected void showProgressBar() {
+        mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
         mProgressbar.setVisibility(View.VISIBLE);
     }
@@ -207,15 +162,8 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         mSwipe.setRefreshing(false);
         enableClickableViews();
         mProgressbar.setVisibility(View.INVISIBLE);
-        mHandler.removeCallbacks(mOperationTimeout);
+        mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
-
-    private final Runnable mOperationTimeout = () -> {
-        hideProgressBar();
-        mViewModel.getMessageQueue().clear();
-        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-        fragmentMessage.show(getSupportFragmentManager(), null);
-    };
 
     protected void enableClickableViews() {
         enableAdapterClickListener(true);
@@ -242,7 +190,7 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         try {
             if (!checkConnectivity())
                 return;
-            showProgressbar();
+            showProgressBar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);

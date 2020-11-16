@@ -48,11 +48,15 @@ import no.nordicsemi.android.nrfmesh.node.HeartbeatSubscriptionActivity;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.NodeDetailsActivity;
 import no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity;
+import no.nordicsemi.android.nrfmesh.node.SceneServerModelActivity;
+import no.nordicsemi.android.nrfmesh.node.SceneSetupServerModelActivity;
 import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.AddProvisionerActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.EditProvisionerActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.RangesActivity;
+import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
+import no.nordicsemi.android.nrfmesh.scenes.StoredScenesActivity;
 
 @Module
 abstract class ActivitiesModule {
@@ -92,6 +96,12 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector()
     abstract EditAppKeyActivity contributeEditAppKeyActivity();
+
+    @ContributesAndroidInjector()
+    abstract ScenesActivity contributeScenesActivity();
+
+    @ContributesAndroidInjector()
+    abstract StoredScenesActivity contributeAddScenesActivity();
 
     @ContributesAndroidInjector()
     abstract ProvisioningActivity contributeMeshProvisionerActivity();
@@ -137,6 +147,12 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector()
     abstract GenericLevelServerActivity contributeGenericLevelServerActivity();
+
+    @ContributesAndroidInjector()
+    abstract SceneServerModelActivity contributeSceneServerActivity();
+
+    @ContributesAndroidInjector()
+    abstract SceneSetupServerModelActivity contributeSceneSetupServerModelActivity();
 
     @ContributesAndroidInjector()
     abstract VendorModelActivity contributeVendorModelActivity();
