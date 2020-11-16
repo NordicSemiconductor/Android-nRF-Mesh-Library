@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/node_controls_tool_bar"
+            android:id="@+id/scene_recall_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:layout_constraintEnd_toEndOf="parent"
@@ -31,7 +31,7 @@
             android:visibility="visible"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar"
+            app:layout_constraintTop_toBottomOf="@id/scene_recall_toolbar"
             tools:visibility="visible">
 
             <com.google.android.material.textview.MaterialTextView

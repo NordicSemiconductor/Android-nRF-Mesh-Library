@@ -162,6 +162,7 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
 
     @Override
     public void onItemClick(final int position, @NonNull final Scene scene) {
-        BottomSheetSceneRecallDialogFragment.instantiate(scene).show(getSupportFragmentManager(), null);
+        if (checkConnectivity(mContainer))
+            BottomSheetSceneRecallDialogFragment.instantiate(scene).show(getSupportFragmentManager(), null);
     }
 }

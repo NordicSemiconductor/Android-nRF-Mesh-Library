@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.slider.Slider;
 
@@ -46,22 +47,24 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View nodeControlsContainer = inflater.inflate(R.layout.layout_recall_scene_bottom_sheet, container, false);
+        final View sceneRecallContainer = inflater.inflate(R.layout.layout_recall_scene_bottom_sheet, container, false);
+        final MaterialToolbar toolbar = sceneRecallContainer.findViewById(R.id.scene_recall_toolbar);
+        toolbar.setTitle(mScene.getName());
 
-        final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-        final Slider transitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+        final TextView time = sceneRecallContainer.findViewById(R.id.transition_time);
+        final Slider transitionTimeSlider = sceneRecallContainer.findViewById(R.id.transition_slider);
         transitionTimeSlider.setValueFrom(0);
         transitionTimeSlider.setValueTo(230);
         transitionTimeSlider.setStepSize(1);
         transitionTimeSlider.setValue(0);
 
-        final Slider delaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+        final Slider delaySlider = sceneRecallContainer.findViewById(R.id.delay_slider);
         delaySlider.setValueFrom(0);
         delaySlider.setValueTo(255);
         delaySlider.setValue(0);
-        final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
+        final TextView delayTime = sceneRecallContainer.findViewById(R.id.delay_time);
 
-        final Button actionRecallScene = nodeControlsContainer.findViewById(R.id.action_recall);
+        final Button actionRecallScene = sceneRecallContainer.findViewById(R.id.action_recall);
         actionRecallScene.setOnClickListener(v -> {
             try {
                 ((SceneRecallListener) requireActivity()).recallScene(mScene, mTransitionSteps, mTransitionStepResolution, (int) delaySlider.getValue());
@@ -117,6 +120,6 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
 
         delaySlider.addOnChangeListener((slider, value, fromUser) ->
                 delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
-        return nodeControlsContainer;
+        return sceneRecallContainer;
     }
 }

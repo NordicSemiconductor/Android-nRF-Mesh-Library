@@ -64,24 +64,23 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginEnd="@dimen/item_padding_start"
-            android:padding="@dimen/item_padding_end"
             android:text="@string/action_read"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/hint"
             app:layout_constraintTop_toBottomOf="@id/div3" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/hint"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="@dimen/activity_horizontal_margin"
             android:text="@string/hint_current_scene"
             android:textColor="?android:textColorSecondary"
-            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_read"
             app:layout_constraintTop_toBottomOf="@id/div3"
-            app:layout_constraintVertical_bias="0.0"
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -616,7 +616,7 @@
     <string name="action_get">GET</string>
     <string name="action_read">READ</string>
     <string name="title_recall_scene">Recall Scene</string>
-    <string name="hint_current_scene">Hint: Read to get current scene.</string>
+    <string name="hint_current_scene">Hint: Click on a scene to recall.</string>
     <string name="custom_transition_time_and_delay">Custom Transition Time and Delay</string>
     <string name="action_recall">Recall</string>
 </resources>
