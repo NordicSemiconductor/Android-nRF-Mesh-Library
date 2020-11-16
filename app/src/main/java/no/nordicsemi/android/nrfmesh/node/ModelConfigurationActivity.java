@@ -21,11 +21,6 @@ public abstract class ModelConfigurationActivity extends BaseModelConfigurationA
     }
 
     @Override
-    public void onRefresh() {
-        super.onRefresh();
-    }
-
-    @Override
     protected void updateMeshMessage(final MeshMessage meshMessage) {
         if (meshMessage instanceof ConfigModelAppStatus) {
             final ConfigModelAppStatus status = (ConfigModelAppStatus) meshMessage;

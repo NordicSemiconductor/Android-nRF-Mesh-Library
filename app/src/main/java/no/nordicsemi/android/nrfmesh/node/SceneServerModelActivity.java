@@ -95,6 +95,10 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
     @Override
     public void onRefresh() {
         super.onRefresh();
+        final MeshModel model = mViewModel.getSelectedModel().getValue();
+        if (model.getModelId() == SigModelParser.SCENE_SERVER) {
+            mViewModel.getMessageQueue().add(new SceneGet(getDefaultApplicationKey()));
+        }
     }
 
     @Override
@@ -110,7 +114,6 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
             } else {
                 displayStatusDialogFragment(getString(R.string.title_sig_model_subscription_list), status.getStatusMessage(status.getStatus()));
             }
-            //TODO
         } else if (meshMessage instanceof SceneRegisterStatus) {
             final SceneRegisterStatus status = (SceneRegisterStatus) meshMessage;
             mViewModel.removeMessage();
@@ -137,11 +140,6 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         if (key != null) {
             sendMessage(new SceneGet(key));
         }
-    }
-
-    @Override
-    public void recallScene(@NonNull final Scene scene) {
-        sendSceneRecall(scene, 0, 0, 0);
     }
 
     @Override

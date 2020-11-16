@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.slider.Slider;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,8 +24,6 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
     private Scene mScene;
 
     public interface SceneRecallListener {
-        void recallScene(@NonNull final Scene scene);
-
         void recallScene(@NonNull final Scene scene, final int transitionSteps, final int transitionStepResolution, final int delay);
     }
 
@@ -51,8 +48,6 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View nodeControlsContainer = inflater.inflate(R.layout.layout_recall_scene_bottom_sheet, container, false);
 
-        final SwitchMaterial transitionDelay = nodeControlsContainer.findViewById(R.id.switch_transition_delay);
-
         final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
         final Slider transitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
         transitionTimeSlider.setValueFrom(0);
@@ -69,11 +64,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
         final Button actionRecallScene = nodeControlsContainer.findViewById(R.id.action_recall);
         actionRecallScene.setOnClickListener(v -> {
             try {
-                if (transitionDelay.isChecked()) {
-                    ((SceneRecallListener) requireActivity()).recallScene(mScene, mTransitionSteps, mTransitionStepResolution, (int) delaySlider.getValue());
-                } else {
-                    ((SceneRecallListener) requireActivity()).recallScene(mScene);
-                }
+                ((SceneRecallListener) requireActivity()).recallScene(mScene, mTransitionSteps, mTransitionStepResolution, (int) delaySlider.getValue());
                 dismiss();
             } catch (IllegalArgumentException ex) {
                 Toast.makeText(requireContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
