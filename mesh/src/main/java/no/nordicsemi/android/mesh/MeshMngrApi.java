@@ -12,7 +12,6 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.InputOOBAction;
 import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 
-@SuppressWarnings("unused")
 interface MeshMngrApi {
 
     /**
@@ -232,6 +231,24 @@ interface MeshMngrApi {
      */
     @Nullable
     String exportMeshNetwork();
+
+    /**
+     * Exports a partial mesh network to a json String with the provided export configuration.
+     *
+     * @param networkKeysConfig     Export configuration for Network Keys.
+     * @param applicationKeysConfig Export configuration for Application Keys.
+     * @param nodesConfig           Export configuration for Nodes.
+     * @param provisionersConfig    Export configuration for Provisioners.
+     * @param groupsConfig          Export configuration for Groups.
+     * @param scenesConfig          Export configuration for scenes.
+     */
+    @Nullable
+    String exportMeshNetwork(@NonNull final NetworkKeysConfig networkKeysConfig,
+                             @NonNull final ApplicationKeysConfig applicationKeysConfig,
+                             @NonNull final NodesConfig nodesConfig,
+                             @NonNull final ProvisionersConfig provisionersConfig,
+                             @NonNull final GroupsConfig groupsConfig,
+                             @NonNull final ScenesConfig scenesConfig);
 
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json

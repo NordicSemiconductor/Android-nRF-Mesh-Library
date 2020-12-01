@@ -879,6 +879,23 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Returns the list of {@link ProvisionedMeshNode} containing the given network key
+     *
+     * @param networkKey Network Key
+     */
+    public List<ProvisionedMeshNode> getNodes(final NetworkKey networkKey) {
+        final List<ProvisionedMeshNode> nodes = new ArrayList<>();
+        for (ProvisionedMeshNode node : this.nodes) {
+            for (NodeKey nodeKey : node.getAddedNetKeys()) {
+                if (nodeKey.getIndex() == networkKey.getKeyIndex()) {
+                    nodes.add(node);
+                }
+            }
+        }
+        return nodes;
+    }
+
+    /**
      * Returns the mesh node with the corresponding unicast address
      *
      * @param unicastAddress unicast address of the node
