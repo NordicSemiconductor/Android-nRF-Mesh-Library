@@ -29,6 +29,12 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
 
+    private final boolean partial;
+
+    public MeshNetworkDeserializer(final boolean partial) {
+        this.partial = partial;
+    }
+
     @Override
     public MeshNetwork deserialize(final JsonElement json,
                                    final Type typeOfT,
@@ -90,7 +96,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.addProperty("meshName", network.getMeshName());
         jsonObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(network.getTimestamp()));
         //TODO handle partial export
-        jsonObject.addProperty("partial", "False");
+        jsonObject.addProperty("partial", partial);
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));

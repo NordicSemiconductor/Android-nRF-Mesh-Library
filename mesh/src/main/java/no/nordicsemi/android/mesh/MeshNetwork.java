@@ -848,7 +848,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return null;
     }
 
-    void setNetKeys(List<NetworkKey> netKeys) {
+    void setNetKeys(@NonNull final List<NetworkKey> netKeys) {
         this.netKeys = netKeys;
     }
 
@@ -859,7 +859,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(appKeys);
     }
 
-    void setAppKeys(List<ApplicationKey> appKeys) {
+    void setAppKeys(@NonNull final List<ApplicationKey> appKeys) {
         this.appKeys = appKeys;
     }
 

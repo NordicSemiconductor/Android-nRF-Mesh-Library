@@ -48,7 +48,9 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 throw new IllegalArgumentException("Invalid Mesh Provisioning/Configuration " +
                         "Database, invalid node UUID.");
             node.uuid = uuid;
-            node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            if (jsonObject.has("deviceKey") && jsonObject.get("deviceKey") != null) {
+                node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            }
             final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
             node.unicastAddress = unicastAddress;
             final boolean security = jsonObject.get("security").getAsString().equals("high");

@@ -20,14 +20,20 @@ import androidx.lifecycle.MutableLiveData;
 import no.nordicsemi.android.log.LogSession;
 import no.nordicsemi.android.log.Logger;
 import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.ApplicationKeysConfig;
 import no.nordicsemi.android.mesh.Group;
+import no.nordicsemi.android.mesh.GroupsConfig;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshManagerCallbacks;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
 import no.nordicsemi.android.mesh.MeshStatusCallbacks;
 import no.nordicsemi.android.mesh.NetworkKey;
+import no.nordicsemi.android.mesh.NetworkKeysConfig;
+import no.nordicsemi.android.mesh.NodesConfig;
 import no.nordicsemi.android.mesh.Provisioner;
+import no.nordicsemi.android.mesh.ProvisionersConfig;
+import no.nordicsemi.android.mesh.ScenesConfig;
 import no.nordicsemi.android.mesh.UnprovisionedBeacon;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
@@ -1122,5 +1128,14 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         if (group != null) {
             mSelectedGroupLiveData.postValue(group);
         }
+
+        final NetworkKeysConfig networkKeysConfig = new NetworkKeysConfig.ExportAll().build();
+        final ApplicationKeysConfig applicationKeysConfig = new ApplicationKeysConfig.ExportSome(mMeshNetwork.getAppKeys()).build();
+        final NodesConfig nodesConfig = new NodesConfig.ExportWithDeviceKey().build();
+        final ProvisionersConfig provisionersConfig = new ProvisionersConfig.ExportAll().build();
+        final GroupsConfig groupsConfig = new GroupsConfig.ExportRelated().build();
+        final ScenesConfig scenesConfig = new ScenesConfig.ExportSome(mMeshNetwork.getScenes()).build();
+
+        mMeshManagerApi.exportMeshNetwork(networkKeysConfig, applicationKeysConfig, nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
     }
 }

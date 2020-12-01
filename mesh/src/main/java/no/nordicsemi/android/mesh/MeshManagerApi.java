@@ -874,9 +874,21 @@ public class MeshManagerApi implements MeshMngrApi {
     public String exportMeshNetwork() {
         final MeshNetwork meshNetwork = mMeshNetwork;
         if (meshNetwork != null) {
-            return NetworkImportExportUtils.export(meshNetwork);
+            return NetworkImportExportUtils.export(meshNetwork, false);
         }
         return null;
+    }
+
+    @Override
+    public String exportMeshNetwork(@NonNull final NetworkKeysConfig networkKeysConfig,
+                                    @NonNull final ApplicationKeysConfig applicationKeysConfig,
+                                    @NonNull final NodesConfig nodesConfig,
+                                    @NonNull final ProvisionersConfig provisionersConfig,
+                                    @NonNull final GroupsConfig groupsConfig,
+                                    @NonNull final ScenesConfig scenesConfig) {
+        final MeshNetwork network = mMeshNetwork;
+        return NetworkImportExportUtils.export(network, networkKeysConfig, applicationKeysConfig,
+                nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
     }
 
     @Override
