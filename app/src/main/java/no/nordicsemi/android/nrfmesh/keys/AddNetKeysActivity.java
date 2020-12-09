@@ -36,20 +36,11 @@ import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedNetKeyAdapter;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 
 public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
         AddedNetKeyAdapter.OnItemClickListener {
     private AddedNetKeyAdapter adapter;
-
-    @Override
-    protected void updateClickableViews() {
-
-    }
-
-    @Override
-    protected void updateMeshMessage(final MeshMessage meshMessage) {
-
-    }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -58,17 +49,18 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
         mEmptyView = findViewById(R.id.empty_net_keys);
         adapter = new AddedNetKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getNetKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterClickListener(true);
         recyclerViewKeys.setAdapter(adapter);
+        adapter.setOnItemClickListener(this);
+        updateClickableViews();
     }
 
     @Override
     public void onItemClick(@NonNull final NetworkKey networkKey) {
-        if (!checkConnectivity())
+        if (!checkConnectivity(container))
             return;
         final MeshMessage meshMessage;
         final String message;
-        if (!mViewModel.isNetKeyAdded(networkKey.getKeyIndex())) {
+        if (!((AddKeysViewModel) mViewModel).isNetKeyAdded(networkKey.getKeyIndex())) {
             meshMessage = new ConfigNetKeyAdd(networkKey);
             message = getString(R.string.adding_net_key);
         } else {
@@ -88,6 +80,6 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
 
     @Override
     void enableAdapterClickListener(final boolean enable) {
-        adapter.setOnItemClickListener(enable ? this : null);
+        adapter.enableDisableKeySelection(enable);
     }
 }
