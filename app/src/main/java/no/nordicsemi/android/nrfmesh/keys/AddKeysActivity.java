@@ -76,15 +76,22 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
 
     protected View mEmptyView;
 
-    protected AddKeysViewModel mViewModel;
-    protected boolean mIsConnected;
-
     abstract void enableAdapterClickListener(final boolean enable);
+
+    @Override
+    protected void updateClickableViews() {
+        if (mIsConnected) {
+            enableClickableViews();
+        } else {
+            disableClickableViews();
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddKeysViewModel.class);
+        init();
         setContentView(R.layout.activity_add_keys);
         ButterKnife.bind(this);
         mHandler = new Handler(Looper.getMainLooper());
@@ -98,34 +105,6 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
         recyclerViewKeys.addItemDecoration(dividerItemDecoration);
         recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
         fab.hide();
-
-        mViewModel.getMeshMessage().observe(this, meshMessage -> {
-            if (meshMessage instanceof ConfigNetKeyStatus) {
-                final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
-                if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-                } else {
-                    showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
-                }
-            } else if (meshMessage instanceof ConfigAppKeyStatus) {
-                final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
-                if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-                } else {
-                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                }
-            } else if (meshMessage instanceof ConfigAppKeyList) {
-                final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
-                if (!mViewModel.getMessageQueue().isEmpty())
-                    mViewModel.getMessageQueue().remove();
-                if (status.isSuccessful()) {
-                    handleStatuses();
-                } else {
-                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                }
-            }
-            hideProgressBar();
-        });
 
     }
 
@@ -142,14 +121,6 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
             final DialogFragmentConfigStatus fragmentKeyStatus = DialogFragmentConfigStatus.newInstance(title, message);
             fragmentKeyStatus.show(getSupportFragmentManager(), Utils.DIALOG_FRAGMENT_KEY_STATUS);
         }
-    }
-
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, container);
-            return false;
-        }
-        return true;
     }
 
     protected void showProgressBar() {
@@ -188,7 +159,7 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
 
     protected void sendMessage(final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(container))
                 return;
             showProgressBar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
@@ -204,8 +175,37 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
     }
 
     @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        if (meshMessage instanceof ConfigNetKeyStatus) {
+            final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
+            if (status.isSuccessful()) {
+                mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            } else {
+                showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigAppKeyStatus) {
+            final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
+            if (status.isSuccessful()) {
+                mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            } else {
+                showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigAppKeyList) {
+            final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
+            if (!mViewModel.getMessageQueue().isEmpty())
+                mViewModel.getMessageQueue().remove();
+            if (status.isSuccessful()) {
+                handleStatuses();
+            } else {
+                showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+            }
+        }
+        hideProgressBar();
+    }
+
+    @Override
     public void onRefresh() {
-        if (!checkConnectivity()) {
+        if (!checkConnectivity(container)) {
             mSwipe.setRefreshing(false);
         }
     }
