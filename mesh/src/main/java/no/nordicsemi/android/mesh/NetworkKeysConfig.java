@@ -34,8 +34,11 @@ public class NetworkKeysConfig extends ExportConfig {
          * Constructs ExportSome to export only a selected number of network keys when exporting a mesh network.
          *
          * @param keys List of Network Keys to export.
+         * @throws IllegalArgumentException if the list does not contain at least one network key.
          */
         public ExportSome(@NonNull final List<NetworkKey> keys) {
+            if (keys.isEmpty())
+                throw new IllegalArgumentException("Error, at least one Network Key must be selected!");
             this.keys = keys;
         }
 

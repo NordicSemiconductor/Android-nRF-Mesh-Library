@@ -30,11 +30,11 @@ public class ProvisionersConfig extends ExportConfig {
          * Constructs ExportSome to export only a selected number of Provisioners when exporting a mesh network.
          *
          * @param provisioners List of Provisioners to export.
+         * @throws IllegalArgumentException if the list does not contain at least one provisioner.
          */
         public ExportSome(@NonNull final List<Provisioner> provisioners) {
-            if(provisioners.isEmpty()){
-                throw new IllegalArgumentException("Provisioner list cannot be empty");
-            }
+            if (provisioners.isEmpty())
+                throw new IllegalArgumentException("Error, at least one Provisioner must be selected!");
             this.provisioners = provisioners;
         }
 
