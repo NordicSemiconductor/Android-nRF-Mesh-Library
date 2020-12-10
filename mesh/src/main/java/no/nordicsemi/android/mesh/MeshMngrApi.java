@@ -227,7 +227,7 @@ interface MeshMngrApi {
     MeshNetwork getMeshNetwork();
 
     /**
-     * Exports mesh network to a json String
+     * Exports full mesh network to a json String.
      */
     @Nullable
     String exportMeshNetwork();

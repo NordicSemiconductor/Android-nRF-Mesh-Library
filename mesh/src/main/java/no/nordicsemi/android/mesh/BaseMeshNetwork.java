@@ -853,7 +853,7 @@ abstract class BaseMeshNetwork {
         return null;
     }
 
-    public boolean isProvisionerUuidInUse(@NonNull final String uuid) {
+    protected boolean isProvisionerUuidInUse(@NonNull final String uuid) {
         for (Provisioner provisioner : provisioners) {
             if (provisioner.getProvisionerUuid().equalsIgnoreCase(uuid)) {
                 return true;

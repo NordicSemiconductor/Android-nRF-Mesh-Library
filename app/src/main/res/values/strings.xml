@@ -374,7 +374,6 @@
     <string name="reset_node_rationale_summary">Resetting this node will change its provisioned state back to un-provisioned
         state. Any stored data related to the node will be deleted from the app. Do you wish to continue?</string>
 
-
     <string name="node_device_key">Device Key</string>
     <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
     <string name="unavailable">Unavailable</string>
@@ -596,7 +595,6 @@
     <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
         without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
 
-
     <string name="title_stored_scenes">Stored Scenes</string>
     <string name="no_scenes_title">No scenes available</string>
     <string name="action_add_scene">Add Scene</string>
@@ -619,4 +617,21 @@
     <string name="hint_current_scene">Hint: Click on a scene to recall.</string>
     <string name="custom_transition_time_and_delay">Custom Transition Time and Delay</string>
     <string name="action_recall">Recall</string>
+    <string name="configuration">Configuration</string>
+    <string name="export_everything">Export Everything</string>
+    <string name="export_full_configuration">Full configuration will contain all mesh network data stored on this device.
+        \n\nWhen sharing with a Guest, consider creating a new network key and set of guest application keys,
+        send them to nodes that you want to share with the guest, and bind to required models. Then export only
+        this network key with excluded device keys. \n\nThe underlying library allows also to specify which nodes,
+        groups or scenes are to be shared. This app will only share those, that use the specified network key.
+    </string>
+    <string name="export">Export</string>
+    <string name="hint_select_atleast_provisioner">Hint: Select at least one provisioner.</string>
+    <string name="hint_net_key_export">Hint: At least one network key must be selected. Only nodes that store selected keys and Application Keys bound to them will be exported.</string>
+    <string name="export_device_keys">Export Device Keys</string>
+    <string name="device_keys">Device Keys</string>
+    <string name="hint_device_keys">Hint: Device keys allow nodes to be reconfigured or reset (removed from the network).</string>
+    <string name="add">Add</string>
+    <string name="error_select_one_network_key_at_least">Error, at least one Network Key must be selected!</string>
+    <string name="error_select_one_provisioner_at_least">Error, at least one Provisioner must be selected!</string>
 </resources>

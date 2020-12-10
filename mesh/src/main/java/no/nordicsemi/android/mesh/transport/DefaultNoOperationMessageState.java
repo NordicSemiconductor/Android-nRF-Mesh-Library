@@ -197,9 +197,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (appKeyList.isSuccessful()) {
                             final MeshModel model = getMeshModel(node, appKeyList.getSrc(), appKeyList.getModelIdentifier());
                             if (model != null) {
-                                if (model != null) {
-                                    model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
-                                }
+                                model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
                             }
                         }
                     }
@@ -211,9 +209,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (appKeyList.isSuccessful()) {
                             final MeshModel model = getMeshModel(node, appKeyList.getSrc(), appKeyList.getModelIdentifier());
                             if (model != null) {
-                                if (model != null) {
-                                    model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
-                                }
+                                model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
                             }
                         }
                     }
@@ -225,16 +221,14 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (status.isSuccessful()) {
                             final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
                             if (model != null) {
-                                if (model != null) {
-                                    if (mMeshMessage instanceof ConfigModelPublicationGet) {
-                                        model.updatePublicationStatus(status);
-                                    } else if (mMeshMessage instanceof ConfigModelPublicationSet) {
-                                        model.setPublicationStatus(status, null);
-                                    } else if (mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
-                                        final UUID labelUUID = ((ConfigModelPublicationVirtualAddressSet) mMeshMessage).
-                                                getLabelUuid();
-                                        model.setPublicationStatus(status, labelUUID);
-                                    }
+                                if (mMeshMessage instanceof ConfigModelPublicationGet) {
+                                    model.updatePublicationStatus(status);
+                                } else if (mMeshMessage instanceof ConfigModelPublicationSet) {
+                                    model.setPublicationStatus(status, null);
+                                } else if (mMeshMessage instanceof ConfigModelPublicationVirtualAddressSet) {
+                                    final UUID labelUUID = ((ConfigModelPublicationVirtualAddressSet) mMeshMessage).
+                                            getLabelUuid();
+                                    model.setPublicationStatus(status, labelUUID);
                                 }
                             }
                         }
