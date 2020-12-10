@@ -22,17 +22,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:background="?colorSurface"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
     tools:ignore="ContentDescription">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/removable"
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?selectableItemBackground"
+        android:background="?colorSurface"
         android:orientation="horizontal"
         android:paddingStart="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/item_padding_top"
@@ -59,12 +58,12 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:ellipsize="end"
             android:singleLine="true"
-            tools:text="Title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             app:layout_constraintBaseline_toBaselineOf="@id/icon"
             app:layout_constraintEnd_toStartOf="@id/check"
             app:layout_constraintStart_toEndOf="@id/icon"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            tools:text="Title" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/subtitle"
@@ -73,13 +72,13 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:ellipsize="end"
             android:singleLine="true"
-            tools:text="Title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintBaseline_creator="@id/icon"
             app:layout_constraintEnd_toStartOf="@id/check"
             app:layout_constraintStart_toStartOf="@id/title"
             app:layout_constraintTop_toBottomOf="@id/title"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText"
+            tools:text="Title" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/check"

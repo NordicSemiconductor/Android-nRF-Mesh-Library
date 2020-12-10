@@ -87,8 +87,8 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
                 DeviceFeatureUtils.getLowPowerFeature(featuresInt),
                 DeviceFeatureUtils.getProxyFeature(featuresInt),
                 DeviceFeatureUtils.getRelayFeature(featuresInt));
-        final int netKeyIndex = MeshParserUtils.unsignedBytesToInt((byte) ((mParameters[8] & 0xF0) >> 4), mParameters[9]);
-        heartbeatPublication = new HeartbeatPublication(dst, (byte)countLog, (byte)periodLog, ttl, features, netKeyIndex);
+        final int netKeyIndex = MeshParserUtils.unsignedBytesToInt((mParameters[8]), mParameters[9]);
+        heartbeatPublication = new HeartbeatPublication(dst, (byte) countLog, (byte) periodLog, ttl, features, netKeyIndex);
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.d(TAG, "Heartbeat publication: " + heartbeatPublication.toString());

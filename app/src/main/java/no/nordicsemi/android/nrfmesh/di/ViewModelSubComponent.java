@@ -32,6 +32,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditAppKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditProvisionerViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.ExportNetworkViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.GroupControlsViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
@@ -108,4 +109,6 @@ public interface ViewModelSubComponent {
     ScenesViewModel scenesViewModel();
 
     AddedScenesViewModel addScenesViewModel();
+
+    ExportNetworkViewModel exportNetworkViewModel();
 }

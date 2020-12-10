@@ -32,7 +32,6 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.widget.Toast;
 
 import java.util.Comparator;
 import java.util.UUID;
@@ -246,10 +245,6 @@ public class Utils {
 
     public static boolean isKitkatOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-    }
-
-    public static void showToast(final Context context, final String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     public static boolean isValidUint8(final int i) {

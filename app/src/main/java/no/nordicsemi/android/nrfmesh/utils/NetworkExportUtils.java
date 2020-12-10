@@ -22,7 +22,7 @@ public class NetworkExportUtils {
     }
 
     /**
-     * Creates an AsyncTask to import the a m
+     * Creates an AsyncTask to exoirt the
      *
      * @param meshManagerApi Mesh manager api
      * @param outputStream   OutputStream obtained from the content resolver
