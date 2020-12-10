@@ -51,7 +51,7 @@ The library may be found on jcenter and Maven Central repository.
 Add it to your project by adding the following dependency:
 
 ```grovy
-implementation 'no.nordicsemi.android:mesh:2.3.0'
+implementation 'no.nordicsemi.android:mesh:2.4.3'
 ```
 
 #### Manual
