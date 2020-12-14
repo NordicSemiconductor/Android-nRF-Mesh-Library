@@ -947,6 +947,7 @@ public class MeshManagerApi implements MeshMngrApi {
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
                 if (mMeshNetwork.deleteResetNode(meshNode)) {
+                    deleteSceneAddress(meshNode.getUnicastAddress());
                     mMeshNetwork.sequenceNumbers.delete(meshNode.getUnicastAddress());
                     mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
                     mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
@@ -991,6 +992,19 @@ public class MeshManagerApi implements MeshMngrApi {
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
+
+    /**
+     * Deletes an address from the scenes in the network. This is to be called when resetting or deleting a node from the network.
+     *
+     * @param address Address to be removed.
+     */
+    private void deleteSceneAddress(final int address) {
+        for (Scene scene : mMeshNetwork.getScenes()) {
+            if (scene.getAddresses().remove((Integer) address)) {
+                Log.d(TAG, "Node removed from " + scene.getName());
+            }
+        }
+    }
 
     @SuppressWarnings("FieldCanBeLocal")
     private final InternalMeshManagerCallbacks internalMeshMgrCallbacks = new InternalMeshManagerCallbacks() {
@@ -1196,6 +1210,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public void onNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
+            deleteSceneAddress(meshNode.getUnicastAddress());
             mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
