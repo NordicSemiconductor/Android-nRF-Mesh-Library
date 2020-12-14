@@ -28,6 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -145,8 +147,12 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
                 onBackPressed();
                 return true;
             case R.id.action_save:
-                if (mViewModel.save())
-                    onBackPressed();
+                try {
+                    if (mViewModel.addAppKey())
+                        onBackPressed();
+                } catch (IllegalArgumentException ex) {
+                    mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
+                }
                 return true;
         }
         return false;

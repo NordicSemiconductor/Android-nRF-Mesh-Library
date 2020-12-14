@@ -72,7 +72,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         ButterKnife.bind(this);
         final int index = getIntent().getExtras().getInt(EDIT_KEY);
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditAppKeyViewModel.class);
-        mViewModel.selectKey(index);
+        mViewModel.selectAppKey(index);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -128,14 +128,6 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
                 keyIndexView.setText(String.valueOf(applicationKey.getKeyIndex()));
             }
         });
-
-        final ApplicationKey appKey = mViewModel.getAppKeyLiveData().getValue();
-        if (savedInstanceState == null) {
-            keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));
-            name.setText(appKey.getName());
-        }
-        keyIndexView.setText(String.valueOf(appKey.getKeyIndex()));
-
     }
 
     @Override

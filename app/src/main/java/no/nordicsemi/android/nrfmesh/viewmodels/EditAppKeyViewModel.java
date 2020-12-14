@@ -21,13 +21,20 @@ public class EditAppKeyViewModel extends KeysViewModel {
         super(nrfMeshRepository);
     }
 
-    public void selectKey(final int index) {
-        appKey = getNetworkLiveData().getMeshNetwork().getAppKey(index);
-        appKeyLiveData.setValue(appKey);
-    }
-
+    /**
+     * Returns the app key live data
+     */
     public LiveData<ApplicationKey> getAppKeyLiveData() {
         return appKeyLiveData;
+    }
+
+    /**
+     * Selects the key based on the application key index.
+     * @param index key index
+     */
+    public void selectAppKey(final int index) {
+        appKey = getNetworkLiveData().getMeshNetwork().getAppKey(index);
+        appKeyLiveData.setValue(appKey);
     }
 
     /**
@@ -37,8 +44,6 @@ public class EditAppKeyViewModel extends KeysViewModel {
      * @return true if successful or false otherwise
      */
     public boolean setKey(@NonNull final byte[] key) {
-        if (key.length != 16)
-            throw new IllegalArgumentException("Key must be of length 16!");
         appKey.setKey(key);
         return updateKey();
     }

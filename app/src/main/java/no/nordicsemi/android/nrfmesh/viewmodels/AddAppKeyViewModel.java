@@ -1,7 +1,5 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import android.text.TextUtils;
-
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
@@ -35,10 +33,8 @@ public class AddAppKeyViewModel extends KeysViewModel {
      * @param key Key
      */
     public void setKey(@NonNull final byte[] key) {
-        if (key.length != 16)
-            throw new IllegalArgumentException("Key must be of length 16!");
         appKey.setKey(key);
-        appKeyLiveData.postValue(appKey);
+        appKeyLiveData.setValue(appKey);
     }
 
     /**
@@ -47,10 +43,8 @@ public class AddAppKeyViewModel extends KeysViewModel {
      * @param name Application key name.
      */
     public void setName(@NonNull final String name) {
-        if (TextUtils.isEmpty(name))
-            throw new IllegalArgumentException("Name cannot be empty!");
         appKey.setName(name);
-        appKeyLiveData.postValue(appKey);
+        appKeyLiveData.setValue(appKey);
     }
 
     /**
@@ -58,10 +52,10 @@ public class AddAppKeyViewModel extends KeysViewModel {
      */
     public void setBoundNetKeyIndex(final int index) {
         appKey.setBoundNetKeyIndex(index);
-        appKeyLiveData.postValue(appKey);
+        appKeyLiveData.setValue(appKey);
     }
 
-    public boolean save() {
+    public boolean addAppKey() {
         return getNetworkLiveData().getMeshNetwork().addAppKey(appKey);
     }
 }
