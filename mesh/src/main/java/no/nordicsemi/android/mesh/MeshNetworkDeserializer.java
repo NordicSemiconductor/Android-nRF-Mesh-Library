@@ -29,12 +29,6 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
 
-    private final boolean partial;
-
-    public MeshNetworkDeserializer(final boolean partial) {
-        this.partial = partial;
-    }
-
     @Override
     public MeshNetwork deserialize(final JsonElement json,
                                    final Type typeOfT,
@@ -50,9 +44,15 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         final String meshUuid = MeshParserUtils.formatUuid(uuid);
         final MeshNetwork network = new MeshNetwork(meshUuid == null ? uuid : meshUuid);
 
-        network.schema = jsonObject.get("$schema").getAsString();
-        network.id = jsonObject.get("id").getAsString();
+        final String schema = jsonObject.get("$schema").getAsString();
+        if (!schema.equalsIgnoreCase("http://json-schema.org/draft-04/schema#"))
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported schema");
+        network.schema = schema;
+        final String id = jsonObject.get("id").getAsString();
+        if (!id.equalsIgnoreCase("http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#"))
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported ID");
         network.version = jsonObject.get("version").getAsString();
+        network.id = id;
         network.meshName = jsonObject.get("meshName").getAsString();
 
         try {
@@ -95,8 +95,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.addProperty("meshUUID", meshUuid);
         jsonObject.addProperty("meshName", network.getMeshName());
         jsonObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(network.getTimestamp()));
-        //TODO handle partial export
-        jsonObject.addProperty("partial", partial);
+        jsonObject.addProperty("partial", network.partial);
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
