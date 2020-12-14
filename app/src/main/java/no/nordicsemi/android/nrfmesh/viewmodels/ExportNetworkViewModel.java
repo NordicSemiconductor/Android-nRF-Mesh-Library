@@ -148,11 +148,10 @@ public class ExportNetworkViewModel extends BaseViewModel implements NetworkExpo
             final ProvisionersConfig provisionersConfig = mNrfMeshRepository
                     .getMeshNetworkLiveData().getMeshNetwork().getProvisioners().size() == provisioners.size() ?
                     new ProvisionersConfig.ExportAll().build() : new ProvisionersConfig.ExportSome(provisioners).build();
-            final GroupsConfig groupsConfig = new GroupsConfig.ExportAll().build();
-            final ScenesConfig scenesConfig = new ScenesConfig.ExportAll().build();
             return mNrfMeshRepository
                     .getMeshManagerApi()
-                    .exportMeshNetwork(networkKeysConfig, applicationKeysConfig, nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
+                    .exportMeshNetwork(networkKeysConfig, applicationKeysConfig, nodesConfig, provisionersConfig,
+                            new GroupsConfig.ExportAll().build(), new ScenesConfig.ExportAll().build());
         }
     }
 
