@@ -118,7 +118,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
      * If you want to populate the database only when the database is created for the 1st time,
      * override RoomDatabase.Callback()#onCreate
      */
-    private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+    private static final RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
 
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
