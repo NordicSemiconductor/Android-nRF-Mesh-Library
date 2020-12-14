@@ -482,9 +482,6 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                                           @NonNull final String meshUuid) {
         final List<Scene> scenes = new ArrayList<>();
         try {
-            if (!jsonNetwork.has("scenes"))
-                return scenes;
-
             final JsonArray jsonScenes = jsonNetwork.getAsJsonArray("scenes");
             for (int i = 0; i < jsonScenes.size(); i++) {
                 final JsonObject jsonScene = jsonScenes.get(i).getAsJsonObject();
