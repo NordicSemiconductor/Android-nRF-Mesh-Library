@@ -869,9 +869,11 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public String exportMeshNetwork() {
-        final MeshNetwork meshNetwork = mMeshNetwork;
-        if (meshNetwork != null) {
+        try {
+            final MeshNetwork meshNetwork = mMeshNetwork;
             return mImportExportUtils.export(meshNetwork, false);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
         return null;
     }
@@ -883,9 +885,14 @@ public class MeshManagerApi implements MeshMngrApi {
                                     @NonNull final ProvisionersConfig provisionersConfig,
                                     @NonNull final GroupsConfig groupsConfig,
                                     @NonNull final ScenesConfig scenesConfig) {
-        final MeshNetwork network = mMeshNetwork;
-        return mImportExportUtils.export(network, networkKeysConfig, applicationKeysConfig,
-                nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
+        try {
+            final MeshNetwork network = mMeshNetwork;
+            return mImportExportUtils.export(network, networkKeysConfig, applicationKeysConfig,
+                    nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
+        }
+        return null;
     }
 
     @Override

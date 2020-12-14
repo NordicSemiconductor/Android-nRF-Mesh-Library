@@ -35,13 +35,16 @@ import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidGroupAddress;
 class ImportExportUtils {
 
     private static final String TAG = ImportExportUtils.class.getSimpleName();
+    private final Gson mGson;
+
+    ImportExportUtils() {
+        mGson = initGson();
+    }
 
     /**
      * Initializes the Gson based on the network export type.
-     *
-     * @param partial True if the network is to be exported partially with the selected configuration or false otherwise
      */
-    private Gson initGson(final boolean partial) {
+    private Gson initGson() {
         Type netKeyList = new TypeToken<List<NetworkKey>>() {
         }.getType();
         Type appKeyList = new TypeToken<List<ApplicationKey>>() {
@@ -66,7 +69,7 @@ class ImportExportUtils {
                 .registerTypeAdapter(nodeList, new NodeDeserializer())
                 .registerTypeAdapter(elementList, new InternalElementListDeserializer())
                 .registerTypeAdapter(meshModelList, new MeshModelListDeserializer())
-                .registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer(partial))
+                .registerTypeAdapter(MeshNetwork.class, new MeshNetworkDeserializer())
                 .serializeNulls()
                 .setPrettyPrinting()
                 .create();
@@ -76,7 +79,7 @@ class ImportExportUtils {
      * Imports the network from the Mesh Provisioning/Configuration Database json file
      */
     protected MeshNetwork importNetwork(@NonNull final String networkJson) throws JsonSyntaxException {
-        return initGson(false).fromJson(networkJson, MeshNetwork.class);
+        return mGson.fromJson(networkJson, MeshNetwork.class);
     }
 
     /**
@@ -111,7 +114,8 @@ class ImportExportUtils {
     @Nullable
     protected String export(@NonNull final MeshNetwork network, final boolean partial) {
         try {
-            return initGson(partial).toJson(network);
+            network.setPartial(partial);
+            return mGson.toJson(network);
         } catch (final com.google.gson.JsonSyntaxException ex) {
             Log.e(TAG, "Error: " + ex.getMessage());
             return null;
@@ -129,7 +133,9 @@ class ImportExportUtils {
                             @NonNull final ProvisionersConfig provisionersConfig,
                             @NonNull final GroupsConfig groupsConfig,
                             @NonNull final ScenesConfig scenesConfig) {
-        return export(prepareNetwork(network, networkKeysConfig, applicationKeysConfig, nodesConfig,
+        //Let's use Gson to make a temporary copy of the network and apply the export configurations.
+        final MeshNetwork temp = mGson.fromJson(mGson.toJson(network), MeshNetwork.class);
+        return export(prepareNetwork(temp, networkKeysConfig, applicationKeysConfig, nodesConfig,
                 provisionersConfig, groupsConfig, scenesConfig), true);
     }
 
@@ -248,7 +254,7 @@ class ImportExportUtils {
         if (scenesConfig.getConfig() instanceof ScenesConfig.ExportSome) {
             network.scenes = ((ScenesConfig.ExportSome) scenesConfig.getConfig()).getScenes();
         }
-        removeExcludedNodesFromScenes(network);
+        removeExcludedNodesFromScenes(network.nodes, network.scenes);
         return network;
     }
 
@@ -306,30 +312,37 @@ class ImportExportUtils {
     }
 
     /**
-     * Removes excluded nodes from a scenes
+     * Removes excluded node from a scene addresses.
      *
-     * @param network Mesh network
+     * @param nodes  List of nodes in the network.
+     * @param scenes List of scenes in the network.
      */
-    private void removeExcludedNodesFromScenes(@NonNull final MeshNetwork network) {
-        for (Scene scene : network.getScenes()) {
-            for (ProvisionedMeshNode node : network.getNodes()) {
-                if (!isNodeAddressIncludedInScene(node, scene)) {
-                    scene.getAddresses().remove((Integer) node.getUnicastAddress());
+    private void removeExcludedNodesFromScenes(@NonNull List<ProvisionedMeshNode> nodes, @NonNull List<Scene> scenes) {
+        ListIterator<Integer> addresses;
+        Integer address;
+        for (Scene scene : scenes) {
+            addresses = scene.getAddresses().listIterator();
+            while (addresses.hasNext()) {
+                address = addresses.next();
+                if (!isNodeAddressExistsInScene(nodes, address)) {
+                    addresses.remove();
                 }
             }
         }
     }
 
     /**
-     * Checks if a node address is included in the scenes
+     * Checks if a scene address exists exists in the list of nodes in the network.
      *
-     * @param node  Mesh node.
-     * @param scene Scene
+     * @param nodes   List of nodes in the network.
+     * @param address Scene address.
      * @return true if node address is included in scene.
      */
-    private boolean isNodeAddressIncludedInScene(@NonNull final ProvisionedMeshNode node, @NonNull final Scene scene) {
-        for (int address : scene.getAddresses()) {
-            return address == node.getUnicastAddress();
+    private boolean isNodeAddressExistsInScene(@NonNull final List<ProvisionedMeshNode> nodes, @NonNull final Integer address) {
+        for (ProvisionedMeshNode node : nodes) {
+            if (address == node.getUnicastAddress()) {
+                return true;
+            }
         }
         return false;
     }
