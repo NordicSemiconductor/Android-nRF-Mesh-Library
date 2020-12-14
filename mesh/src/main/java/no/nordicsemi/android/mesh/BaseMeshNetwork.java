@@ -415,19 +415,13 @@ abstract class BaseMeshNetwork {
     public boolean updateAppKey(@NonNull final ApplicationKey applicationKey) throws IllegalArgumentException {
         final int keyIndex = applicationKey.getKeyIndex();
         final ApplicationKey key = getAppKey(keyIndex);
-        //We check if the contents of the key are the same
-        //This will return true only if the key index and the key are the same
-        if (key.equals(applicationKey)) {
+        //If the keys are not the same we check if its in use before updating the key
+        if (!isKeyInUse(key)) {
+            //We check if the contents of the key are the same
+            //This will return true only if the key index and the key are the same
             return updateMeshKey(applicationKey);
         } else {
-            //If the keys are not the same we check if its in use before updating the key
-            if (!isKeyInUse(key)) {
-                //We check if the contents of the key are the same
-                //This will return true only if the key index and the key are the same
-                return updateMeshKey(applicationKey);
-            } else {
-                throw new IllegalArgumentException("Unable to update a application key that's already in use.");
-            }
+            throw new IllegalArgumentException("Unable to update a application key that's already in use.");
         }
     }
 
