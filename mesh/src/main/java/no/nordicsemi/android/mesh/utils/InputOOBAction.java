@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public enum InputOOBAction {
 
     /**
-     * Output OOB Actions
+     * Input OOB Actions
      */
     NO_INPUT((short) 0x0000),
     PUSH((short) 0x0001),
@@ -46,9 +46,9 @@ public enum InputOOBAction {
                 return PUSH;
             case 0x0002:
                 return TWIST;
-            case 0x0008:
+            case 0x0004:
                 return INPUT_NUMERIC;
-            case 0x0010:
+            case 0x0008:
                 return INPUT_ALPHA_NUMERIC;
         }
     }
