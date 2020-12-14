@@ -22,7 +22,7 @@ import static androidx.room.ForeignKey.CASCADE;
 /**
  * Wrapper class for network key
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess"})
 @Entity(tableName = "network_key",
         foreignKeys = @ForeignKey(
                 entity = MeshNetwork.class,
@@ -121,6 +121,12 @@ public final class NetworkKey extends MeshKey {
         this.phase = phase;
     }
 
+    @Override
+    public void setKey(@NonNull final byte[] key) {
+        super.setKey(key);
+        identityKey = SecureUtils.calculateIdentityKey(key);
+    }
+
     /**
      * Uses min security
      *
@@ -130,10 +136,13 @@ public final class NetworkKey extends MeshKey {
         return minSecurity;
     }
 
-    @Override
-    public void setKey(@NonNull final byte[] key) {
-        super.setKey(key);
-        identityKey = SecureUtils.calculateIdentityKey(key);
+    /**
+     * Sets  the minimum security.
+     *
+     * @param minSecurity true if minimum security or false if insecure.
+     */
+    public void setMinSecurity(final boolean minSecurity) {
+        this.minSecurity = minSecurity;
     }
 
     /**
@@ -141,15 +150,6 @@ public final class NetworkKey extends MeshKey {
      */
     public byte[] getIdentityKey() {
         return identityKey;
-    }
-
-    /**
-     * Set security
-     *
-     * @param minSecurity boolean security true if min false otherwise
-     */
-    public void setMinSecurity(final boolean minSecurity) {
-        this.minSecurity = minSecurity;
     }
 
     /**

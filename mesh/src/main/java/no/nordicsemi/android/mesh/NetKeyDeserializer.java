@@ -31,7 +31,7 @@ final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, Json
                 networkKeyObject.addProperty("oldKey", MeshParserUtils.bytesToHex(networkKey.getOldKey(), false));
             }
             networkKeyObject.addProperty("phase", networkKey.getPhase());
-            networkKeyObject.addProperty("minSecurity", networkKey.isMinSecurity() ? "low" : "high");
+            networkKeyObject.addProperty("minSecurity", networkKey.isMinSecurity() ? "secure" : "insecure");
             networkKeyObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(networkKey.getTimestamp()));
             jsonArray.add(networkKeyObject);
         }
@@ -49,7 +49,12 @@ final class NetKeyDeserializer implements JsonSerializer<List<NetworkKey>>, Json
             final byte[] key = MeshParserUtils.toByteArray(jsonObject.get("key").getAsString());
             final byte[] oldKey = getOldKey(jsonObject);
             final int phase = jsonObject.get("phase").getAsInt();
-            final boolean minSecurity = jsonObject.get("minSecurity").getAsString().equalsIgnoreCase("low");
+            final String minSec = jsonObject.get("minSecurity").getAsString();
+            boolean minSecurity = true;
+            if(!minSec.equalsIgnoreCase("low") && minSec.equalsIgnoreCase("insecure")){
+                minSecurity = false;
+            }
+
             final long timestamp;
             try {
                 timestamp = 0;//MeshParserUtils.parseTimeStamp(jsonObject.get("timestamp").getAsString());
