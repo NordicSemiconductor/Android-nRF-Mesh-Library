@@ -79,7 +79,6 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
             final String key = MeshParserUtils.bytesToHex(networkKey.getKey(), false);
             holder.netKey.setText(key.toUpperCase());
             holder.getSwipeableView().setTag(networkKey);
-
             holder.bound.setChecked(checkRadio(networkKey));
         }
     }
