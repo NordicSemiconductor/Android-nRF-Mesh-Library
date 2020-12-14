@@ -150,7 +150,6 @@ public class MeshManagerApi implements MeshMngrApi {
         initBouncyCastle();
         //Init database
         initDb(context);
-
     }
 
     @Override

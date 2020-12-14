@@ -413,8 +413,6 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     private List<Group> deserializeGroups(@NonNull final JsonObject jsonNetwork,
                                           @NonNull final String meshUuid) {
         final List<Group> groups = new ArrayList<>();
-        if (!jsonNetwork.has("groups"))
-            return groups;
 
         final JsonArray jsonGroups = jsonNetwork.getAsJsonArray("groups");
         for (int i = 0; i < jsonGroups.size(); i++) {
