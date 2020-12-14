@@ -3,6 +3,9 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 
 /**
@@ -10,8 +13,61 @@ import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
  */
 public class EditAppKeyViewModel extends KeysViewModel {
 
+    private ApplicationKey appKey;
+    final MutableLiveData<ApplicationKey> appKeyLiveData = new MutableLiveData<>();
+
     @Inject
     EditAppKeyViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
+    }
+
+    public void selectKey(final int index) {
+        appKey = getNetworkLiveData().getMeshNetwork().getAppKey(index);
+        appKeyLiveData.setValue(appKey);
+    }
+
+    public LiveData<ApplicationKey> getAppKeyLiveData() {
+        return appKeyLiveData;
+    }
+
+    /**
+     * Sets the application key
+     *
+     * @param key Key
+     * @return true if successful or false otherwise
+     */
+    public boolean setKey(@NonNull final byte[] key) {
+        if (key.length != 16)
+            throw new IllegalArgumentException("Key must be of length 16!");
+        appKey.setKey(key);
+        return updateKey();
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param name Application key name.
+     */
+    public boolean setName(@NonNull final String name) {
+        appKey.setName(name);
+        return updateKey();
+    }
+
+    /**
+     * Sets the bound net key index.
+     *
+     * @return true if success or false otherwise.
+     */
+    public boolean setBoundNetKeyIndex(final int index) {
+        appKey.setBoundNetKeyIndex(index);
+        return updateKey();
+    }
+
+    private boolean updateKey() {
+        if (getNetworkLiveData().getMeshNetwork().updateAppKey(appKey)) {
+            appKeyLiveData.postValue(appKey);
+            return true;
+        }
+        return false;
     }
 }

@@ -34,6 +34,8 @@ import com.google.android.material.elevation.ElevationOverlayProvider;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,10 +51,13 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
     private ApplicationKey mAppKey;
     private OnItemClickListener mOnItemClickListener;
 
-    public ManageBoundNetKeyAdapter(@NonNull final List<NetworkKey> networkKeys,
-                                    @NonNull final ApplicationKey appKey) {
+    public ManageBoundNetKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final LiveData<ApplicationKey> appKey, @NonNull final List<NetworkKey> networkKeys) {
+        appKey.observe(owner, applicationKey -> {
+            mAppKey = applicationKey;
+            notifyDataSetChanged();
+        });
         mNetworkKeys = networkKeys;
-        mAppKey = appKey;
+
     }
 
     public void setOnItemClickListener(final ManageBoundNetKeyAdapter.OnItemClickListener listener) {
@@ -75,11 +80,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
             holder.netKey.setText(key.toUpperCase());
             holder.getSwipeableView().setTag(networkKey);
 
-            if (checkRadio(networkKey)) {
-                holder.bound.setChecked(true);
-            } else {
-                holder.bound.setChecked(false);
-            }
+            holder.bound.setChecked(checkRadio(networkKey));
         }
     }
 
@@ -103,7 +104,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        ApplicationKey updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey);
+        void updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey);
     }
 
     final class ViewHolder extends RemovableViewHolder {
@@ -125,11 +126,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
             view.findViewById(R.id.container).setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final NetworkKey netKey = mNetworkKeys.get(getAdapterPosition());
-                    final ApplicationKey appKey = mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);
-                    if (appKey != null) {
-                        mAppKey = appKey;
-                        notifyDataSetChanged();
-                    }
+                    mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);
                 }
             });
         }
