@@ -1137,6 +1137,35 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Adds a mesh node to the list of provisioned nodes
+     *
+     * <p>
+     * Note that This method should only be used to add debug Nodes, or Nodes
+     * that have already been provisioned.
+     * </p>
+     *
+     * @param meshNode node to be added
+     * @return true if added and false otherwise
+     */
+    public boolean addNode(@NonNull final ProvisionedMeshNode meshNode) {
+        ProvisionedMeshNode sameAddressNode = getNode(meshNode.getUnicastAddress());
+        if (sameAddressNode != null) {
+            throw new IllegalStateException("cant add node with conflicting unicast address");
+        }
+
+        int index = 0;
+        for (ProvisionedMeshNode node : nodes) {
+            if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
+                nodes.set(index, meshNode); //replace a node if uuid matches
+                return true;
+            }
+            index++;
+        }
+
+        return nodes.add(meshNode);
+    }
+
+    /**
      * Deletes a mesh node from the list of provisioned nodes
      *
      * <p>
