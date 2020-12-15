@@ -120,7 +120,6 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         keyView.setVisibility(View.VISIBLE);
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_manage_net_keys);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         containerKey.setOnClickListener(v -> {
@@ -176,7 +175,6 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_manage_net_keys);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.title_select_net_key);
@@ -208,12 +206,12 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
                     returnIntent.putExtra(RESULT_KEY, networkKey);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
+                case MANAGE_NET_KEY:
+                    final Intent intent = new Intent(this, EditNetKeyActivity.class);
+                    intent.putExtra(EDIT_KEY, networkKey.getKeyIndex());
+                    startActivity(intent);
 
             }
-        } else {
-            final Intent intent = new Intent(this, EditNetKeyActivity.class);
-            intent.putExtra(EDIT_KEY, networkKey.getKeyIndex());
-            startActivity(intent);
         }
     }
 

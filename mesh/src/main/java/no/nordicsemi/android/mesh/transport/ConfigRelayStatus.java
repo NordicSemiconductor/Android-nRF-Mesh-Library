@@ -43,11 +43,10 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
     private int mRelayRetransmitCount;
     private int mRelayRetransmitIntervalSteps;
 
-    private static final Creator<ConfigRelayStatus> CREATOR = new Creator<ConfigRelayStatus>() {
+    public static final Creator<ConfigRelayStatus> CREATOR = new Creator<ConfigRelayStatus>() {
         @Override
         public ConfigRelayStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new ConfigRelayStatus(message);
         }
 

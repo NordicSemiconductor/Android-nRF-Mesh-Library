@@ -166,11 +166,12 @@ abstract class BaseMeshNetwork {
     /**
      * Adds a Net key to the list of net keys with the given key index
      *
-     * @param newNetKey application key
+     * @param newNetKey Network key
+     * @throws IllegalArgumentException if the key already exists.
      */
     public boolean addNetKey(@NonNull final NetworkKey newNetKey) {
         if (isNetKeyExists(MeshParserUtils.bytesToHex(newNetKey.getKey(), false))) {
-            throw new IllegalArgumentException("Net key already exists");
+            throw new IllegalArgumentException("Net key already exists, check the contents of the key!");
         } else {
             newNetKey.setMeshUuid(meshUUID);
             netKeys.add(newNetKey);
@@ -310,7 +311,7 @@ abstract class BaseMeshNetwork {
         }
 
         if (isAppKeyExists(MeshParserUtils.bytesToHex(newAppKey.getKey(), false))) {
-            throw new IllegalArgumentException("App key already exists");
+            throw new IllegalArgumentException("App key already exists, check the contents of the key!");
         } else {
             newAppKey.setMeshUuid(meshUUID);
             appKeys.add(newAppKey);

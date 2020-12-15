@@ -374,6 +374,7 @@
     <string name="reset_node_rationale_summary">Resetting this node will change its provisioned state back to un-provisioned
         state. Any stored data related to the node will be deleted from the app. Do you wish to continue?</string>
 
+
     <string name="node_device_key">Device Key</string>
     <string name="device_key_clipboard_copied">Device key copied to clipboard</string>
     <string name="unavailable">Unavailable</string>
@@ -594,7 +595,6 @@
     <string name="info">Info</string>
     <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
         without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
-
     <string name="title_stored_scenes">Stored Scenes</string>
     <string name="no_scenes_title">No scenes available</string>
     <string name="action_add_scene">Add Scene</string>
@@ -634,4 +634,18 @@
     <string name="add">Add</string>
     <string name="error_select_one_network_key_at_least">Error, at least one Network Key must be selected!</string>
     <string name="error_select_one_provisioner_at_least">Error, at least one Provisioner must be selected!</string>
+
+    <string name="error_empty_key">Error, key cannot be empty!</string>
+
+    <string name="error_prohibited">Prohibited!</string>
+    <string name="error_invalid_pdu">The provisioning protocol PDU is not recognized by the device!</string>
+    <string name="error_invalid_format">The arguments of the protocol PDUs are outside expected values or the length of the PDU is different than expected!</string>
+    <string name="error_confirmation_failed">The computed confirmation value was not successfully verified!</string>
+    <string name="error_decryption_failed">The Data block was not successfully decrypted!</string>
+    <string name="error_unexpected_error">An unexpected error occurred that may not be recoverable!</string>
+    <string name="error_cannot_assign_addresses">The device cannot assign consecutive unicast addresses to all elements!</string>
+    <string name="error_rfu">Reserved for Future Use!</string>
+    <string name="error_invalid_key_length">Error, key length must be 16-bytes</string>
+
+
 </resources>
