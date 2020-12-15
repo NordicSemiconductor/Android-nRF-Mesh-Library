@@ -69,9 +69,7 @@ public abstract class MeshModel implements Parcelable {
         this.mModelId = modelId;
     }
 
-    MeshModel() {
-
-    }
+    MeshModel() {}
 
     protected MeshModel(final Parcel in) {
 
@@ -228,6 +226,10 @@ public abstract class MeshModel implements Parcelable {
      */
     public PublicationSettings getPublicationSettings() {
         return mPublicationSettings;
+    }
+
+    public void setPublicationSettings(final PublicationSettings publicationSettings){
+        mPublicationSettings = publicationSettings;
     }
 
     /**

@@ -52,6 +52,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     private final List<ApplicationKey> appKeys = new ArrayList<>();
     private final List<ApplicationKey> addedAppKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
+    private boolean enableSelection = true;
 
     public AddedAppKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<ApplicationKey> appKeys,
@@ -77,6 +78,11 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         mOnItemClickListener = listener;
     }
 
+    public void enableDisableKeySelection(final boolean flag) {
+        enableSelection = flag;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
@@ -91,6 +97,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
         holder.check.setChecked(addedAppKeys.contains(key));
+        holder.check.setEnabled(enableSelection);
     }
 
     @Override

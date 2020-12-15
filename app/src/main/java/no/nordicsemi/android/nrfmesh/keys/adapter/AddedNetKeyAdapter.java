@@ -52,6 +52,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
     private final List<NetworkKey> netKeys = new ArrayList<>();
     private final List<NetworkKey> addedNetKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
+    private boolean enableSelection = true;
 
     public AddedNetKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<NetworkKey> netKeys,
@@ -76,6 +77,11 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         mOnItemClickListener = listener;
     }
 
+    public void enableDisableKeySelection(final boolean flag) {
+        enableSelection = flag;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public AddedNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
@@ -90,6 +96,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
         holder.check.setChecked(addedNetKeys.contains(key));
+        holder.check.setEnabled(enableSelection);
     }
 
     @Override

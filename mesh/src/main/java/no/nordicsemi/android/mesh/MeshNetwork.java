@@ -31,6 +31,29 @@ public final class MeshNetwork extends BaseMeshNetwork {
         this.mCallbacks = mCallbacks;
     }
 
+    /**
+     * Returns true if the configuration contains full information about the mesh network, or false otherwise
+     *
+     * <p>
+     * In a partial configuration may not have all the network keys, application keys, provisioners,
+     * nodes(some nodes may contain their device keys and some may not).
+     * Hence when shared a user will gain only limited access to the given mesh network.
+     * </p>
+     */
+    public boolean isPartial() {
+        return partial;
+    }
+
+    /**
+     * Set the partial configuration flag to true. To be used internally
+     *
+     * @param partial true if the network is set to be exported partially.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setPartial(final boolean partial) {
+        this.partial = partial;
+    }
+
     public void setIvIndex(final IvIndex ivIndex) {
         this.ivIndex = ivIndex;
         notifyNetworkUpdated();
@@ -44,16 +67,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return schema;
     }
 
-    void setSchema(String schema) {
-        this.schema = schema;
-    }
-
     public String getId() {
         return id;
-    }
-
-    void setId(String id) {
-        this.id = id;
     }
 
     public String getVersion() {
@@ -848,7 +863,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return null;
     }
 
-    void setNetKeys(List<NetworkKey> netKeys) {
+    void setNetKeys(@NonNull final List<NetworkKey> netKeys) {
         this.netKeys = netKeys;
     }
 
@@ -859,7 +874,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(appKeys);
     }
 
-    void setAppKeys(List<ApplicationKey> appKeys) {
+    void setAppKeys(@NonNull final List<ApplicationKey> appKeys) {
         this.appKeys = appKeys;
     }
 
@@ -914,8 +929,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 }
             }
         }
-
         return null;
     }
-
 }

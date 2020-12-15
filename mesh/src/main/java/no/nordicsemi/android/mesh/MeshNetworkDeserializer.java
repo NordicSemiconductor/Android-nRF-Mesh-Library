@@ -44,9 +44,15 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         final String meshUuid = MeshParserUtils.formatUuid(uuid);
         final MeshNetwork network = new MeshNetwork(meshUuid == null ? uuid : meshUuid);
 
-        network.schema = jsonObject.get("$schema").getAsString();
-        network.id = jsonObject.get("id").getAsString();
+        final String schema = jsonObject.get("$schema").getAsString();
+        if (!schema.equalsIgnoreCase("http://json-schema.org/draft-04/schema#"))
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported schema");
+        network.schema = schema;
+        final String id = jsonObject.get("id").getAsString();
+        if (!id.equalsIgnoreCase("http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#"))
+            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported ID");
         network.version = jsonObject.get("version").getAsString();
+        network.id = id;
         network.meshName = jsonObject.get("meshName").getAsString();
 
         try {
@@ -62,15 +68,12 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         network.provisioners = deserializeProvisioners(context,
                 jsonObject.getAsJsonArray("provisioners"), network.meshUUID);
 
-        if (jsonObject.has("nodes"))
-            network.nodes = deserializeNodes(context,
-                    jsonObject.getAsJsonArray("nodes"), network.meshUUID);
+        network.nodes = deserializeNodes(context,
+                jsonObject.getAsJsonArray("nodes"), network.meshUUID);
 
-        if (jsonObject.has("groups"))
-            network.groups = deserializeGroups(jsonObject, network.meshUUID);
+        network.groups = deserializeGroups(jsonObject, network.meshUUID);
 
-        if (jsonObject.has("scenes"))
-            network.scenes = deserializeScenes(jsonObject, network.meshUUID);
+        network.scenes = deserializeScenes(jsonObject, network.meshUUID);
 
         assignProvisionerAddresses(network);
 
@@ -89,8 +92,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.addProperty("meshUUID", meshUuid);
         jsonObject.addProperty("meshName", network.getMeshName());
         jsonObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(network.getTimestamp()));
-        //TODO handle partial export
-        jsonObject.addProperty("partial", "False");
+        jsonObject.addProperty("partial", network.partial);
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
@@ -411,8 +413,6 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     private List<Group> deserializeGroups(@NonNull final JsonObject jsonNetwork,
                                           @NonNull final String meshUuid) {
         final List<Group> groups = new ArrayList<>();
-        if (!jsonNetwork.has("groups"))
-            return groups;
 
         final JsonArray jsonGroups = jsonNetwork.getAsJsonArray("groups");
         for (int i = 0; i < jsonGroups.size(); i++) {
@@ -477,9 +477,6 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                                           @NonNull final String meshUuid) {
         final List<Scene> scenes = new ArrayList<>();
         try {
-            if (!jsonNetwork.has("scenes"))
-                return scenes;
-
             final JsonArray jsonScenes = jsonNetwork.getAsJsonArray("scenes");
             for (int i = 0; i < jsonScenes.size(); i++) {
                 final JsonObject jsonScene = jsonScenes.get(i).getAsJsonObject();

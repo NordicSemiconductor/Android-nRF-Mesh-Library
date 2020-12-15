@@ -114,6 +114,8 @@ abstract class MeshKey implements Parcelable, Cloneable {
      * @param key 16-byte network key
      */
     public void setKey(@NonNull final byte[] key) {
+        if (key.length != 16)
+            throw new IllegalArgumentException("Key must be of length 16!");
         this.key = key;
     }
 

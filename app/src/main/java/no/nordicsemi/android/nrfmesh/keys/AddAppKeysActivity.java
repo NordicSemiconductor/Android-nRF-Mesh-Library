@@ -42,20 +42,12 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedAppKeyAdapter;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 
 public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         AddedAppKeyAdapter.OnItemClickListener {
     private AddedAppKeyAdapter adapter;
 
-    @Override
-    protected void updateClickableViews() {
-
-    }
-
-    @Override
-    protected void updateMeshMessage(final MeshMessage meshMessage) {
-
-    }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -64,19 +56,20 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
         mEmptyView = findViewById(R.id.empty_app_keys);
         adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterClickListener(true);
         recyclerViewKeys.setAdapter(adapter);
+        adapter.setOnItemClickListener(this);
+        updateClickableViews();
         setUpObserver();
     }
 
     @Override
     public void onItemClick(@NonNull final ApplicationKey appKey) {
-        if (!checkConnectivity())
+        if (!checkConnectivity(container))
             return;
         final MeshMessage meshMessage;
         final String message;
         final NetworkKey networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(appKey.getBoundNetKeyIndex());
-        if (!mViewModel.isAppKeyAdded(appKey.getKeyIndex())) {
+        if (!((AddKeysViewModel) mViewModel).isAppKeyAdded(appKey.getKeyIndex())) {
             message = getString(R.string.adding_app_key);
             meshMessage = new ConfigAppKeyAdd(networkKey, appKey);
         } else {
@@ -114,6 +107,6 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
 
     @Override
     void enableAdapterClickListener(final boolean enable) {
-        adapter.setOnItemClickListener(enable ? this : null);
+        adapter.enableDisableKeySelection(enable);
     }
 }

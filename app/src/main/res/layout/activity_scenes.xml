@@ -108,7 +108,6 @@
         android:text="@string/action_add_scene"
         app:elevation="@dimen/fab_elevation"
         app:fabSize="normal"
-        app:icon="@drawable/ic_add_white"
-        app:srcCompat="@drawable/ic_add_white" />
+        app:icon="@drawable/ic_add_white"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

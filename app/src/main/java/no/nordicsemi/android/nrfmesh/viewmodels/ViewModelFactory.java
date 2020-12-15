@@ -66,6 +66,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         creators.put(ReconnectViewModel.class, viewModelSubComponent::reconnectViewModule);
         creators.put(ScenesViewModel.class, viewModelSubComponent::scenesViewModel);
         creators.put(AddedScenesViewModel.class, viewModelSubComponent::addScenesViewModel);
+        creators.put(ExportNetworkViewModel.class, viewModelSubComponent::exportNetworkViewModel);
     }
 
     @SuppressWarnings("unchecked")

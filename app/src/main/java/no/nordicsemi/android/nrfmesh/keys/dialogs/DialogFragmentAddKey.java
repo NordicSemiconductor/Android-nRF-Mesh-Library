@@ -42,9 +42,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 import no.nordicsemi.android.nrfmesh.R;
+
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentAddKey extends DialogFragment {
 
@@ -76,8 +77,7 @@ public class DialogFragmentAddKey extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
         //Bind ui
@@ -92,7 +92,7 @@ public class DialogFragmentAddKey extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    appKeysInputLayout.setError(getString(R.string.error_empty_app_key));
+                    appKeysInputLayout.setError(getString(R.string.error_empty_key));
                 } else {
                     appKeysInputLayout.setError(null);
                 }
@@ -115,7 +115,7 @@ public class DialogFragmentAddKey extends DialogFragment {
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String appKey = appKeyInput.getEditableText().toString().trim();
-            if (validateInput(appKey)) {
+            if (validateKeyInput(appKey)) {
                 try {
                     ((DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);
                     dismiss();
@@ -127,16 +127,5 @@ public class DialogFragmentAddKey extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).
                 setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
         return alertDialog;
-    }
-
-    private boolean validateInput(final String appKey) {
-        try {
-            if(MeshParserUtils.validateKeyInput(appKey)) {
-                return true;
-            }
-        } catch (IllegalArgumentException ex) {
-            appKeysInputLayout.setError(ex.getMessage());
-        }
-        return false;
     }
 }

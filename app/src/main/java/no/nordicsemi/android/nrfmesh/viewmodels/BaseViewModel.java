@@ -316,7 +316,7 @@ public abstract class BaseViewModel extends ViewModel {
      * @param message   Message
      * @param duration  Snack bar duration
      */
-    public void displaySnackBar(@NonNull final Activity context, @NonNull final CoordinatorLayout container, @NonNull final String message, final int duration) {
+    public void displaySnackBar(@NonNull final Context context, @NonNull final CoordinatorLayout container, @NonNull final String message, final int duration) {
         Snackbar.make(container, message, duration)
                 .setActionTextColor(context.getResources().getColor(R.color.colorSecondary))
                 .show();

@@ -100,11 +100,12 @@ public class MeshManagerApi implements MeshMngrApi {
     private final static int ADVERTISED_NETWORK_ID_OFFSET = 1; //Offset of the network id contained in the advertisement service data
     private final static int ADVERTISED_NETWORK_ID_LENGTH = 8; //Length of the network id contained in the advertisement service data
 
-    private Context mContext;
+    private final Context mContext;
     private final Handler mHandler;
     private MeshManagerCallbacks mMeshManagerCallbacks;
-    private MeshProvisioningHandler mMeshProvisioningHandler;
-    private MeshMessageHandler mMeshMessageHandler;
+    private final MeshProvisioningHandler mMeshProvisioningHandler;
+    private final MeshMessageHandler mMeshMessageHandler;
+    private final ImportExportUtils mImportExportUtils;
     private byte[] mIncomingBuffer;
     private int mIncomingBufferOffset;
     private byte[] mOutgoingBuffer;
@@ -145,10 +146,10 @@ public class MeshManagerApi implements MeshMngrApi {
         mHandler = new Handler(Looper.getMainLooper());
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
+        mImportExportUtils = new ImportExportUtils();
         initBouncyCastle();
         //Init database
         initDb(context);
-
     }
 
     @Override
@@ -216,6 +217,7 @@ public class MeshManagerApi implements MeshMngrApi {
      * accept any IV Index received in the Secure Network beacon upon connection to the
      * GATT Proxy Node.
      */
+    @SuppressWarnings("unused")
     public void allowIvIndexRecoveryOver42(final boolean allowIvIndexRecoveryOver42) {
         this.allowIvIndexRecoveryOver42 = allowIvIndexRecoveryOver42;
     }
@@ -616,7 +618,7 @@ public class MeshManagerApi implements MeshMngrApi {
     @NonNull
     @Override
     public UUID getDeviceUuid(@NonNull final byte[] serviceData) throws IllegalArgumentException {
-        if (serviceData == null || serviceData.length < 18)
+        if (serviceData.length < 18)
             throw new IllegalArgumentException("Service data cannot be null");
 
         final ByteBuffer buffer = ByteBuffer.wrap(serviceData);
@@ -628,9 +630,6 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
-        if (advertisementData == null)
-            throw new IllegalArgumentException("Advertisement data cannot be null");
-
         for (int i = 0; i < advertisementData.length; i++) {
             final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
             if (length == 0)
@@ -647,9 +646,6 @@ public class MeshManagerApi implements MeshMngrApi {
     @Nullable
     @Override
     public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
-        if (advertisementData == null)
-            throw new IllegalArgumentException("Advertisement data cannot be null");
-
         if (isMeshBeacon(advertisementData)) {
             for (int i = 0; i < advertisementData.length; i++) {
                 final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
@@ -872,25 +868,52 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public String exportMeshNetwork() {
-        final MeshNetwork meshNetwork = mMeshNetwork;
-        if (meshNetwork != null) {
-            return NetworkImportExportUtils.export(meshNetwork);
+        try {
+            final MeshNetwork meshNetwork = mMeshNetwork;
+            return mImportExportUtils.export(meshNetwork, false);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public String exportMeshNetwork(@NonNull final NetworkKeysConfig networkKeysConfig,
+                                    @NonNull final ApplicationKeysConfig applicationKeysConfig,
+                                    @NonNull final NodesConfig nodesConfig,
+                                    @NonNull final ProvisionersConfig provisionersConfig,
+                                    @NonNull final GroupsConfig groupsConfig,
+                                    @NonNull final ScenesConfig scenesConfig) {
+        try {
+            final MeshNetwork network = mMeshNetwork;
+            return mImportExportUtils.export(network, networkKeysConfig, applicationKeysConfig,
+                    nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
         return null;
     }
 
     @Override
     public void importMeshNetwork(@NonNull final Uri uri) {
-        if (uri.getPath() != null) {
-            NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
-        } else {
-            mMeshManagerCallbacks.onNetworkImportFailed("URI getPath() returned null!");
+        try {
+            importMeshNetworkJson(mImportExportUtils.readJsonStringFromUri(mContext.getContentResolver(), uri));
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
     }
 
     @Override
     public void importMeshNetworkJson(@NonNull String networkJson) {
-        NetworkImportExportUtils.importMeshNetworkFromJson(mContext, networkJson, networkLoadCallbacks);
+        try {
+            final MeshNetwork meshNetwork = mImportExportUtils.importNetwork(networkJson);
+            meshNetwork.setCallbacks(callbacks);
+            insertNetwork(meshNetwork);
+            mMeshNetwork = meshNetwork;
+            mMeshManagerCallbacks.onNetworkImported(meshNetwork);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
+        }
     }
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -964,7 +987,7 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void storeScene(final int address, final int currentScene, final List<Integer> scenes) {
             final Scene scene = mMeshNetwork.getScene(currentScene);
-            if (!scene.getAddresses().contains(address)) {
+            if (scene != null && !scene.getAddresses().contains(address)) {
                 scene.addresses.add(address);
             }
         }
@@ -1121,19 +1144,6 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNetworkLoadFailed(final String error) {
             mMeshManagerCallbacks.onNetworkLoadFailed(error);
-        }
-
-        @Override
-        public void onNetworkImportedFromJson(final MeshNetwork meshNetwork) {
-            meshNetwork.setCallbacks(callbacks);
-            insertNetwork(meshNetwork);
-            mMeshNetwork = meshNetwork;
-            mMeshManagerCallbacks.onNetworkImported(meshNetwork);
-        }
-
-        @Override
-        public void onNetworkImportFailed(final String error) {
-            mMeshManagerCallbacks.onNetworkImportFailed(error);
         }
     };
 

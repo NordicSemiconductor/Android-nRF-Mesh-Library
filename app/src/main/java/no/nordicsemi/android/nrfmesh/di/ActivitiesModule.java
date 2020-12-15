@@ -30,6 +30,7 @@ import no.nordicsemi.android.nrfmesh.ProvisioningActivity;
 import no.nordicsemi.android.nrfmesh.SplashScreenActivity;
 import no.nordicsemi.android.nrfmesh.ble.ReconnectActivity;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
+import no.nordicsemi.android.nrfmesh.export.ExportNetworkActivity;
 import no.nordicsemi.android.nrfmesh.keys.AddAppKeyActivity;
 import no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.AddNetKeyActivity;
@@ -159,4 +160,7 @@ abstract class ActivitiesModule {
 
     @ContributesAndroidInjector()
     abstract GenericModelConfigurationActivity contributeModelConfigurationActivity();
+
+    @ContributesAndroidInjector()
+    abstract ExportNetworkActivity contributeExportNetworkActivity();
 }

@@ -58,6 +58,7 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentNetworkName;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentPermissionRationale;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentResetNetwork;
+import no.nordicsemi.android.nrfmesh.export.ExportNetworkActivity;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity;
@@ -226,7 +227,8 @@ public class SettingsFragment extends Fragment implements Injectable,
                 fragment.show(getChildFragmentManager(), null);
                 return true;
             case R.id.action_export_network:
-                handleNetworkExport();
+                startActivity(new Intent(requireContext(), ExportNetworkActivity.class));
+                //handleNetworkExport();
                 break;
             case R.id.action_reset_network:
                 final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
