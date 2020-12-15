@@ -43,7 +43,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
-import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
@@ -65,22 +64,19 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
     View container;
 
     private EditAppKeyViewModel mViewModel;
-    private ApplicationKey appKey;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditAppKeyViewModel.class);
         ButterKnife.bind(this);
-        //noinspection ConstantConditions
         final int index = getIntent().getExtras().getInt(EDIT_KEY);
-        appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(index);
+        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditAppKeyViewModel.class);
+        mViewModel.selectAppKey(index);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_edit_app_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -110,39 +106,28 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         final RecyclerView netKeysRecyclerView = findViewById(R.id.recycler_view_keys);
         netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(mViewModel.getNetworkLiveData().getNetworkKeys(), appKey);
+        final ManageBoundNetKeyAdapter mAdapter = new ManageBoundNetKeyAdapter(this, mViewModel.getAppKeyLiveData(), mViewModel.getNetworkLiveData().getNetworkKeys());
         mAdapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(mAdapter);
 
         containerKey.setOnClickListener(v -> {
-            if (appKey != null) {
-                final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(appKey.getKeyIndex(), appKey);
-                fragment.show(getSupportFragmentManager(), null);
-            }
+            final ApplicationKey appKey = mViewModel.getAppKeyLiveData().getValue();
+            final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(appKey.getKeyIndex(), appKey);
+            fragment.show(getSupportFragmentManager(), null);
         });
 
         containerKeyName.setOnClickListener(v -> {
-            if (appKey != null) {
-                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(appKey.getName());
-                fragment.show(getSupportFragmentManager(), null);
-            }
+            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getAppKeyLiveData().getValue().getName());
+            fragment.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if (appKey != null) {
-                this.appKey = meshNetworkLiveData.getMeshNetwork().getAppKey(appKey.getKeyIndex());
-                keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));
-                name.setText(appKey.getName());
-                keyIndexView.setText(String.valueOf(appKey.getKeyIndex()));
+        mViewModel.getAppKeyLiveData().observe(this, applicationKey -> {
+            if (applicationKey != null) {
+                keyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
+                name.setText(applicationKey.getName());
+                keyIndexView.setText(String.valueOf(applicationKey.getKeyIndex()));
             }
         });
-
-        if (savedInstanceState == null) {
-            keyView.setText(MeshParserUtils.bytesToHex(appKey.getKey(), false));
-            name.setText(appKey.getName());
-        }
-        keyIndexView.setText(String.valueOf(appKey.getKeyIndex()));
-
     }
 
     @Override
@@ -156,45 +141,21 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onKeyNameUpdated(@NonNull final String name) {
-        if (appKey != null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                appKey.setName(name);
-                return network.updateAppKey(appKey);
-            }
-        }
-        return false;
+        return mViewModel.setName(name);
     }
 
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            return network.updateAppKey(appKey, key);
-        }
-        return false;
+        return mViewModel.setKey(key);
     }
 
     @Override
-    public ApplicationKey updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey) {
+    public void updateBoundNetKeyIndex(final int position, @NonNull final NetworkKey networkKey) {
         try {
-            final ApplicationKey key = appKey.clone();
-            key.setBoundNetKeyIndex(networkKey.getKeyIndex());
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                try {
-                    if (network.updateAppKey(key)) {
-                        appKey = key;
-                        return key;
-                    }
-                } catch (IllegalArgumentException ex) {
-                    displaySnackBar(ex.getMessage());
-                }
-            }
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            mViewModel.setBoundNetKeyIndex(networkKey.getKeyIndex());
+        } catch (IllegalArgumentException ex) {
+            displaySnackBar(ex.getMessage());
         }
-        return appKey;
     }
 
     private void displaySnackBar(final String message) {

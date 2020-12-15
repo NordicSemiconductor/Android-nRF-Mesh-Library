@@ -595,4 +595,16 @@
     <string name="info">Info</string>
     <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
         without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
+
+    <string name="error_empty_key">Error, key cannot be empty!</string>
+
+    <string name="error_prohibited">Prohibited!</string>
+    <string name="error_invalid_pdu">The provisioning protocol PDU is not recognized by the device!</string>
+    <string name="error_invalid_format">The arguments of the protocol PDUs are outside expected values or the length of the PDU is different than expected!</string>
+    <string name="error_confirmation_failed">The computed confirmation value was not successfully verified!</string>
+    <string name="error_decryption_failed">The Data block was not successfully decrypted!</string>
+    <string name="error_unexpected_error">An unexpected error occurred that may not be recoverable!</string>
+    <string name="error_cannot_assign_addresses">The device cannot assign consecutive unicast addresses to all elements!</string>
+    <string name="error_rfu">Reserved for Future Use!</string>
+    <string name="error_invalid_key_length">Error, key length must be 16-bytes</string>
 </resources>

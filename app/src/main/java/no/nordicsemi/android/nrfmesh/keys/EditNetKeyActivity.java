@@ -35,7 +35,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
@@ -52,22 +51,18 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
     ViewModelProvider.Factory mViewModelFactory;
 
     private EditNetKeyViewModel mViewModel;
-    private NetworkKey networkKey;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
         mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditNetKeyViewModel.class);
-
-        //noinspection ConstantConditions
         final int index = getIntent().getExtras().getInt(EDIT_KEY);
-        networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(index);
+        mViewModel.selectNetKey(index);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_edit_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -94,34 +89,21 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
         keyIndexView.setVisibility(View.VISIBLE);
 
         containerKey.setOnClickListener(v -> {
-            if (networkKey != null) {
-                final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(networkKey.getKeyIndex(), networkKey);
-                fragment.show(getSupportFragmentManager(), null);
-            }
+            final NetworkKey networkKey = mViewModel.getNetworkKeyLiveData().getValue();
+            final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(networkKey.getKeyIndex(), networkKey);
+            fragment.show(getSupportFragmentManager(), null);
         });
 
         containerKeyName.setOnClickListener(v -> {
-            if (networkKey != null) {
-                final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(networkKey.getName());
-                fragment.show(getSupportFragmentManager(), null);
-            }
+            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName());
+            fragment.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if (networkKey != null) {
-                this.networkKey = meshNetworkLiveData.getMeshNetwork().getNetKey(networkKey.getKeyIndex());
-                keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
-                name.setText(networkKey.getName());
-                keyIndexView.setText(String.valueOf(networkKey.getKeyIndex()));
-            }
-        });
-
-        if (savedInstanceState == null) {
+        mViewModel.getNetworkKeyLiveData().observe(this, networkKey -> {
             keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
             name.setText(networkKey.getName());
-        }
-        keyIndexView.setText(String.valueOf(networkKey.getKeyIndex()));
-
+            keyIndexView.setText(String.valueOf(networkKey.getKeyIndex()));
+        });
     }
 
     @Override
@@ -135,22 +117,11 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onKeyNameUpdated(@NonNull final String name) {
-        if (networkKey != null) {
-            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-            if (network != null) {
-                networkKey.setName(name);
-                return network.updateNetKey(networkKey);
-            }
-        }
-        return false;
+        return mViewModel.setName(name);
     }
 
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            return network.updateNetKey(networkKey, key);
-        }
-        return false;
+        return mViewModel.setKey(key);
     }
 }

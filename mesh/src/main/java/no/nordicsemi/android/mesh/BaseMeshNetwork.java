@@ -159,11 +159,12 @@ abstract class BaseMeshNetwork {
     /**
      * Adds a Net key to the list of net keys with the given key index
      *
-     * @param newNetKey application key
+     * @param newNetKey Network key
+     * @throws IllegalArgumentException if the key already exists.
      */
     public boolean addNetKey(@NonNull final NetworkKey newNetKey) {
         if (isNetKeyExists(MeshParserUtils.bytesToHex(newNetKey.getKey(), false))) {
-            throw new IllegalArgumentException("Net key already exists");
+            throw new IllegalArgumentException("Net key already exists, check the contents of the key!");
         } else {
             newNetKey.setMeshUuid(meshUUID);
             netKeys.add(newNetKey);
@@ -303,7 +304,7 @@ abstract class BaseMeshNetwork {
         }
 
         if (isAppKeyExists(MeshParserUtils.bytesToHex(newAppKey.getKey(), false))) {
-            throw new IllegalArgumentException("App key already exists");
+            throw new IllegalArgumentException("App key already exists, check the contents of the key!");
         } else {
             newAppKey.setMeshUuid(meshUUID);
             appKeys.add(newAppKey);
@@ -415,19 +416,13 @@ abstract class BaseMeshNetwork {
     public boolean updateAppKey(@NonNull final ApplicationKey applicationKey) throws IllegalArgumentException {
         final int keyIndex = applicationKey.getKeyIndex();
         final ApplicationKey key = getAppKey(keyIndex);
-        //We check if the contents of the key are the same
-        //This will return true only if the key index and the key are the same
-        if (key.equals(applicationKey)) {
+        //If the keys are not the same we check if its in use before updating the key
+        if (!isKeyInUse(key)) {
+            //We check if the contents of the key are the same
+            //This will return true only if the key index and the key are the same
             return updateMeshKey(applicationKey);
         } else {
-            //If the keys are not the same we check if its in use before updating the key
-            if (!isKeyInUse(key)) {
-                //We check if the contents of the key are the same
-                //This will return true only if the key index and the key are the same
-                return updateMeshKey(applicationKey);
-            } else {
-                throw new IllegalArgumentException("Unable to update a application key that's already in use.");
-            }
+            throw new IllegalArgumentException("Unable to update a application key that's already in use.");
         }
     }
 
