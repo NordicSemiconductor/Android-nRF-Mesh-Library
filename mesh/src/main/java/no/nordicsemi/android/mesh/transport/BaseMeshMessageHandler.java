@@ -118,7 +118,12 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     Log.v(TAG, "TTL for received message: " + ttl);
                     final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
 
-                    final ProvisionedMeshNode node = network.getNode(src);
+                    ProvisionedMeshNode node = network.getNode(src);
+
+                    if (node == null) {
+                        node = this.mStatusCallbacks.onUnknownNode(src);
+                    }
+
                     if (node == null) {
                         continue;
                     }

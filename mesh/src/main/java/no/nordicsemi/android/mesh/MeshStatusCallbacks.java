@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 
 import no.nordicsemi.android.mesh.transport.ControlMessage;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
+import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 
 /**
  * Callbacks to notify the status of the mesh messages
@@ -44,6 +45,15 @@ public interface MeshStatusCallbacks {
      * @param hasIncompleteTimerExpired Flag that notifies if the incomplete timer had expired
      */
     void onTransactionFailed(final int dst, final boolean hasIncompleteTimerExpired);
+
+    /**
+     * Called when a message is received from a node that isn't in the database.
+     *
+     * @param addr  Address of the node
+     * @return A ProvisionedMeshNode (which must have been added to the MeshNetwork), or null if the
+     *         message should be discarded.
+     */
+    ProvisionedMeshNode onUnknownNode(final int addr);
 
     /**
      * Notifies if an unknown pdu was received
