@@ -44,11 +44,13 @@ import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.NetworkKey;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.keys.MeshKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
+
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentEditNetKey extends DialogFragment {
 
@@ -92,7 +94,7 @@ public class DialogFragmentEditNetKey extends DialogFragment {
         //Bind ui
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
-        final String key = MeshParserUtils.bytesToHex(mNetworkKey.getKey(), false);
+        final String key = bytesToHex(mNetworkKey.getKey(), false);
         networkKeyInputLayout.setHint(getString(R.string.hint_network_key));
         networkKeyInput.setKeyListener(hexKeyListener);
         networkKeyInput.setText(key);
@@ -106,7 +108,7 @@ public class DialogFragmentEditNetKey extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    networkKeyInputLayout.setError(getString(R.string.error_empty_network_key));
+                    networkKeyInputLayout.setError(getString(R.string.error_empty_key));
                 } else {
                     networkKeyInputLayout.setError(null);
                 }
@@ -130,7 +132,7 @@ public class DialogFragmentEditNetKey extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String networkKey = networkKeyInput.getEditableText().toString().trim();
             try {
-                if (((MeshKeyListener) requireActivity()).onKeyUpdated(mPosition, networkKey))
+                if (validateKeyInput(networkKey) && ((MeshKeyListener) requireActivity()).onKeyUpdated(mPosition, networkKey))
                     dismiss();
             } catch (Exception ex) {
                 networkKeyInputLayout.setError(ex.getMessage());

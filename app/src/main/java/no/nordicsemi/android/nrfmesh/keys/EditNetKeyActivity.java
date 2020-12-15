@@ -122,6 +122,6 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public boolean onKeyUpdated(final int position, @NonNull final String key) {
-        return mViewModel.setKey(MeshParserUtils.toByteArray(key));
+        return mViewModel.setKey(key);
     }
 }

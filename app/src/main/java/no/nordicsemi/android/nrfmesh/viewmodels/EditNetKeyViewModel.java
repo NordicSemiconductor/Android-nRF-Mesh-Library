@@ -41,11 +41,12 @@ public class EditNetKeyViewModel extends KeysViewModel {
      * @param key Key
      * @return true if successful or false otherwise
      */
-    public boolean setKey(@NonNull final byte[] key) {
-        if (key.length != 16)
-            throw new IllegalArgumentException("Key must be of length 16!");
-        networkKey.setKey(key);
-        return updateKey();
+    public boolean setKey(@NonNull final String key) {
+        if (getNetworkLiveData().getMeshNetwork().updateNetKey(networkKey, key)) {
+            selectNetKey(networkKey.getKeyIndex());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -55,15 +56,10 @@ public class EditNetKeyViewModel extends KeysViewModel {
      */
     public boolean setName(@NonNull final String name) {
         networkKey.setName(name);
-        return updateKey();
-    }
-
-    private boolean updateKey() {
         if (getNetworkLiveData().getMeshNetwork().updateNetKey(networkKey)) {
-            networkKeyLiveData.postValue(networkKey);
+            selectNetKey(networkKey.getKeyIndex());
             return true;
         }
         return false;
     }
-
 }

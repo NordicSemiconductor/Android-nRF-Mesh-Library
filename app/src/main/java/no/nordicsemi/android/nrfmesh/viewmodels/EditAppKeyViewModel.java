@@ -30,6 +30,7 @@ public class EditAppKeyViewModel extends KeysViewModel {
 
     /**
      * Selects the key based on the application key index.
+     *
      * @param index key index
      */
     public void selectAppKey(final int index) {
@@ -43,9 +44,12 @@ public class EditAppKeyViewModel extends KeysViewModel {
      * @param key Key
      * @return true if successful or false otherwise
      */
-    public boolean setKey(@NonNull final byte[] key) {
-        appKey.setKey(key);
-        return updateKey();
+    public boolean setKey(@NonNull final String key) {
+        if (getNetworkLiveData().getMeshNetwork().updateAppKey(appKey, key)) {
+            selectAppKey(appKey.getKeyIndex());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -55,24 +59,25 @@ public class EditAppKeyViewModel extends KeysViewModel {
      */
     public boolean setName(@NonNull final String name) {
         appKey.setName(name);
-        return updateKey();
+        if (getNetworkLiveData().getMeshNetwork().updateAppKey(appKey)) {
+            selectAppKey(appKey.getKeyIndex());
+            return true;
+        }
+        return false;
     }
 
     /**
      * Sets the bound net key index.
-     *
-     * @return true if success or false otherwise.
      */
-    public boolean setBoundNetKeyIndex(final int index) {
-        appKey.setBoundNetKeyIndex(index);
-        return updateKey();
-    }
-
-    private boolean updateKey() {
-        if (getNetworkLiveData().getMeshNetwork().updateAppKey(appKey)) {
-            appKeyLiveData.postValue(appKey);
-            return true;
+    public void setBoundNetKeyIndex(final int index) {
+        try {
+            final ApplicationKey appKey = this.appKey.clone();
+            appKey.setBoundNetKeyIndex(index);
+            if (getNetworkLiveData().getMeshNetwork().updateAppKey(appKey)) {
+                selectAppKey(appKey.getKeyIndex());
+            }
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
         }
-        return false;
     }
 }

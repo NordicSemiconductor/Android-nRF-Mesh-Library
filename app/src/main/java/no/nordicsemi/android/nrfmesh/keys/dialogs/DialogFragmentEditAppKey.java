@@ -44,11 +44,13 @@ import androidx.fragment.app.DialogFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.keys.MeshKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
+
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentEditAppKey extends DialogFragment {
 
@@ -85,15 +87,14 @@ public class DialogFragmentEditAppKey extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
+        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
 
         ButterKnife.bind(this, rootView);
         final TextView summary = rootView.findViewById(R.id.summary);
         //Bind ui
         final KeyListener hexKeyListener = new HexKeyListener();
         appKeysInputLayout.setHint(getString(R.string.hint_app_key));
-        appKeyInput.setText(MeshParserUtils.bytesToHex(mAppKey.getKey(), false));
+        appKeyInput.setText(bytesToHex(mAppKey.getKey(), false));
         appKeyInput.setKeyListener(hexKeyListener);
         appKeyInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -104,7 +105,7 @@ public class DialogFragmentEditAppKey extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    appKeysInputLayout.setError(getString(R.string.error_empty_app_key));
+                    appKeysInputLayout.setError(getString(R.string.error_empty_key));
                 } else {
                     appKeysInputLayout.setError(null);
                 }
@@ -130,7 +131,7 @@ public class DialogFragmentEditAppKey extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String appKey = appKeyInput.getEditableText().toString().trim();
             try {
-                if (((MeshKeyListener) requireContext()).onKeyUpdated(mPosition, appKey))
+                if (validateKeyInput(appKey) && ((MeshKeyListener) requireContext()).onKeyUpdated(mPosition, appKey))
                     dismiss();
             } catch (IllegalArgumentException ex) {
                 appKeysInputLayout.setError(ex.getMessage());
