@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,6 +52,7 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
 public abstract class AddKeysActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -82,6 +84,7 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(this).get(AddKeysViewModel.class);
         init();
         setContentView(R.layout.activity_add_keys);
         ButterKnife.bind(this);

@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -296,19 +295,14 @@ public class GroupControlsActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void editModelItem(@NonNull final Element element, @NonNull final MeshModel model) {
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null && isConnectedToNetwork) {
-            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-            final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
-            if (node != null) {
-                mViewModel.setSelectedMeshNode(node);
-                mViewModel.setSelectedElement(element);
-                mViewModel.setSelectedModel(model);
-                mViewModel.navigateToModelActivity(this, model);
-            }
-        } else {
-            Toast.makeText(this, R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
+    public void onModelItemClicked(@NonNull final Element element, @NonNull final MeshModel model) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
+        if (node != null) {
+            mViewModel.setSelectedMeshNode(node);
+            mViewModel.setSelectedElement(element);
+            mViewModel.setSelectedModel(model);
+            mViewModel.navigateToModelActivity(this, model);
         }
     }
 
@@ -351,7 +345,6 @@ public class GroupControlsActivity extends AppCompatActivity implements
             }
         }
         return null;
-
     }
 
     private void sendMessage(final int address, final MeshMessage meshMessage) {

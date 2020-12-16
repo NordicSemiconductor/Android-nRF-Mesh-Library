@@ -41,7 +41,7 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
     private GroupModelAdapter mGroupModelsAdapter;
 
     public interface BottomSheetDetailsListener {
-        void editModelItem(@NonNull final Element element, @NonNull final MeshModel model);
+        void onModelItemClicked(@NonNull final Element element, @NonNull final MeshModel model);
 
         void onGroupNameChanged(@NonNull final Group group);
     }
@@ -96,7 +96,7 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
 
     @Override
     public void onModelItemClick(final Element element, final MeshModel model) {
-        ((BottomSheetDetailsListener) requireActivity()).editModelItem(element, model);
+        ((BottomSheetDetailsListener) requireActivity()).onModelItemClicked(element, model);
     }
 
     public void updateAdapter(final Group group, final ArrayList<Element> elements) {
