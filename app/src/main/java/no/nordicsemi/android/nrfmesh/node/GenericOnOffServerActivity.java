@@ -14,6 +14,7 @@ import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.GenericOnOffServerModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -27,6 +28,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
+@AndroidEntryPoint
 public class GenericOnOffServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();

@@ -1,15 +1,7 @@
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
 import android.app.Activity;
-import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,10 +9,16 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.util.ArrayList;
 
-import javax.inject.Inject;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -33,8 +31,7 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
     private static final String ELEMENTS = "ELEMENTS";
 
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     private TextInputLayout mGroupNameInputLayout;
     private TextInputEditText mGroupNameTextInput;

@@ -33,8 +33,6 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,11 +47,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageNetKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -68,12 +66,13 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.MANAGE_NET_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_INDEX;
 
-public class NetKeysActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class NetKeysActivity extends AppCompatActivity implements
         ManageNetKeyAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private NetKeysViewModel mViewModel;
+    private ManageNetKeyAdapter mAdapter;
 
     //UI Bindings
     @BindView(R.id.container)
@@ -83,13 +82,11 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     @BindView(R.id.fab_add)
     ExtendedFloatingActionButton fab;
 
-    private NetKeysViewModel mViewModel;
-    private ManageNetKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NetKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(NetKeysViewModel.class);
 
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {

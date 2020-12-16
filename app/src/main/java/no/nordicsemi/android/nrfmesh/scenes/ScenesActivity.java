@@ -31,8 +31,6 @@ import android.view.View;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,10 +44,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.ManageScenesAdapter;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.DialogFragmentCreateScene;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.DialogFragmentEditScene;
@@ -61,28 +59,26 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_SCENE;
 
-public class ScenesActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class ScenesActivity extends AppCompatActivity implements
         ManageScenesAdapter.OnItemClickListener,
         SceneCallbacks,
         ItemTouchHelperAdapter {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
+    private ScenesViewModel mViewModel;
     //UI Bindings
     @BindView(R.id.empty_scenes)
     View mEmptyView;
     @BindView(R.id.container)
     CoordinatorLayout container;
 
-    private ScenesViewModel mViewModel;
     private ManageScenesAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scenes);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ScenesViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(ScenesViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);

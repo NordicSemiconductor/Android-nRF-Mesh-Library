@@ -22,9 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
@@ -39,8 +38,7 @@ import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
  */
 public class ModelConfigurationViewModel extends BaseViewModel {
 
-
-    @Inject
+    @ViewModelInject
     ModelConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

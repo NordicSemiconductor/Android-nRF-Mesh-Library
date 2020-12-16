@@ -31,14 +31,13 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.AllocatedGroupRange;
 import no.nordicsemi.android.mesh.AllocatedSceneRange;
 import no.nordicsemi.android.mesh.AllocatedUnicastRange;
@@ -46,7 +45,6 @@ import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentProvisionerName;
@@ -56,14 +54,14 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddProvisionerViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.RangeView;
 
-public class AddProvisionerActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class AddProvisionerActivity extends AppCompatActivity implements
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
         DialogFragmentProvisionerAddress.ProvisionerAddressListener,
         DialogFragmentUnassign.DialogFragmentUnassignListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private AddProvisionerViewModel mViewModel;
 
     private TextView provisionerName;
     private TextView provisionerUnicast;
@@ -72,7 +70,6 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     private RangeView groupRangeView;
     private RangeView sceneRangeView;
 
-    private AddProvisionerViewModel mViewModel;
     private Provisioner mProvisioner;
 
 
@@ -80,7 +77,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements Injecta
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_provisioner);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddProvisionerViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AddProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);

@@ -35,8 +35,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,6 +48,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.AddressRange;
 import no.nordicsemi.android.mesh.AllocatedGroupRange;
 import no.nordicsemi.android.mesh.AllocatedSceneRange;
@@ -59,7 +58,6 @@ import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.Range;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.provisioners.adapter.RangeAdapter;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentGroupRange;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentSceneRange;
@@ -71,14 +69,13 @@ import no.nordicsemi.android.nrfmesh.widgets.RangeView;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-public class RangesActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class RangesActivity extends AppCompatActivity implements
         RangeAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         RangeListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
+    private RangesViewModel mViewModel;
     //UI Bindings
     @BindView(android.R.id.empty)
     View mEmptyView;
@@ -88,7 +85,6 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     ExtendedFloatingActionButton mFabResolve;
     private RangeView mRangeView;
     private int mType;
-    private RangesViewModel mViewModel;
     private RangeAdapter mRangeAdapter;
     private Provisioner mProvisioner;
 
@@ -104,7 +100,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranges);
         ButterKnife.bind(this);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(RangesViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(RangesViewModel.class);
         mType = getIntent().getExtras().getInt(Utils.RANGE_TYPE);
 
         //Bind ui

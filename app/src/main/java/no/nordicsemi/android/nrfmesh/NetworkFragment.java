@@ -25,14 +25,13 @@ package no.nordicsemi.android.nrfmesh;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,9 +44,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentDeleteNode;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
@@ -60,15 +59,13 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 import static android.app.Activity.RESULT_OK;
 
-public class NetworkFragment extends Fragment implements Injectable,
+@AndroidEntryPoint
+public class NetworkFragment extends Fragment implements
         NodeAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         DialogFragmentDeleteNode.DialogFragmentDeleteNodeListener {
 
-    private SharedViewModel mViewModel;
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    SharedViewModel mViewModel;
 
     @BindView(R.id.container)
     CoordinatorLayout container;
@@ -80,8 +77,9 @@ public class NetworkFragment extends Fragment implements Injectable,
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_network, null);
-        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
         ButterKnife.bind(this, rootView);
+        mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        Log.v("NetworkFragment", "View Model: " + mViewModel.toString());
 
         final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
         final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);

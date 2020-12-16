@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.models.SigModelParser;
@@ -33,6 +34,7 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_SCENE;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.STORE_SCENE;
 
+@AndroidEntryPoint
 public class SceneSetupServerModelActivity extends SceneServerModelActivity
         implements ItemTouchHelperAdapter {
 

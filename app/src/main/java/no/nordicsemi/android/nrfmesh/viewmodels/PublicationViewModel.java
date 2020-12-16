@@ -25,10 +25,9 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationSet;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationVirtualAddressSet;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -70,7 +69,7 @@ public class PublicationViewModel extends BaseViewModel {
 
     private int lastValue = 0;
 
-    @Inject
+    @ViewModelInject
     PublicationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

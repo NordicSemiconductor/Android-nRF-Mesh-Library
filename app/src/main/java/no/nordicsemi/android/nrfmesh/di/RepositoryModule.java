@@ -22,8 +22,37 @@
 
 package no.nordicsemi.android.nrfmesh.di;
 
-/**
- * Marks an activity / fragment injectable.
- */
-public interface Injectable {
+import android.content.Context;
+
+import javax.inject.Singleton;
+
+import androidx.annotation.NonNull;
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import no.nordicsemi.android.mesh.MeshManagerApi;
+import no.nordicsemi.android.nrfmesh.ble.BleMeshManager;
+import no.nordicsemi.android.nrfmesh.viewmodels.NrfMeshRepository;
+import no.nordicsemi.android.nrfmesh.viewmodels.ScannerRepository;
+
+// This module tells a Component which are its subcomponents
+// Install this module in Hilt-generated ApplicationComponent
+@InstallIn(ApplicationComponent.class)
+@Module
+public class RepositoryModule {
+
+    @Provides
+    @Singleton
+    public static ScannerRepository provideScannerRepository(@NonNull final Context context,
+                                                      @NonNull final MeshManagerApi meshManagerApi) {
+        return new ScannerRepository(context, meshManagerApi);
+    }
+
+    @Provides
+    @Singleton
+    public static NrfMeshRepository provideNrfMeshRepository(@NonNull final MeshManagerApi meshManagerApi,
+                                                      @NonNull final BleMeshManager bleMeshManager) {
+        return new NrfMeshRepository(meshManagerApi, bleMeshManager);
+    }
 }

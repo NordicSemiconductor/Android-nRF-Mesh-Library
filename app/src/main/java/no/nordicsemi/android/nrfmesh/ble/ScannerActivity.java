@@ -33,8 +33,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,22 +46,23 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.ProvisioningActivity;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmesh.ble.adapter.DevicesAdapter;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.ScannerStateLiveData;
 import no.nordicsemi.android.nrfmesh.viewmodels.ScannerViewModel;
 
-public class ScannerActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class ScannerActivity extends AppCompatActivity implements
         DevicesAdapter.OnItemClickListener {
     private static final int REQUEST_ENABLE_BLUETOOTH = 1021; // random number
     private static final int REQUEST_ACCESS_FINE_LOCATION = 1022; // random number
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private ScannerViewModel mViewModel;
+    private boolean mScanWithProxyService;
 
     @BindView(R.id.state_scanning)
     View mScanningView;
@@ -80,17 +79,14 @@ public class ScannerActivity extends AppCompatActivity implements Injectable,
     @BindView(R.id.bluetooth_off)
     View mNoBluetoothView;
 
-    private ScannerViewModel mViewModel;
-    private boolean mScanWithProxyService;
-
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
+        // Create view model containing utility methods for scanning
+        mViewModel = new ViewModelProvider(this).get(ScannerViewModel.class);
         ButterKnife.bind(this);
 
-        // Create view model containing utility methods for scanning
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ScannerViewModel.class);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.title_scanner);

@@ -35,27 +35,20 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.OutputStream;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.NestedScrollView;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasAndroidInjector;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentPermissionRationale;
@@ -68,17 +61,13 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ExportNetworkViewModel;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-public class ExportNetworkActivity extends AppCompatActivity implements Injectable,
-        HasAndroidInjector, SelectableProvisionerAdapter.OnItemCheckedChangedListener,
+public class ExportNetworkActivity extends AppCompatActivity implements
+        SelectableProvisionerAdapter.OnItemCheckedChangedListener,
         SelectableNetworkKeyAdapter.OnItemCheckedChangedListener {
 
     private static final int WRITE_TO_FILE = 2011;
 
-    @Inject
-    DispatchingAndroidInjector<Object> mDispatchingAndroidInjector;
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.coordinator)
     CoordinatorLayout mContainer;
@@ -100,7 +89,6 @@ public class ExportNetworkActivity extends AppCompatActivity implements Injectab
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ExportNetworkViewModel.class);
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -197,11 +185,6 @@ public class ExportNetworkActivity extends AppCompatActivity implements Injectab
                 }
             }
         }
-    }
-
-    @Override
-    public AndroidInjector<Object> androidInjector() {
-        return mDispatchingAndroidInjector;
     }
 
     @Override

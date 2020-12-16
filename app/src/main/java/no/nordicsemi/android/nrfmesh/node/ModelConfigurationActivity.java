@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionStatus;
@@ -12,7 +13,7 @@ import no.nordicsemi.android.mesh.transport.ConfigSigModelSubscriptionList;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.R;
 
-
+@AndroidEntryPoint
 public abstract class ModelConfigurationActivity extends BaseModelConfigurationActivity {
 
     @Override

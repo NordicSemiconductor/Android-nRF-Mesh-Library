@@ -2,9 +2,10 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.os.Bundle;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 
-
+@AndroidEntryPoint
 public class GenericModelConfigurationActivity extends ModelConfigurationActivity {
 
     @Override

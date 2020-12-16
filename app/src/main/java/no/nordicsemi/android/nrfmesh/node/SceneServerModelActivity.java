@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.models.SceneServer;
@@ -32,7 +33,10 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-public class SceneServerModelActivity extends ModelConfigurationActivity implements BottomSheetSceneRecallDialogFragment.SceneRecallListener, StoredScenesAdapter.OnItemListener {
+@AndroidEntryPoint
+public class SceneServerModelActivity extends ModelConfigurationActivity implements
+        BottomSheetSceneRecallDialogFragment.SceneRecallListener,
+        StoredScenesAdapter.OnItemListener {
 
     protected StoredScenesAdapter mScenesAdapter;
     private MaterialTextView noCurrentScene;

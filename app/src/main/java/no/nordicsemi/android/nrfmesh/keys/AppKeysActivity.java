@@ -34,8 +34,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,12 +47,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageAppKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -71,12 +69,13 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_INDEX;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_LIST_SIZE;
 
-public class AppKeysActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class AppKeysActivity extends AppCompatActivity implements
         ManageAppKeyAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private AppKeysViewModel mViewModel;
+    private ManageAppKeyAdapter mAdapter;
 
     //UI Bindings
     @BindView(R.id.empty_app_keys)
@@ -84,21 +83,18 @@ public class AppKeysActivity extends AppCompatActivity implements Injectable,
     @BindView(R.id.container)
     CoordinatorLayout container;
 
-    private AppKeysViewModel mViewModel;
-    private ManageAppKeyAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_keys);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AppKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AppKeysViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);

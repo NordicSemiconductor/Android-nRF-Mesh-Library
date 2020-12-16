@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -25,6 +23,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -35,7 +34,6 @@ import no.nordicsemi.android.mesh.transport.PublicationSettings;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
@@ -51,7 +49,8 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.USE_DEFAULT_TTL;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.isDefaultPublishTtl;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 
-public class PublicationSettingsActivity extends BaseActivity implements Injectable,
+@AndroidEntryPoint
+public class PublicationSettingsActivity extends BaseActivity implements
         GroupCallbacks, DestinationAddressCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
 
@@ -60,11 +59,8 @@ public class PublicationSettingsActivity extends BaseActivity implements Injecta
     private static final int MAX_PUBLICATION_INTERVAL = 234;
     private static final int DEFAULT_PUBLICATION_RESOLUTION = RESOLUTION_100_MS;
 
-    private PublicationViewModel mViewModel;
-    private MeshModel mMeshModel;
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    PublicationViewModel mViewModel;
 
     @BindView(R.id.container)
     CoordinatorLayout mContainer;
@@ -98,9 +94,9 @@ public class PublicationSettingsActivity extends BaseActivity implements Injecta
         setContentView(R.layout.activity_publication_settings);
         ButterKnife.bind(this);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(PublicationViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(PublicationViewModel.class);
 
-        final MeshModel meshModel = mMeshModel = mViewModel.getSelectedModel().getValue();
+        final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
         if (meshModel == null)
             finish();
 

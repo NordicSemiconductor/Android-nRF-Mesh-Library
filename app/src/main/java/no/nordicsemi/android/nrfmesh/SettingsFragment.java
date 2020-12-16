@@ -43,14 +43,12 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImport;
@@ -68,7 +66,8 @@ import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
 import static android.app.Activity.RESULT_OK;
 
-public class SettingsFragment extends Fragment implements Injectable,
+@AndroidEntryPoint
+public class SettingsFragment extends Fragment implements
         DialogFragmentNetworkName.DialogFragmentNetworkNameListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
         DialogFragmentMeshImport.DialogFragmentNetworkImportListener,
@@ -79,9 +78,6 @@ public class SettingsFragment extends Fragment implements Injectable,
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
     private SharedViewModel mViewModel;
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,7 +90,8 @@ public class SettingsFragment extends Fragment implements Injectable,
     public View onCreateView(@NonNull final LayoutInflater inflater,
                              @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_settings, null);
-        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        Log.v("SettingsFragment", "View Model: " + mViewModel.toString());
 
         // Set up views
         final View containerNetworkName = rootView.findViewById(R.id.container_network_name);

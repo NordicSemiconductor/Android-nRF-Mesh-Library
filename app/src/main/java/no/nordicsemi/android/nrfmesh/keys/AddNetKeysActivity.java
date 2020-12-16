@@ -28,17 +28,18 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyAdd;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyDelete;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyGet;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedNetKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 
-public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
+@AndroidEntryPoint
+public class AddNetKeysActivity extends AddKeysActivity implements
         AddedNetKeyAdapter.OnItemClickListener {
     private AddedNetKeyAdapter adapter;
 

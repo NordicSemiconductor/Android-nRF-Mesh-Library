@@ -15,10 +15,8 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import javax.inject.Inject;
-
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.transport.ConfigVendorModelAppList;
@@ -34,10 +32,11 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
+
+@AndroidEntryPoint
 public class VendorModelActivity extends ModelConfigurationActivity {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     private View messageContainer;
     private TextView receivedMessage;

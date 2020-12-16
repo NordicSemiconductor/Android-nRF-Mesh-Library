@@ -15,8 +15,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +25,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
@@ -38,7 +37,6 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
@@ -49,7 +47,8 @@ import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPerio
 import static no.nordicsemi.android.mesh.utils.PeriodLogStateRange.periodToTime;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 
-public class HeartbeatSubscriptionActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class HeartbeatSubscriptionActivity extends AppCompatActivity implements
         GroupCallbacks,
         DestinationAddressCallbacks,
         DialogFragmentHeartbeatSource.SubscriptionAddressCallbacks {
@@ -60,8 +59,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
 
     private HeartbeatViewModel mViewModel;
     private ConfigurationServerModel mMeshModel;
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     @BindView(R.id.container)
     CoordinatorLayout mContainer;
@@ -90,7 +88,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
         setContentView(R.layout.activity_heartbeat_subscription);
         ButterKnife.bind(this);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(HeartbeatViewModel.class);
 
         final ConfigurationServerModel meshModel = mMeshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
         if (meshModel == null)

@@ -1,8 +1,7 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 
 /**
@@ -10,7 +9,7 @@ import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
  */
 public class ScenesViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     ScenesViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

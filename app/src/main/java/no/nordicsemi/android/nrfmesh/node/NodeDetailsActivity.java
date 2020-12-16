@@ -33,12 +33,11 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 
-import javax.inject.Inject;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.CompanyIdentifiers;
@@ -46,21 +45,20 @@ import no.nordicsemi.android.mesh.utils.CompositionDataParser;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.viewmodels.NodeDetailsViewModel;
 
-public class NodeDetailsActivity extends AppCompatActivity implements Injectable {
+@AndroidEntryPoint
+public class NodeDetailsActivity extends AppCompatActivity {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    NodeDetailsViewModel viewModel;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node_details);
+        viewModel = new ViewModelProvider(this).get(NodeDetailsViewModel.class);
         ButterKnife.bind(this);
 
-        final NodeDetailsViewModel viewModel = new ViewModelProvider(this, mViewModelFactory).get(NodeDetailsViewModel.class);
         if (viewModel.getSelectedMeshNode().getValue() == null) {
             finish();
         }

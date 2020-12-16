@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
-import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -257,13 +256,6 @@ public abstract class BaseViewModel extends ViewModel {
      */
     public final void setSelectedModel(@NonNull final MeshModel model) {
         mNrfMeshRepository.setSelectedModel(model);
-    }
-
-    /**
-     * Returns the LiveData containing a list of {@link Group}
-     */
-    public final LiveData<List<Group>> getGroups() {
-        return mNrfMeshRepository.getGroups();
     }
 
     /**

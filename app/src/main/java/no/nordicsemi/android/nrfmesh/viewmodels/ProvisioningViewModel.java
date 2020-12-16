@@ -22,9 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.ProvisioningActivity;
@@ -34,7 +33,7 @@ import no.nordicsemi.android.nrfmesh.ProvisioningActivity;
  */
 public class ProvisioningViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     ProvisioningViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

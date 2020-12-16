@@ -8,9 +8,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import no.nordicsemi.android.mesh.ApplicationKeysConfig;
@@ -36,7 +35,7 @@ public class ExportNetworkViewModel extends BaseViewModel implements NetworkExpo
     private final List<Provisioner> provisioners = new ArrayList<>();
     private final List<NetworkKey> networkKeys = new ArrayList<>();
 
-    @Inject
+    @ViewModelInject
     ExportNetworkViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
         exportStatus.postValue(null);

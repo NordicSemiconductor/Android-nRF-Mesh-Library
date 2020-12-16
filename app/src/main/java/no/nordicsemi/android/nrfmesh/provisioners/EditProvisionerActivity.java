@@ -29,19 +29,17 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentProvisionerAddress;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentProvisionerName;
@@ -51,14 +49,14 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditProvisionerViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.RangeView;
 
-public class EditProvisionerActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class EditProvisionerActivity extends AppCompatActivity implements
         DialogFragmentProvisionerName.DialogFragmentProvisionerNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
         DialogFragmentProvisionerAddress.ProvisionerAddressListener,
         DialogFragmentUnassign.DialogFragmentUnassignListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private EditProvisionerViewModel mViewModel;
 
     private TextView provisionerName;
     private TextView provisionerUnicast;
@@ -69,15 +67,13 @@ public class EditProvisionerActivity extends AppCompatActivity implements Inject
     private View selectProvisioner;
     private CheckBox checkBox;
 
-
-    private EditProvisionerViewModel mViewModel;
     private Provisioner mProvisioner;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_provisioner);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditProvisionerViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(EditProvisionerViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);

@@ -17,8 +17,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +27,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -44,7 +43,6 @@ import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
@@ -68,7 +66,8 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.HEARTBEAT_PUBLICATION_NE
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 
-public class HeartbeatPublicationActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class HeartbeatPublicationActivity extends AppCompatActivity implements
         GroupCallbacks,
         DestinationAddressCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
@@ -85,8 +84,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
 
     private HeartbeatViewModel mViewModel;
     private ConfigurationServerModel mMeshModel;
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     @BindView(R.id.container)
     CoordinatorLayout mContainer;
@@ -136,7 +134,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements I
         setContentView(R.layout.activity_heartbeat_publication);
         ButterKnife.bind(this);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(HeartbeatViewModel.class);
 
         final ConfigurationServerModel meshModel = mMeshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
         if (meshModel == null)
