@@ -8,9 +8,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class MeshParserUtilsTest extends TestCase {
     public void testCreateVendorOpCode() {
-        // By observation, createVendorOpcode expects the opCode portion to already have been
-        // converted to a vendor op code by `or`ing with 0xC0 and shifting left by 16
-        byte[] payload = createVendorOpCode(0xC1 << 16, 0x05F1);
+        byte[] payload = createVendorOpCode(0x01, 0x05F1);
         byte[] expected = MeshParserUtils.toByteArray("C1F105");
 
         assertArrayEquals(expected, payload);
