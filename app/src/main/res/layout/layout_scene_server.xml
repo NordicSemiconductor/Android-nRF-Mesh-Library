@@ -24,30 +24,43 @@
             app:titleMarginStart="@dimen/toolbar_title_margin"
             app:titleTextAppearance="@style/Toolbar.TitleText" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_scenes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:scrollbars="none"
-            app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
-            tools:listitem="@layout/removable_row_item" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/no_current_scene_available"
+        <LinearLayout
+            android:id="@+id/scene_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/item_padding_bottom"
-            android:text="@string/no_scenes_stored_rationale"
-            android:textColor="?android:textColorPrimary"
-            android:textSize="14sp"
-            android:visibility="gone"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
-            tools:visibility="visible" />
+            app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/no_current_scene_available"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/item_padding_top"
+                android:paddingBottom="@dimen/item_padding_bottom"
+                android:text="@string/no_scenes_stored_rationale"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="14sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@id/div3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_scenes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:scrollbars="none"
+                android:visibility="invisible"
+                app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
+                tools:listitem="@layout/removable_row_item" />
+        </LinearLayout>
 
         <include
             android:id="@+id/div3"
@@ -56,7 +69,7 @@
             android:layout_height="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/recycler_view_scenes" />
+            app:layout_constraintTop_toBottomOf="@id/scene_container" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/action_read"
@@ -78,8 +91,8 @@
             android:text="@string/hint_current_scene"
             android:textColor="?android:textColorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/action_read"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/div3"
             tools:visibility="visible" />
 

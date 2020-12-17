@@ -27,7 +27,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,17 +42,9 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -66,7 +63,6 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetLevelDialogFragment;
@@ -75,7 +71,8 @@ import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetVendorDialogFragment
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.GroupControlsViewModel;
 
-public class GroupControlsActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class GroupControlsActivity extends AppCompatActivity implements
         SubGroupAdapter.OnItemClickListener,
         BottomSheetOnOffDialogFragment.BottomSheetOnOffListener,
         BottomSheetLevelDialogFragment.BottomSheetLevelListener,
@@ -87,20 +84,19 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     private static final String VENDOR_FRAGMENT = "VENDOR_FRAGMENT";
     private static final String DETAILS_FRAGMENT = "DETAILS_FRAGMENT";
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-    @BindView(R.id.container)
-    CoordinatorLayout container;
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
     private boolean mIsConnected;
+
+    @BindView(R.id.container)
+    CoordinatorLayout container;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config_groups);
         ButterKnife.bind(this);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(GroupControlsViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(GroupControlsViewModel.class);
 
         final Toolbar toolbar = findViewById(R.id.toolbar_info);
         setSupportActionBar(toolbar);
@@ -299,19 +295,14 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     }
 
     @Override
-    public void editModelItem(@NonNull final Element element, @NonNull final MeshModel model) {
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null && isConnectedToNetwork) {
-            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-            final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
-            if (node != null) {
-                mViewModel.setSelectedMeshNode(node);
-                mViewModel.setSelectedElement(element);
-                mViewModel.setSelectedModel(model);
-                mViewModel.navigateToModelActivity(this, model);
-            }
-        } else {
-            Toast.makeText(this, R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
+    public void onModelItemClicked(@NonNull final Element element, @NonNull final MeshModel model) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
+        if (node != null) {
+            mViewModel.setSelectedMeshNode(node);
+            mViewModel.setSelectedElement(element);
+            mViewModel.setSelectedModel(model);
+            mViewModel.navigateToModelActivity(this, model);
         }
     }
 
@@ -354,7 +345,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             }
         }
         return null;
-
     }
 
     private void sendMessage(final int address, final MeshMessage meshMessage) {

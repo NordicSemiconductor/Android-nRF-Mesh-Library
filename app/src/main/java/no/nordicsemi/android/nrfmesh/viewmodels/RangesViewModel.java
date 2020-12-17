@@ -1,8 +1,7 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.mesh.Provisioner;
 
@@ -13,7 +12,7 @@ public class RangesViewModel extends BaseViewModel {
      *
      * @param nRfMeshRepository Mesh Repository {@link NrfMeshRepository}
      */
-    @Inject
+    @ViewModelInject
     RangesViewModel(@NonNull final NrfMeshRepository nRfMeshRepository) {
         super(nRfMeshRepository);
     }

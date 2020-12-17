@@ -31,6 +31,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
@@ -40,11 +41,11 @@ import no.nordicsemi.android.mesh.transport.ConfigAppKeyGet;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedAppKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 
-public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
+@AndroidEntryPoint
+public class AddAppKeysActivity extends AddKeysActivity implements
         AddedAppKeyAdapter.OnItemClickListener {
     private AddedAppKeyAdapter adapter;
 

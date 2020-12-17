@@ -30,8 +30,6 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,31 +37,31 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddNetKeyViewModel;
 
-public class AddNetKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+@AndroidEntryPoint
+public class AddNetKeyActivity extends AppCompatActivity implements MeshKeyListener {
 
     private static final String APPLICATION_KEY = "APPLICATION_KEY";
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
+    private AddNetKeyViewModel mViewModel;
     private CoordinatorLayout container;
     private TextView nameView;
     private TextView keyView;
     private TextView keyIndexView;
 
-    private AddNetKeyViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddNetKeyViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AddNetKeyViewModel.class);
 
         //Bind ui
         final Toolbar toolbar = findViewById(R.id.toolbar);

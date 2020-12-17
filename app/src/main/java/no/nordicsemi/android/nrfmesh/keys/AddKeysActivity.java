@@ -31,8 +31,6 @@ import android.widget.ProgressBar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -51,17 +49,13 @@ import no.nordicsemi.android.mesh.transport.ConfigNetKeyStatus;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
-public abstract class AddKeysActivity extends BaseActivity implements Injectable, SwipeRefreshLayout.OnRefreshListener {
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+public abstract class AddKeysActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     @BindView(R.id.container)
     protected CoordinatorLayout container;
@@ -90,7 +84,7 @@ public abstract class AddKeysActivity extends BaseActivity implements Injectable
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AddKeysViewModel.class);
         init();
         setContentView(R.layout.activity_add_keys);
         ButterKnife.bind(this);

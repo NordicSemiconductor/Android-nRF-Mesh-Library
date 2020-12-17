@@ -33,8 +33,6 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,23 +46,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.provisioners.adapter.ProvisionerAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionersViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-public class ProvisionersActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class ProvisionersActivity extends AppCompatActivity implements
         ProvisionerAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private ProvisionersViewModel mViewModel;
+    private ProvisionerAdapter mAdapter;
 
     //UI Bindings
     @BindView(R.id.toolbar)
@@ -78,14 +77,12 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     @BindView(R.id.recycler_view_provisioners)
     RecyclerView mRecyclerView;
 
-    private ProvisionersViewModel mViewModel;
-    private ProvisionerAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provisioners);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ProvisionersViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(ProvisionersViewModel.class);
 
         //Bind ui
         ButterKnife.bind(this);

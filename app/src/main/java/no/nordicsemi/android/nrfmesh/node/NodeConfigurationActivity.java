@@ -29,8 +29,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -40,6 +38,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.transport.ConfigCompositionDataGet;
@@ -58,7 +57,6 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentProxySet;
@@ -73,7 +71,8 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 import no.nordicsemi.android.nrfmesh.viewmodels.NodeConfigurationViewModel;
 
-public class NodeConfigurationActivity extends BaseActivity implements Injectable,
+@AndroidEntryPoint
+public class NodeConfigurationActivity extends BaseActivity implements
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentElementName.DialogFragmentElementNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
@@ -86,8 +85,7 @@ public class NodeConfigurationActivity extends BaseActivity implements Injectabl
     private static final String PROXY_STATE = "PROXY_STATE";
     private static final String REQUESTED_PROXY_STATE = "REQUESTED_PROXY_STATE";
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     @BindView(R.id.container)
     CoordinatorLayout mContainer;
@@ -120,7 +118,7 @@ public class NodeConfigurationActivity extends BaseActivity implements Injectabl
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_node_configuration);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(NodeConfigurationViewModel.class);
         init();
         ButterKnife.bind(this);
 

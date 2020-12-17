@@ -11,11 +11,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.GenericLevelServerModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -29,12 +27,12 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 
+@AndroidEntryPoint
 public class GenericLevelServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     private TextView level;
     private TextView time;

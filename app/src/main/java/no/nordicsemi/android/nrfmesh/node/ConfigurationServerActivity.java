@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
@@ -55,6 +56,7 @@ import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatCount
 import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
 
+@AndroidEntryPoint
 public class ConfigurationServerActivity extends BaseModelConfigurationActivity implements
         DialogFragmentNetworkTransmitSettings.DialogFragmentNetworkTransmitSettingsListener,
         DialogRelayRetransmitSettings.DialogFragmentRelaySettingsListener {

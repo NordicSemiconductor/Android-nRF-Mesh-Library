@@ -28,8 +28,6 @@ import android.widget.ProgressBar;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -42,6 +40,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
@@ -49,18 +48,17 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.SceneGet;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddedScenesViewModel;
 import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
-public class StoredScenesActivity extends BaseActivity implements Injectable,
+@AndroidEntryPoint
+public class StoredScenesActivity extends BaseActivity implements
         StoredScenesAdapter.OnItemListener, SwipeRefreshLayout.OnRefreshListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private StoredScenesAdapter mAdapter;
 
     //UI Bindings
     @BindView(R.id.container)
@@ -74,13 +72,11 @@ public class StoredScenesActivity extends BaseActivity implements Injectable,
     @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
 
-    private StoredScenesAdapter mAdapter;
-
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scenes);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddedScenesViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AddedScenesViewModel.class);
         init();
 
         //Bind ui

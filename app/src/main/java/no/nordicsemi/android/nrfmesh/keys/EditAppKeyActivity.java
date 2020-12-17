@@ -29,8 +29,6 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,11 +40,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageBoundNetKeyAdapter;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
@@ -54,16 +52,16 @@ import no.nordicsemi.android.nrfmesh.viewmodels.EditAppKeyViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 
-public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class EditAppKeyActivity extends AppCompatActivity implements
         MeshKeyListener,
         ManageBoundNetKeyAdapter.OnItemClickListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private EditAppKeyViewModel mViewModel;
+
     @BindView(R.id.container)
     View container;
 
-    private EditAppKeyViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -71,7 +69,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements Injectable,
         setContentView(R.layout.activity_edit_key);
         ButterKnife.bind(this);
         final int index = getIntent().getExtras().getInt(EDIT_KEY);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditAppKeyViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(EditAppKeyViewModel.class);
         mViewModel.selectAppKey(index);
 
         //Bind ui

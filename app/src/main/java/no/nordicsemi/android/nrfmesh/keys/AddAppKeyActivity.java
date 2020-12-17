@@ -30,8 +30,6 @@ import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,23 +42,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageBoundNetKeyAdapter;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddAppKeyViewModel;
 
-public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class AddAppKeyActivity extends AppCompatActivity implements
         MeshKeyListener,
         ManageBoundNetKeyAdapter.OnItemClickListener {
-
-    private static final String APPLICATION_KEY = "APPLICATION_KEY";
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private AddAppKeyViewModel mViewModel;
 
     @BindView(R.id.container)
     CoordinatorLayout container;
@@ -68,13 +64,12 @@ public class AddAppKeyActivity extends AppCompatActivity implements Injectable,
     TextView keyView;
     TextView keyIndexView;
 
-    private AddAppKeyViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddAppKeyViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AddAppKeyViewModel.class);
         ButterKnife.bind(this);
 
         //Bind ui

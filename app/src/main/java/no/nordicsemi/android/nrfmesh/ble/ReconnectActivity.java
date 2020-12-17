@@ -26,39 +26,32 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.ReconnectViewModel;
 
-public class ReconnectActivity extends AppCompatActivity implements Injectable {
+@AndroidEntryPoint
+public class ReconnectActivity extends AppCompatActivity {
+
     public static final int REQUEST_DEVICE_READY = 1122; //Random number
     private ReconnectViewModel mReconnectViewModel;
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @BindView(R.id.connectivity_progress_container)
-    View mConnectivityProgress;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reconnect);
-        ButterKnife.bind(this);
+        // Create view model containing utility methods for scanning
+        mReconnectViewModel = new ViewModelProvider(this).get(ReconnectViewModel.class);
 
         final Intent intent = getIntent();
         final ExtendedBluetoothDevice device = intent.getParcelableExtra(Utils.EXTRA_DEVICE);
@@ -72,8 +65,6 @@ public class ReconnectActivity extends AppCompatActivity implements Injectable {
         getSupportActionBar().setTitle(deviceName);
         getSupportActionBar().setSubtitle(deviceAddress);
         final TextView connectionState = findViewById(R.id.connection_state);
-        // Create view model containing utility methods for scanning
-        mReconnectViewModel = new ViewModelProvider(this, mViewModelFactory).get(ReconnectViewModel.class);
 
         mReconnectViewModel.connect(this, device, true);
         mReconnectViewModel.isConnected().observe(this, isConnected -> {

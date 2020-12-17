@@ -27,28 +27,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 
-public class EditNetKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+@AndroidEntryPoint
+public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+
 
     private EditNetKeyViewModel mViewModel;
 
@@ -56,7 +54,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_key);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditNetKeyViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(EditNetKeyViewModel.class);
         final int index = getIntent().getExtras().getInt(EDIT_KEY);
         mViewModel.selectNetKey(index);
 

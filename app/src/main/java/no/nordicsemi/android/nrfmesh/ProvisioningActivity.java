@@ -37,8 +37,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -49,6 +47,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
@@ -63,7 +62,6 @@ import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 import no.nordicsemi.android.mesh.utils.StaticOOBType;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmesh.adapter.ProvisioningProgressAdapter;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentAuthenticationInput;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentProvisioningFailedError;
@@ -77,8 +75,8 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisioningViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
-
-public class ProvisioningActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class ProvisioningActivity extends AppCompatActivity implements
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
@@ -89,6 +87,8 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     private static final String DIALOG_FRAGMENT_PROVISIONING_FAILED = "DIALOG_FRAGMENT_PROVISIONING_FAILED";
     private static final String DIALOG_FRAGMENT_AUTH_INPUT_TAG = "DIALOG_FRAGMENT_AUTH_INPUT_TAG";
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
+
+    private ProvisioningViewModel mViewModel;
 
     @BindView(R.id.container)
     CoordinatorLayout mCoordinatorLayout;
@@ -101,15 +101,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     @BindView(R.id.info_provisioning_status_container)
     View provisioningStatusContainer;
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    private ProvisioningViewModel mViewModel;
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mesh_provisioner);
+        mViewModel = new ViewModelProvider(this).get(ProvisioningViewModel.class);
         ButterKnife.bind(this);
 
         final Intent intent = getIntent();
@@ -124,7 +120,6 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         getSupportActionBar().setSubtitle(deviceAddress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ProvisioningViewModel.class);
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
 

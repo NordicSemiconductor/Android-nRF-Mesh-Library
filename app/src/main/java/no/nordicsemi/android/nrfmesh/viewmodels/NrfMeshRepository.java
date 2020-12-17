@@ -253,7 +253,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         return mProvisionedNodes;
     }
 
-    LiveData<List<Group>> getGroups() {
+    LiveData<List<Group>> getGroup1s() {
         return mGroups;
     }
 
@@ -608,13 +608,11 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     @Override
     public void onNetworkLoaded(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
-        loadGroups();
     }
 
     @Override
     public void onNetworkUpdated(final MeshNetwork meshNetwork) {
         loadNetwork(meshNetwork);
-        loadGroups();
         updateSelectedGroup();
     }
 
@@ -632,7 +630,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
         }
         loadNetwork(meshNetwork);
-        loadGroups();
         mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.\n" +
                 "In order to start sending messages to this network, please change the provisioner address. " +
                 "Using the same provisioner address will cause messages to be discarded due to the usage of incorrect sequence numbers " +
@@ -1103,7 +1100,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     /**
      * Generates the groups based on the addresses each models have subscribed to
      */
-    private void loadGroups() {
+    private void loadGroups1() {
         mGroups.postValue(mMeshNetwork.getGroups());
     }
 

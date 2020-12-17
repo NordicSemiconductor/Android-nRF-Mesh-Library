@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -77,7 +75,6 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAddressAdapter;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
@@ -98,16 +95,15 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.MESSAGE_TIME_OUT;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 
-public abstract class BaseModelConfigurationActivity extends BaseActivity implements Injectable,
+public abstract class BaseModelConfigurationActivity extends BaseActivity implements
         GroupCallbacks,
         ItemTouchHelperAdapter,
-        DialogFragmentDisconnected.DialogFragmentDisconnectedListener, SwipeRefreshLayout.OnRefreshListener {
+        DialogFragmentDisconnected.DialogFragmentDisconnectedListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     @BindView(R.id.container)
     CoordinatorLayout mContainer;
@@ -156,7 +152,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_model_configuration);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ModelConfigurationViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(ModelConfigurationViewModel.class);
         init();
         ButterKnife.bind(this);
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
@@ -204,7 +200,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
 
         mActionSubscribe.setOnClickListener(v -> {
             if (!checkConnectivity(mContainer)) return;
-            final ArrayList<Group> groups = new ArrayList<>(mViewModel.getGroups().getValue());
+            final ArrayList<Group> groups = new ArrayList<>(mViewModel.getNetworkLiveData().getMeshNetwork().getGroups());
             final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
             fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
         });

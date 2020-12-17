@@ -24,12 +24,11 @@ package no.nordicsemi.android.nrfmesh;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,37 +38,30 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.ButterKnife;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasAndroidInjector;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
-public class MainActivity extends AppCompatActivity implements Injectable,
-        HasAndroidInjector,
+@AndroidEntryPoint
+public class MainActivity extends AppCompatActivity implements
         BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener {
 
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
-    @Inject
-    DispatchingAndroidInjector<Object> mDispatchingAndroidInjector;
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private SharedViewModel mViewModel;
 
     private NetworkFragment mNetworkFragment;
     private GroupsFragment mGroupsFragment;
     private ProxyFilterFragment mProxyFilterFragment;
     private Fragment mSettingsFragment;
-    private SharedViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        Log.v("MainActivity", "View Model: " + mViewModel.toString());
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -153,10 +145,5 @@ public class MainActivity extends AppCompatActivity implements Injectable,
 
     @Override
     public void onNavigationItemReselected(@NonNull MenuItem item) {
-    }
-
-    @Override
-    public AndroidInjector<Object> androidInjector() {
-        return mDispatchingAndroidInjector;
     }
 }

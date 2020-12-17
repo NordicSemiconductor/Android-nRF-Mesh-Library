@@ -23,9 +23,7 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
 import androidx.annotation.NonNull;
-
-import javax.inject.Inject;
-
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.nrfmesh.ble.ReconnectActivity;
 
 /**
@@ -33,7 +31,7 @@ import no.nordicsemi.android.nrfmesh.ble.ReconnectActivity;
  */
 public class ReconnectViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     ReconnectViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
