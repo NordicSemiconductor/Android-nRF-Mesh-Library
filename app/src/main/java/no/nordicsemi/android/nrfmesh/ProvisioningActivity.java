@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
@@ -74,7 +75,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisioningViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
-
+@AndroidEntryPoint
 public class ProvisioningActivity extends AppCompatActivity implements
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
@@ -104,6 +105,7 @@ public class ProvisioningActivity extends AppCompatActivity implements
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mesh_provisioner);
+        mViewModel = new ViewModelProvider(this).get(ProvisioningViewModel.class);
         ButterKnife.bind(this);
 
         final Intent intent = getIntent();
@@ -118,7 +120,6 @@ public class ProvisioningActivity extends AppCompatActivity implements
         getSupportActionBar().setSubtitle(deviceAddress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mViewModel = new ViewModelProvider(this).get(ProvisioningViewModel.class);
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
 

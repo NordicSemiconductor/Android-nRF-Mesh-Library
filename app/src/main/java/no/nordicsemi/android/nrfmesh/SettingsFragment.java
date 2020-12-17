@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,7 +35,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -54,7 +52,6 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentNetworkName;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentPermissionRationale;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentResetNetwork;
 import no.nordicsemi.android.nrfmesh.export.ExportNetworkActivity;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
@@ -70,13 +67,10 @@ import static android.app.Activity.RESULT_OK;
 public class SettingsFragment extends Fragment implements
         DialogFragmentNetworkName.DialogFragmentNetworkNameListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
-        DialogFragmentMeshImport.DialogFragmentNetworkImportListener,
-        DialogFragmentPermissionRationale.StoragePermissionListener {
+        DialogFragmentMeshImport.DialogFragmentNetworkImportListener {
 
-    private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
-    private static final int READ_FILE_REQUEST_CODE = 42;
     private static final String TAG = SettingsFragment.class.getSimpleName();
-
+    private static final int READ_FILE_REQUEST_CODE = 42;
     private SharedViewModel mViewModel;
 
     @Override
@@ -241,7 +235,7 @@ public class SettingsFragment extends Fragment implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == READ_FILE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                if (data != null) {
+                if (data != null && data.getData() != null) {
                     //Disconnect from network before importing
                     mViewModel.disconnect();
                     final Uri uri = data.getData();
@@ -252,7 +246,7 @@ public class SettingsFragment extends Fragment implements
             }
         } else if (requestCode == 2011) {
             if (resultCode == RESULT_OK) {
-                if (data != null) {
+                if (data != null && data.getData() != null) {
                     final Uri uri = data.getData();
                     try {
                         final OutputStream stream = requireContext().getContentResolver().openOutputStream(uri);
@@ -261,16 +255,6 @@ public class SettingsFragment extends Fragment implements
                         e.printStackTrace();
                     }
                 }
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            if (PackageManager.PERMISSION_GRANTED != grantResults[0]) {
-                Toast.makeText(getContext(), getString(R.string.ext_storage_permission_denied), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -290,12 +274,6 @@ public class SettingsFragment extends Fragment implements
         performFileSearch();
     }
 
-    @Override
-    public void requestPermission() {
-        Utils.markWriteStoragePermissionRequested(getContext());
-        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
-    }
-
     /**
      * Fires an intent to spin up the "file chooser" UI to select a file
      */
@@ -309,27 +287,5 @@ public class SettingsFragment extends Fragment implements
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, READ_FILE_REQUEST_CODE);
-    }
-
-    private void handleNetworkExport() {
-        if (!Utils.isWriteExternalStoragePermissionsGranted(getContext())
-                || Utils.isWriteExternalStoragePermissionDeniedForever(requireActivity())) {
-            final DialogFragmentPermissionRationale fragmentPermissionRationale = DialogFragmentPermissionRationale.
-                    newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(requireActivity()),
-                            getString(R.string.title_permission_required),
-                            getString(R.string.external_storage_permission_required));
-            fragmentPermissionRationale.show(getChildFragmentManager(), null);
-        } else {
-            final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
-            if (Utils.isKitkatOrAbove()) {
-                final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("application/json");
-                intent.putExtra(Intent.EXTRA_TITLE, networkName);
-                startActivityForResult(intent, 2011);
-            } else {
-                mViewModel.exportMeshNetwork();
-            }
-        }
     }
 }

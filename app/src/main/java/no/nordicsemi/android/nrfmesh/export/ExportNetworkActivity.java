@@ -22,7 +22,9 @@
 
 package no.nordicsemi.android.nrfmesh.export;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -40,12 +42,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.nrfmesh.R;
@@ -61,12 +66,14 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ExportNetworkViewModel;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+@AndroidEntryPoint
 public class ExportNetworkActivity extends AppCompatActivity implements
+        DialogFragmentPermissionRationale.StoragePermissionListener,
         SelectableProvisionerAdapter.OnItemCheckedChangedListener,
         SelectableNetworkKeyAdapter.OnItemCheckedChangedListener {
 
     private static final int WRITE_TO_FILE = 2011;
-
+    private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
 
 
     @BindView(R.id.coordinator)
@@ -82,13 +89,14 @@ public class ExportNetworkActivity extends AppCompatActivity implements
 
     private SelectableProvisionerAdapter provisionerAdapter;
     private SelectableNetworkKeyAdapter networkKeyAdapter;
-
     private ExportNetworkViewModel mViewModel;
+
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export);
+        mViewModel = new ViewModelProvider(this).get(ExportNetworkViewModel.class);
         ButterKnife.bind(this);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -203,15 +211,31 @@ public class ExportNetworkActivity extends AppCompatActivity implements
             mViewModel.removeNetworkKey(networkKey);
     }
 
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (PackageManager.PERMISSION_GRANTED != grantResults[0]) {
+                mViewModel.displaySnackBar(this, mContainer, getString(R.string.ext_storage_permission_denied), Snackbar.LENGTH_LONG);
+            }
+        }
+    }
+
+    @Override
+    public void requestPermission() {
+        Utils.markWriteStoragePermissionRequested(this);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+    }
+
     private void handleNetworkExport() {
         try {
             if (!Utils.isWriteExternalStoragePermissionsGranted(this)
                     || Utils.isWriteExternalStoragePermissionDeniedForever(this)) {
-                final DialogFragmentPermissionRationale fragmentPermissionRationale = DialogFragmentPermissionRationale.
-                        newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(this),
+                DialogFragmentPermissionRationale
+                        .newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(this),
                                 getString(R.string.title_permission_required),
-                                getString(R.string.external_storage_permission_required));
-                fragmentPermissionRationale.show(getSupportFragmentManager(), null);
+                                getString(R.string.external_storage_permission_required))
+                        .show(getSupportFragmentManager(), null);
             } else {
                 final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
                 if (Utils.isKitkatOrAbove()) {
