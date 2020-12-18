@@ -334,9 +334,9 @@ public class MeshParserUtils {
             case 2:
                 return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             default:
-                return ((byte) (MeshParserUtils.unsignedByteToInt(accessPayload[1]))
-                        | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 8)
-                        | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 16))));
+                return ((MeshParserUtils.unsignedByteToInt(accessPayload[1]) << 8)
+                        + ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 16)
+                        + ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 0))));
         }
     }
 
@@ -389,7 +389,8 @@ public class MeshParserUtils {
      * @return length of opcodes
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
-        final byte[] opCodes = getOpCode(opCode);
+        final byte[] opCodes = new byte[3];
+        opCodes[0] = (byte) (opCode | 0xC0);
         opCodes[1] = (byte) (companyIdentifier & 0xFF);
         opCodes[2] = (byte) ((companyIdentifier >> 8) & 0xFF);
         return opCodes;
