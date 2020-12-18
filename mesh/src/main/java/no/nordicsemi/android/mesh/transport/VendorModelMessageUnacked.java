@@ -34,8 +34,7 @@ public class VendorModelMessageUnacked extends GenericMessage {
         super(appKey);
         this.mModelIdentifier = modelId;
         this.mCompanyIdentifier = companyIdentifier;
-        //Set the opCode to a 3-bit opCode
-        this.mOpCode = (0xC0 | mOpCode) << 16;
+        this.mOpCode = mOpCode;
         mParameters = parameters;
         assembleMessageParameters();
     }
