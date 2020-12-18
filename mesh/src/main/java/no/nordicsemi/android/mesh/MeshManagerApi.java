@@ -1023,7 +1023,7 @@ public class MeshManagerApi implements MeshMngrApi {
      */
     private void deleteSceneAddress(final int address) {
         for (Scene scene : mMeshNetwork.getScenes()) {
-            if (scene.getAddresses().remove((Integer) address)) {
+            if (scene.addresses.remove((Integer) address)) {
                 Log.d(TAG, "Node removed from " + scene.getName());
             }
         }
