@@ -332,11 +332,11 @@ public class MeshParserUtils {
             case 1:
                 return accessPayload[0];
             case 2:
-                return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
+                return unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             default:
-                return ((MeshParserUtils.unsignedByteToInt(accessPayload[1]) << 8)
-                        + ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 16)
-                        + ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 0))));
+                return unsignedByteToInt(accessPayload[1]) << 8
+                        | unsignedByteToInt(accessPayload[0]) << 16
+                        | unsignedByteToInt(accessPayload[2]);
         }
     }
 
