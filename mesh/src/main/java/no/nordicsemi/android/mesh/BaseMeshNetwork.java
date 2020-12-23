@@ -1157,12 +1157,16 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
                 nodes.set(index, meshNode); //replace a node if uuid matches
+                notifyNodeUpdated(meshNode);
                 return true;
             }
             index++;
         }
-
-        return nodes.add(meshNode);
+        if (nodes.add(meshNode)) {
+            notifyNodeAdded(meshNode);
+            return true;
+        }
+        return false;
     }
 
     /**
