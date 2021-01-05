@@ -151,6 +151,8 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, Element> mElements = new LinkedHashMap<>();
+    @ColumnInfo(name = "excluded")
+    boolean excluded = false;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
@@ -326,4 +328,11 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public @interface SecurityState {
     }
 
+    public boolean isExcluded() {
+        return excluded;
+    }
+
+    public void setExcluded(final boolean excluded) {
+        this.excluded = excluded;
+    }
 }

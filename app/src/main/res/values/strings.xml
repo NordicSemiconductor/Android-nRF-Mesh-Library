@@ -646,6 +646,9 @@
     <string name="error_cannot_assign_addresses">The device cannot assign consecutive unicast addresses to all elements!</string>
     <string name="error_rfu">Reserved for Future Use!</string>
     <string name="error_invalid_key_length">Error, key length must be 16-bytes</string>
-
-
+    <string name="title_exclude_node">Exclude Node</string>
+    <string name="node_exclusion_summary">Excluding add the node to an exclusion list in the mesh network with the current IV Index.
+        The excluded node will be permanently removed once the Key Refresh Procedure is completed. IV Indexes in the exclusion list
+        will be cleared once the network transitions in to an IV Normal Operation after the IV Update procedure is completed and
+        the current iv index of the network is greater by a count of two or more.</string>
 </resources>

@@ -49,10 +49,10 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 10)
+        version = 11)
 abstract class MeshNetworkDb extends RoomDatabase {
 
-    private static String TAG = MeshNetworkDb.class.getSimpleName();
+    private static final String TAG = MeshNetworkDb.class.getSimpleName();
 
     abstract MeshNetworkDao meshNetworkDao();
 
@@ -102,6 +102,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_7_8)
                             .addMigrations(MIGRATION_8_9)
                             .addMigrations(MIGRATION_9_10)
+                            .addMigrations(MIGRATION_10_11)
                             .build();
                 }
 
@@ -835,6 +836,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_10_11 = new Migration(10, 11) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateNodes10_11(database);
+        }
+    };
+
     private static void migrateMeshNetwork(final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `mesh_network_temp` " +
                 "(`mesh_uuid` TEXT NOT NULL, " +
@@ -1170,32 +1178,11 @@ abstract class MeshNetworkDb extends RoomDatabase {
         addProvisionerNodes(database, provisioners);
     }
 
-    private static HashMap<UUID, ArrayList<Integer>> getKeyIndexes(@NonNull final SupportSQLiteDatabase database, final String tableName) {
-        Cursor cursor = database.query("SELECT * FROM " + tableName);
-        final HashMap<UUID, ArrayList<Integer>> netKeyIndexMap = new HashMap<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            final UUID meshUuid = UUID.fromString(cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US));
-            do {
-                final int index = cursor.getInt(cursor.getColumnIndex("index"));
-                ArrayList<Integer> indexes = netKeyIndexMap.get(meshUuid);
-                if (indexes != null) {
-                    indexes.add(index);
-                } else {
-                    indexes = new ArrayList<>();
-                    indexes.add(index);
-                }
-                netKeyIndexMap.put(meshUuid, indexes);
-            } while (cursor.moveToNext());
-        }
-        return netKeyIndexMap;
-    }
-
     private static List<NetworkKey> getNetKeys(@NonNull final SupportSQLiteDatabase database) {
         final List<NetworkKey> keys = new ArrayList<>();
         final Cursor cursor = database.query("SELECT * FROM network_key");
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
                 final int index = cursor.getInt(cursor.getColumnIndex("index"));
                 final byte[] key = cursor.getBlob(cursor.getColumnIndex("key"));
                 final NetworkKey networkKey = new NetworkKey(index, key);
@@ -1210,7 +1197,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         final Cursor cursor = database.query("SELECT * FROM application_key");
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
                 final int index = cursor.getInt(cursor.getColumnIndex("index"));
                 final byte[] key = cursor.getBlob(cursor.getColumnIndex("key"));
                 final ApplicationKey applicationKey = new ApplicationKey(index, key);
@@ -1225,7 +1211,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         if (!provisioners.isEmpty()) {
             final List<NetworkKey> netKeys = getNetKeys(database);
             final List<ApplicationKey> appKeys = getAppKeys(database);
-            final List<ProvisionedMeshNode> nodes = new ArrayList<>();
             for (Provisioner provisioner : provisioners) {
                 final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
                 final ContentValues values = new ContentValues();
@@ -1270,12 +1255,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 final int unicast = cursor1.getInt(cursor1.getColumnIndex("unicast_address"));
                 final int seqNumber = cursor1.getInt(cursor1.getColumnIndex("seq_number"));
                 SparseIntArray sparseIntArray = nodesMap.get(meshUuid);
-                if (sparseIntArray != null) {
-                    sparseIntArray.put(unicast, seqNumber);
-                } else {
+                if (sparseIntArray == null) {
                     sparseIntArray = new SparseIntArray();
-                    sparseIntArray.put(unicast, seqNumber);
                 }
+                sparseIntArray.put(unicast, seqNumber);
                 nodesMap.put(meshUuid, sparseIntArray);
             } while (cursor1.moveToNext());
             cursor1.close();
@@ -1412,5 +1395,9 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     private static void migrateMeshNetwork9_10(@NonNull final SupportSQLiteDatabase database) {
         database.execSQL("ALTER TABLE mesh_network ADD COLUMN partial INTEGER NOT NULL DEFAULT 1");
+    }
+
+    private static void migrateNodes10_11(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("ALTER TABLE nodes ADD COLUMN excluded INTEGER NOT NULL DEFAULT 0");
     }
 }

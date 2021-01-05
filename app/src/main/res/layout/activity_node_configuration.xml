@@ -394,6 +394,61 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/node_exclusion_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.appbar.MaterialToolbar
+                            android:id="@+id/node_exclusion_tool_bar"
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:logo="@drawable/ic_reset"
+                            app:title="@string/title_exclude_node"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            android:text="@string/node_exclusion_summary"
+                            android:textSize="16sp" />
+
+                        <include
+                            android:id="@+id/div2"
+                            layout="@layout/layout_divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/summary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/action_exclude_node"
+                            style="@style/RedButton"
+                            android:layout_gravity="end"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"
+                            android:text="@string/action_reset_node" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/node_reset_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -401,13 +456,14 @@
                     android:layout_marginBottom="@dimen/activity_vertical_margin"
                     app:cardElevation="1dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
                         <com.google.android.material.appbar.MaterialToolbar
                             android:id="@+id/node_reset_tool_bar"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -419,7 +475,7 @@
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/textview"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/activity_horizontal_margin"
                             android:layout_marginEnd="@dimen/activity_horizontal_margin"
@@ -434,7 +490,7 @@
                         <include
                             android:id="@+id/div2"
                             layout="@layout/layout_divider"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="1dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -445,6 +501,7 @@
                             style="@style/RedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="end"
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
                             android:padding="@dimen/item_padding_end"
@@ -453,7 +510,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/div2" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
