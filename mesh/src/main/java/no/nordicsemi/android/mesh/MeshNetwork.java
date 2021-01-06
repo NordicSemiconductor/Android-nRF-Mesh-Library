@@ -931,4 +931,25 @@ public final class MeshNetwork extends BaseMeshNetwork {
         }
         return null;
     }
+
+    /**
+     * Excludes a node from the mesh network.
+     * The given node will marked as excluded and added to the exclusion list and the node will be removed once
+     * the Key refresh procedure is completed. After the IV update procedure, when the network transitions to an
+     * IV Normal Operation state with a higher IV index, the exclusionList object that has the ivIndex property
+     * value that is lower by a count of two (or more) than the current IV index of the network is removed from
+     * the networkExclusions property array.
+     *
+     * @param node Provisioned mesh node
+     */
+    public void excludeNode(@NonNull final ProvisionedMeshNode node) {
+        //Exclude node
+        node.setExcluded(true);
+        ArrayList<Integer> nodes = networkExclusions.get(ivIndex);
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+        nodes.add(node.getUnicastAddress());
+        networkExclusions.put(ivIndex, nodes);
+    }
 }

@@ -1246,7 +1246,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     private static void migrateMeshNetwork5_6(final SupportSQLiteDatabase database) {
-
         final HashMap<UUID, SparseIntArray> nodesMap = new HashMap<>();
         final Cursor cursor1 = database.query("SELECT mesh_uuid, unicast_address, seq_number FROM nodes");
         if (cursor1 != null && cursor1.moveToFirst()) {
@@ -1398,6 +1397,56 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     private static void migrateNodes10_11(@NonNull final SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE nodes ADD COLUMN excluded INTEGER NOT NULL DEFAULT 0");
+        //database.execSQL("ALTER TABLE nodes ADD COLUMN excluded INTEGER NOT NULL DEFAULT 0");
+        addColumnNetworkExclusionList(database);
+        migrateFromBlacklistedToExcluded(database);
+    }
+
+    private static void addColumnNetworkExclusionList(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("ALTER TABLE mesh_network ADD COLUMN networkExclusions TEXT");
+    }
+
+    private static void migrateFromBlacklistedToExcluded(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `nodes_temp` " +
+                "(timestamp INTEGER NOT NULL, " +
+                "addedNetworkKeys TEXT, " +
+                "name TEXT, ttl INTEGER, " +
+                "excluded INTEGER NOT NULL, " +
+                "secureNetworkBeacon INTEGER, " +
+                "mesh_uuid TEXT, uuid TEXT NOT NULL, " +
+                "security INTEGER NOT NULL, " +
+                "unicast_address INTEGER NOT NULL DEFAULT 1, " +
+                "configured INTEGER NOT NULL, " +
+                "device_key BLOB, " +
+                "seq_number INTEGER NOT NULL, " +
+                "cid INTEGER, " +
+                "pid INTEGER, " +
+                "vid INTEGER, " +
+                "crpl INTEGER, " +
+                "elements TEXT, " +
+                "addedApplicationKeys TEXT, " +
+                "networkTransmitCount INTEGER, " +
+                "networkIntervalSteps INTEGER, " +
+                "relayTransmitCount INTEGER, " +
+                "relayIntervalSteps INTEGER, " +
+                "friend INTEGER, " +
+                "lowPower INTEGER, " +
+                "proxy INTEGER, " +
+                "relay INTEGER, " +
+                "PRIMARY KEY(uuid), " +
+                "FOREIGN KEY(mesh_uuid) REFERENCES mesh_network(mesh_uuid) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL(
+                "INSERT INTO nodes_temp (timestamp, addedNetworkKeys, name, excluded, secureNetworkBeacon, mesh_uuid, " +
+                        "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, elements, " +
+                        "addedApplicationKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps, " +
+                        "friend, lowPower, proxy, relay, uuid, mesh_uuid) " +
+                        "SELECT timestamp, mAddedNetworkKeys, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
+                        "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
+                        "mAddedApplicationKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps," +
+                        "friend, lowPower, proxy, relay, uuid, mesh_uuid FROM nodes");
+        database.execSQL("DROP TABLE nodes");
+        database.execSQL("ALTER TABLE nodes_temp RENAME TO nodes");
+        database.execSQL("CREATE INDEX index_nodes_mesh_uuid ON `nodes` (mesh_uuid)");
     }
 }

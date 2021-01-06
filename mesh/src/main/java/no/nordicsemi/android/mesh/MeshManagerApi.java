@@ -34,8 +34,10 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
@@ -373,6 +375,15 @@ public class MeshManagerApi implements MeshMngrApi {
                                     final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
                                             && !receivedBeacon.getIvIndex().isIvUpdateActive();
                                     mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
+                                }
+
+                                if(!mMeshNetwork.ivIndex.getIvRecoveryFlag()){
+                                    final Iterator<Entry<IvIndex, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
+                                    while(iterator.hasNext()){
+                                        if(mMeshNetwork.ivIndex.getIvIndex() >= iterator.next().getKey().getIvIndex() + 2 ){
+                                            iterator.remove();
+                                        }
+                                    }
                                 }
                             }
                         }

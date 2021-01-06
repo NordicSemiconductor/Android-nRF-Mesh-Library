@@ -14,7 +14,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import androidx.annotation.IntDef;
@@ -79,6 +81,7 @@ abstract class BaseMeshNetwork {
     @Expose
     @NonNull
     IvIndex ivIndex = new IvIndex(0, false, Calendar.getInstance());
+    //Properties with Ignore are stored in their own table with the network's UUID as the foreign key
     @Ignore
     @SerializedName("netKeys")
     @Expose
@@ -115,6 +118,10 @@ abstract class BaseMeshNetwork {
     @TypeConverters(MeshTypeConverters.class)
     @ColumnInfo(name = "sequence_numbers")
     protected SparseIntArray sequenceNumbers = new SparseIntArray();
+    @SerializedName("networkExclusions")
+    @TypeConverters(MeshTypeConverters.class)
+    @Expose
+    protected Map<IvIndex, ArrayList<Integer>> networkExclusions = new HashMap<>();
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -1072,6 +1079,22 @@ abstract class BaseMeshNetwork {
             sequenceNumbers.put(node.getUnicastAddress(), node.getSequenceNumber());
         }
     }
+
+    /**
+     * Returns the map of network exclusions
+     */
+    public Map<IvIndex, ArrayList<Integer>> getNetworkExclusions() {
+        return Collections.unmodifiableMap(networkExclusions);
+    }
+
+    /**
+     * Setter required by room db and is restricted for internal use.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setNetworkExclusions(@NonNull final Map<IvIndex, ArrayList<Integer>> networkExclusions) {
+        this.networkExclusions = networkExclusions;
+    }
+
 
     /**
      * Returns the {@link ProxyFilter} set on the proxy
