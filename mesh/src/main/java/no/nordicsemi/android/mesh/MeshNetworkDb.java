@@ -1409,7 +1409,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     private static void migrateFromBlacklistedToExcluded(@NonNull final SupportSQLiteDatabase database) {
         database.execSQL("CREATE TABLE `nodes_temp` " +
                 "(timestamp INTEGER NOT NULL, " +
-                "addedNetworkKeys TEXT, " +
+                "netKeys TEXT, " +
                 "name TEXT, ttl INTEGER, " +
                 "excluded INTEGER NOT NULL, " +
                 "secureNetworkBeacon INTEGER, " +
@@ -1424,7 +1424,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "vid INTEGER, " +
                 "crpl INTEGER, " +
                 "elements TEXT, " +
-                "addedApplicationKeys TEXT, " +
+                "appKeys TEXT, " +
                 "networkTransmitCount INTEGER, " +
                 "networkIntervalSteps INTEGER, " +
                 "relayTransmitCount INTEGER, " +
@@ -1437,13 +1437,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 "FOREIGN KEY(mesh_uuid) REFERENCES mesh_network(mesh_uuid) ON UPDATE CASCADE ON DELETE CASCADE )");
 
         database.execSQL(
-                "INSERT INTO nodes_temp (timestamp, addedNetworkKeys, name, excluded, secureNetworkBeacon, mesh_uuid, " +
+                "INSERT INTO nodes_temp (timestamp, netKeys, name, excluded, secureNetworkBeacon, mesh_uuid, " +
                         "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, elements, " +
-                        "addedApplicationKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps, " +
+                        "appKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps, " +
                         "friend, lowPower, proxy, relay, uuid, mesh_uuid) " +
-                        "SELECT timestamp, mAddedNetworkKeys, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
+                        "SELECT timestamp, netKeys, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
                         "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
-                        "mAddedApplicationKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps," +
+                        "appKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps," +
                         "friend, lowPower, proxy, relay, uuid, mesh_uuid FROM nodes");
         database.execSQL("DROP TABLE nodes");
         database.execSQL("ALTER TABLE nodes_temp RENAME TO nodes");
