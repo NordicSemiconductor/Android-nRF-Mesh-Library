@@ -25,25 +25,24 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 
 /**
  * To be used as a wrapper class for when creating the ConfigRelayStatus message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public final class ConfigProxyStatus extends ConfigStatusMessage implements Parcelable {
 
     private static final String TAG = ConfigProxyStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_GATT_PROXY_STATUS;
     private int mProxyState;
 
     private static final Creator<ConfigProxyStatus> CREATOR = new Creator<ConfigProxyStatus>() {
         @Override
         public ConfigProxyStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new ConfigProxyStatus(message);
         }
 
