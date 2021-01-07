@@ -197,18 +197,18 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 listener).execute();*/
     }
 
-    void updateNetwork(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
+    void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
         databaseWriteExecutor.execute(() -> dao.update(meshNetwork));
     }
 
-    void updateNetwork1(@NonNull final MeshNetwork meshNetwork,
-                        @NonNull final MeshNetworkDao meshNetworkDao,
-                        @NonNull final NetworkKeysDao netKeyDao,
-                        @NonNull final ApplicationKeysDao appKeyDao,
-                        @NonNull final ProvisionersDao provisionersDao,
-                        @NonNull final ProvisionedMeshNodesDao nodesDao,
-                        @NonNull final GroupsDao groupsDao,
-                        @NonNull final ScenesDao sceneDao) {
+    void update(@NonNull final MeshNetwork meshNetwork,
+                @NonNull final MeshNetworkDao meshNetworkDao,
+                @NonNull final NetworkKeysDao netKeyDao,
+                @NonNull final ApplicationKeysDao appKeyDao,
+                @NonNull final ProvisionersDao provisionersDao,
+                @NonNull final ProvisionedMeshNodesDao nodesDao,
+                @NonNull final GroupsDao groupsDao,
+                @NonNull final ScenesDao sceneDao) {
         databaseWriteExecutor.execute(() -> {
             meshNetworkDao.update(meshNetwork);
             netKeyDao.update(meshNetwork.getNetKeys());
@@ -220,7 +220,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         });
     }
 
-    void deleteNetwork(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
+    void delete(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
         databaseWriteExecutor.execute(() -> dao.delete(meshNetwork));
     }
 
@@ -232,47 +232,47 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.update(networkKey));
     }
 
-    void deleteNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
+    void delete(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
         databaseWriteExecutor.execute(() -> dao.delete(networkKey));
     }
 
-    void insertAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
+    void insert(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
         databaseWriteExecutor.execute(() -> dao.insert(applicationKey));
     }
 
-    void updateAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
+    void update(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
         databaseWriteExecutor.execute(() -> dao.update(applicationKey));
     }
 
-    void deleteAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
+    void delete(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
         databaseWriteExecutor.execute(() -> dao.delete(applicationKey));
     }
 
-    void insertProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+    void insert(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
         databaseWriteExecutor.execute(() -> dao.insert(provisioner));
     }
 
-    void updateProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+    void update(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
         databaseWriteExecutor.execute(() -> dao.update(provisioner));
     }
 
-    void updateProvisioners(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
+    void update(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
         databaseWriteExecutor.execute(() -> dao.update(provisioners));
     }
 
-    void deleteProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+    void delete(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
         databaseWriteExecutor.execute(() -> dao.delete(provisioner));
     }
 
-    void insertNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
+    void insert(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
         databaseWriteExecutor.execute(() -> dao.insert(node));
     }
 
-    void updateNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
+    void update(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
         databaseWriteExecutor.execute(() -> dao.update(node));
     }
 
-    void updateNodes(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
+    void update(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
         databaseWriteExecutor.execute(() -> dao.update(nodes));
     }
 
@@ -280,11 +280,11 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.delete(node));
     }
 
-    void insertGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
+    void insert(@NonNull final GroupDao dao, @NonNull final Group group) {
         databaseWriteExecutor.execute(() -> dao.insert(group));
     }
 
-    void updateGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
+    void update(@NonNull final GroupDao dao, @NonNull final Group group) {
         databaseWriteExecutor.execute(() -> dao.update(group));
     }
 
@@ -292,19 +292,19 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.update(groups));
     }
 
-    void deleteGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
+    void delete(@NonNull final GroupDao dao, @NonNull final Group group) {
         databaseWriteExecutor.execute(() -> dao.delete(group));
     }
 
-    void insertScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
+    void insert(@NonNull final SceneDao dao, @NonNull final Scene scene) {
         databaseWriteExecutor.execute(() -> dao.insert(scene));
     }
 
-    void updateScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
+    void update(@NonNull final SceneDao dao, @NonNull final Scene scene) {
         databaseWriteExecutor.execute(() -> dao.update(scene));
     }
 
-    void deleteScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
+    void delete(@NonNull final SceneDao dao, @NonNull final Scene scene) {
         databaseWriteExecutor.execute(() -> dao.delete(scene));
     }
 
