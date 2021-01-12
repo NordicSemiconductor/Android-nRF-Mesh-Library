@@ -410,40 +410,23 @@
                             android:layout_width="match_parent"
                             android:layout_height="?actionBarSize"
                             app:logo="@drawable/ic_reset"
+                            app:menu="@menu/info"
                             app:title="@string/title_exclude_node"
                             app:titleMarginStart="@dimen/toolbar_title_margin"
                             app:titleTextAppearance="@style/Toolbar.TitleText" />
 
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/summary"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/activity_horizontal_margin"
-                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                            android:paddingTop="@dimen/item_padding_top"
-                            android:paddingBottom="@dimen/item_padding_bottom"
-                            android:text="@string/node_exclusion_summary"
-                            android:textSize="16sp" />
-
-                        <include
-                            android:id="@+id/div2"
-                            layout="@layout/layout_divider"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/summary" />
-
-                        <com.google.android.material.button.MaterialButton
+                        <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/action_exclude_node"
-                            style="@style/RedButton"
-                            android:layout_gravity="end"
-                            android:layout_width="wrap_content"
+                            style="@style/Widget.App.Switch"
+                            android:gravity="start"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="end"
                             android:layout_marginStart="@dimen/item_padding_end"
                             android:layout_marginEnd="@dimen/item_padding_start"
                             android:padding="@dimen/item_padding_end"
-                            android:text="@string/action_reset_node" />
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:text="@string/exclude"/>
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

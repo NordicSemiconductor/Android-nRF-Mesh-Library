@@ -377,9 +377,9 @@ public class MeshManagerApi implements MeshMngrApi {
                                 }
 
                                 if(!mMeshNetwork.ivIndex.getIvRecoveryFlag()){
-                                    final Iterator<Entry<IvIndex, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
+                                    final Iterator<Entry<Integer, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
                                     while(iterator.hasNext()){
-                                        if(mMeshNetwork.ivIndex.getIvIndex() >= iterator.next().getKey().getIvIndex() + 2 ){
+                                        if(mMeshNetwork.ivIndex.getIvIndex() >= iterator.next().getKey() + 2 ){
                                             iterator.remove();
                                         }
                                     }

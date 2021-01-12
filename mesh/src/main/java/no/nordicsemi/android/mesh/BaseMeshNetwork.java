@@ -121,7 +121,7 @@ abstract class BaseMeshNetwork {
     @SerializedName("networkExclusions")
     @TypeConverters(MeshTypeConverters.class)
     @Expose
-    protected Map<IvIndex, ArrayList<Integer>> networkExclusions = new HashMap<>();
+    protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -1083,7 +1083,7 @@ abstract class BaseMeshNetwork {
     /**
      * Returns the map of network exclusions
      */
-    public Map<IvIndex, ArrayList<Integer>> getNetworkExclusions() {
+    public Map<Integer, ArrayList<Integer>> getNetworkExclusions() {
         return Collections.unmodifiableMap(networkExclusions);
     }
 
@@ -1091,7 +1091,7 @@ abstract class BaseMeshNetwork {
      * Setter required by room db and is restricted for internal use.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setNetworkExclusions(@NonNull final Map<IvIndex, ArrayList<Integer>> networkExclusions) {
+    public void setNetworkExclusions(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
         this.networkExclusions = networkExclusions;
     }
 

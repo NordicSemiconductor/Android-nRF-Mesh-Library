@@ -41,4 +41,11 @@ public class NodeConfigurationViewModel extends BaseViewModel {
         super.onCleared();
         mNrfMeshRepository.clearTransactionStatus();
     }
+
+    /**
+     * Exclude node
+     */
+    public void excludeNode() {
+        getNetworkLiveData().getMeshNetwork().excludeNode(getSelectedMeshNode().getValue());
+    }
 }

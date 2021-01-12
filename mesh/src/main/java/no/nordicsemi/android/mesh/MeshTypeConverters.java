@@ -153,12 +153,12 @@ public class MeshTypeConverters {
     }
 
     @TypeConverter
-    public static String networkExclusionsToJson(@NonNull final Map<IvIndex, ArrayList<Integer>> networkExclusions) {
+    public static String networkExclusionsToJson(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
         return new Gson().toJson(networkExclusions);
     }
 
     @TypeConverter
-    public static Map<IvIndex, ArrayList<Integer>> fromJsonToNetworkExclusions(@NonNull final String networkExclusions) {
+    public static Map<Integer, ArrayList<Integer>> fromJsonToNetworkExclusions(@NonNull final String networkExclusions) {
         final Type newNetworkExclusions = new TypeToken<Map<IvIndex, ArrayList<Integer>>>() {
         }.getType();
         return new Gson().fromJson(networkExclusions, newNetworkExclusions);

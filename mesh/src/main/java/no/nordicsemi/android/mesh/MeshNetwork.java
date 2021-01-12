@@ -940,16 +940,17 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * value that is lower by a count of two (or more) than the current IV index of the network is removed from
      * the networkExclusions property array.
      *
-     * @param node Provisioned mesh node
+     * @param node Provisioned mesh node.
      */
     public void excludeNode(@NonNull final ProvisionedMeshNode node) {
         //Exclude node
         node.setExcluded(true);
-        ArrayList<Integer> nodes = networkExclusions.get(ivIndex);
+        ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
         if (nodes == null) {
             nodes = new ArrayList<>();
         }
         nodes.add(node.getUnicastAddress());
-        networkExclusions.put(ivIndex, nodes);
+        networkExclusions.put(ivIndex.getIvIndex(), nodes);
+        notifyNodeUpdated(node);
     }
 }
