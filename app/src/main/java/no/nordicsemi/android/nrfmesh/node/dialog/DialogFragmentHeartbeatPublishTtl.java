@@ -43,7 +43,7 @@ public class DialogFragmentHeartbeatPublishTtl extends DialogFragmentTtl {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         final Dialog dialog = super.onCreateDialog(savedInstanceState);
-        chkPublishTtl.setVisibility(GONE);
+        binding.chkDefaultTtl.setVisibility(GONE);
         return dialog;
     }
 }

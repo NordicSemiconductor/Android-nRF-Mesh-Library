@@ -22,9 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,15 +34,12 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
@@ -56,6 +51,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmesh.adapter.FilterAddressAdapter;
+import no.nordicsemi.android.nrfmesh.databinding.FragmentProxyFilterBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentFilterAddAddress;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
@@ -75,43 +71,29 @@ public class ProxyFilterFragment extends Fragment implements
 
     private SharedViewModel mViewModel;
 
-    @BindView(R.id.action_white_list)
-    Button actionEnableWhiteList;
-    @BindView(R.id.action_black_list)
-    Button actionEnableBlackList;
-    @BindView(R.id.action_disable)
-    Button actionDisable;
-    @BindView(R.id.action_add_address)
-    Button actionAddFilterAddress;
-    @BindView(R.id.action_clear_addresses)
-    Button actionClearFilterAddress;
-    @BindView(R.id.proxy_filter_address_card)
-    CardView mProxyFilterCard;
     private ProxyFilter mFilter;
     private boolean clearAddressPressed;
     private boolean isProxyFilterDisabled;
     private FilterAddressAdapter addressAdapter;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Nullable
     @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_proxy_filter, null);
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup viewGroup, @Nullable final Bundle savedInstanceState) {
         mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        Log.v("ProxyFilterFragment", "View Model: " + mViewModel.toString());
-        ButterKnife.bind(this, rootView);
+        final FragmentProxyFilterBinding binding = FragmentProxyFilterBinding.inflate(getLayoutInflater());
+        final Button actionEnableWhiteList = binding.actionWhiteList;
+        final Button actionEnableBlackList = binding.actionBlackList;
+        final Button actionDisable = binding.actionDisable;
+        final Button actionAddFilterAddress = binding.actionAddAddress;
+        final Button actionClearFilterAddress = binding.actionClearAddresses;
 
         if (savedInstanceState != null) {
             clearAddressPressed = savedInstanceState.getBoolean(CLEAR_ADDRESS_PRESSED);
             isProxyFilterDisabled = savedInstanceState.getBoolean(PROXY_FILTER_DISABLED);
         }
 
-        final TextView noAddressesAdded = rootView.findViewById(R.id.no_addresses);
-        final RecyclerView recyclerViewAddresses = rootView.findViewById(R.id.recycler_view_filter_addresses);
+        final TextView noAddressesAdded = binding.noAddresses;
+        final RecyclerView recyclerViewAddresses = binding.recyclerViewFilterAddresses;
         actionEnableWhiteList.setEnabled(false);
         actionEnableBlackList.setEnabled(false);
         actionDisable.setEnabled(false);
@@ -222,7 +204,7 @@ public class ProxyFilterFragment extends Fragment implements
 
         actionClearFilterAddress.setOnClickListener(v -> removeAddresses());
 
-        return rootView;
+        return binding.getRoot();
     }
 
     @Override

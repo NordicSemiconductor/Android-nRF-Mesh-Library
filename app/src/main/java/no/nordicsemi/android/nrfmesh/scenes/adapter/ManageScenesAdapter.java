@@ -23,10 +23,7 @@
 package no.nordicsemi.android.nrfmesh.scenes.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,10 +35,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
@@ -70,8 +66,7 @@ public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapte
     @NonNull
     @Override
     public ManageScenesAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
-        return new ManageScenesAdapter.ViewHolder(layoutView);
+        return new ManageScenesAdapter.ViewHolder(RemovableRowItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -105,19 +100,15 @@ public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapte
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
-        FrameLayout container;
-        @BindView(R.id.title)
         TextView sceneName;
-        @BindView(R.id.subtitle)
         TextView sceneNumber;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-            final ImageView image = view.findViewById(R.id.icon);
-            image.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_baseline_palette_24dp));
-            container.setOnClickListener(v -> {
+        private ViewHolder(@NonNull final RemovableRowItemBinding binding) {
+            super(binding.getRoot());
+            binding.icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_baseline_palette_24dp));
+            sceneName = binding.title;
+            sceneNumber = binding.subtitle;
+            binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final Scene scene = scenes.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(getAdapterPosition(), scene);

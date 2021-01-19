@@ -22,29 +22,21 @@
 
 package no.nordicsemi.android.nrfmesh.scenes.dialog;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.KeyListener;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentCreateSceneBinding;
 import no.nordicsemi.android.nrfmesh.scenes.SceneCallbacks;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
@@ -55,16 +47,7 @@ import static no.nordicsemi.android.mesh.Scene.isValidSceneNumber;
 public abstract class DialogFragmentScene extends DialogFragment {
 
     protected static final String SCENE = "SCENE";
-
-    //UI Bindings
-    @BindView(R.id.scene_name_layout)
-    TextInputLayout sceneNameInputLayout;
-    @BindView(R.id.name_input)
-    TextInputEditText sceneNameInput;
-    @BindView(R.id.scene_number_layout)
-    TextInputLayout sceneNumberInputLayout;
-    @BindView(R.id.number_input)
-    TextInputEditText numberInput;
+    protected DialogFragmentCreateSceneBinding binding;
     protected Scene mScene;
     protected AlertDialog.Builder alertDialogBuilder;
 
@@ -81,23 +64,20 @@ public abstract class DialogFragmentScene extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_create_scene, null);
+        binding = DialogFragmentCreateSceneBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final KeyListener hexKeyListener = new HexKeyListener();
         if (savedInstanceState != null) {
             mScene = savedInstanceState.getParcelable(SCENE);
         }
 
         if (mScene != null) {
-            sceneNameInput.setText(mScene.getName());
-            numberInput.setText(MeshAddress.formatAddress(mScene.getNumber(), false));
+            binding.nameInput.setText(mScene.getName());
+            binding.numberInput.setText(MeshAddress.formatAddress(mScene.getNumber(), false));
         }
         updateScene();
 
-        numberInput.setKeyListener(hexKeyListener);
-        numberInput.addTextChangedListener(new TextWatcher() {
+        binding.numberInput.setKeyListener(new HexKeyListener());
+        binding.numberInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -107,9 +87,9 @@ public abstract class DialogFragmentScene extends DialogFragment {
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 mScene = null;
                 if (TextUtils.isEmpty(s.toString())) {
-                    sceneNumberInputLayout.setError(getString(R.string.error_empty_group_address));
+                    binding.sceneNumberLayout.setError(getString(R.string.error_empty_group_address));
                 } else {
-                    sceneNumberInputLayout.setError(null);
+                    binding.sceneNumberLayout.setError(null);
                 }
             }
 
@@ -119,7 +99,7 @@ public abstract class DialogFragmentScene extends DialogFragment {
             }
         });
 
-        alertDialogBuilder.setView(rootView);
+        alertDialogBuilder.setView(binding.getRoot());
         return alertDialogBuilder.show();
     }
 
@@ -133,24 +113,24 @@ public abstract class DialogFragmentScene extends DialogFragment {
         if (mScene == null) {
             mScene = ((SceneCallbacks) requireParentFragment()).createScene();
         }
-        sceneNameInput.setText(mScene.getName());
-        numberInput.setText(Scene.formatSceneNumber(mScene.getNumber(), false));
+        binding.nameInput.setText(mScene.getName());
+        binding.numberInput.setText(Scene.formatSceneNumber(mScene.getNumber(), false));
     }
 
     protected final boolean validateInput(@NonNull final String name, @NonNull final String input) {
         try {
             if (TextUtils.isEmpty(name)) {
-                sceneNameInputLayout.setError(getString(R.string.error_empty_group_name));
+                binding.sceneNameLayout.setError(getString(R.string.error_empty_group_name));
                 return false;
             }
             if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
-                sceneNumberInputLayout.setError(getString(R.string.invalid_scene_number));
+                binding.sceneNameLayout.setError(getString(R.string.invalid_scene_number));
                 return false;
             }
 
             return (isValidSceneNumber(Integer.parseInt(input, 16)));
         } catch (IllegalArgumentException ex) {
-            sceneNumberInputLayout.setError(ex.getMessage());
+            binding.sceneNumberLayout.setError(ex.getMessage());
             return false;
         }
     }

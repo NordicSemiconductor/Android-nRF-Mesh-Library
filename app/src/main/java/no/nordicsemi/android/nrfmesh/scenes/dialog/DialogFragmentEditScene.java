@@ -65,8 +65,8 @@ public class DialogFragmentEditScene extends DialogFragmentScene {
         final AlertDialog alertDialog = (AlertDialog) super.onCreateDialog(savedInstanceState);
 
         alertDialog.getButton(BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String name = sceneNameInput.getEditableText().toString().trim();
-            final String number = numberInput.getEditableText().toString().trim();
+            final String name = binding.nameInput.getEditableText().toString().trim();
+            final String number = binding.numberInput.getEditableText().toString().trim();
             try {
                 if (validateInput(name, number)) {
                     mScene.setName(name);
@@ -75,7 +75,7 @@ public class DialogFragmentEditScene extends DialogFragmentScene {
                     }
                 }
             } catch (IllegalArgumentException ex) {
-                sceneNumberInputLayout.setError(ex.getMessage());
+                binding.sceneNumberLayout.setError(ex.getMessage());
             }
         });
         return alertDialog;
@@ -83,6 +83,6 @@ public class DialogFragmentEditScene extends DialogFragmentScene {
 
     protected final void updateScene() {
         super.updateScene();
-        sceneNumberInputLayout.setEnabled(false);
+        binding.sceneNumberLayout.setEnabled(false);
     }
 }

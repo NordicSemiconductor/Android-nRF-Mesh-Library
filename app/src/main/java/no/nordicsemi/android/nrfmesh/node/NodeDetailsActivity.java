@@ -27,16 +27,13 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DateFormat;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -45,19 +42,18 @@ import no.nordicsemi.android.mesh.utils.CompositionDataParser;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityNodeDetailsBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.NodeDetailsViewModel;
 
 @AndroidEntryPoint
 public class NodeDetailsActivity extends AppCompatActivity {
 
-    NodeDetailsViewModel viewModel;
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_node_details);
-        viewModel = new ViewModelProvider(this).get(NodeDetailsViewModel.class);
-        ButterKnife.bind(this);
+        final ActivityNodeDetailsBinding binding = ActivityNodeDetailsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        final NodeDetailsViewModel viewModel = new ViewModelProvider(this).get(NodeDetailsViewModel.class);
 
         if (viewModel.getSelectedMeshNode().getValue() == null) {
             finish();
@@ -66,29 +62,22 @@ public class NodeDetailsActivity extends AppCompatActivity {
         final ProvisionedMeshNode node = viewModel.getSelectedMeshNode().getValue();
         final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(node.getNodeName());
 
-        final View containerProvisioningTimeStamp = findViewById(R.id.container_timestamp);
-        containerProvisioningTimeStamp.setClickable(false);
-        final TextView timestamp = containerProvisioningTimeStamp.findViewById(R.id.text);
+        binding.containerTimestamp.getRoot().setClickable(false);
+        final TextView timestamp = binding.containerTimestamp.text;
         final String format = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG).format(node.getTimeStamp());
         timestamp.setText(format);
 
-        final View containerUnicastAddress = findViewById(R.id.container_supported_algorithm);
-        containerUnicastAddress.setClickable(false);
-        final TextView unicastAddress = containerUnicastAddress.findViewById(R.id.text);
-        unicastAddress.setText(MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
+        binding.containerUnicastAddress.getRoot().setClickable(false);
+        binding.containerUnicastAddress.text.setText(MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
 
-        final View containerDeviceKey = findViewById(R.id.container_device_key);
-        containerDeviceKey.setClickable(false);
-        final TextView deviceKey = containerDeviceKey.findViewById(R.id.text);
-        deviceKey.setText(MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
+        binding.containerDeviceKey.getRoot().setClickable(false);
+        binding.containerDeviceKey.text.setText(MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
 
-        final View copyDeviceKey = findViewById(R.id.copy);
-        copyDeviceKey.setOnClickListener(v -> {
+        binding.copy.setOnClickListener(v -> {
             if (clipboard != null) {
                 final ClipData clipDeviceKey = ClipData.newPlainText("Device Key", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
                 clipboard.setPrimaryClip(clipDeviceKey);
@@ -96,49 +85,39 @@ public class NodeDetailsActivity extends AppCompatActivity {
             }
         });
 
-        final View containerCompanyIdentifier = findViewById(R.id.container_company_identifier);
-        containerCompanyIdentifier.setClickable(false);
-        final TextView companyIdentifier = containerCompanyIdentifier.findViewById(R.id.text);
+        binding.containerCompanyIdentifier.getRoot().setClickable(false);
         if (node.getCompanyIdentifier() != null) {
-            companyIdentifier.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
+            binding.containerCompanyIdentifier.text.setText(CompanyIdentifiers.getCompanyName(node.getCompanyIdentifier().shortValue()));
         } else {
-            companyIdentifier.setText(R.string.unknown);
+            binding.containerCompanyIdentifier.text.setText(R.string.unknown);
         }
 
-        final View containerProductIdentifier = findViewById(R.id.container_product_identifier);
-        containerProductIdentifier.setClickable(false);
-        final TextView productIdentifier = containerProductIdentifier.findViewById(R.id.text);
+        binding.containerProductIdentifier.getRoot().setClickable(false);
         if (node.getProductIdentifier() != null) {
-            productIdentifier.setText(CompositionDataParser.formatProductIdentifier(node.getProductIdentifier().shortValue(), false));
+            binding.containerProductIdentifier.text.setText(CompositionDataParser.formatProductIdentifier(node.getProductIdentifier().shortValue(), false));
         } else {
-            productIdentifier.setText(R.string.unavailable);
+            binding.containerProductIdentifier.text.setText(R.string.unavailable);
         }
 
-        final View containerProductVersion = findViewById(R.id.container_product_version);
-        containerProductVersion.setClickable(false);
-        final TextView productVersion = containerProductVersion.findViewById(R.id.text);
+        binding.containerProductVersion.getRoot().setClickable(false);
         if (node.getVersionIdentifier() != null) {
-            productVersion.setText(CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier().shortValue(), false));
+            binding.containerProductVersion.text.setText(CompositionDataParser.formatVersionIdentifier(node.getVersionIdentifier().shortValue(), false));
         } else {
-            productVersion.setText(R.string.unavailable);
+            binding.containerProductVersion.text.setText(R.string.unavailable);
         }
 
-        final View containerCrpl = findViewById(R.id.container_crpl);
-        containerCrpl.setClickable(false);
-        final TextView crpl = containerCrpl.findViewById(R.id.text);
+        binding.containerCrpl.getRoot().setClickable(false);
         if (node.getCrpl() != null) {
-            crpl.setText(CompositionDataParser.formatReplayProtectionCount(node.getCrpl().shortValue(), false));
+            binding.containerCrpl.text.setText(CompositionDataParser.formatReplayProtectionCount(node.getCrpl().shortValue(), false));
         } else {
-            crpl.setText(R.string.unavailable);
+            binding.containerCrpl.text.setText(R.string.unavailable);
         }
 
-        final View containerFeatures = findViewById(R.id.container_features);
-        containerFeatures.setClickable(false);
-        final TextView features = containerFeatures.findViewById(R.id.text);
+        binding.containerFeatures.getRoot().setClickable(false);
         if (node.getNodeFeatures() != null) {
-            features.setText(parseFeatures(node.getNodeFeatures()));
+            binding.containerFeatures.text.setText(parseFeatures(node.getNodeFeatures()));
         } else {
-            features.setText(R.string.unavailable);
+            binding.containerFeatures.text.setText(R.string.unavailable);
         }
     }
 
@@ -150,22 +129,6 @@ public class NodeDetailsActivity extends AppCompatActivity {
         }
         return false;
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
 
     /**
      * Returns a String representation of the features

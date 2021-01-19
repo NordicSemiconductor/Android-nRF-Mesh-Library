@@ -66,19 +66,18 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
+        final int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_connect) {
+            mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
+            return true;
+        } else if (id == R.id.action_disconnect) {
+            mViewModel.disconnect();
+            return true;
         }
+        return false;
     }
 
     protected final void init() {

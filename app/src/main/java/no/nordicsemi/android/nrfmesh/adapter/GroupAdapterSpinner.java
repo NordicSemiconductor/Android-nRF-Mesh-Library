@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.content.Context;
-import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,19 +31,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
-import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.GroupSubscriptionItemBinding;
+import no.nordicsemi.android.nrfmesh.databinding.NoGroupsLayoutBinding;
 
 public class GroupAdapterSpinner extends BaseAdapter {
 
     private final ArrayList<Group> mGroups = new ArrayList<>();
-    private final Context mContext;
 
-    public GroupAdapterSpinner(@NonNull final Context context, @NonNull final List<Group> groups) {
-        this.mContext = context;
+    public GroupAdapterSpinner(@NonNull final List<Group> groups) {
         mGroups.clear();
         mGroups.addAll(groups);
         notifyDataSetChanged();
@@ -74,8 +70,9 @@ public class GroupAdapterSpinner extends BaseAdapter {
         if (!mGroups.isEmpty()) {
             ViewHolder viewHolder;
             if (view == null) {
-                view = LayoutInflater.from(mContext).inflate(R.layout.group_subscription_item, parent, false);
-                viewHolder = new ViewHolder(view);
+                final GroupSubscriptionItemBinding binding = GroupSubscriptionItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                view = binding.getRoot();
+                viewHolder = new ViewHolder(binding);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
@@ -84,26 +81,23 @@ public class GroupAdapterSpinner extends BaseAdapter {
             final Group group = mGroups.get(position);
             viewHolder.groupName.setText(group.getName());
             viewHolder.address.setText(MeshAddress.formatAddress(group.getAddress(), true));
-            return view;
         } else {
-            view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);
-            return view;
+            view = NoGroupsLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
         }
+        return view;
     }
 
     public boolean isEmpty() {
         return mGroups.isEmpty();
     }
 
-    public final class ViewHolder {
-
-        @BindView(R.id.group_name)
+    private static final class ViewHolder {
         TextView groupName;
-        @BindView(R.id.title)
         TextView address;
 
-        private ViewHolder(final View view) {
-            ButterKnife.bind(this, view);
+        private ViewHolder(final GroupSubscriptionItemBinding binding) {
+            groupName = binding.groupName;
+            address = binding.title;
         }
     }
 }

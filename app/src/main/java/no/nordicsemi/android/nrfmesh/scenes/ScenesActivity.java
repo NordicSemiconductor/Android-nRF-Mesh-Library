@@ -28,26 +28,22 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityScenesBinding;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.ManageScenesAdapter;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.DialogFragmentCreateScene;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.DialogFragmentEditScene;
@@ -65,50 +61,41 @@ public class ScenesActivity extends AppCompatActivity implements
         SceneCallbacks,
         ItemTouchHelperAdapter {
 
+    private ActivityScenesBinding binding;
     private ScenesViewModel mViewModel;
-    //UI Bindings
-    @BindView(R.id.empty_scenes)
-    View mEmptyView;
-    @BindView(R.id.container)
-    CoordinatorLayout container;
 
     private ManageScenesAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scenes);
+        binding = ActivityScenesBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(ScenesViewModel.class);
 
-        //Bind ui
-        ButterKnife.bind(this);
-
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
-        final RecyclerView scenesRecyclerView = findViewById(R.id.recycler_view_scenes);
-        scenesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewScenes.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(scenesRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        scenesRecyclerView.addItemDecoration(dividerItemDecoration);
-        scenesRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        scenesRecyclerView.setAdapter(mAdapter = new ManageScenesAdapter(this, mViewModel.getNetworkLiveData()));
+                new DividerItemDecoration(binding.recyclerViewScenes.getContext(), DividerItemDecoration.VERTICAL);
+        binding.recyclerViewScenes.addItemDecoration(dividerItemDecoration);
+        binding.recyclerViewScenes.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerViewScenes.setAdapter(mAdapter = new ManageScenesAdapter(this, mViewModel.getNetworkLiveData()));
         mAdapter.setOnItemClickListener(this);
 
-        fab.setOnClickListener(v -> DialogFragmentCreateScene.newInstance(createScene()).show(getSupportFragmentManager(), null));
+        binding.fabAdd.setOnClickListener(v -> DialogFragmentCreateScene.newInstance(createScene()).show(getSupportFragmentManager(), null));
 
-        scenesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        binding.recyclerViewScenes.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend();
+                        binding.fabAdd.extend();
                     } else {
-                        fab.shrink();
+                        binding.fabAdd.shrink();
                     }
                 }
             }
@@ -117,12 +104,12 @@ public class ScenesActivity extends AppCompatActivity implements
 
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null && bundle.getInt(EXTRA_DATA) == SELECT_SCENE) {
-            fab.setVisibility(View.GONE);
+            binding.fabAdd.setVisibility(View.GONE);
             getSupportActionBar().setTitle(R.string.title_select_scene);
         } else {
             final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
             final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-            itemTouchHelper.attachToRecyclerView(scenesRecyclerView);
+            itemTouchHelper.attachToRecyclerView(binding.recyclerViewScenes);
             getSupportActionBar().setTitle(R.string.title_manage_scenes);
         }
     }
@@ -146,12 +133,12 @@ public class ScenesActivity extends AppCompatActivity implements
                 // Show the empty view
                 final boolean empty = mAdapter.getItemCount() == 0;
                 if (empty) {
-                    mEmptyView.setVisibility(View.VISIBLE);
+                    binding.emptyScenes.getRoot().setVisibility(View.VISIBLE);
                 }
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -161,9 +148,9 @@ public class ScenesActivity extends AppCompatActivity implements
     }
 
     private void displaySnackBar(@NonNull final Scene scene) {
-        Snackbar.make(container, getString(R.string.scene_deleted), Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.container, getString(R.string.scene_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
-                    mEmptyView.setVisibility(View.INVISIBLE);
+                    binding.emptyScenes.getRoot().setVisibility(View.INVISIBLE);
                     mViewModel.getNetworkLiveData().getMeshNetwork().addScene(scene);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorSecondary))

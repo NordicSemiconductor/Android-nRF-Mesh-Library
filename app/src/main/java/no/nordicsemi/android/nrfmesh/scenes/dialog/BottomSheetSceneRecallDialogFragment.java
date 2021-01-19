@@ -5,10 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.slider.Slider;
 
@@ -17,6 +15,7 @@ import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutRecallSceneBottomSheetBinding;
 
 public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragment {
     private static final String SCENE = "SCENE";
@@ -47,33 +46,28 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View sceneRecallContainer = inflater.inflate(R.layout.layout_recall_scene_bottom_sheet, container, false);
-        final MaterialToolbar toolbar = sceneRecallContainer.findViewById(R.id.scene_recall_toolbar);
-        toolbar.setTitle(mScene.getName());
+        final LayoutRecallSceneBottomSheetBinding binding = LayoutRecallSceneBottomSheetBinding.inflate(getLayoutInflater(), container, false);
+        binding.sceneRecallToolbar.setTitle(mScene.getName());
 
-        final TextView time = sceneRecallContainer.findViewById(R.id.transition_time);
-        final Slider transitionTimeSlider = sceneRecallContainer.findViewById(R.id.transition_slider);
-        transitionTimeSlider.setValueFrom(0);
-        transitionTimeSlider.setValueTo(230);
-        transitionTimeSlider.setStepSize(1);
-        transitionTimeSlider.setValue(0);
+        binding.transitionSlider.setValueFrom(0);
+        binding.transitionSlider.setValueTo(230);
+        binding.transitionSlider.setStepSize(1);
+        binding.transitionSlider.setValue(0);
 
-        final Slider delaySlider = sceneRecallContainer.findViewById(R.id.delay_slider);
-        delaySlider.setValueFrom(0);
-        delaySlider.setValueTo(255);
-        delaySlider.setValue(0);
-        final TextView delayTime = sceneRecallContainer.findViewById(R.id.delay_time);
+        binding.delaySlider.setValueFrom(0);
+        binding.delaySlider.setValueTo(255);
+        binding.delaySlider.setValue(0);
 
-        final Button actionRecallScene = sceneRecallContainer.findViewById(R.id.action_recall);
+        final Button actionRecallScene = binding.actionRecall;
         actionRecallScene.setOnClickListener(v -> {
             try {
-                ((SceneRecallListener) requireActivity()).recallScene(mScene, mTransitionSteps, mTransitionStepResolution, (int) delaySlider.getValue());
+                ((SceneRecallListener) requireActivity()).recallScene(mScene, mTransitionSteps, mTransitionStepResolution, (int) binding.delaySlider.getValue());
                 dismiss();
             } catch (IllegalArgumentException ex) {
                 Toast.makeText(requireContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        transitionTimeSlider.addOnChangeListener(new Slider.OnChangeListener() {
+        binding.transitionSlider.addOnChangeListener(new Slider.OnChangeListener() {
             int lastValue = 0;
             double res = 0.0;
 
@@ -85,7 +79,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
                     mTransitionStepResolution = 0;
                     mTransitionSteps = progress;
                     res = progress / 10.0;
-                    time.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
+                    binding.transitionTime.setText(getString(R.string.transition_time_interval, String.valueOf(res), "s"));
                 } else if (progress >= 63 && progress <= 118) {
                     if (progress > lastValue) {
                         mTransitionSteps = progress - 56;
@@ -94,7 +88,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
                         mTransitionSteps = -(56 - progress);
                     }
                     mTransitionStepResolution = 1;
-                    time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps), "s"));
+                    binding.transitionTime.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps), "s"));
 
                 } else if (progress >= 119 && progress <= 174) {
                     if (progress > lastValue) {
@@ -104,7 +98,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
                         mTransitionSteps = -(112 - progress);
                     }
                     mTransitionStepResolution = 2;
-                    time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "s"));
+                    binding.transitionTime.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "s"));
                 } else if (progress >= 175 && progress <= 230) {
                     if (progress >= lastValue) {
                         mTransitionSteps = progress - 168;
@@ -113,13 +107,13 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
                         mTransitionSteps = -(168 - progress);
                     }
                     mTransitionStepResolution = 3;
-                    time.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "min"));
+                    binding.transitionTime.setText(getString(R.string.transition_time_interval, String.valueOf(mTransitionSteps * 10), "min"));
                 }
             }
         });
 
-        delaySlider.addOnChangeListener((slider, value, fromUser) ->
-                delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
-        return sceneRecallContainer;
+        binding.delaySlider.addOnChangeListener((slider, value, fromUser) ->
+                binding.delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
+        return binding.getRoot();
     }
 }

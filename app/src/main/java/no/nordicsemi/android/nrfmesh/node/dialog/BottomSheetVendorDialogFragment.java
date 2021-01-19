@@ -8,18 +8,15 @@ import android.text.method.KeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutVendorModelBottomSheetBinding;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
@@ -27,11 +24,9 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
     private static final String KEY_INDEX = "KEY_INDEX";
     private static final String MODEL_ID = "MODEL_ID";
 
+    private LayoutVendorModelBottomSheetBinding binding;
     private int mModelId;
     private int mKeyIndex;
-
-    private View messageContainer;
-    private TextView receivedMessage;
 
     public interface BottomSheetVendorModelControlsListener {
         void sendVendorModelMessage(final int modelId, final int keyIndex, final int opCode, final byte[] parameters, final boolean acknowledged);
@@ -58,22 +53,11 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View nodeControlsContainer = inflater.inflate(R.layout.layout_vendor_model_bottom_sheet, container, false);
-
-        final CheckBox chkAcknowledged = nodeControlsContainer.findViewById(R.id.chk_acknowledged);
-        final TextInputLayout opCodeLayout = nodeControlsContainer.findViewById(R.id.op_code_layout);
-        final TextInputEditText opCodeEditText = nodeControlsContainer.findViewById(R.id.op_code);
-
+        binding = LayoutVendorModelBottomSheetBinding.inflate(getLayoutInflater());
         final KeyListener hexKeyListener = new HexKeyListener();
 
-        final TextInputLayout parametersLayout = nodeControlsContainer.findViewById(R.id.parameters_layout);
-        final TextInputEditText parametersEditText = nodeControlsContainer.findViewById(R.id.parameters);
-        messageContainer = nodeControlsContainer.findViewById(R.id.received_message_container);
-        receivedMessage = nodeControlsContainer.findViewById(R.id.received_message);
-        final Button actionSend = nodeControlsContainer.findViewById(R.id.action_send);
-
-        opCodeEditText.setKeyListener(hexKeyListener);
-        opCodeEditText.addTextChangedListener(new TextWatcher() {
+        binding.opCode.setKeyListener(hexKeyListener);
+        binding.opCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -81,7 +65,7 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                opCodeLayout.setError(null);
+                binding.opCodeLayout.setError(null);
             }
 
             @Override
@@ -90,8 +74,8 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
             }
         });
 
-        parametersEditText.setKeyListener(hexKeyListener);
-        parametersEditText.addTextChangedListener(new TextWatcher() {
+        binding.parameters.setKeyListener(hexKeyListener);
+        binding.parameters.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -99,7 +83,7 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                parametersLayout.setError(null);
+                binding.parametersLayout.setError(null);
             }
 
             @Override
@@ -108,16 +92,16 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
             }
         });
 
-        actionSend.setOnClickListener(v -> {
-            messageContainer.setVisibility(View.GONE);
-            receivedMessage.setText("");
-            final String opCode = opCodeEditText.getEditableText().toString().trim();
-            final String parameters = parametersEditText.getEditableText().toString().trim();
+        binding.actionSend.setOnClickListener(v -> {
+            binding.receivedMessageContainer.setVisibility(View.GONE);
+            binding.receivedMessage.setText("");
+            final String opCode = binding.opCode.getEditableText().toString().trim();
+            final String parameters = binding.parameters.getEditableText().toString().trim();
 
-            if (!validateOpcode(opCode, opCodeLayout))
+            if (!validateOpcode(opCode, binding.opCodeLayout))
                 return;
 
-            if (!validateParameters(parameters, parametersLayout))
+            if (!validateParameters(parameters, binding.parametersLayout))
                 return;
 
             final byte[] params;
@@ -128,10 +112,10 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
             }
 
             ((BottomSheetVendorModelControlsListener) requireActivity())
-                    .sendVendorModelMessage(mModelId, mKeyIndex, Integer.parseInt(opCode, 16), params, chkAcknowledged.isChecked());
+                    .sendVendorModelMessage(mModelId, mKeyIndex, Integer.parseInt(opCode, 16), params, binding.chkAcknowledged.isChecked());
         });
 
-        return nodeControlsContainer;
+        return binding.getRoot();
     }
 
     /**
@@ -203,7 +187,7 @@ public class BottomSheetVendorDialogFragment extends BottomSheetDialogFragment {
     }
 
     public void setReceivedMessage(final byte[] accessPayload) {
-        messageContainer.setVisibility(View.VISIBLE);
-        receivedMessage.setText(MeshParserUtils.bytesToHex(accessPayload, false));
+        binding.receivedMessageContainer.setVisibility(View.VISIBLE);
+        binding.receivedMessage.setText(MeshParserUtils.bytesToHex(accessPayload, false));
     }
 }

@@ -5,17 +5,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.VendorModel;
@@ -29,6 +23,7 @@ import no.nordicsemi.android.mesh.transport.VendorModelMessageStatus;
 import no.nordicsemi.android.mesh.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutVendorModelControlsBinding;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
@@ -36,10 +31,7 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 @AndroidEntryPoint
 public class VendorModelActivity extends ModelConfigurationActivity {
 
-
-
-    private View messageContainer;
-    private TextView receivedMessage;
+    private LayoutVendorModelControlsBinding layoutVendorModelControlsBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,23 +39,11 @@ public class VendorModelActivity extends ModelConfigurationActivity {
         mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof VendorModel) {
-            final ConstraintLayout container = findViewById(R.id.node_controls_container);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_vendor_model_controls, container);
-
-            final CheckBox chkAcknowledged = nodeControlsContainer.findViewById(R.id.chk_acknowledged);
-            final TextInputLayout opCodeLayout = nodeControlsContainer.findViewById(R.id.op_code_layout);
-            final TextInputEditText opCodeEditText = nodeControlsContainer.findViewById(R.id.op_code);
-
+            layoutVendorModelControlsBinding =
+                    LayoutVendorModelControlsBinding.inflate(getLayoutInflater(), binding.nodeControlsContainer, true);
             final KeyListener hexKeyListener = new HexKeyListener();
-
-            final TextInputLayout parametersLayout = nodeControlsContainer.findViewById(R.id.parameters_layout);
-            final TextInputEditText parametersEditText = nodeControlsContainer.findViewById(R.id.parameters);
-            messageContainer = nodeControlsContainer.findViewById(R.id.received_message_container);
-            receivedMessage = nodeControlsContainer.findViewById(R.id.received_message);
-            final Button actionSend = nodeControlsContainer.findViewById(R.id.action_send);
-
-            opCodeEditText.setKeyListener(hexKeyListener);
-            opCodeEditText.addTextChangedListener(new TextWatcher() {
+            layoutVendorModelControlsBinding.opCode.setKeyListener(hexKeyListener);
+            layoutVendorModelControlsBinding.opCode.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -71,7 +51,7 @@ public class VendorModelActivity extends ModelConfigurationActivity {
 
                 @Override
                 public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                    opCodeLayout.setError(null);
+                    layoutVendorModelControlsBinding.opCodeLayout.setError(null);
                 }
 
                 @Override
@@ -80,8 +60,8 @@ public class VendorModelActivity extends ModelConfigurationActivity {
                 }
             });
 
-            parametersEditText.setKeyListener(hexKeyListener);
-            parametersEditText.addTextChangedListener(new TextWatcher() {
+            layoutVendorModelControlsBinding.parameters.setKeyListener(hexKeyListener);
+            layoutVendorModelControlsBinding.parameters.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -89,7 +69,7 @@ public class VendorModelActivity extends ModelConfigurationActivity {
 
                 @Override
                 public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                    parametersLayout.setError(null);
+                    layoutVendorModelControlsBinding.parametersLayout.setError(null);
                 }
 
                 @Override
@@ -98,16 +78,16 @@ public class VendorModelActivity extends ModelConfigurationActivity {
                 }
             });
 
-            actionSend.setOnClickListener(v -> {
-                messageContainer.setVisibility(View.GONE);
-                receivedMessage.setText("");
-                final String opCode = opCodeEditText.getEditableText().toString().trim();
-                final String parameters = parametersEditText.getEditableText().toString().trim();
+            layoutVendorModelControlsBinding.actionSend.setOnClickListener(v -> {
+                layoutVendorModelControlsBinding.receivedMessageContainer.setVisibility(View.GONE);
+                layoutVendorModelControlsBinding.receivedMessage.setText("");
+                final String opCode = layoutVendorModelControlsBinding.opCode.getEditableText().toString().trim();
+                final String parameters = layoutVendorModelControlsBinding.parameters.getEditableText().toString().trim();
 
-                if (!validateOpcode(opCode, opCodeLayout))
+                if (!validateOpcode(opCode, layoutVendorModelControlsBinding.opCodeLayout))
                     return;
 
-                if (!validateParameters(parameters, parametersLayout))
+                if (!validateParameters(parameters, layoutVendorModelControlsBinding.parametersLayout))
                     return;
 
                 if (model.getBoundAppKeyIndexes().isEmpty()) {
@@ -122,7 +102,7 @@ public class VendorModelActivity extends ModelConfigurationActivity {
                     params = MeshParserUtils.toByteArray(parameters);
                 }
 
-                sendVendorModelMessage(Integer.parseInt(opCode, 16), params, chkAcknowledged.isChecked());
+                sendVendorModelMessage(Integer.parseInt(opCode, 16), params, layoutVendorModelControlsBinding.chkAcknowledged.isChecked());
             });
 
             mViewModel.getSelectedModel().observe(this, meshModel -> {
@@ -145,8 +125,8 @@ public class VendorModelActivity extends ModelConfigurationActivity {
         super.updateMeshMessage(meshMessage);
         if (meshMessage instanceof VendorModelMessageStatus) {
             final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
-            messageContainer.setVisibility(View.VISIBLE);
-            receivedMessage.setText(MeshParserUtils.bytesToHex(status.getAccessPayload(), false));
+            layoutVendorModelControlsBinding.receivedMessageContainer.setVisibility(View.VISIBLE);
+            layoutVendorModelControlsBinding.receivedMessage.setText(MeshParserUtils.bytesToHex(status.getAccessPayload(), false));
         } else if (meshMessage instanceof ConfigVendorModelAppList) {
             final ConfigVendorModelAppList status = (ConfigVendorModelAppList) meshMessage;
             mViewModel.removeMessage();

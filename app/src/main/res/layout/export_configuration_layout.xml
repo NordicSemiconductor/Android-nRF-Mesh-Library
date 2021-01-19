@@ -109,7 +109,6 @@
                 tools:listitem="@layout/removable_row_item" />
 
             <include
-                android:id="@+id/div1"
                 layout="@layout/layout_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp" />
@@ -159,7 +158,6 @@
                 android:text="@string/export_device_keys" />
 
             <include
-                android:id="@+id/div1"
                 layout="@layout/layout_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp" />

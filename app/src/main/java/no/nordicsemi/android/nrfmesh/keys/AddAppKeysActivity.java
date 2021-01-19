@@ -49,15 +49,13 @@ public class AddAppKeysActivity extends AddKeysActivity implements
         AddedAppKeyAdapter.OnItemClickListener {
     private AddedAppKeyAdapter adapter;
 
-
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle(R.string.title_added_app_keys);
-        mEmptyView = findViewById(R.id.empty_app_keys);
         adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
-        recyclerViewKeys.setAdapter(adapter);
+        binding.recyclerViewKeys.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
         updateClickableViews();
         setUpObserver();
@@ -65,7 +63,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements
 
     @Override
     public void onItemClick(@NonNull final ApplicationKey appKey) {
-        if (!checkConnectivity(container))
+        if (!checkConnectivity(binding.container))
             return;
         final MeshMessage meshMessage;
         final String message;
@@ -77,7 +75,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements
             message = getString(R.string.deleting_app_key);
             meshMessage = new ConfigAppKeyDelete(networkKey, appKey);
         }
-        mViewModel.displaySnackBar(this, container, message, Snackbar.LENGTH_SHORT);
+        mViewModel.displaySnackBar(this, binding.container, message, Snackbar.LENGTH_SHORT);
         sendMessage(meshMessage);
     }
 
@@ -100,7 +98,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements
             if (networkLiveData != null) {
                 final List<ApplicationKey> keys = networkLiveData.getAppKeys();
                 if (keys != null) {
-                    mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.emptyAppKeys.getRoot().setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
                 }
             }
         });

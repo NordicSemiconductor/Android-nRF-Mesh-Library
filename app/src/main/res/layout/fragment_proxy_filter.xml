@@ -24,7 +24,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ProxyFilterFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -178,7 +179,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <include
-                    android:id="@+id/div2"
+                    android:id="@+id/div3"
                     layout="@layout/layout_divider"
                     android:layout_width="0dp"
                     android:layout_height="1dp"
@@ -197,7 +198,7 @@
                     android:text="@string/action_add"
                     android:textColor="@color/filter_add_button_states"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/div2" />
+                    app:layout_constraintTop_toBottomOf="@id/div3" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_clear_addresses"

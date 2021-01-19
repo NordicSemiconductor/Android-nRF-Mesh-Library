@@ -26,29 +26,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.ProgressBar;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.transport.ConfigAppKeyList;
 import no.nordicsemi.android.mesh.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyStatus;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityAddKeysBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
@@ -57,19 +51,7 @@ import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
 public abstract class AddKeysActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    @BindView(R.id.container)
-    protected CoordinatorLayout container;
-    @BindView(R.id.recycler_view_keys)
-    protected RecyclerView recyclerViewKeys;
-    @BindView(R.id.fab_add)
-    protected ExtendedFloatingActionButton fab;
-    @BindView(R.id.configuration_progress_bar)
-    protected ProgressBar mProgressbar;
-    @BindView(R.id.swipe_refresh)
-    protected SwipeRefreshLayout mSwipe;
-
-    protected View mEmptyView;
-
+    protected ActivityAddKeysBinding binding;
     abstract void enableAdapterClickListener(final boolean enable);
 
     @Override
@@ -84,21 +66,20 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        binding = ActivityAddKeysBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(AddKeysViewModel.class);
         init();
-        setContentView(R.layout.activity_add_keys);
-        ButterKnife.bind(this);
         mHandler = new Handler(Looper.getMainLooper());
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mSwipe.setOnRefreshListener(this);
-        recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
+        binding.swipeRefresh.setOnRefreshListener(this);
+        binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerViewKeys.addItemDecoration(dividerItemDecoration);
-        recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
-        fab.hide();
+                new DividerItemDecoration(binding.recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
+        binding.recyclerViewKeys.addItemDecoration(dividerItemDecoration);
+        binding.recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
+        binding.fabAdd.hide();
 
     }
 
@@ -120,26 +101,26 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
     protected void showProgressBar() {
         mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
-        mProgressbar.setVisibility(View.VISIBLE);
+        binding.configurationProgressBar.setVisibility(View.VISIBLE);
     }
 
     protected final void hideProgressBar() {
-        mSwipe.setRefreshing(false);
+        binding.swipeRefresh.setRefreshing(false);
         enableClickableViews();
-        mProgressbar.setVisibility(View.INVISIBLE);
+        binding.configurationProgressBar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
 
     protected void enableClickableViews() {
         enableAdapterClickListener(true);
-        recyclerViewKeys.setEnabled(true);
-        recyclerViewKeys.setClickable(true);
+        binding.recyclerViewKeys.setEnabled(true);
+        binding.recyclerViewKeys.setClickable(true);
     }
 
     protected void disableClickableViews() {
         enableAdapterClickListener(false);
-        recyclerViewKeys.setEnabled(false);
-        recyclerViewKeys.setClickable(false);
+        binding.recyclerViewKeys.setEnabled(false);
+        binding.recyclerViewKeys.setClickable(false);
     }
 
     private void handleStatuses() {
@@ -147,13 +128,13 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
         if (message != null) {
             sendMessage(message);
         } else {
-            mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            mViewModel.displaySnackBar(this, binding.container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
         }
     }
 
     protected void sendMessage(final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity(container))
+            if (!checkConnectivity(binding.container))
                 return;
             showProgressBar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
@@ -173,14 +154,14 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
         if (meshMessage instanceof ConfigNetKeyStatus) {
             final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
             if (status.isSuccessful()) {
-                mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+                mViewModel.displaySnackBar(this, binding.container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
             } else {
                 showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
             }
         } else if (meshMessage instanceof ConfigAppKeyStatus) {
             final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
             if (status.isSuccessful()) {
-                mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+                mViewModel.displaySnackBar(this, binding.container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
             } else {
                 showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
             }
@@ -199,8 +180,8 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
 
     @Override
     public void onRefresh() {
-        if (!checkConnectivity(container)) {
-            mSwipe.setRefreshing(false);
+        if (!checkConnectivity(binding.container)) {
+            binding.swipeRefresh.setRefreshing(false);
         }
     }
 }

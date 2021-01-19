@@ -28,6 +28,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.nrfmesh.databinding.ActivitySplashScreenBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.SplashViewModel;
 
 @AndroidEntryPoint
@@ -35,7 +36,8 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        setContentView(R.layout.activity_splash_screen);
+        final ActivitySplashScreenBinding binding = ActivitySplashScreenBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         super.onCreate(savedInstanceState);
         final SplashViewModel viewModel = new ViewModelProvider(this).get(SplashViewModel.class);
         viewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {

@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.provisioners.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -30,43 +29,28 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.AllocatedSceneRange;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentRangeBinding;
 import no.nordicsemi.android.nrfmesh.provisioners.RangeListener;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 
 public class DialogFragmentSceneRange extends DialogFragment {
 
     private static final String RANGE = "RANGE";
-    //UI Bindings
-    @BindView(R.id.low_address_layout)
-    TextInputLayout fistSceneInputLayout;
-    @BindView(R.id.low_address_input)
-    TextInputEditText firstSceneInput;
-    @BindView(R.id.high_address_layout)
-    TextInputLayout lastSceneInputLayout;
-    @BindView(R.id.high_address_input)
-    TextInputEditText lastSceneInput;
+    private DialogFragmentRangeBinding binding;
 
     private AllocatedSceneRange mRange;
 
     public static DialogFragmentSceneRange newInstance(@Nullable final AllocatedSceneRange range) {
-        DialogFragmentSceneRange fragment = new DialogFragmentSceneRange();
+        final DialogFragmentSceneRange fragment = new DialogFragmentSceneRange();
         final Bundle args = new Bundle();
         args.putParcelable(RANGE, range);
         fragment.setArguments(args);
@@ -84,24 +68,21 @@ public class DialogFragmentSceneRange extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_range, null);
+        binding = DialogFragmentRangeBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
         if (mRange != null) {
             final String lowAddress = MeshAddress.formatAddress(mRange.getFirstScene(), false);
             final String highAddress = MeshAddress.formatAddress(mRange.getLastScene(), false);
-            firstSceneInput.setText(lowAddress);
-            firstSceneInput.setSelection(lowAddress.length());
-            lastSceneInput.setText(highAddress);
-            lastSceneInput.setSelection(highAddress.length());
+            binding.lowAddressInput.setText(lowAddress);
+            binding.lowAddressInput.setSelection(lowAddress.length());
+            binding.highAddressInput.setText(highAddress);
+            binding.highAddressInput.setSelection(highAddress.length());
         }
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        fistSceneInputLayout.setHint(getString(R.string.first_scene));
-        firstSceneInput.setKeyListener(hexKeyListener);
-        firstSceneInput.addTextChangedListener(new TextWatcher() {
+        binding.lowAddressLayout.setHint(getString(R.string.first_scene));
+        binding.lowAddressInput.setKeyListener(hexKeyListener);
+        binding.lowAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -110,9 +91,9 @@ public class DialogFragmentSceneRange extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    fistSceneInputLayout.setError(getString(R.string.error_empty_value));
+                    binding.lowAddressLayout.setError(getString(R.string.error_empty_value));
                 } else {
-                    fistSceneInputLayout.setError(null);
+                    binding.lowAddressLayout.setError(null);
                 }
             }
 
@@ -122,9 +103,9 @@ public class DialogFragmentSceneRange extends DialogFragment {
             }
         });
 
-        lastSceneInputLayout.setHint(getString(R.string.last_scene));
-        lastSceneInput.setKeyListener(hexKeyListener);
-        lastSceneInput.addTextChangedListener(new TextWatcher() {
+        binding.highAddressLayout.setHint(getString(R.string.last_scene));
+        binding.highAddressInput.setKeyListener(hexKeyListener);
+        binding.highAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -133,9 +114,9 @@ public class DialogFragmentSceneRange extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    lastSceneInputLayout.setError(getString(R.string.error_empty_value));
+                    binding.highAddressLayout.setError(getString(R.string.error_empty_value));
                 } else {
-                    lastSceneInputLayout.setError(null);
+                    binding.highAddressLayout.setError(null);
                 }
             }
 
@@ -146,18 +127,18 @@ public class DialogFragmentSceneRange extends DialogFragment {
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
-                .setView(rootView)
+                .setView(binding.getRoot())
                 .setIcon(R.drawable.ic_arrow_collapse_black)
                 .setTitle(R.string.title_range)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null);
 
-        summary.setText(R.string.scene_range_summary);
+        binding.summary.setText(R.string.scene_range_summary);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String low = firstSceneInput.getEditableText().toString().trim();
-            final String high = lastSceneInput.getEditableText().toString().trim();
+            final String low = binding.lowAddressInput.getEditableText().toString().trim();
+            final String high = binding.highAddressInput.getEditableText().toString().trim();
             if (validateFirstScene(low) && validateLastScene(high)) {
                 try {
                     AllocatedSceneRange range = mRange;
@@ -170,7 +151,7 @@ public class DialogFragmentSceneRange extends DialogFragment {
                     ((RangeListener) requireActivity()).addRange(range);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
-                    fistSceneInputLayout.setError(ex.getMessage());
+                    binding.lowAddressLayout.setError(ex.getMessage());
                 }
             }
         });
@@ -186,7 +167,7 @@ public class DialogFragmentSceneRange extends DialogFragment {
                 return true;
             }
         } catch (IllegalArgumentException ex) {
-            fistSceneInputLayout.setError(ex.getMessage());
+            binding.lowAddressLayout.setError(ex.getMessage());
             return false;
         }
         return true;
@@ -198,7 +179,7 @@ public class DialogFragmentSceneRange extends DialogFragment {
             final int address = Integer.parseInt(lastScene, 16);
             if (Scene.isValidSceneNumber(address)) return true;
         } catch (IllegalArgumentException ex) {
-            lastSceneInputLayout.setError(ex.getMessage());
+            binding.highAddressLayout.setError(ex.getMessage());
             return false;
         }
         return true;

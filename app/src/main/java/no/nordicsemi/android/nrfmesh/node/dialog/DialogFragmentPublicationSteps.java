@@ -22,38 +22,27 @@
 
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
-import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentPublicationParametersBinding;
 
 
 public class DialogFragmentPublicationSteps extends DialogFragment {
 
     private static final String PUBLICATION_STEPS = "PUBLICATION_STEPS";
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout publicationStepsInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText publicationStepsInput;
+    private DialogFragmentPublicationParametersBinding binding;
 
     private int mPublicationSteps;
 
@@ -76,20 +65,16 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
+        binding = DialogFragmentPublicationParametersBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        ((TextView)rootView.findViewById(R.id.summary)).
-                setText(R.string.dialog_summary_publication_steps);
+        binding.summary.setText(R.string.dialog_summary_publication_steps);
 
         final String publicationSteps = String.valueOf(mPublicationSteps);
-        publicationStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        publicationStepsInputLayout.setHint(getString(R.string.hint_publication_steps));
-        publicationStepsInput.setText(publicationSteps);
-        publicationStepsInput.setSelection(publicationSteps.length());
-        publicationStepsInput.addTextChangedListener(new TextWatcher() {
+        binding.textInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        binding.textInputLayout.setHint(getString(R.string.hint_publication_steps));
+        binding.textInput.setText(publicationSteps);
+        binding.textInput.setSelection(publicationSteps.length());
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -98,9 +83,9 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    publicationStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_publication_steps));
                 } else {
-                    publicationStepsInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -110,7 +95,7 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_index);
@@ -118,10 +103,10 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String publicationStepsInput = this.publicationStepsInput.getEditableText().toString().trim();
+            final String publicationStepsInput = this.binding.textInput.getEditableText().toString().trim();
             if (validateInput(publicationStepsInput)) {
                 ((DialogFragmentPublicationStepsListener) requireActivity()).
-                        setPublicationSteps(Integer.valueOf(publicationStepsInput));
+                        setPublicationSteps(Integer.parseInt(publicationStepsInput));
                 dismiss();
             }
         });
@@ -133,15 +118,15 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
         try {
 
             if(TextUtils.isEmpty(input)) {
-                publicationStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
+                binding.textInputLayout.setError(getString(R.string.error_empty_publication_steps));
                 return false;
             }
-            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.valueOf(input))) {
-                publicationStepsInputLayout.setError(getString(R.string.error_invalid_publication_steps));
+            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.parseInt(input))) {
+                binding.textInputLayout.setError(getString(R.string.error_invalid_publication_steps));
                 return false;
             }
         } catch (NumberFormatException ex) {
-            publicationStepsInputLayout.setError(getString(R.string.error_invalid_publication_steps));
+            binding.textInputLayout.setError(getString(R.string.error_invalid_publication_steps));
             return false;
         } catch (Exception ex) {
             return false;
@@ -151,8 +136,6 @@ public class DialogFragmentPublicationSteps extends DialogFragment {
     }
 
     public interface DialogFragmentPublicationStepsListener {
-
         void setPublicationSteps(final int publicationSteps);
-
     }
 }

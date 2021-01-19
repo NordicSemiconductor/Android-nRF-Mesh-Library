@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmesh.scenes.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,13 +39,12 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.models.SceneServer;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
@@ -97,8 +95,7 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
     @NonNull
     @Override
     public StoredScenesAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
-        return new StoredScenesAdapter.ViewHolder(layoutView);
+        return new StoredScenesAdapter.ViewHolder(RemovableRowItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -133,24 +130,21 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
-        View container;
-        @BindView(R.id.title)
         TextView sceneName;
-        @BindView(R.id.subtitle)
         TextView sceneNumber;
-        @BindView(R.id.image)
         ImageView image;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-            ((ImageView) view.findViewById(R.id.icon))
+        private ViewHolder(final @NonNull RemovableRowItemBinding binding) {
+            super(binding.getRoot());
+            ((ImageView) binding.icon)
                     .setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_baseline_palette_24dp));
+            sceneName = binding.title;
+            sceneNumber = binding.subtitle;
+            image = binding.image;
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);
-            container.setOnClickListener(v -> {
+            binding.container.setOnClickListener(v -> {
                 if (mOnItemListener != null)
                     mOnItemListener.onItemClick(getAdapterPosition(), scenes.get(getAdapterPosition()));
             });

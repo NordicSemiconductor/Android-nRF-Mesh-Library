@@ -22,38 +22,25 @@
 
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNameBinding;
 
 public class DialogFragmentElementName extends DialogFragment {
 
     private static final String ELEMENT = "ELEMENT";
-
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout elementNameInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText elementNameInput;
+    private DialogFragmentNameBinding binding;
 
     private Element mElement;
 
@@ -76,14 +63,10 @@ public class DialogFragmentElementName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
-
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
-        elementNameInputLayout.setHint(getString(R.string.hint_friendly_name));
-        elementNameInput.setText(mElement.getName());
-        elementNameInput.addTextChangedListener(new TextWatcher() {
+        binding = DialogFragmentNameBinding.inflate(getLayoutInflater());
+        binding.textInputLayout.setHint(getString(R.string.hint_friendly_name));
+        binding.textInput.setText(mElement.getName());
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -92,9 +75,9 @@ public class DialogFragmentElementName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString().trim())) {
-                    elementNameInputLayout.setError(getString(R.string.error_empty_name));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    elementNameInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -104,29 +87,28 @@ public class DialogFragmentElementName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
-                .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
+                .setView(binding.getRoot())
+                .setPositiveButton(R.string.ok, null)
+                .setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_label);
         alertDialogBuilder.setTitle(R.string.title_element_name);
-        summary.setText(R.string.element_name_rationale);
+        binding.summary.setText(R.string.element_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String elementName = elementNameInput.getEditableText().toString().trim();
+            final String elementName = binding.textInput.getEditableText().toString().trim();
             if (!TextUtils.isEmpty(elementName)) {
                 if (((DialogFragmentElementNameListener) requireContext()).onElementNameUpdated(mElement, elementName)) {
                     dismiss();
                 }
             }
         });
-
         return alertDialog;
     }
 
     public interface DialogFragmentElementNameListener {
-
         boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name);
-
     }
 }

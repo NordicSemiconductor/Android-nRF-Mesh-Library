@@ -22,10 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,18 +35,16 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAdapter;
+import no.nordicsemi.android.nrfmesh.databinding.FragmentGroupsBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentCreateGroup;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -59,31 +55,19 @@ public class GroupsFragment extends Fragment implements
         ItemTouchHelperAdapter,
         GroupAdapter.OnItemClickListener,
         GroupCallbacks {
-
+    private FragmentGroupsBinding binding;
     private SharedViewModel mViewModel;
-
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-    @BindView(android.R.id.empty)
-    View mEmptyView;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_groups, null);
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup viewGroup, @Nullable final Bundle savedInstanceState) {
         mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        Log.v("GroupFragment", "View Model: " + mViewModel.toString());
-        ButterKnife.bind(this, rootView);
+        binding = FragmentGroupsBinding.inflate(getLayoutInflater());
 
-        final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_group);
+        final ExtendedFloatingActionButton fab = binding.fabAddGroup;
 
         // Configure the recycler view
-        final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
+        final RecyclerView recyclerViewGroups = binding.recyclerViewGroups;
         recyclerViewGroups.setLayoutManager(new LinearLayoutManager(requireContext()));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewGroups.getContext(), DividerItemDecoration.VERTICAL);
         recyclerViewGroups.addItemDecoration(dividerItemDecoration);
@@ -98,9 +82,9 @@ public class GroupsFragment extends Fragment implements
             if (meshNetworkLiveData != null) {
                 final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
                 if (network.getGroups().isEmpty()) {
-                    mEmptyView.setVisibility(View.VISIBLE);
+                    binding.empty.getRoot().setVisibility(View.VISIBLE);
                 } else {
-                    mEmptyView.setVisibility(View.INVISIBLE);
+                    binding.empty.getRoot().setVisibility(View.INVISIBLE);
                 }
                 adapter.updateAdapter(network, network.getGroups());
             }
@@ -126,7 +110,7 @@ public class GroupsFragment extends Fragment implements
             }
         });
 
-        return rootView;
+        return binding.getRoot();
 
     }
 
@@ -150,7 +134,7 @@ public class GroupsFragment extends Fragment implements
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
         final String message = getString(R.string.error_group_unsubscribe_to_delete);
-        mViewModel.displaySnackBar(requireActivity(), container, message, Snackbar.LENGTH_LONG);
+        mViewModel.displaySnackBar(requireActivity(), binding.container, message, Snackbar.LENGTH_LONG);
     }
 
     @Override
@@ -189,10 +173,10 @@ public class GroupsFragment extends Fragment implements
 
     private void displaySnackBar(final Group group) {
         final String message = getString(R.string.group_deleted, group.getName());
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.container, message, Snackbar.LENGTH_LONG)
                 .setActionTextColor(getResources().getColor(R.color.colorSecondary))
                 .setAction(R.string.undo, v -> {
-                    mEmptyView.setVisibility(View.INVISIBLE);
+                    binding.empty.getRoot().setVisibility(View.INVISIBLE);
                     final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {
                         network.addGroup(group);

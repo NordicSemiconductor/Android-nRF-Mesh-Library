@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.provisioners.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -30,42 +29,26 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.AllocatedUnicastRange;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentRangeBinding;
 import no.nordicsemi.android.nrfmesh.provisioners.RangeListener;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 
 public class DialogFragmentUnicastRange extends DialogFragment {
 
     private static final String RANGE = "RANGE";
-    //UI Bindings
-    @BindView(R.id.low_address_layout)
-    TextInputLayout lowAddressInputLayout;
-    @BindView(R.id.low_address_input)
-    TextInputEditText lowAddressInput;
-    @BindView(R.id.high_address_layout)
-    TextInputLayout highAddressInputLayout;
-    @BindView(R.id.high_address_input)
-    TextInputEditText highAddressInput;
-
+    private DialogFragmentRangeBinding binding;
     private AllocatedUnicastRange mRange;
 
     public static DialogFragmentUnicastRange newInstance(@Nullable final AllocatedUnicastRange range) {
-        DialogFragmentUnicastRange fragment = new DialogFragmentUnicastRange();
+        final DialogFragmentUnicastRange fragment = new DialogFragmentUnicastRange();
         final Bundle args = new Bundle();
         args.putParcelable(RANGE, range);
         fragment.setArguments(args);
@@ -83,23 +66,20 @@ public class DialogFragmentUnicastRange extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_range, null);
+        binding = DialogFragmentRangeBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
         if (mRange != null) {
             final String lowAddress = MeshAddress.formatAddress(mRange.getLowAddress(), false);
             final String highAddress = MeshAddress.formatAddress(mRange.getHighAddress(), false);
-            lowAddressInput.setText(lowAddress);
-            lowAddressInput.setSelection(lowAddress.length());
-            highAddressInput.setText(highAddress);
-            highAddressInput.setSelection(highAddress.length());
+            binding.lowAddressInput.setText(lowAddress);
+            binding.lowAddressInput.setSelection(lowAddress.length());
+            binding.highAddressInput.setText(highAddress);
+            binding.highAddressInput.setSelection(highAddress.length());
         }
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        lowAddressInput.setKeyListener(hexKeyListener);
-        lowAddressInput.addTextChangedListener(new TextWatcher() {
+        binding.lowAddressInput.setKeyListener(hexKeyListener);
+        binding.lowAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -108,9 +88,9 @@ public class DialogFragmentUnicastRange extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    lowAddressInputLayout.setError(getString(R.string.error_empty_value));
+                    binding.lowAddressLayout.setError(getString(R.string.error_empty_value));
                 } else {
-                    lowAddressInputLayout.setError(null);
+                    binding.lowAddressLayout.setError(null);
                 }
             }
 
@@ -120,8 +100,8 @@ public class DialogFragmentUnicastRange extends DialogFragment {
             }
         });
 
-        highAddressInput.setKeyListener(hexKeyListener);
-        highAddressInput.addTextChangedListener(new TextWatcher() {
+        binding.highAddressInput.setKeyListener(hexKeyListener);
+        binding.highAddressInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -130,9 +110,9 @@ public class DialogFragmentUnicastRange extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    highAddressInputLayout.setError(getString(R.string.error_empty_value));
+                    binding.highAddressLayout.setError(getString(R.string.error_empty_value));
                 } else {
-                    highAddressInputLayout.setError(null);
+                    binding.highAddressLayout.setError(null);
                 }
             }
 
@@ -143,18 +123,18 @@ public class DialogFragmentUnicastRange extends DialogFragment {
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
-                .setView(rootView)
+                .setView(binding.getRoot())
                 .setIcon(R.drawable.ic_arrow_collapse_black)
                 .setTitle(R.string.title_range)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null);
 
-        summary.setText(R.string.unicast_range_summary);
+        binding.summary.setText(R.string.unicast_range_summary);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String low = lowAddressInput.getEditableText().toString().trim();
-            final String high = highAddressInput.getEditableText().toString().trim();
+            final String low = binding.lowAddressInput.getEditableText().toString().trim();
+            final String high = binding.highAddressInput.getEditableText().toString().trim();
             if (validateLow(low) && validateHigh(high)) {
                 try {
                     AllocatedUnicastRange range = mRange;
@@ -167,7 +147,7 @@ public class DialogFragmentUnicastRange extends DialogFragment {
                     ((RangeListener) requireActivity()).addRange(range);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
-                    lowAddressInputLayout.setError(ex.getMessage());
+                    binding.lowAddressLayout.setError(ex.getMessage());
                 }
             }
         });
@@ -180,11 +160,11 @@ public class DialogFragmentUnicastRange extends DialogFragment {
 
             final int address = Integer.parseInt(addressValue, 16);
             if (!MeshAddress.isValidUnicastAddress(address)) {
-                lowAddressInputLayout.setError("Unicast address value must range from 0x0001 - 0x7FFFF");
+                binding.lowAddressLayout.setError("Unicast address value must range from 0x0001 - 0x7FFFF");
                 return false;
             }
         } catch (IllegalArgumentException ex) {
-            lowAddressInputLayout.setError(ex.getMessage());
+            binding.lowAddressLayout.setError(ex.getMessage());
             return false;
         }
         return true;
@@ -195,11 +175,11 @@ public class DialogFragmentUnicastRange extends DialogFragment {
 
             final int address = Integer.parseInt(addressValue, 16);
             if (!MeshAddress.isValidUnicastAddress(address)) {
-                highAddressInputLayout.setError("Unicast address value must range from 0x0001 - 0x7FFFF");
+                binding.highAddressLayout.setError("Unicast address value must range from 0x0001 - 0x7FFFF");
                 return false;
             }
         } catch (IllegalArgumentException ex) {
-            highAddressInputLayout.setError(ex.getMessage());
+            binding.highAddressLayout.setError(ex.getMessage());
             return false;
         }
         return true;
