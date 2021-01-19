@@ -979,6 +979,7 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
                 nodes.remove(node);
+                excludeNode(node);
                 notifyNodeDeleted(meshNode);
                 nodeDeleted = true;
                 break;
@@ -1113,6 +1114,29 @@ abstract class BaseMeshNetwork {
      */
     public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
         this.proxyFilter = proxyFilter;
+    }
+
+    /**
+     * Excludes a node from the mesh network.
+     * The given node will marked as excluded and added to the exclusion list and the node will be removed once
+     * the Key refresh procedure is completed. After the IV update procedure, when the network transitions to an
+     * IV Normal Operation state with a higher IV index, the exclusionList object that has the ivIndex property
+     * value that is lower by a count of two (or more) than the current IV index of the network is removed from
+     * the networkExclusions property array.
+     *
+     * @param node Provisioned mesh node.
+     */
+    public void excludeNode(@NonNull final ProvisionedMeshNode node) {
+        //Exclude node
+        node.setExcluded(true);
+        ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+
+        nodes.addAll(node.getElements().keySet());
+        networkExclusions.put(ivIndex.getIvIndex(), nodes);
+        notifyNodeUpdated(node);
     }
 
     final void notifyNetworkUpdated() {

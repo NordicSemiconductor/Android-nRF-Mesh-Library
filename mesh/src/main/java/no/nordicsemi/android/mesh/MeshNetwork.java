@@ -143,32 +143,37 @@ public final class MeshNetwork extends BaseMeshNetwork {
             throw new IllegalArgumentException("Please allocate a unicast address range to the provisioner");
         }
 
-        Collections.sort(nodes, nodeComparator);
+        // Populate all addresses that are currently in use
+        final ArrayList<Integer> usedAddresses = new ArrayList<>();
+        for (ProvisionedMeshNode node : nodes) {
+            usedAddresses.addAll(node.getElements().keySet());
+        }
+        // Excluded addresses with the current IvIndex and current IvIndex - 1 must be considered as addresses in use.
+        usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex()));
+        usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex() - 1));
+
+        Collections.sort(usedAddresses);
         // Iterate through all nodes just once, while iterating over ranges.
         int index = 0;
         for (AllocatedUnicastRange range : provisioner.getAllocatedUnicastRanges()) {
             // Start from the beginning of the current range.
             int address = range.getLowAddress();
 
-            // Iterate through nodes that weren't checked yet.
-            int currentIndex = index;
-            for (int i = currentIndex; i < nodes.size(); i++) {
-                final ProvisionedMeshNode node = nodes.get(i);
-                index += i;
-                final int lastUnicastInNode = node.getLastUnicastAddress();
+            // Iterate through nodes that weren't checked yet in essence the used addresses which include the excluded adresses
+            for (int usedAddress : usedAddresses) {
 
                 // Skip nodes with addresses below the range.
-                if (address > lastUnicastInNode) {
+                if (address > usedAddress) {
                     continue;
                 }
 
                 // If we found a space before the current node, return the address.
-                if (node.getUnicastAddress() > address + (elementCount - 1)) {
+                if (usedAddress > (address + (elementCount - 1))) {
                     return address;
                 }
 
                 // Else, move the address to the next available address.
-                address = lastUnicastInNode + 1;
+                address = usedAddress + 1;
 
                 // If the new address is outside of the range, go to the next one.
                 if (range.highAddress < address + (elementCount - 1)) {
@@ -874,10 +879,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(appKeys);
     }
 
-    void setAppKeys(@NonNull final List<ApplicationKey> appKeys) {
-        this.appKeys = appKeys;
-    }
-
     /**
      * Returns the provisioning flags
      */
@@ -930,28 +931,5 @@ public final class MeshNetwork extends BaseMeshNetwork {
             }
         }
         return null;
-    }
-
-    /**
-     * Excludes a node from the mesh network.
-     * The given node will marked as excluded and added to the exclusion list and the node will be removed once
-     * the Key refresh procedure is completed. After the IV update procedure, when the network transitions to an
-     * IV Normal Operation state with a higher IV index, the exclusionList object that has the ivIndex property
-     * value that is lower by a count of two (or more) than the current IV index of the network is removed from
-     * the networkExclusions property array.
-     *
-     * @param node Provisioned mesh node.
-     */
-    public void excludeNode(@NonNull final ProvisionedMeshNode node) {
-        //Exclude node
-        node.setExcluded(true);
-        ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
-        if (nodes == null) {
-            nodes = new ArrayList<>();
-        }
-
-        nodes.addAll(node.getElements().keySet());
-        networkExclusions.put(ivIndex.getIvIndex(), nodes);
-        notifyNodeUpdated(node);
     }
 }
