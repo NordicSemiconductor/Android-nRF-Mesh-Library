@@ -949,7 +949,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
         if (nodes == null) {
             nodes = new ArrayList<>();
         }
-        nodes.add(node.getUnicastAddress());
+
+        nodes.addAll(node.getElements().keySet());
         networkExclusions.put(ivIndex.getIvIndex(), nodes);
         notifyNodeUpdated(node);
     }
