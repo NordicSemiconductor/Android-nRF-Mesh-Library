@@ -396,44 +396,6 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/node_exclusion_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    app:cardElevation="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <com.google.android.material.appbar.MaterialToolbar
-                            android:id="@+id/node_exclusion_tool_bar"
-                            android:layout_width="match_parent"
-                            android:layout_height="?actionBarSize"
-                            app:logo="@drawable/ic_reset"
-                            app:menu="@menu/info"
-                            app:title="@string/title_exclude_node"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"
-                            app:titleTextAppearance="@style/Toolbar.TitleText" />
-
-                        <com.google.android.material.switchmaterial.SwitchMaterial
-                            android:id="@+id/action_exclude_node"
-                            style="@style/Widget.App.Switch"
-                            android:gravity="start"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginStart="@dimen/item_padding_end"
-                            android:layout_marginEnd="@dimen/item_padding_start"
-                            android:padding="@dimen/item_padding_end"
-                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                            android:text="@string/exclude"/>
-
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/node_reset_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

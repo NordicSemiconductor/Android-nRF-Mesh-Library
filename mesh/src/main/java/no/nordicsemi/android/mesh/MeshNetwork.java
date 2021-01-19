@@ -149,8 +149,10 @@ public final class MeshNetwork extends BaseMeshNetwork {
             usedAddresses.addAll(node.getElements().keySet());
         }
         // Excluded addresses with the current IvIndex and current IvIndex - 1 must be considered as addresses in use.
-        usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex()));
-        usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex() - 1));
+        if (networkExclusions.get(ivIndex.getIvIndex()) != null)
+            usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex()));
+        if (networkExclusions.get(ivIndex.getIvIndex() - 1) != null)
+            usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex() - 1));
 
         Collections.sort(usedAddresses);
         // Iterate through all nodes just once, while iterating over ranges.

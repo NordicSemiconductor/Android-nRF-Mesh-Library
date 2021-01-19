@@ -28,9 +28,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.switchmaterial.SwitchMaterial;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -63,7 +60,6 @@ import no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.AddNetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.adapter.ElementAdapter;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentElementName;
-import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentExcludeConfirmation;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentTtl;
@@ -79,8 +75,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
         DialogFragmentProxySet.DialogFragmentProxySetListener,
         ElementAdapter.OnItemClickListener,
         DialogFragmentResetNode.DialogFragmentNodeResetListener,
-        DialogFragmentConfigurationComplete.ConfigurationCompleteListener,
-        DialogFragmentExcludeConfirmation.DialogFragmentExcludeConfirmationListener {
+        DialogFragmentConfigurationComplete.ConfigurationCompleteListener {
 
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
     private static final String PROXY_STATE = "PROXY_STATE";
@@ -157,8 +152,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
         final TextView defaultTtlSummary = binding.containerTtl.text;
         defaultTtlSummary.setVisibility(View.VISIBLE);
 
-        final MaterialToolbar exclusionToolbar = findViewById(R.id.node_exclusion_tool_bar);
-
         mViewModel.getSelectedMeshNode().observe(this, meshNode -> {
             if (meshNode == null) {
                 finish();
@@ -196,23 +189,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
             } else {
                 defaultTtlSummary.setText(R.string.unknown);
             }
-
-            if (meshNode.isExcluded()) {
-                binding.actionExcludeNode.setEnabled(false);
-                if (!binding.actionExcludeNode.isChecked())
-                    binding.actionExcludeNode.toggle();
-                disableClickableViews();
-            }
-        });
-
-        exclusionToolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_info) {
-                DialogFragmentError
-                        .newInstance(getString(R.string.title_exclude_node), getString(R.string.node_exclusion_summary))
-                        .show(getSupportFragmentManager(), null);
-                return true;
-            }
-            return false;
         });
 
         binding.actionGetCompositionData.setOnClickListener(v -> {
@@ -251,15 +227,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
             final DialogFragmentProxySet resetNodeFragment = DialogFragmentProxySet.
                     newInstance(getString(R.string.title_proxy_state_settings), message, !mProxyState);
             resetNodeFragment.show(getSupportFragmentManager(), null);
-        });
-
-        binding.actionExcludeNode.setOnClickListener(v -> {
-            if (((SwitchMaterial) v).isChecked()) {
-                final String message = getString(R.string.node_exclusion_summary) + "\n" + getString(R.string.continue_confirmation);
-                DialogFragmentExcludeConfirmation
-                        .newInstance(getString(R.string.title_exclude_node), message)
-                        .show(getSupportFragmentManager(), null);
-            }
         });
 
         binding.actionResetNode.setOnClickListener(v -> {
@@ -376,7 +343,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
         binding.actionSetDefaultTtl.setEnabled(true);
         binding.actionGetProxyState.setEnabled(true);
         binding.actionSetProxyState.setEnabled(true);
-        binding.actionExcludeNode.setEnabled(true);
         binding.actionResetNode.setEnabled(true);
     }
 
@@ -387,7 +353,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
         binding.actionSetDefaultTtl.setEnabled(false);
         binding.actionGetProxyState.setEnabled(false);
         binding.actionSetProxyState.setEnabled(false);
-        binding.actionExcludeNode.setEnabled(false);
         binding.actionResetNode.setEnabled(false);
     }
 
@@ -447,15 +412,5 @@ public class NodeConfigurationActivity extends BaseActivity implements
         final ConfigProxySet configProxySet = new ConfigProxySet(state);
         sendMessage(configProxySet);
         mRequestedState = state == 1;
-    }
-
-    @Override
-    public void onNodeNotExcluded() {
-        binding.actionExcludeNode.toggle();
-    }
-
-    @Override
-    public void onNodeExcluded() {
-        ((NodeConfigurationViewModel) mViewModel).excludeNode();
     }
 }
