@@ -998,16 +998,6 @@ abstract class BaseMeshNetwork {
         return nodeDeleted;
     }
 
-    boolean deleteResetNode(@NonNull final ProvisionedMeshNode meshNode) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
-                nodes.remove(node);
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns true if the given node is a provisioner node
      *
@@ -1126,7 +1116,7 @@ abstract class BaseMeshNetwork {
      *
      * @param node Provisioned mesh node.
      */
-    public void excludeNode(@NonNull final ProvisionedMeshNode node) {
+    private void excludeNode(@NonNull final ProvisionedMeshNode node) {
         //Exclude node
         node.setExcluded(true);
         ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
