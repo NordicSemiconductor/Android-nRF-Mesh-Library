@@ -39,12 +39,11 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 
 public class SelectableProvisionerAdapter extends RecyclerView.Adapter<SelectableProvisionerAdapter.ViewHolder> {
@@ -69,8 +68,7 @@ public class SelectableProvisionerAdapter extends RecyclerView.Adapter<Selectabl
     @NonNull
     @Override
     public SelectableProvisionerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.checkable_row_item, parent, false);
-        return new ViewHolder(layoutView);
+        return new ViewHolder(CheckableRowItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -111,24 +109,23 @@ public class SelectableProvisionerAdapter extends RecyclerView.Adapter<Selectabl
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.container)
         View container;
-        @BindView(R.id.icon)
         ImageView icon;
-        @BindView(R.id.title)
         TextView provisionerName;
-        @BindView(R.id.subtitle)
         TextView provisionerSummary;
-        @BindView(R.id.check)
         MaterialCheckBox materialCheckBox;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(final @NonNull CheckableRowItemBinding binding) {
+            super(binding.getRoot());
+            container = binding.container;
+            icon = binding.icon;
+            provisionerName = binding.title;
+            provisionerSummary = binding.subtitle;
+            materialCheckBox = binding.check;
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             container.setBackgroundColor(color);
-            icon.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.ic_account_key));
+            icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_account_key));
             materialCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (mOnItemClickListener != null)
                     mOnItemClickListener.onProvisionerCheckedChanged(mProvisioners.get(getAdapterPosition()), isChecked);

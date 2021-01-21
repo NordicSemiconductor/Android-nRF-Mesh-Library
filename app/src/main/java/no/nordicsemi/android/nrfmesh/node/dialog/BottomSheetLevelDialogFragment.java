@@ -13,12 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutGenericLevelBottomSheetBinding;
 
 public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
     private static final String KEY_INDEX = "KEY_INDEX";
-    private static final String MODEL_ID = "MODEL_ID";
     private int mKeyIndex;
-
     private int mTransitionStepResolution;
     private int mTransitionSteps;
 
@@ -45,23 +44,23 @@ public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View nodeControlsContainer = inflater.inflate(R.layout.layout_generic_level_bottom_sheet, container, false);
+        final LayoutGenericLevelBottomSheetBinding binding = LayoutGenericLevelBottomSheetBinding.inflate(getLayoutInflater());
 
-        final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-        final Slider transitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+        final TextView time = binding.transitionTime;
+        final Slider transitionTimeSlider = binding.transitionSlider;
         transitionTimeSlider.setValueFrom(0);
         transitionTimeSlider.setValueTo(230);
         transitionTimeSlider.setValue(0);
         transitionTimeSlider.setStepSize(1);
 
-        final Slider delaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+        final Slider delaySlider = binding.delaySlider;
         delaySlider.setValueFrom(0);
         delaySlider.setValueTo(255);
         delaySlider.setValue(0);
-        final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
+        final TextView delayTime = binding.delayTime;
 
-        final TextView level = nodeControlsContainer.findViewById(R.id.level);
-        final Slider levelSlider = nodeControlsContainer.findViewById(R.id.level_seek_bar);
+        final TextView level = binding.level;
+        final Slider levelSlider = binding.levelSeekBar;
         levelSlider.setValueFrom(0);
         levelSlider.setValueTo(100);
         levelSlider.setValue(0);
@@ -110,16 +109,9 @@ public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
                 }
             }
         });
-        delaySlider.addOnChangeListener((slider, value, fromUser) -> {
-            delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms"));
-        });
+        delaySlider.addOnChangeListener((slider, value, fromUser) -> delayTime.setText(getString(R.string.transition_time_interval, String.valueOf((int) value * MeshParserUtils.GENERIC_ON_OFF_5_MS), "ms")));
 
-        levelSlider.addOnChangeListener(new Slider.OnChangeListener() {
-            @Override
-            public void onValueChange(@NonNull final Slider slider, final float value, final boolean fromUser) {
-                level.setText(getString(R.string.generic_level_percent, (int) value));
-            }
-        });
+        levelSlider.addOnChangeListener((slider, value, fromUser) -> level.setText(getString(R.string.generic_level_percent, (int) value)));
         levelSlider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override
             public void onStartTrackingTouch(@NonNull final Slider slider) {
@@ -134,6 +126,6 @@ public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
                 ((BottomSheetLevelListener) requireActivity()).toggleLevel(mKeyIndex, genericLevel, mTransitionSteps, mTransitionStepResolution, delay);
             }
         });
-        return nodeControlsContainer;
+        return binding.getRoot();
     }
 }

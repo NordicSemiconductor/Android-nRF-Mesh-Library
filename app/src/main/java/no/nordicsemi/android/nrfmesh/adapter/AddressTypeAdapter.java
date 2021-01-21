@@ -30,10 +30,10 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.utils.AddressType;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.AddressTypeItemBinding;
+import no.nordicsemi.android.nrfmesh.databinding.NoGroupsLayoutBinding;
 
 public class AddressTypeAdapter extends BaseAdapter {
 
@@ -68,8 +68,9 @@ public class AddressTypeAdapter extends BaseAdapter {
         if (mAddressTypes.length > 0) {
             ViewHolder viewHolder;
             if (view == null) {
-                view = LayoutInflater.from(mContext).inflate(R.layout.address_type_item, parent, false);
-                viewHolder = new ViewHolder(view);
+                final AddressTypeItemBinding binding = AddressTypeItemBinding.inflate(LayoutInflater.from(parent.getContext()));
+                view = binding.getRoot();
+                viewHolder = new ViewHolder(binding);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
@@ -81,20 +82,17 @@ public class AddressTypeAdapter extends BaseAdapter {
             } else {
                 viewHolder.addressName.setText(AddressType.getTypeName(addressType));
             }
-            return view;
         } else {
-            view = LayoutInflater.from(mContext).inflate(R.layout.no_groups_layout, parent, false);
-            return view;
+            view = NoGroupsLayoutBinding.inflate(LayoutInflater.from(parent.getContext())).getRoot();
         }
+        return view;
     }
 
-    public final class ViewHolder {
-
-        @BindView(R.id.address_name)
+    private static final class ViewHolder {
         TextView addressName;
 
-        private ViewHolder(final View view) {
-            ButterKnife.bind(this, view);
+        private ViewHolder(final AddressTypeItemBinding binding) {
+            addressName = binding.addressName;
         }
     }
 }

@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmesh.dialog;
 
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -38,18 +37,12 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.nio.ByteBuffer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningConfirmationState;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.AuthenticationOOBMethods;
@@ -57,6 +50,7 @@ import no.nordicsemi.android.mesh.utils.InputOOBAction;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentAuthInputBinding;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
@@ -64,16 +58,7 @@ import static android.graphics.Typeface.BOLD;
 
 public class DialogFragmentAuthenticationInput extends DialogFragment {
 
-    //UI Bindings
-    @BindView(R.id.summary)
-    TextView dialogSummary;
-    @BindView(R.id.text_input_layout)
-    TextInputLayout pinInputLayout;
-    @BindView(R.id.hex_prefix)
-    TextView hexPrefix;
-    @BindView(R.id.text_input)
-    TextInputEditText pinInput;
-
+    private DialogFragmentAuthInputBinding binding;
     private UnprovisionedMeshNode mNode;
 
     public interface ProvisionerInputFragmentListener {
@@ -101,14 +86,12 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(requireActivity()).inflate(R.layout.dialog_fragment_auth_input, null);
-        ButterKnife.bind(this, rootView);
+        binding = DialogFragmentAuthInputBinding.inflate(LayoutInflater.from(requireContext()));
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
                 setIcon(R.drawable.ic_lock_open_24dp).
                 setTitle(getString(R.string.provisioner_authentication_title)).
-                setView(rootView);
+                setView(binding.getRoot());
 
         updateAuthUI(alertDialogBuilder);
         final AlertDialog alertDialog = alertDialogBuilder.show();
@@ -118,7 +101,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         final Button button = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         if(button != null) {
             button.setOnClickListener(v -> {
-                final String pin = pinInput.getEditableText().toString().trim();
+                final String pin = binding.textInput.getEditableText().toString().trim();
                 if (validateInput(pin)) {
                     ((ProvisionerInputFragmentListener) requireActivity()).onPinInputComplete(pin);
                     dismiss();
@@ -131,19 +114,19 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
 
     private boolean validateInput(final String input) {
         if (TextUtils.isEmpty(input)) {
-            pinInputLayout.setError(getString(R.string.error_empty_pin));
+            binding.textInputLayout.setError(getString(R.string.error_empty_pin));
             return false;
         }
 
         if(mNode.getAuthMethodUsed() == AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION){
             if(input.length() != 32) {
-                pinInputLayout.setError(getString(R.string.error_invalid_static_oob));
+                binding.textInputLayout.setError(getString(R.string.error_invalid_static_oob));
                 return false;
             }
 
             final byte[] staticOObKey = MeshParserUtils.toByteArray(input);
             if (staticOObKey.length != 16) {
-                pinInputLayout.setError(getString(R.string.error_invalid_static_oob));
+                binding.textInputLayout.setError(getString(R.string.error_invalid_static_oob));
                 return false;
             }
         }
@@ -175,7 +158,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
                 break;
         }
 
-        pinInput.addTextChangedListener(new TextWatcher() {
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -184,9 +167,9 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    pinInputLayout.setError(getString(R.string.error_empty_pin));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_pin));
                 } else {
-                    pinInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -197,13 +180,19 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         });
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void updateStaticOOBUI() {
-        dialogSummary.setText(R.string.provisioner_input_static_oob);
-        hexPrefix.setVisibility(View.VISIBLE);
-        pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        pinInput.setHint(getString((R.string.hint_static_oob)));
-        pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ProvisioningConfirmationState.AUTH_VALUE_LENGTH * 2)});
-        pinInput.setKeyListener(new HexKeyListener());
+        binding.summary.setText(R.string.provisioner_input_static_oob);
+        binding.hexPrefix.setVisibility(View.VISIBLE);
+        binding.textInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        binding.textInput.setHint(getString((R.string.hint_static_oob)));
+        binding.textInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ProvisioningConfirmationState.AUTH_VALUE_LENGTH * 2)});
+        binding.textInput.setKeyListener(new HexKeyListener());
     }
 
     private void updateOutputOOBUI() {
@@ -211,41 +200,40 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
         if (outputOOBAction == OutputOOBAction.BLINK ||
                 outputOOBAction == OutputOOBAction.BEEP ||
                 outputOOBAction == OutputOOBAction.VIBRATE) {
-            pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-            pinInput.setHint(getString((R.string.hint_numeric_action)));
-            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
+            binding.textInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            binding.textInput.setHint(getString((R.string.hint_numeric_action)));
+            binding.textInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
             if (outputOOBAction == OutputOOBAction.BLINK) {
-                dialogSummary.setText(R.string.provisioner_input_blinks);
+                binding.summary.setText(R.string.provisioner_input_blinks);
             } else if (outputOOBAction == OutputOOBAction.BEEP) {
-                dialogSummary.setText(R.string.provisioner_input_beeps);
+                binding.summary.setText(R.string.provisioner_input_beeps);
             } else {
-                dialogSummary.setText(R.string.provisioner_input_vibrations);
+                binding.summary.setText(R.string.provisioner_input_vibrations);
             }
 
         } else if (outputOOBAction == OutputOOBAction.OUTPUT_NUMERIC) {
-            pinInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-            pinInput.setHint(getString((R.string.hint_numeric)));
-            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
-            dialogSummary.setText(R.string.provisioner_input_numeric);
+            binding.textInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            binding.textInput.setHint(getString((R.string.hint_numeric)));
+            binding.textInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
+            binding.summary.setText(R.string.provisioner_input_numeric);
         } else {
-            pinInput.setInputType(InputType.TYPE_CLASS_TEXT);
-            pinInput.setHint(getString((R.string.hint_alpha_numeric)));
-            pinInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
-            dialogSummary.setText(R.string.provisioner_input_numeric);
+            binding.textInput.setInputType(InputType.TYPE_CLASS_TEXT);
+            binding.textInput.setHint(getString((R.string.hint_alpha_numeric)));
+            binding.textInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mNode.getProvisioningCapabilities().getOutputOOBSize())});
+            binding.summary.setText(R.string.provisioner_input_numeric);
         }
-        hexPrefix.setVisibility(View.GONE);
+        binding.hexPrefix.setVisibility(View.GONE);
     }
 
     private void updateInputOOBUI() {
         final InputOOBAction inputOOBAction = InputOOBAction.fromValue(mNode.getAuthActionUsed());
-        pinInputLayout.setVisibility(View.GONE);
+        binding.textInputLayout.setVisibility(View.GONE);
         final String msg;
         final SpannableStringBuilder spannableMessage;
         final int start;
         final int end;
         final byte[] authValue = mNode.getInputAuthentication();
         if (inputOOBAction == InputOOBAction.PUSH || inputOOBAction == InputOOBAction.TWIST) {
-            //noinspection ConstantConditions
             final int authInput = MeshParserUtils.unsignedByteToInt(authValue[0]);
             if (inputOOBAction == InputOOBAction.PUSH) {
                 msg = getResources().getQuantityString(R.plurals.input_pushes, authInput, authInput);
@@ -269,7 +257,7 @@ public class DialogFragmentAuthenticationInput extends DialogFragment {
             spannableMessage = new SpannableStringBuilder(msg);
         }
         spannableMessage.setSpan(new StyleSpan(BOLD), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        dialogSummary.setText(spannableMessage);
-        hexPrefix.setVisibility(View.GONE);
+        binding.summary.setText(spannableMessage);
+        binding.hexPrefix.setVisibility(View.GONE);
     }
 }

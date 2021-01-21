@@ -22,43 +22,31 @@
 
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
-import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.DialogFragment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentPublicationParametersBinding;
 
 
 public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
 
     private static final String INTERVAL_STEPS = "INTERVAL_STEPS";
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout intervalStepsInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText intervalStepsInput;
-
+    private DialogFragmentPublicationParametersBinding binding;
     private int mRetransmitCount;
 
     public static DialogFragmentPubRetransmitIntervalSteps newInstance(final int ivIndex) {
-        DialogFragmentPubRetransmitIntervalSteps fragmentIvIndex = new DialogFragmentPubRetransmitIntervalSteps();
+        final DialogFragmentPubRetransmitIntervalSteps fragmentIvIndex = new DialogFragmentPubRetransmitIntervalSteps();
         final Bundle args = new Bundle();
         args.putInt(INTERVAL_STEPS, ivIndex);
         fragmentIvIndex.setArguments(args);
@@ -76,19 +64,16 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams")
-        final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_publication_parameters, null);
+        binding = DialogFragmentPublicationParametersBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        ((TextView)rootView.findViewById(R.id.summary)).setText(R.string.dialog_summary_interval_steps);
+        binding.summary.setText(R.string.dialog_summary_interval_steps);
 
         final String retransmitCount = String.valueOf(mRetransmitCount);
-        intervalStepsInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        intervalStepsInputLayout.setHint(getString(R.string.hint_publication_interval_steps));
-        intervalStepsInput.setText(retransmitCount);
-        intervalStepsInput.setSelection(retransmitCount.length());
-        intervalStepsInput.addTextChangedListener(new TextWatcher() {
+        binding.textInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        binding.textInputLayout.setHint(getString(R.string.hint_publication_interval_steps));
+        binding.textInput.setText(retransmitCount);
+        binding.textInput.setSelection(retransmitCount.length());
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -97,9 +82,9 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    intervalStepsInputLayout.setError(getString(R.string.error_empty_publication_steps));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_publication_steps));
                 } else {
-                    intervalStepsInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -109,7 +94,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_index);
@@ -117,7 +102,7 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String ivIndexInput = this.intervalStepsInput.getEditableText().toString().trim();
+            final String ivIndexInput = this.binding.textInput.getEditableText().toString().trim();
             if (validateInput(ivIndexInput)) {
                     ((DialogFragmentIntervalStepsListener) requireActivity()).
                             setRetransmitIntervalSteps(Integer.parseInt(ivIndexInput, 16));
@@ -133,15 +118,15 @@ public class DialogFragmentPubRetransmitIntervalSteps extends DialogFragment {
         try {
 
             if(TextUtils.isEmpty(input)) {
-                intervalStepsInputLayout.setError(getString(R.string.error_empty_pub_retransmit_interval_steps));
+                binding.textInputLayout.setError(getString(R.string.error_empty_pub_retransmit_interval_steps));
                 return false;
             }
-            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.valueOf(input))) {
-                intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
+            if (!MeshParserUtils.validatePublishRetransmitIntervalSteps(Integer.parseInt(input))) {
+                binding.textInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
                 return false;
             }
         } catch (NumberFormatException ex) {
-            intervalStepsInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
+            binding.textInputLayout.setError(getString(R.string.error_invalid_pub_retransmit_interval_steps));
             return false;
         } catch (Exception ex) {
             return false;

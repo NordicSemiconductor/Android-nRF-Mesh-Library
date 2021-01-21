@@ -21,10 +21,12 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<resources>
-	<style name="AppTheme.SplashScreen">
-		<item name="colorPrimaryDark">@android:color/transparent</item>
-		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
-		<item name="android:statusBarColor">@color/background</item>
-	</style>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_info"
+        android:enabled="true"
+        android:title="@string/info"
+        android:icon="@drawable/ic_info_outline"
+        app:showAsAction="always"/>
+</menu>

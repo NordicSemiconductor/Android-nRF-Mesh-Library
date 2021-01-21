@@ -37,13 +37,10 @@ import java.util.Random;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
@@ -63,6 +60,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityConfigGroupsBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetLevelDialogFragment;
@@ -84,28 +82,27 @@ public class GroupControlsActivity extends AppCompatActivity implements
     private static final String VENDOR_FRAGMENT = "VENDOR_FRAGMENT";
     private static final String DETAILS_FRAGMENT = "DETAILS_FRAGMENT";
 
+    private ActivityConfigGroupsBinding binding;
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
     private boolean mIsConnected;
 
-    @BindView(R.id.container)
     CoordinatorLayout container;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_config_groups);
-        ButterKnife.bind(this);
+        binding = ActivityConfigGroupsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(GroupControlsViewModel.class);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar_info);
-        setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
+        container = binding.container;
+        setSupportActionBar(binding.toolbarInfo);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final View noModelsConfigured = findViewById(R.id.no_models_subscribed);
-        final View noAppKeysBound = findViewById(R.id.no_app_keys);
+        final View noModelsConfigured = binding.noModelsSubscribed.getRoot();
+        final View noAppKeysBound = binding.noAppKeys.getRoot();
 
-        final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
+        final RecyclerView recyclerViewSubGroups = binding.recyclerViewGroupedModels;
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork(),
@@ -178,21 +175,21 @@ public class GroupControlsActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_edit:
-                editGroup();
-                break;
-            case R.id.action_connect:
-                final Intent intent = new Intent(this, ScannerActivity.class);
-                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-                startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
+        final int id = item.getItemId();
+        if(id == android.R.id.home){
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_edit){
+            editGroup();
+            return true;
+        } else if (id == R.id.action_connect){
+            final Intent intent = new Intent(this, ScannerActivity.class);
+            intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
+            startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+            return true;
+        } else if (id == R.id.action_disconnect){
+            mViewModel.disconnect();
+            return true;
         }
         return false;
     }
@@ -258,7 +255,6 @@ public class GroupControlsActivity extends AppCompatActivity implements
         if (group == null)
             return;
 
-        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
         final int tid = new Random().nextInt();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,

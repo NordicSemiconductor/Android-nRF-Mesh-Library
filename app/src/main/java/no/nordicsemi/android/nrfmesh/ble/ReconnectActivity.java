@@ -36,6 +36,7 @@ import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityReconnectBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.ReconnectViewModel;
 
@@ -49,7 +50,8 @@ public class ReconnectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reconnect);
+        final ActivityReconnectBinding binding = ActivityReconnectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         // Create view model containing utility methods for scanning
         mReconnectViewModel = new ViewModelProvider(this).get(ReconnectViewModel.class);
 
@@ -58,9 +60,8 @@ public class ReconnectActivity extends AppCompatActivity {
         final String deviceName = device.getName();
         final String deviceAddress = device.getAddress();
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
+        final Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(deviceName);
         getSupportActionBar().setSubtitle(deviceAddress);

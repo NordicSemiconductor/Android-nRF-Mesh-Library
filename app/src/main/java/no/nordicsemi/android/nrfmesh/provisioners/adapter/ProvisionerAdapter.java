@@ -24,10 +24,7 @@ package no.nordicsemi.android.nrfmesh.provisioners.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.elevation.ElevationOverlayProvider;
@@ -39,12 +36,11 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemProvisionerBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
@@ -72,8 +68,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     @NonNull
     @Override
     public ProvisionerAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item_provisioner, parent, false);
-        return new ProvisionerAdapter.ViewHolder(layoutView);
+        return new ProvisionerAdapter.ViewHolder(RemovableRowItemProvisionerBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -114,23 +109,18 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
-        FrameLayout container;
-        @BindView(R.id.icon)
-        ImageView icon;
-        @BindView(R.id.title)
         TextView provisionerName;
-        @BindView(R.id.subtitle)
         TextView provisionerSummary;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(@NonNull final RemovableRowItemProvisionerBinding binding) {
+            super(binding.getRoot());
+            provisionerName = binding.title;
+            provisionerSummary = binding.subtitle;
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);
-            icon.setImageDrawable(ContextCompat.getDrawable(view.getContext(), R.drawable.ic_account_key));
-            container.setOnClickListener(v -> {
+            binding.icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_account_key));
+            binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
                     mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);

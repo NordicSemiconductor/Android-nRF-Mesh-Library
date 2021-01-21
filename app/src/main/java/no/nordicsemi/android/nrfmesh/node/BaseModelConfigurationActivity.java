@@ -37,15 +37,12 @@ import java.util.Locale;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -75,6 +72,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAddressAdapter;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityModelConfigurationBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentDisconnected;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
@@ -103,39 +101,22 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
 
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
     private static final String PROGRESS_BAR_STATE = "PROGRESS_BAR_STATE";
+    protected ActivityModelConfigurationBinding binding;
 
-
-    @BindView(R.id.container)
     CoordinatorLayout mContainer;
-    @BindView(R.id.app_key_card)
     View mContainerAppKeyBinding;
-    @BindView(R.id.action_bind_app_key)
     Button mActionBindAppKey;
-    @BindView(R.id.bound_keys)
     TextView mAppKeyView;
-    @BindView(R.id.unbind_hint)
     TextView mUnbindHint;
-
-    @BindView(R.id.publish_address_card)
     View mContainerPublication;
-    @BindView(R.id.action_set_publication)
     Button mActionSetPublication;
-    @BindView(R.id.action_clear_publication)
     Button mActionClearPublication;
-    @BindView(R.id.publish_address)
     TextView mPublishAddressView;
-
-    @BindView(R.id.subscription_address_card)
     View mContainerSubscribe;
-    @BindView(R.id.action_subscribe_address)
     Button mActionSubscribe;
-    @BindView(R.id.subscribe_addresses)
     TextView mSubscribeAddressView;
-    @BindView(R.id.subscribe_hint)
     TextView mSubscribeHint;
-    @BindView(R.id.configuration_progress_bar)
     ProgressBar mProgressbar;
-    @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout mSwipe;
 
     protected List<Integer> mGroupAddress = new ArrayList<>();
@@ -151,16 +132,30 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_model_configuration);
+        binding = ActivityModelConfigurationBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mContainer = binding.container;
+        mContainerAppKeyBinding = binding.appKeyCard;
+        mActionBindAppKey = binding.actionBindAppKey;
+        mAppKeyView = binding.boundKeys;
+        mUnbindHint = binding.unbindHint;
+        mContainerPublication = binding.publishAddressCard;
+        mActionSetPublication = binding.actionSetPublication;
+        mActionClearPublication = binding.actionClearPublication;
+        mPublishAddressView = binding.publishAddress;
+        mContainerSubscribe = binding.subscriptionAddressCard;
+        mActionSubscribe = binding.actionSubscribeAddress;
+        mSubscribeAddressView = binding.subscribeAddresses;
+        mSubscribeHint = binding.subscribeHint;
+        mProgressbar = binding.configurationProgressBar;
+        mSwipe = binding.swipeRefresh;
+
         mViewModel = new ViewModelProvider(this).get(ModelConfigurationViewModel.class);
         init();
-        ButterKnife.bind(this);
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
         final String modelName = meshModel.getModelName();
 
-        // Set up views
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(modelName);
         final int modelId = meshModel.getModelId();

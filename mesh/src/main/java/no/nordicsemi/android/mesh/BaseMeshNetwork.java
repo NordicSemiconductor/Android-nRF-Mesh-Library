@@ -14,7 +14,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import androidx.annotation.IntDef;
@@ -79,6 +81,7 @@ abstract class BaseMeshNetwork {
     @Expose
     @NonNull
     IvIndex ivIndex = new IvIndex(0, false, Calendar.getInstance());
+    //Properties with Ignore are stored in their own table with the network's UUID as the foreign key
     @Ignore
     @SerializedName("netKeys")
     @Expose
@@ -115,6 +118,10 @@ abstract class BaseMeshNetwork {
     @TypeConverters(MeshTypeConverters.class)
     @ColumnInfo(name = "sequence_numbers")
     protected SparseIntArray sequenceNumbers = new SparseIntArray();
+    @SerializedName("networkExclusions")
+    @TypeConverters(MeshTypeConverters.class)
+    @Expose
+    protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -972,6 +979,7 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
                 nodes.remove(node);
+                excludeNode(node);
                 notifyNodeDeleted(meshNode);
                 nodeDeleted = true;
                 break;
@@ -988,16 +996,6 @@ abstract class BaseMeshNetwork {
             }
         }
         return nodeDeleted;
-    }
-
-    boolean deleteResetNode(@NonNull final ProvisionedMeshNode meshNode) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
-                nodes.remove(node);
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1074,6 +1072,22 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Returns the map of network exclusions
+     */
+    public Map<Integer, ArrayList<Integer>> getNetworkExclusions() {
+        return Collections.unmodifiableMap(networkExclusions);
+    }
+
+    /**
+     * Setter required by room db and is restricted for internal use.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setNetworkExclusions(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
+        this.networkExclusions = networkExclusions;
+    }
+
+
+    /**
      * Returns the {@link ProxyFilter} set on the proxy
      */
     @Nullable
@@ -1090,6 +1104,29 @@ abstract class BaseMeshNetwork {
      */
     public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
         this.proxyFilter = proxyFilter;
+    }
+
+    /**
+     * Excludes a node from the mesh network.
+     * The given node will marked as excluded and added to the exclusion list and the node will be removed once
+     * the Key refresh procedure is completed. After the IV update procedure, when the network transitions to an
+     * IV Normal Operation state with a higher IV index, the exclusionList object that has the ivIndex property
+     * value that is lower by a count of two (or more) than the current IV index of the network is removed from
+     * the networkExclusions property array.
+     *
+     * @param node Provisioned mesh node.
+     */
+    private void excludeNode(@NonNull final ProvisionedMeshNode node) {
+        //Exclude node
+        node.setExcluded(true);
+        ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+
+        nodes.addAll(node.getElements().keySet());
+        networkExclusions.put(ivIndex.getIvIndex(), nodes);
+        notifyNodeUpdated(node);
     }
 
     final void notifyNetworkUpdated() {

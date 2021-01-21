@@ -23,10 +23,8 @@
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.elevation.ElevationOverlayProvider;
@@ -40,13 +38,12 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
@@ -93,8 +90,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
     @NonNull
     @Override
     public ManageNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item, parent, false);
-        return new ManageNetKeyAdapter.ViewHolder(layoutView);
+        return new ManageNetKeyAdapter.ViewHolder(RemovableRowItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -128,18 +124,16 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
         FrameLayout container;
-        @BindView(R.id.title)
         TextView netKeyName;
-        @BindView(R.id.subtitle)
         TextView netKey;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-            final ImageView image = view.findViewById(R.id.icon);
-            image.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
+        private ViewHolder(final @NonNull RemovableRowItemBinding binding) {
+            super(binding.getRoot());
+            binding.icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
+            container = binding.container;
+            netKeyName = binding.title;
+            netKey = binding.subtitle;
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);

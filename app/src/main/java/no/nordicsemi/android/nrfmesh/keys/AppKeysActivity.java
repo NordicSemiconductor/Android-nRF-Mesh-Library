@@ -27,9 +27,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
@@ -37,22 +35,19 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityKeysBinding;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageAppKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.AppKeysViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -74,36 +69,25 @@ public class AppKeysActivity extends AppCompatActivity implements
         ManageAppKeyAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
+    private ActivityKeysBinding binding;
     private AppKeysViewModel mViewModel;
     private ManageAppKeyAdapter mAdapter;
-
-    //UI Bindings
-    @BindView(R.id.empty_app_keys)
-    View mEmptyView;
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_keys);
+        binding = ActivityKeysBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(AppKeysViewModel.class);
 
-        //Bind ui
-        ButterKnife.bind(this);
-
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
-        final RecyclerView appKeysRecyclerView = findViewById(R.id.recycler_view_keys);
-        appKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(appKeysRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        appKeysRecyclerView.addItemDecoration(dividerItemDecoration);
-        appKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
+                new DividerItemDecoration(binding.recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
+        binding.recyclerViewKeys.addItemDecoration(dividerItemDecoration);
+        binding.recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
 
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -112,16 +96,16 @@ public class AppKeysActivity extends AppCompatActivity implements
                     break;
                 case ADD_APP_KEY:
                     getSupportActionBar().setTitle(R.string.title_select_app_key);
-                    fab.hide();
+                    binding.fabAdd.hide();
                     mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData());
                     mAdapter.setOnItemClickListener(this);
-                    appKeysRecyclerView.setAdapter(mAdapter);
+                    binding.recyclerViewKeys.setAdapter(mAdapter);
                     setUpObserver();
                     break;
                 case BIND_APP_KEY:
                 case PUBLICATION_APP_KEY:
                     getSupportActionBar().setTitle(R.string.title_select_app_key);
-                    fab.hide();
+                    binding.fabAdd.hide();
                     //Get selected mesh node
                     final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
                     if (node != null) {
@@ -129,11 +113,10 @@ public class AppKeysActivity extends AppCompatActivity implements
                         if (!applicationKeys.isEmpty()) {
                             mAdapter = new ManageAppKeyAdapter(mViewModel.getNetworkLiveData().getAppKeys(), applicationKeys);
                             mAdapter.setOnItemClickListener(this);
-                            appKeysRecyclerView.setAdapter(mAdapter);
+                            binding.recyclerViewKeys.setAdapter(mAdapter);
                         } else {
-                            final TextView textView = mEmptyView.findViewById(R.id.rationale);
-                            textView.setText(R.string.no_added_app_keys_rationale);
-                            mEmptyView.setVisibility(View.VISIBLE);
+                            binding.emptyAppKeys.rationale.setText(R.string.no_added_app_keys_rationale);
+                            binding.emptyAppKeys.getRoot().setVisibility(View.VISIBLE);
                         }
                     }
                     break;
@@ -142,29 +125,29 @@ public class AppKeysActivity extends AppCompatActivity implements
             getSupportActionBar().setTitle(R.string.title_manage_app_keys);
             final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
             final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-            itemTouchHelper.attachToRecyclerView(appKeysRecyclerView);
+            itemTouchHelper.attachToRecyclerView(binding.recyclerViewKeys);
             mAdapter = new ManageAppKeyAdapter(this, mViewModel.getNetworkLiveData());
             mAdapter.setOnItemClickListener(this);
-            appKeysRecyclerView.setAdapter(mAdapter);
+            binding.recyclerViewKeys.setAdapter(mAdapter);
             setUpObserver();
         }
 
 
-        fab.setOnClickListener(v -> {
+        binding.fabAdd.setOnClickListener(v -> {
             final Intent intent = new Intent(this, AddAppKeyActivity.class);
             startActivity(intent);
         });
 
-        appKeysRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        binding.recyclerViewKeys.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 final LinearLayoutManager m = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (m != null) {
                     if (m.findFirstCompletelyVisibleItemPosition() == 0) {
-                        fab.extend();
+                        binding.fabAdd.extend();
                     } else {
-                        fab.shrink();
+                        binding.fabAdd.shrink();
                     }
                 }
             }
@@ -226,12 +209,12 @@ public class AppKeysActivity extends AppCompatActivity implements
                 // Show the empty view
                 final boolean empty = mAdapter.getItemCount() == 0;
                 if (empty) {
-                    mEmptyView.setVisibility(View.VISIBLE);
+                    binding.emptyAppKeys.getRoot().setVisibility(View.VISIBLE);
                 }
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -245,16 +228,16 @@ public class AppKeysActivity extends AppCompatActivity implements
             if (networkLiveData != null) {
                 final List<ApplicationKey> keys = networkLiveData.getAppKeys();
                 if (keys != null) {
-                    mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.emptyAppKeys.getRoot().setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
                 }
             }
         });
     }
 
     private void displaySnackBar(@NonNull final ApplicationKey appKey) {
-        Snackbar.make(container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.container, getString(R.string.app_key_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
-                    mEmptyView.setVisibility(View.INVISIBLE);
+                    binding.emptyAppKeys.getRoot().setVisibility(View.INVISIBLE);
                     mViewModel.getNetworkLiveData().getMeshNetwork().addAppKey(appKey);
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorSecondary))

@@ -47,17 +47,16 @@ public class AddNetKeysActivity extends AddKeysActivity implements
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setTitle(R.string.title_added_net_keys);
-        mEmptyView = findViewById(R.id.empty_net_keys);
         adapter = new AddedNetKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getNetKeys(), mViewModel.getSelectedMeshNode());
-        recyclerViewKeys.setAdapter(adapter);
+        binding.recyclerViewKeys.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
         updateClickableViews();
     }
 
     @Override
     public void onItemClick(@NonNull final NetworkKey networkKey) {
-        if (!checkConnectivity(container))
+        if (!checkConnectivity(binding.container))
             return;
         final MeshMessage meshMessage;
         final String message;
@@ -68,7 +67,7 @@ public class AddNetKeysActivity extends AddKeysActivity implements
             meshMessage = new ConfigNetKeyDelete(networkKey);
             message = getString(R.string.deleting_net_key);
         }
-        mViewModel.displaySnackBar(this, container, message, Snackbar.LENGTH_SHORT);
+        mViewModel.displaySnackBar(this, binding.container, message, Snackbar.LENGTH_SHORT);
         sendMessage(meshMessage);
     }
 

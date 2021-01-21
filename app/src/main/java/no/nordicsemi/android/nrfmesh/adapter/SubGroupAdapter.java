@@ -42,8 +42,6 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -53,11 +51,12 @@ import no.nordicsemi.android.mesh.utils.CompanyIdentifiers;
 import no.nordicsemi.android.mesh.utils.CompositionDataParser;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.GroupedAppKeyItemBinding;
+import no.nordicsemi.android.nrfmesh.databinding.GroupedItemBinding;
 
 public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHolder> {
 
-    private final Context mContext;
-    private MeshNetwork mMeshNetwork;
+    private final MeshNetwork mMeshNetwork;
     private List<MeshModel> mModels;
     private SparseArray<SparseIntArray> mGroupedKeyModels;
     private Group mGroup;
@@ -66,7 +65,6 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     public SubGroupAdapter(@NonNull final Context context,
                            @NonNull final MeshNetwork network,
                            @NonNull final LiveData<Group> groupedModels) {
-        this.mContext = context;
         this.mMeshNetwork = network;
         groupedModels.observe((LifecycleOwner) context, group -> {
             mGroup = group;
@@ -89,8 +87,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.grouped_app_key_item, parent, false);
-        return new ViewHolder(layoutView);
+        return new ViewHolder(GroupedAppKeyItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -113,40 +110,41 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
     }
 
     private void inflateView(@NonNull final ViewHolder holder, final int keyIndex, final int modelId, final int modelCount, final int position) {
-        final View view = LayoutInflater.from(mContext).inflate(R.layout.grouped_item, holder.mGroupGrid, false);
-        final CardView groupContainerCard = view.findViewById(R.id.group_container_card);
-        final ImageView icon = view.findViewById(R.id.icon);
-        final TextView groupSummary = view.findViewById(R.id.group_summary);
-        final Button on = view.findViewById(R.id.action_on);
-        final Button off = view.findViewById(R.id.action_off);
+        final Context context = holder.itemView.getContext();
+        final GroupedItemBinding binding = GroupedItemBinding.inflate(LayoutInflater.from(context), holder.mGroupGrid, false);
+        final CardView groupContainerCard = binding.groupContainerCard;
+        final ImageView icon = binding.icon;
+        final TextView groupSummary = binding.groupSummary;
+        final Button on = binding.actionOn;
+        final Button off = binding.actionOff;
         if (MeshParserUtils.isVendorModel(modelId)) {
-            icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_48dp));
-            view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-            view.findViewById(R.id.container_vendor).setVisibility(View.VISIBLE);
-            final TextView modelIdView = view.findViewById(R.id.subtitle);
+            icon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_domain_48dp));
+            binding.containerButtons.setVisibility(View.INVISIBLE);
+            binding.containerVendor.setVisibility(View.VISIBLE);
+            final TextView modelIdView = binding.subtitle;
             modelIdView.setText(CompositionDataParser.formatModelIdentifier(modelId, true));
-            final TextView companyIdView = view.findViewById(R.id.company_id);
+            final TextView companyIdView = binding.companyId;
             final int companyIdentifier = MeshParserUtils.getCompanyIdentifier(modelId);
-            companyIdView.setText(String.valueOf(CompanyIdentifiers.getCompanyName((short) companyIdentifier)));
-            groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
+            companyIdView.setText(CompanyIdentifiers.getCompanyName((short) companyIdentifier));
+            groupSummary.setText(context.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
         } else {
             switch (modelId) {
                 case SigModelParser.GENERIC_ON_OFF_SERVER:
-                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.light_count, modelCount, modelCount));
+                    groupSummary.setText(context.getResources().getQuantityString(R.plurals.light_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_ON_OFF_CLIENT:
-                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_48dp));
-                    view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.switch_count, modelCount, modelCount));
+                    icon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_light_switch_48dp));
+                    binding.containerButtons.setVisibility(View.INVISIBLE);
+                    groupSummary.setText(context.getResources().getQuantityString(R.plurals.switch_count, modelCount, modelCount));
                     break;
                 case SigModelParser.GENERIC_LEVEL_SERVER:
-                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_48dp));
-                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.dimmer_count, modelCount, modelCount));
+                    icon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_lightbulb_level_48dp));
+                    groupSummary.setText(context.getResources().getQuantityString(R.plurals.dimmer_count, modelCount, modelCount));
                     break;
                 default:
-                    icon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_48dp));
-                    view.findViewById(R.id.container_buttons).setVisibility(View.INVISIBLE);
-                    groupSummary.setText(mContext.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
+                    icon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_help_outline_48dp));
+                    binding.containerButtons.setVisibility(View.INVISIBLE);
+                    groupSummary.setText(context.getResources().getQuantityString(R.plurals.device_count, modelCount, modelCount));
                     break;
             }
         }
@@ -156,7 +154,7 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
         on.setOnClickListener(v -> toggleState(keyIndex, modelId, true));
         off.setOnClickListener(v -> toggleState(keyIndex, modelId, false));
 
-        holder.mGroupGrid.addView(view, position);
+        holder.mGroupGrid.addView(binding.getRoot(), position);
     }
 
     private void toggleState(final int appKeyIndex, final int modelId, final boolean state) {
@@ -209,17 +207,16 @@ public class SubGroupAdapter extends RecyclerView.Adapter<SubGroupAdapter.ViewHo
 
     }
 
-    final class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.group_app_key_item_container)
+    static final class ViewHolder extends RecyclerView.ViewHolder {
         ConstraintLayout groupItemContainer;
-        @BindView(R.id.grp_app_key_title)
         TextView mGroupAppKeyTitle;
-        @BindView(R.id.grp_grid)
         GridLayout mGroupGrid;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(@NonNull final GroupedAppKeyItemBinding binding) {
+            super(binding.getRoot());
+            groupItemContainer = binding.groupAppKeyItemContainer;
+            mGroupAppKeyTitle = binding.grpAppKeyTitle;
+            mGroupGrid = binding.grpGrid;
         }
     }
 }

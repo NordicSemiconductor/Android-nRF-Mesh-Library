@@ -7,34 +7,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.GroupModelAdapter;
+import no.nordicsemi.android.nrfmesh.databinding.FragmentBottomSheetDialogBinding;
 
 public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment implements GroupModelAdapter.OnItemClickListener {
 
     private static final String GROUP = "GROUP";
     private static final String ELEMENTS = "ELEMENTS";
 
-
-
-
-    private TextInputLayout mGroupNameInputLayout;
-    private TextInputEditText mGroupNameTextInput;
+    private FragmentBottomSheetDialogBinding binding;
 
     private Group mGroup;
     private ArrayList<Element> mElements = new ArrayList<>();
@@ -68,30 +61,26 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_bottom_sheet_dialog, container, false);
+        binding = FragmentBottomSheetDialogBinding.inflate(getLayoutInflater());
 
-        mGroupNameInputLayout = rootView.findViewById(R.id.text_input_layout);
-        mGroupNameTextInput = rootView.findViewById(R.id.text_input);
-        mGroupNameTextInput.setText(mGroup.getName());
+        binding.textInput.setText(mGroup.getName());
 
-        final RecyclerView recyclerViewGroupItems = rootView.findViewById(R.id.group_items);
-        recyclerViewGroupItems.setLayoutManager(new LinearLayoutManager(requireContext()));
-        mGroupModelsAdapter = new GroupModelAdapter(requireContext(), mGroup, mElements);
+        binding.groupItems.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mGroupModelsAdapter = new GroupModelAdapter(mGroup, mElements);
         mGroupModelsAdapter.setOnItemClickListener(this);
-        recyclerViewGroupItems.setAdapter(mGroupModelsAdapter);
+        binding.groupItems.setAdapter(mGroupModelsAdapter);
 
-        final Button actionApply = rootView.findViewById(R.id.action_apply);
-        actionApply.setOnClickListener(v -> {
-            final String groupName = mGroupNameTextInput.getEditableText().toString().trim();
+        binding.actionApply.setOnClickListener(v -> {
+            final String groupName = binding.textInput.getEditableText().toString().trim();
             if (validateInput(groupName)) {
                 hideKeyboard();
-                mGroupNameTextInput.clearFocus();
+                binding.textInput.clearFocus();
                 mGroup.setName(groupName);
                 ((BottomSheetDetailsListener) requireActivity()).onGroupNameChanged(mGroup);
             }
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     @Override
@@ -115,7 +104,7 @@ public class BottomSheetDetailsDialogFragment extends BottomSheetDialogFragment 
     private void hideKeyboard() {
         final InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (imm != null) {
-            imm.hideSoftInputFromWindow(mGroupNameTextInput.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(binding.textInput.getWindowToken(), 0);
         }
     }
 }

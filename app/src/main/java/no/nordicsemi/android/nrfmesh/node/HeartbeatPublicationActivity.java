@@ -5,13 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -20,13 +14,8 @@ import java.util.UUID;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
@@ -43,6 +32,7 @@ import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityHeartbeatPublicationBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
@@ -82,77 +72,35 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
     private static final String TTL = "TTL";
     private static final String NET_KEY = "NET_KEY";
 
+    private ActivityHeartbeatPublicationBinding binding;
     private HeartbeatViewModel mViewModel;
-    private ConfigurationServerModel mMeshModel;
-
-
-    @BindView(R.id.container)
-    CoordinatorLayout mContainer;
-    @BindView(R.id.fab_apply)
-    ExtendedFloatingActionButton fabApply;
-    @BindView(R.id.publish_address)
-    TextView destinationAddress;
-    @BindView(R.id.publication_count_container)
-    ConstraintLayout publicationCountContainer;
-    @BindView(R.id.count)
-    TextView publicationCount;
-    @BindView(R.id.count_slider)
-    Slider countSlider;
-    @BindView(R.id.period_slider)
-    Slider periodSlider;
-    @BindView(R.id.publication_period_container)
-    ConstraintLayout publicationPeriodContainer;
-    @BindView(R.id.period)
-    TextView publicationPeriod;
-    @BindView(R.id.check_relay)
-    CheckBox checkBoxRelay;
-    @BindView(R.id.check_proxy)
-    CheckBox checkBoxProxy;
-    @BindView(R.id.check_friend)
-    CheckBox checkBoxFriend;
-    @BindView(R.id.check_low_power)
-    CheckBox checkBoxLowPower;
-    @BindView(R.id.container_publication_ttl)
-    View actionPublishTtl;
-    @BindView(R.id.publication_ttl)
-    TextView heartbeatTtl;
-    @BindView(R.id.container_net_key_index)
-    View actionNetKeyIndex;
-    @BindView(R.id.net_key)
-    TextView netKeyIndex;
-    @BindView(R.id.progress_bar)
-    ProgressBar progressBar;
 
     private boolean mIsConnected;
     private int mDestination;
-    private static int DEFAULT_TTL = 5;
     private NetworkKey mNetKey;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_heartbeat_publication);
-        ButterKnife.bind(this);
-
+        binding = ActivityHeartbeatPublicationBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(HeartbeatViewModel.class);
 
-        final ConfigurationServerModel meshModel = mMeshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
+        final ConfigurationServerModel meshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
         if (meshModel == null)
             finish();
 
-        //Setup views
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
         getSupportActionBar().setTitle(R.string.title_heartbeat_publication);
 
-        final NestedScrollView scrollView = findViewById(R.id.scroll_view);
+        final NestedScrollView scrollView = binding.scrollView;
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fabApply.extend();
+                binding.fabApply.extend();
             } else {
-                fabApply.shrink();
+                binding.fabApply.shrink();
             }
         });
 
@@ -163,7 +111,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             invalidateOptionsMenu();
         });
 
-        findViewById(R.id.container_publish_address).setOnClickListener(v -> {
+        binding.containerPublishAddress.setOnClickListener(v -> {
             final ArrayList<Group> groups = new ArrayList<>();
             for (Group group : mViewModel.getNetworkLiveData().getMeshNetwork().getGroups()) {
                 if (MeshAddress.isValidGroupAddress(group.getAddress()))
@@ -174,32 +122,32 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             destination.show(getSupportFragmentManager(), null);
         });
 
-        countSlider.setValueFrom(COUNT_MIN);
-        countSlider.setValueTo(0x12);
-        countSlider.setStepSize(1);
-        countSlider.addOnChangeListener((slider, value, fromUser) -> {
+        binding.countSlider.setValueFrom(COUNT_MIN);
+        binding.countSlider.setValueTo(0x12);
+        binding.countSlider.setStepSize(1);
+        binding.countSlider.addOnChangeListener((slider, value, fromUser) -> {
             switch ((int) value) {
                 case 0:
-                    publicationCount.setText(getString(R.string.disabled));
-                    periodSlider.setEnabled(false);
+                    binding.count.setText(getString(R.string.disabled));
+                    binding.periodSlider.setEnabled(false);
                     break;
                 case 0x12:
-                    publicationCount.setText(getString(R.string.indefinitely));
-                    periodSlider.setEnabled(true);
+                    binding.count.setText(getString(R.string.indefinitely));
+                    binding.periodSlider.setEnabled(true);
                     break;
                 default:
-                    publicationCount.setText(String.valueOf(calculateHeartbeatCount((int) value)));
-                    periodSlider.setEnabled(true);
+                    binding.count.setText(String.valueOf(calculateHeartbeatCount((int) value)));
+                    binding.periodSlider.setEnabled(true);
             }
         });
 
-        periodSlider.setValueFrom(PERIOD_LOG_MIN);
-        periodSlider.setValueTo(PERIOD_LOG_MAX);
-        periodSlider.setStepSize(1);
-        periodSlider.addOnChangeListener((slider, value, fromUser) ->
-                publicationPeriod.setText(periodToTime(calculateHeartbeatPeriod((short) value))));
+        binding.periodSlider.setValueFrom(PERIOD_LOG_MIN);
+        binding.periodSlider.setValueTo(PERIOD_LOG_MAX);
+        binding.periodSlider.setStepSize(1);
+        binding.periodSlider.addOnChangeListener((slider, value, fromUser) ->
+                binding.period.setText(periodToTime(calculateHeartbeatPeriod((short) value))));
 
-        actionPublishTtl.setOnClickListener(v -> {
+        binding.containerPublicationTtl.setOnClickListener(v -> {
             final DialogFragmentTtl fragmentPublishTtl;
             final HeartbeatPublication publication = meshModel.getHeartbeatPublication();
             if (publication != null && publication.isEnabled()) {
@@ -212,19 +160,19 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             fragmentPublishTtl.show(getSupportFragmentManager(), null);
         });
 
-        actionNetKeyIndex.setOnClickListener(v -> {
+        binding.containerNetKeyIndex.setOnClickListener(v -> {
             final Intent netKeysIntent = new Intent(this, NetKeysActivity.class);
             netKeysIntent.putExtra(EXTRA_DATA, HEARTBEAT_PUBLICATION_NET_KEY);
             startActivityForResult(netKeysIntent, SELECT_KEY);
         });
 
-        fabApply.setOnClickListener(v -> {
+        binding.fabApply.setOnClickListener(v -> {
             if (!checkConnectivity()) return;
             setPublication();
         });
 
-        countSlider.setValue(1);
-        periodSlider.setValue(1);
+        binding.countSlider.setValue(1);
+        binding.periodSlider.setValue(1);
         updateDestinationAddress(mDestination);
         updateTtl(5);
         updateNetKeyIndex(mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey());
@@ -250,19 +198,18 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
+        final int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_connect) {
+            mViewModel.navigateToScannerActivity(this, false, CONNECT_TO_NETWORK, false);
+            return true;
+        } else if (id == R.id.action_disconnect) {
+            mViewModel.disconnect();
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -284,15 +231,11 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
         outState.putInt(ADDRESS, mDestination);
         outState.putByte(COUNT_LOG, getCountLog());
         outState.putByte(PERIOD_LOG, getPeriodLog());
-        //if (checkBoxRelay.isEnabled())
-        outState.putBoolean(RELAY, checkBoxRelay.isChecked());
-        //if (checkBoxProxy.isEnabled())
-        outState.putBoolean(PROXY, checkBoxProxy.isChecked());
-        //if (checkBoxFriend.isEnabled())
-        outState.putBoolean(FRIEND, checkBoxFriend.isChecked());
-        //if (checkBoxLowPower.isEnabled())
-        outState.putBoolean(LOW_POWER, checkBoxLowPower.isChecked());
-        outState.putInt(TTL, Integer.parseInt(heartbeatTtl.getText().toString()));
+        outState.putBoolean(RELAY, binding.checkRelay.isChecked());
+        outState.putBoolean(PROXY, binding.checkProxy.isChecked());
+        outState.putBoolean(FRIEND, binding.checkFriend.isChecked());
+        outState.putBoolean(LOW_POWER, binding.checkLowPower.isChecked());
+        outState.putInt(TTL, Integer.parseInt(binding.publicationTtl.getText().toString()));
         outState.putParcelable(NET_KEY, mNetKey);
     }
 
@@ -378,17 +321,17 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
 
     private void updateDestinationAddress(final int address) {
         if (address == 0) {
-            destinationAddress.setText(getString(R.string.not_assigned));
+            binding.publishAddress.setText(getString(R.string.not_assigned));
         } else
-            destinationAddress.setText(MeshAddress.formatAddress(address, true));
+            binding.publishAddress.setText(MeshAddress.formatAddress(address, true));
     }
 
     private void updateCountLog(final int countLog) {
-        countSlider.setValue(countLog);
+        binding.countSlider.setValue(countLog);
     }
 
     private void updatePeriodLog(final int periodLog) {
-        periodSlider.setValue(periodLog == 0 ? 1 : periodLog);
+        binding.periodSlider.setValue(periodLog == 0 ? 1 : periodLog);
     }
 
     private void updateFeatures(final boolean relaySupported,
@@ -399,53 +342,53 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
                                 final int friend,
                                 final boolean lowPowerSupported,
                                 final int lowPower) {
-        checkBoxRelay.setEnabled(relaySupported);
+        binding.checkRelay.setEnabled(relaySupported);
         if (relaySupported)
-            checkBoxRelay.setChecked(relay == ENABLED);
-        checkBoxProxy.setEnabled(proxySupported);
+            binding.checkRelay.setChecked(relay == ENABLED);
+        binding.checkProxy.setEnabled(proxySupported);
         if (proxySupported)
-            checkBoxProxy.setChecked(proxy == ENABLED);
-        checkBoxFriend.setEnabled(friendSupported);
+            binding.checkProxy.setChecked(proxy == ENABLED);
+        binding.checkFriend.setEnabled(friendSupported);
         if (friendSupported)
-            checkBoxFriend.setChecked(friend == ENABLED);
-        checkBoxLowPower.setEnabled(lowPowerSupported);
+            binding.checkFriend.setChecked(friend == ENABLED);
+        binding.checkLowPower.setEnabled(lowPowerSupported);
         if (lowPowerSupported)
-            checkBoxLowPower.setChecked(lowPower == ENABLED);
+            binding.checkLowPower.setChecked(lowPower == ENABLED);
     }
 
     private void updateTtl(final int ttl) {
-        heartbeatTtl.setText(String.valueOf(ttl));
+        binding.publicationTtl.setText(String.valueOf(ttl));
     }
 
     private void updateNetKeyIndex(final NetworkKey key) {
         if (key != null) {
-            netKeyIndex.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
+            binding.netKey.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
         }
     }
 
     private byte getCountLog() {
-        return (byte) countSlider.getValue();
+        return (byte) binding.countSlider.getValue();
     }
 
     private byte getPeriodLog() {
-        return (byte) periodSlider.getValue();
+        return (byte) binding.periodSlider.getValue();
     }
 
     private int getDefaultTtl() {
-        return Integer.parseInt(heartbeatTtl.getText().toString());
+        return Integer.parseInt(binding.publicationTtl.getText().toString());
     }
 
     public Features getFeatures() {
-        final int relay = (!checkBoxRelay.isEnabled() || !checkBoxRelay.isChecked()) ? DISABLED : ENABLED;
-        final int proxy = (!checkBoxProxy.isEnabled() || !checkBoxProxy.isChecked()) ? DISABLED : ENABLED;
-        final int friend = (!checkBoxFriend.isEnabled() || !checkBoxFriend.isChecked()) ? DISABLED : ENABLED;
-        final int lowPower = (!checkBoxLowPower.isEnabled() || !checkBoxLowPower.isChecked()) ? DISABLED : ENABLED;
+        final int relay = (!binding.checkRelay.isEnabled() || !binding.checkRelay.isChecked()) ? DISABLED : ENABLED;
+        final int proxy = (!binding.checkProxy.isEnabled() || !binding.checkProxy.isChecked()) ? DISABLED : ENABLED;
+        final int friend = (!binding.checkFriend.isEnabled() || !binding.checkFriend.isChecked()) ? DISABLED : ENABLED;
+        final int lowPower = (!binding.checkLowPower.isEnabled() || !binding.checkLowPower.isChecked()) ? DISABLED : ENABLED;
         return new Features(friend, lowPower, proxy, relay);
     }
 
     private void setPublication() {
         if (mDestination == 0) {
-            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_set_dst), Snackbar.LENGTH_SHORT);
+            mViewModel.displaySnackBar(this, binding.container, getString(R.string.error_set_dst), Snackbar.LENGTH_SHORT);
             return;
         }
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
@@ -472,7 +415,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
 
     protected final boolean checkConnectivity() {
         if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, mContainer);
+            mViewModel.displayDisconnectedSnackBar(this, binding.container);
             return false;
         }
         return true;

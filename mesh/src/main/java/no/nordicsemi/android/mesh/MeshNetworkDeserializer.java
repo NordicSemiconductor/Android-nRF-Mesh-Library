@@ -15,6 +15,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -74,6 +76,8 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         network.groups = deserializeGroups(jsonObject, network.meshUUID);
 
         network.scenes = deserializeScenes(jsonObject, network.meshUUID);
+        if (jsonObject.has("networkExclusions"))
+            network.networkExclusions = deserializeExclusionList(jsonObject.getAsJsonArray("networkExclusions"));
 
         assignProvisionerAddresses(network);
 
@@ -102,6 +106,8 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.add("groups", serializeGroups(network.getGroups()));
 
         jsonObject.add("scenes", serializeScenes(network.getScenes()));
+
+        jsonObject.add("networkExclusions", serializeExclusionList(network.getNetworkExclusions()));
 
         return jsonObject;
     }
@@ -502,6 +508,53 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             Log.e(TAG, "Error while de-serializing scenes: " + ex.getMessage());
         }
         return scenes;
+    }
+
+    /**
+     * Returns serialized json element containing the exclusion list
+     *
+     * @param networkExclusions exclusion list
+     * @return JsonElement
+     */
+    private JsonElement serializeExclusionList(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
+        final JsonArray exclusionList = new JsonArray();
+        final Iterator<Map.Entry<Integer, ArrayList<Integer>>> iterator = networkExclusions.entrySet().iterator();
+        JsonObject exclusion;
+        JsonArray array;
+        while (iterator.hasNext()) {
+            exclusion = new JsonObject();
+            array = new JsonArray();
+            for (Integer address : iterator.next().getValue()) {
+                array.add(MeshAddress.formatAddress(address, false));
+            }
+            exclusion.addProperty("ivIndex", iterator.next().getKey());
+            exclusion.add("addresses", array);
+            exclusionList.add(exclusion);
+        }
+        return exclusionList;
+    }
+
+    /**
+     * De-serializes and returns a list of excluded addresses
+     *
+     * @param networkExclusions Network exclusions
+     * @return List of nodes
+     */
+    private Map<Integer, ArrayList<Integer>> deserializeExclusionList(@NonNull final JsonArray networkExclusions) {
+        final Map<Integer, ArrayList<Integer>> exclusionList = new HashMap<>();
+        JsonObject exclusion;
+        int ivIndex;
+        ArrayList<Integer> addresses;
+        for (JsonElement element : networkExclusions) {
+            addresses = new ArrayList<>();
+            exclusion = element.getAsJsonObject();
+            ivIndex = exclusion.get("ivIndex").getAsInt();
+            for (JsonElement address : exclusion.get("addresses").getAsJsonArray()) {
+                addresses.add(Integer.parseInt(address.getAsString(), 16));
+            }
+            exclusionList.put(ivIndex, addresses);
+        }
+        return exclusionList;
     }
 
     /**

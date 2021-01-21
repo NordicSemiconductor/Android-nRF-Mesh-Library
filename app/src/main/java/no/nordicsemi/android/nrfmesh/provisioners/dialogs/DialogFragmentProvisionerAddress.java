@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.provisioners.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -30,23 +29,16 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentAddressInputBinding;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
@@ -54,11 +46,7 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 public class DialogFragmentProvisionerAddress extends DialogFragment {
 
     private static final String UNICAST_ADDRESS = "UNICAST_ADDRESS";
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout unicastAddressInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText unicastAddressInput;
+    private DialogFragmentAddressInputBinding binding;
 
     private Integer mUnicastAddress = null;
 
@@ -83,21 +71,17 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_address_input, null);
-
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
+        binding = DialogFragmentAddressInputBinding.inflate(getLayoutInflater());
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        unicastAddressInputLayout.setHint(getString((R.string.hint_unicast_address)));
+        binding.textInputLayout.setHint(getString((R.string.hint_unicast_address)));
         if (mUnicastAddress != null && MeshAddress.isValidUnicastAddress(mUnicastAddress)) {
             final String unicastAddress = MeshAddress.formatAddress(mUnicastAddress, false);
-            unicastAddressInput.setText(unicastAddress);
-            unicastAddressInput.setSelection(unicastAddress.length());
+            binding.textInput.setText(unicastAddress);
+            binding.textInput.setSelection(unicastAddress.length());
         }
-        unicastAddressInput.setKeyListener(hexKeyListener);
-        unicastAddressInput.addTextChangedListener(new TextWatcher() {
+        binding.textInput.setKeyListener(hexKeyListener);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -106,9 +90,9 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    unicastAddressInputLayout.setError(getString(R.string.error_empty_unicast_address));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_unicast_address));
                 } else {
-                    unicastAddressInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -119,25 +103,25 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
-                .setView(rootView)
+                .setView(binding.getRoot())
                 .setIcon(R.drawable.ic_lan_24dp)
                 .setTitle(R.string.title_provisioner_address)
                 .setPositiveButton(R.string.ok, null)
                 .setNeutralButton(R.string.action_unassign, null)
                 .setNegativeButton(R.string.cancel, null);
 
-        summary.setText(R.string.dialog_summary_src);
+        binding.summary.setText(R.string.dialog_summary_src);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String unicast = unicastAddressInput.getEditableText().toString().trim();
+            final String unicast = binding.textInput.getEditableText().toString().trim();
             if (validateInput(unicast))
                 try {
                     if (((ProvisionerAddressListener) requireActivity()).setAddress(Integer.parseInt(unicast, 16))) {
                         dismiss();
                     }
                 } catch (IllegalArgumentException ex) {
-                    unicastAddressInputLayout.setError(ex.getMessage());
+                    binding.textInputLayout.setError(ex.getMessage());
                 }
         });
 
@@ -154,11 +138,11 @@ public class DialogFragmentProvisionerAddress extends DialogFragment {
     private boolean validateInput(final String input) {
         try {
             if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
-                unicastAddressInputLayout.setError(getString(R.string.invalid_address_value));
+                binding.textInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
         } catch (IllegalArgumentException ex) {
-            unicastAddressInputLayout.setError(ex.getMessage());
+            binding.textInputLayout.setError(ex.getMessage());
             return false;
         }
         return true;

@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.keys.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -30,22 +29,15 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentKeyInputBinding;
 import no.nordicsemi.android.nrfmesh.keys.MeshKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 
@@ -54,21 +46,15 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentEditNetKey extends DialogFragment {
 
-    private static final String TAG = DialogFragmentEditNetKey.class.getSimpleName();
     private static final String POSITION = "POSITION";
     private static final String NETWORK_KEY = "NETWORK_KEY";
 
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout networkKeyInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText networkKeyInput;
-
+    private DialogFragmentKeyInputBinding binding;
     private int mPosition;
     private NetworkKey mNetworkKey;
 
     public static DialogFragmentEditNetKey newInstance(final int position, @NonNull final NetworkKey networkKey) {
-        DialogFragmentEditNetKey fragmentNetworkKey = new DialogFragmentEditNetKey();
+        final DialogFragmentEditNetKey fragmentNetworkKey = new DialogFragmentEditNetKey();
         final Bundle args = new Bundle();
         args.putInt(POSITION, position);
         args.putParcelable(NETWORK_KEY, networkKey);
@@ -88,18 +74,15 @@ public class DialogFragmentEditNetKey extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
+        binding = DialogFragmentKeyInputBinding.inflate(getLayoutInflater());
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
         final String key = bytesToHex(mNetworkKey.getKey(), false);
-        networkKeyInputLayout.setHint(getString(R.string.hint_network_key));
-        networkKeyInput.setKeyListener(hexKeyListener);
-        networkKeyInput.setText(key);
-        networkKeyInput.setSelection(key.length());
-        networkKeyInput.addTextChangedListener(new TextWatcher() {
+        binding.textInputLayout.setHint(getString(R.string.hint_network_key));
+        binding.textInput.setKeyListener(hexKeyListener);
+        binding.textInput.setText(key);
+        binding.textInput.setSelection(key.length());
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -108,9 +91,9 @@ public class DialogFragmentEditNetKey extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    networkKeyInputLayout.setError(getString(R.string.error_empty_key));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_key));
                 } else {
-                    networkKeyInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -120,26 +103,26 @@ public class DialogFragmentEditNetKey extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_network_key, null)
                 .setIcon(R.drawable.ic_vpn_key_24dp)
                 .setTitle(R.string.title_edit_key);
         final AlertDialog alertDialog = alertDialogBuilder.show();
 
-        summary.setText(R.string.summary_edit_key);
+        binding.summary.setText(R.string.summary_edit_key);
 
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkKeyInput.getEditableText().toString().trim();
+            final String networkKey = binding.textInput.getEditableText().toString().trim();
             try {
                 if (validateKeyInput(networkKey) && ((MeshKeyListener) requireActivity()).onKeyUpdated(mPosition, networkKey))
                     dismiss();
             } catch (Exception ex) {
-                networkKeyInputLayout.setError(ex.getMessage());
+                binding.textInputLayout.setError(ex.getMessage());
             }
         });
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL)
-                .setOnClickListener(v -> networkKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
+                .setOnClickListener(v -> binding.textInput.setText(SecureUtils.generateRandomNetworkKey()));
 
         return alertDialog;
     }

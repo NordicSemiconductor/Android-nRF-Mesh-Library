@@ -22,26 +22,17 @@
 
 package no.nordicsemi.android.nrfmesh.dialog;
 
-import androidx.appcompat.app.AlertDialog;
-
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.mesh.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.mesh.utils.InputOOBAction;
@@ -49,39 +40,12 @@ import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 import no.nordicsemi.android.mesh.utils.StaticOOBType;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.AuthenticationOOBMethodsAdapter;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentSelectOobTypeBinding;
 
 public class DialogFragmentSelectOOBType extends DialogFragment {
 
     private static final String CAPABILITIES = "CAPABILITIES";
-    //UI Bindings
-    @BindView(R.id.oob_types)
-    Spinner oobTypesSpinner;
-    @BindView(R.id.output_oob_container)
-    LinearLayout containerOutputOOB;
-    @BindView(R.id.input_oob_container)
-    LinearLayout containerInputOOB;
-    @BindView(R.id.radio_group_output_oob)
-    RadioGroup rgOutputOob;
-    @BindView(R.id.radio_blink)
-    RadioButton rbBlink;
-    @BindView(R.id.radio_beep)
-    RadioButton rbBeep;
-    @BindView(R.id.radio_vibrate)
-    RadioButton rbVibrate;
-    @BindView(R.id.radio_output_numeric)
-    RadioButton rbOutputNumeric;
-    @BindView(R.id.radio_output_alpha_numeric)
-    RadioButton rbOuputAlphaNumeric;
-    @BindView(R.id.radio_group_input_oob)
-    RadioGroup rgInputOob;
-    @BindView(R.id.radio_push)
-    RadioButton rbPush;
-    @BindView(R.id.radio_twist)
-    RadioButton rbTwist;
-    @BindView(R.id.radio_input_numeric)
-    RadioButton rbInputNumeric;
-    @BindView(R.id.radio_input_alpha_numeric)
-    RadioButton rbInputAlphaNumeric;
+    private DialogFragmentSelectOobTypeBinding binding;
 
     private ProvisioningCapabilities capabilities;
     private AuthenticationOOBMethodsAdapter authenticationOobMethodsAdapter;
@@ -116,15 +80,13 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_select_oob_type, null);
+        binding = DialogFragmentSelectOobTypeBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
         final List<AuthenticationOOBMethods> availableOOBTypes = capabilities.getAvailableOOBTypes();
         authenticationOobMethodsAdapter = new AuthenticationOOBMethodsAdapter(requireContext(), availableOOBTypes);
-        oobTypesSpinner.setAdapter(authenticationOobMethodsAdapter);
+        binding.oobTypes.setAdapter(authenticationOobMethodsAdapter);
 
-        oobTypesSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        binding.oobTypes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
                 updateOOBUI(position);
@@ -136,40 +98,12 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
             }
         });
 
-        rgOutputOob.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId) {
-                case R.id.radio_blink:
-                    break;
-                case R.id.radio_beep:
-                    break;
-                case R.id.radio_vibrate:
-                    break;
-                case R.id.radio_output_numeric:
-                    break;
-                case R.id.radio_output_alpha_numeric:
-                    break;
-            }
-        });
-
-        rgInputOob.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId) {
-                case R.id.radio_push:
-                    break;
-                case R.id.radio_twist:
-                    break;
-                case R.id.radio_input_numeric:
-                    break;
-                case R.id.radio_input_alpha_numeric:
-                    break;
-            }
-        });
-
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).
-                setView(rootView).
+                setView(binding.getRoot()).
                 setIcon(R.drawable.ic_oob_lock_outline).
                 setTitle(R.string.title_select_oob).
                 setPositiveButton(R.string.ok, (dialog, which) -> {
-                    final AuthenticationOOBMethods type = (AuthenticationOOBMethods) oobTypesSpinner.getSelectedItem();
+                    final AuthenticationOOBMethods type = (AuthenticationOOBMethods) binding.oobTypes.getSelectedItem();
                     switch (type) {
                         case NO_OOB_AUTHENTICATION:
                             ((DialogFragmentSelectOOBTypeListener) requireContext()).onNoOOBSelected();
@@ -191,57 +125,60 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
         return alertDialogBuilder.show();
     }
 
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void updateOOBUI(final int position) {
         final AuthenticationOOBMethods oobType = authenticationOobMethodsAdapter.getItem(position);
         switch (oobType) {
             case NO_OOB_AUTHENTICATION:
-                containerOutputOOB.setVisibility(View.GONE);
-                containerInputOOB.setVisibility(View.GONE);
-                break;
-            case STATIC_OOB_AUTHENTICATION:
-                containerOutputOOB.setVisibility(View.GONE);
-                containerInputOOB.setVisibility(View.GONE);
+                binding.outputOobContainer.setVisibility(View.GONE);
+                binding.inputOobContainer.setVisibility(View.GONE);
                 break;
             case OUTPUT_OOB_AUTHENTICATION:
                 final List<OutputOOBAction> outputOOBActions = capabilities.getSupportedOutputOOBActions();
-                containerOutputOOB.setVisibility(View.VISIBLE);
-                containerInputOOB.setVisibility(View.GONE);
-                for(OutputOOBAction outputOOBAction : outputOOBActions) {
-                    if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.BLINK.getOutputOOBAction()){
-                        rbBlink.setEnabled(true);
-                        rbBlink.setChecked(outputOOBActions.size() == 1);
-                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.BEEP.getOutputOOBAction()){
-                        rbBeep.setEnabled(true);
-                        rbBeep.setChecked(outputOOBActions.size() == 1);
-                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.VIBRATE.getOutputOOBAction()){
-                        rbVibrate.setEnabled(true);
-                        rbVibrate.setChecked(outputOOBActions.size() == 1);
-                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_NUMERIC.getOutputOOBAction()){
-                        rbOutputNumeric.setEnabled(true);
-                        rbOutputNumeric.setChecked(outputOOBActions.size() == 1);
-                    } else if(outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_ALPHA_NUMERIC.getOutputOOBAction()){
-                        rbOuputAlphaNumeric.setEnabled(true);
-                        rbOuputAlphaNumeric.setChecked(outputOOBActions.size() == 1);
+                binding.outputOobContainer.setVisibility(View.VISIBLE);
+                binding.inputOobContainer.setVisibility(View.GONE);
+                for (OutputOOBAction outputOOBAction : outputOOBActions) {
+                    if (outputOOBAction.getOutputOOBAction() == OutputOOBAction.BLINK.getOutputOOBAction()) {
+                        binding.radioBlink.setEnabled(true);
+                        binding.radioBlink.setChecked(outputOOBActions.size() == 1);
+                    } else if (outputOOBAction.getOutputOOBAction() == OutputOOBAction.BEEP.getOutputOOBAction()) {
+                        binding.radioBeep.setEnabled(true);
+                        binding.radioBeep.setChecked(outputOOBActions.size() == 1);
+                    } else if (outputOOBAction.getOutputOOBAction() == OutputOOBAction.VIBRATE.getOutputOOBAction()) {
+                        binding.radioVibrate.setEnabled(true);
+                        binding.radioVibrate.setChecked(outputOOBActions.size() == 1);
+                    } else if (outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_NUMERIC.getOutputOOBAction()) {
+                        binding.radioOutputNumeric.setEnabled(true);
+                        binding.radioOutputNumeric.setChecked(outputOOBActions.size() == 1);
+                    } else if (outputOOBAction.getOutputOOBAction() == OutputOOBAction.OUTPUT_ALPHA_NUMERIC.getOutputOOBAction()) {
+                        binding.radioOutputAlphaNumeric.setEnabled(true);
+                        binding.radioOutputAlphaNumeric.setChecked(outputOOBActions.size() == 1);
                     }
                 }
                 break;
             case INPUT_OOB_AUTHENTICATION:
-                containerOutputOOB.setVisibility(View.GONE);
-                containerInputOOB.setVisibility(View.VISIBLE);
+                binding.outputOobContainer.setVisibility(View.GONE);
+                binding.inputOobContainer.setVisibility(View.VISIBLE);
                 final List<InputOOBAction> inputOOBActions = capabilities.getSupportedInputOOBActions();
-                for(InputOOBAction inputOOBAction : inputOOBActions) {
-                    if(inputOOBAction.getInputOOBAction() == InputOOBAction.PUSH.getInputOOBAction()){
-                        rbPush.setEnabled(true);
-                        rbPush.setChecked(inputOOBActions.size() == 1);
-                    } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.TWIST.getInputOOBAction()){
-                        rbTwist.setEnabled(true);
-                        rbTwist.setChecked(inputOOBActions.size() == 1);
-                    } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_NUMERIC.getInputOOBAction()){
-                        rbInputNumeric.setEnabled(true);
-                        rbInputNumeric.setChecked(inputOOBActions.size() == 1);
-                    } else if(inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_ALPHA_NUMERIC.getInputOOBAction()){
-                        rbInputAlphaNumeric.setEnabled(true);
-                        rbInputAlphaNumeric.setChecked(inputOOBActions.size() == 1);
+                for (InputOOBAction inputOOBAction : inputOOBActions) {
+                    if (inputOOBAction.getInputOOBAction() == InputOOBAction.PUSH.getInputOOBAction()) {
+                        binding.radioPush.setEnabled(true);
+                        binding.radioPush.setChecked(inputOOBActions.size() == 1);
+                    } else if (inputOOBAction.getInputOOBAction() == InputOOBAction.TWIST.getInputOOBAction()) {
+                        binding.radioTwist.setEnabled(true);
+                        binding.radioTwist.setChecked(inputOOBActions.size() == 1);
+                    } else if (inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_NUMERIC.getInputOOBAction()) {
+                        binding.radioInputNumeric.setEnabled(true);
+                        binding.radioInputNumeric.setChecked(inputOOBActions.size() == 1);
+                    } else if (inputOOBAction.getInputOOBAction() == InputOOBAction.INPUT_ALPHA_NUMERIC.getInputOOBAction()) {
+                        binding.radioInputAlphaNumeric.setEnabled(true);
+                        binding.radioInputAlphaNumeric.setChecked(inputOOBActions.size() == 1);
                     }
                 }
                 break;
@@ -249,33 +186,31 @@ public class DialogFragmentSelectOOBType extends DialogFragment {
     }
 
     private OutputOOBAction getSelectedOutputOOBType() {
-        final int id = rgOutputOob.getCheckedRadioButtonId();
-        switch (id) {
-            case R.id.radio_blink:
-                return OutputOOBAction.BLINK;
-            case R.id.radio_beep:
-                return OutputOOBAction.BEEP;
-            case R.id.radio_vibrate:
-                return OutputOOBAction.VIBRATE;
-            case R.id.radio_output_numeric:
-                return OutputOOBAction.OUTPUT_NUMERIC;
-            case R.id.radio_output_alpha_numeric:
-                return OutputOOBAction.OUTPUT_ALPHA_NUMERIC;
+        final int id = binding.radioGroupOutputOob.getCheckedRadioButtonId();
+        if (id == R.id.radio_blink) {
+            return OutputOOBAction.BLINK;
+        } else if (id == R.id.radio_beep) {
+            return OutputOOBAction.BEEP;
+        } else if (id == R.id.radio_vibrate) {
+            return OutputOOBAction.VIBRATE;
+        } else if (id == R.id.radio_output_numeric) {
+            return OutputOOBAction.OUTPUT_NUMERIC;
+        } else if (id == R.id.radio_output_alpha_numeric) {
+            return OutputOOBAction.OUTPUT_ALPHA_NUMERIC;
         }
         return null;
     }
 
     private InputOOBAction getSelectedInputOOBType() {
-        final int id = rgInputOob.getCheckedRadioButtonId();
-        switch (id) {
-            case R.id.radio_push:
-                return InputOOBAction.PUSH;
-            case R.id.radio_twist:
-                return InputOOBAction.TWIST;
-            case R.id.radio_input_numeric:
-                return InputOOBAction.INPUT_NUMERIC;
-            case R.id.radio_input_alpha_numeric:
-                return InputOOBAction.INPUT_ALPHA_NUMERIC;
+        final int id = binding.radioGroupInputOob.getCheckedRadioButtonId();
+        if (id == R.id.radio_push) {
+            return InputOOBAction.PUSH;
+        } else if (id == R.id.radio_twist) {
+            return InputOOBAction.TWIST;
+        } else if (id == R.id.radio_input_numeric) {
+            return InputOOBAction.INPUT_NUMERIC;
+        } else if (id == R.id.radio_input_alpha_numeric) {
+            return InputOOBAction.INPUT_ALPHA_NUMERIC;
         }
         return null;
     }

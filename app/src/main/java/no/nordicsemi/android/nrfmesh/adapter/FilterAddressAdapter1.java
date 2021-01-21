@@ -23,21 +23,17 @@
 package no.nordicsemi.android.nrfmesh.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.CustomChipBinding;
 
 public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAdapter1.ViewHolder> {
 
@@ -52,8 +48,8 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
     @NonNull
     @Override
     public FilterAddressAdapter1.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.custom_chip, parent, false);
-        return new FilterAddressAdapter1.ViewHolder(layoutView);
+        final CustomChipBinding binding = CustomChipBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new FilterAddressAdapter1.ViewHolder(binding);
     }
 
     @Override
@@ -84,18 +80,12 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.title)
         TextView address;
 
-        @BindView(R.id.img_delete)
-        ImageView imgDelete;
-
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-
-            imgDelete.setOnClickListener(v -> {
+        private ViewHolder(final CustomChipBinding binding) {
+            super(binding.getRoot());
+            address = binding.title;
+            binding.imgDelete.setOnClickListener(v -> {
                 final int position = getAdapterPosition();
                 mAddresses.remove(position);
                 notifyItemRemoved(position);

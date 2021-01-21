@@ -2,17 +2,11 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-
-import com.google.android.material.textview.MaterialTextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Scene;
@@ -22,6 +16,7 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.SceneDelete;
 import no.nordicsemi.android.mesh.transport.SceneStore;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutSceneSetupServerBinding;
 import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -38,9 +33,7 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.STORE_SCENE;
 public class SceneSetupServerModelActivity extends SceneServerModelActivity
         implements ItemTouchHelperAdapter {
 
-    private RecyclerView mRecyclerViewScenes;
-    private Button mActionStoreScene;
-    private MaterialTextView noScenesAvailable;
+    private LayoutSceneSetupServerBinding layoutSceneSetupServerBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,19 +43,16 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
             mSwipe.setOnRefreshListener(this);
             mContainerPublication.setVisibility(GONE);
             final ConstraintLayout container = findViewById(R.id.node_controls_container);
-            final View layoutSceneServer = LayoutInflater.from(this).inflate(R.layout.layout_scene_setup_server, container);
-            mRecyclerViewScenes = layoutSceneServer.findViewById(R.id.recycler_view_scenes);
-            noScenesAvailable = layoutSceneServer.findViewById(R.id.no_current_scene_available);
-            mActionStoreScene = layoutSceneServer.findViewById(R.id.action_store);
+            layoutSceneSetupServerBinding = LayoutSceneSetupServerBinding.inflate(getLayoutInflater(), container, true);
 
-            mRecyclerViewScenes.setLayoutManager(new LinearLayoutManager(this));
-            mRecyclerViewScenes.setItemAnimator(new DefaultItemAnimator());
+            layoutSceneSetupServerBinding.recyclerViewScenes.setLayoutManager(new LinearLayoutManager(this));
+            layoutSceneSetupServerBinding.recyclerViewScenes.setItemAnimator(new DefaultItemAnimator());
             final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
             final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-            itemTouchHelper.attachToRecyclerView(mRecyclerViewScenes);
-            mRecyclerViewScenes.setAdapter(mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
+            itemTouchHelper.attachToRecyclerView(layoutSceneSetupServerBinding.recyclerViewScenes);
+            layoutSceneSetupServerBinding.recyclerViewScenes.setAdapter(mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
 
-            mActionStoreScene.setOnClickListener(v -> startActivityForResult(new Intent(this, ScenesActivity.class).putExtra(EXTRA_DATA, SELECT_SCENE), STORE_SCENE));
+            layoutSceneSetupServerBinding.actionStore.setOnClickListener(v -> startActivityForResult(new Intent(this, ScenesActivity.class).putExtra(EXTRA_DATA, SELECT_SCENE), STORE_SCENE));
             mViewModel.getSelectedModel().observe(this, meshModel -> {
                 if (meshModel != null) {
                     updateUi(meshModel);
@@ -74,13 +64,15 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
-        mActionStoreScene.setEnabled(true);
+        if (layoutSceneSetupServerBinding != null && layoutSceneSetupServerBinding.actionStore != null)
+            layoutSceneSetupServerBinding.actionStore.setEnabled(true);
     }
 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
-        mActionStoreScene.setEnabled(false);
+        if (layoutSceneSetupServerBinding != null && layoutSceneSetupServerBinding.actionStore != null)
+            layoutSceneSetupServerBinding.actionStore.setEnabled(false);
     }
 
     @Override
@@ -141,11 +133,11 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     protected void updateScenesUi(final MeshModel model) {
         if (mScenesAdapter != null) {
             if (mScenesAdapter.getItemCount() == 0) {
-                mRecyclerViewScenes.setVisibility(GONE);
-                noScenesAvailable.setVisibility(VISIBLE);
+                layoutSceneSetupServerBinding.recyclerViewScenes.setVisibility(GONE);
+                layoutSceneSetupServerBinding.noCurrentSceneAvailable.setVisibility(VISIBLE);
             } else {
-                mRecyclerViewScenes.setVisibility(VISIBLE);
-                noScenesAvailable.setVisibility(GONE);
+                layoutSceneSetupServerBinding.recyclerViewScenes.setVisibility(VISIBLE);
+                layoutSceneSetupServerBinding.noCurrentSceneAvailable.setVisibility(GONE);
             }
         }
     }

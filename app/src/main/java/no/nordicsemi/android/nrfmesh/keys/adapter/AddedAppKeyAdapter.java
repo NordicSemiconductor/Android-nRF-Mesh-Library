@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -38,13 +37,12 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
@@ -86,8 +84,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     @NonNull
     @Override
     public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.checkable_row_item, parent, false);
-        return new AddedAppKeyAdapter.ViewHolder(layoutView);
+        return new AddedAppKeyAdapter.ViewHolder(CheckableRowItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -120,20 +117,17 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.icon)
         ImageView icon;
-        @BindView(R.id.title)
         TextView keyName;
-        @BindView(R.id.subtitle)
         TextView key;
-        @BindView(R.id.check)
         CheckBox check;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-            icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
+        private ViewHolder(@NonNull final CheckableRowItemBinding binding) {
+            super(binding.getRoot());
+            binding.icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
+            keyName = binding.title;
+            key = binding.subtitle;
+            check = binding.check;
             check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final ApplicationKey key = appKeys.get(getAdapterPosition());

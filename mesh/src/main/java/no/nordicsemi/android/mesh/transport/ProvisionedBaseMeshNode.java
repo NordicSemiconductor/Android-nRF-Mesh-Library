@@ -67,9 +67,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @ColumnInfo(name = "ttl")
     @Expose
     protected Integer ttl = 5;
-    @ColumnInfo(name = "blacklisted")
-    @Expose
-    protected boolean blackListed = false;
     @ColumnInfo(name = "secureNetworkBeacon")
     @Expose
     protected Boolean secureNetworkBeaconSupported;
@@ -148,9 +145,12 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Ignore
     @Expose
     byte[] mFlags;
+    @ColumnInfo(name = "elements")
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     Map<Integer, Element> mElements = new LinkedHashMap<>();
+    @ColumnInfo(name = "excluded")
+    boolean excluded = false;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
@@ -262,18 +262,24 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     /**
      * Returns true if the node is blacklisted or false otherwise
+     *
+     * @deprecated Use {@link #isExcluded()} instead
      */
+    @Deprecated
     public boolean isBlackListed() {
-        return blackListed;
+        return isExcluded();
     }
 
     /**
-     * Blacklist a node
+     * Blacklist a node.
      *
      * @param blackListed true if blacklisted
+     * @deprecated Use {@link no.nordicsemi.android.mesh.MeshNetwork#excludeNode(ProvisionedMeshNode)} instead
      */
+    @Deprecated
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setBlackListed(final boolean blackListed) {
-        this.blackListed = blackListed;
+        setExcluded(blackListed);
     }
 
     /**
@@ -326,4 +332,17 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public @interface SecurityState {
     }
 
+    public boolean isExcluded() {
+        return excluded;
+    }
+
+    /**
+     * Excludes a node and is meant to be used internally by the Room DB.
+     *
+     * @param excluded True if the node is to be excluded
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setExcluded(final boolean excluded) {
+        this.excluded = excluded;
+    }
 }

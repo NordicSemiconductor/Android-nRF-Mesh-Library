@@ -28,12 +28,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.OutputStream;
 
@@ -41,19 +39,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityExportBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentPermissionRationale;
@@ -75,44 +71,30 @@ public class ExportNetworkActivity extends AppCompatActivity implements
     private static final int WRITE_TO_FILE = 2011;
     private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
 
-
-    @BindView(R.id.coordinator)
-    CoordinatorLayout mContainer;
-    @BindView(R.id.switch_export)
-    SwitchMaterial mSwitchExportEverything;
-    @BindView(R.id.rationale_export_full_config)
-    View mExportEverything;
-    @BindView(R.id.partial_configuration_container)
-    View mPartialConfigContainer;
-    @BindView(R.id.switch_export_device_keys)
-    SwitchMaterial mSwitchExportDeviceKeys;
-
-    private SelectableProvisionerAdapter provisionerAdapter;
-    private SelectableNetworkKeyAdapter networkKeyAdapter;
+    private ActivityExportBinding binding;
     private ExportNetworkViewModel mViewModel;
 
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_export);
+        binding = ActivityExportBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(ExportNetworkViewModel.class);
-        ButterKnife.bind(this);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
+        final Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.export);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        provisionerAdapter = new SelectableProvisionerAdapter(this, mViewModel.getNetworkLiveData());
+        final SelectableProvisionerAdapter provisionerAdapter = new SelectableProvisionerAdapter(this, mViewModel.getNetworkLiveData());
         provisionerAdapter.setOnItemCheckedChangedListener(this);
-        networkKeyAdapter = new SelectableNetworkKeyAdapter(this, mViewModel.getNetworkLiveData());
+        final SelectableNetworkKeyAdapter networkKeyAdapter = new SelectableNetworkKeyAdapter(this, mViewModel.getNetworkLiveData());
         networkKeyAdapter.setOnItemCheckedChangedListener(this);
 
-        final NestedScrollView nestedScrollView = findViewById(R.id.scroll_view);
-        final RecyclerView recyclerViewProvisioners = mPartialConfigContainer.findViewById(R.id.provisioners);
-        final RecyclerView recyclerNetworkKeys = mPartialConfigContainer.findViewById(R.id.network_keys);
+        final NestedScrollView nestedScrollView = binding.scrollView;
+        final RecyclerView recyclerViewProvisioners = binding.partialConfigurationContainer.provisioners;
+        final RecyclerView recyclerNetworkKeys = binding.partialConfigurationContainer.networkKeys;
         final MaterialButton addProvisioner = findViewById(R.id.action_add_provisioner);
         final ExtendedFloatingActionButton fab = findViewById(R.id.fab_export);
 
@@ -133,18 +115,18 @@ public class ExportNetworkActivity extends AppCompatActivity implements
 
         fab.setOnClickListener(v -> handleNetworkExport());
 
-        mSwitchExportEverything.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        binding.switchExport.setOnCheckedChangeListener((buttonView, isChecked) -> {
             mViewModel.setExportEverything(isChecked);
             if (isChecked) {
-                mExportEverything.setVisibility(VISIBLE);
-                mPartialConfigContainer.setVisibility(GONE);
+                binding.rationaleExportFullConfig.setVisibility(VISIBLE);
+                binding.partialConfigurationContainer.getRoot().setVisibility(GONE);
             } else {
-                mExportEverything.setVisibility(GONE);
-                mPartialConfigContainer.setVisibility(VISIBLE);
+                binding.rationaleExportFullConfig.setVisibility(GONE);
+                binding.partialConfigurationContainer.getRoot().setVisibility(VISIBLE);
             }
         });
 
-        mSwitchExportDeviceKeys.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.setExportDeviceKeys(isChecked));
+        binding.partialConfigurationContainer.switchExportDeviceKeys.setOnCheckedChangeListener((buttonView, isChecked) -> mViewModel.setExportDeviceKeys(isChecked));
 
         mViewModel.getExportStatus().observe(this, aVoid -> {
             if (mViewModel.isExportEverything()) {
@@ -216,7 +198,7 @@ public class ExportNetworkActivity extends AppCompatActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
             if (PackageManager.PERMISSION_GRANTED != grantResults[0]) {
-                mViewModel.displaySnackBar(this, mContainer, getString(R.string.ext_storage_permission_denied), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.coordinator, getString(R.string.ext_storage_permission_denied), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -257,7 +239,7 @@ public class ExportNetworkActivity extends AppCompatActivity implements
 
     private void displayExportSuccessSnackBar() {
         final String message = mViewModel.getNetworkLiveData().getMeshNetwork().getMeshName() + " has been successfully exported.";
-        mViewModel.displaySnackBar(this, mContainer, message, Snackbar.LENGTH_LONG);
+        mViewModel.displaySnackBar(this, binding.coordinator, message, Snackbar.LENGTH_LONG);
     }
 
     private void displayExportErrorDialog(final String message) {

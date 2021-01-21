@@ -2,7 +2,6 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,7 +12,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.GenericOnOffServerModel;
@@ -27,6 +25,7 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutGenericOnOffBinding;
 
 @AndroidEntryPoint
 public class GenericOnOffServerActivity extends ModelConfigurationActivity {
@@ -45,25 +44,24 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
         mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericOnOffServerModel) {
-            final ConstraintLayout container = findViewById(R.id.node_controls_container);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_on_off, container);
-            final TextView time = nodeControlsContainer.findViewById(R.id.transition_time);
-            onOffState = nodeControlsContainer.findViewById(R.id.on_off_state);
-            remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
-            final Slider transitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+            final LayoutGenericOnOffBinding nodeControlsContainer = LayoutGenericOnOffBinding.inflate(getLayoutInflater(), binding.nodeControlsContainer, true);
+            final TextView time = nodeControlsContainer.transitionTime;
+            onOffState = nodeControlsContainer.onOffState;
+            remainingTime = nodeControlsContainer.transitionState;
+            final Slider transitionTimeSlider = nodeControlsContainer.transitionSlider;
             transitionTimeSlider.setValueFrom(0);
             transitionTimeSlider.setValueTo(230);
             transitionTimeSlider.setValue(0);
             transitionTimeSlider.setStepSize(1);
 
-            final Slider delaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+            final Slider delaySlider = nodeControlsContainer.delaySlider;
             delaySlider.setValueFrom(0);
             delaySlider.setValueTo(255);
             delaySlider.setValue(0);
             delaySlider.setStepSize(1);
-            final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
+            final TextView delayTime = nodeControlsContainer.delayTime;
 
-            mActionOnOff = nodeControlsContainer.findViewById(R.id.action_on);
+            mActionOnOff = nodeControlsContainer.actionOn;
             mActionOnOff.setOnClickListener(v -> {
                 try {
                     sendGenericOnOff(mActionOnOff.getText().toString().equals(getString(R.string.action_generic_on)), (int) delaySlider.getValue());
@@ -72,7 +70,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
                 }
             });
 
-            mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
+            mActionRead = nodeControlsContainer.actionRead;
             mActionRead.setOnClickListener(v -> sendGenericOnOffGet());
 
             transitionTimeSlider.addOnChangeListener(new Slider.OnChangeListener() {

@@ -1,16 +1,10 @@
 package no.nordicsemi.android.nrfmesh.node;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.util.Random;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +20,7 @@ import no.nordicsemi.android.mesh.transport.SceneRecall;
 import no.nordicsemi.android.mesh.transport.SceneRegisterStatus;
 import no.nordicsemi.android.mesh.transport.SceneStatus;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutSceneServerBinding;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.BottomSheetSceneRecallDialogFragment;
 
@@ -38,9 +33,8 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         BottomSheetSceneRecallDialogFragment.SceneRecallListener,
         StoredScenesAdapter.OnItemListener {
 
+    private LayoutSceneServerBinding layoutSceneServerBinding;
     protected StoredScenesAdapter mScenesAdapter;
-    private MaterialTextView noCurrentScene;
-    private MaterialButton getCurrentScene;
 
     protected void updateUi(final MeshModel model) {
         updateAppStatusUi(model);
@@ -53,9 +47,9 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         if (model != null) {
             final SceneServer sceneServer = (SceneServer) model;
             if (!sceneServer.getScenesNumbers().isEmpty()) {
-                noCurrentScene.setVisibility(INVISIBLE);
+                layoutSceneServerBinding.noCurrentSceneAvailable.setVisibility(INVISIBLE);
             } else {
-                noCurrentScene.setVisibility(VISIBLE);
+                layoutSceneServerBinding.noCurrentSceneAvailable.setVisibility(VISIBLE);
             }
         }
     }
@@ -67,13 +61,10 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         if (model != null && model.getModelId() == SigModelParser.SCENE_SERVER) {
             mSwipe.setOnRefreshListener(this);
             mContainerPublication.setVisibility(GONE);
-            final ConstraintLayout container = findViewById(R.id.node_controls_container);
-            final View layoutSceneServer = LayoutInflater.from(this).inflate(R.layout.layout_scene_server, container);
-            noCurrentScene = layoutSceneServer.findViewById(R.id.no_current_scene_available);
-            getCurrentScene = layoutSceneServer.findViewById(R.id.action_read);
-            getCurrentScene.setOnClickListener(v -> sendGetCurrentScene());
+            layoutSceneServerBinding = LayoutSceneServerBinding.inflate(getLayoutInflater(), binding.nodeControlsContainer, true);
+            layoutSceneServerBinding.actionRead.setOnClickListener(v -> sendGetCurrentScene());
 
-            final RecyclerView recyclerView = layoutSceneServer.findViewById(R.id.recycler_view_scenes);
+            final RecyclerView recyclerView = layoutSceneServerBinding.recyclerViewScenes;
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
@@ -85,15 +76,15 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
-        if (getCurrentScene != null)
-            getCurrentScene.setEnabled(true);
+        if (layoutSceneServerBinding != null && layoutSceneServerBinding.actionRead != null)
+            layoutSceneServerBinding.actionRead.setEnabled(true);
     }
 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
-        if (getCurrentScene != null)
-            getCurrentScene.setEnabled(false);
+        if (layoutSceneServerBinding != null && layoutSceneServerBinding.actionRead != null)
+            layoutSceneServerBinding.actionRead.setEnabled(false);
     }
 
     @Override

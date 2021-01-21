@@ -22,42 +22,29 @@
 
 package no.nordicsemi.android.nrfmesh.provisioners.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNameBinding;
 
 public class DialogFragmentProvisionerName extends DialogFragment {
 
     private static final String PROVISIONER_NAME = "PROVISIONER_NAME";
-
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout nameInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText nameInput;
+    private DialogFragmentNameBinding binding;
 
     private String mProvisionerName;
 
     public static DialogFragmentProvisionerName newInstance(final String name) {
-        DialogFragmentProvisionerName fragmentNetworkKey = new DialogFragmentProvisionerName();
+        final DialogFragmentProvisionerName fragmentNetworkKey = new DialogFragmentProvisionerName();
         final Bundle args = new Bundle();
         args.putString(PROVISIONER_NAME, name);
         fragmentNetworkKey.setArguments(args);
@@ -75,14 +62,11 @@ public class DialogFragmentProvisionerName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
+        binding = DialogFragmentNameBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
-        nameInputLayout.setHint(getString(R.string.name));
-        nameInput.setText(mProvisionerName);
-        nameInput.addTextChangedListener(new TextWatcher() {
+        binding.textInputLayout.setHint(getString(R.string.name));
+        binding.textInput.setText(mProvisionerName);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -91,9 +75,9 @@ public class DialogFragmentProvisionerName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    nameInputLayout.setError(getString(R.string.error_empty_name));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    nameInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -104,23 +88,23 @@ public class DialogFragmentProvisionerName extends DialogFragment {
         });
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext())
-                .setView(rootView)
+                .setView(binding.getRoot())
                 .setIcon(R.drawable.ic_lan_24dp)
                 .setTitle(R.string.title_provisioner_name)
                 .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null);
 
-        summary.setText(R.string.provisioner_name_rationale);
+        binding.summary.setText(R.string.provisioner_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String name = nameInput.getEditableText().toString().trim();
+            final String name = binding.textInput.getEditableText().toString().trim();
             try {
                 if (((DialogFragmentProvisionerNameListener) requireActivity()).onNameChanged(name)) {
                     dismiss();
                 }
             } catch (IllegalArgumentException ex) {
-                nameInputLayout.setError(ex.getMessage());
+                binding.textInputLayout.setError(ex.getMessage());
             }
         });
 
