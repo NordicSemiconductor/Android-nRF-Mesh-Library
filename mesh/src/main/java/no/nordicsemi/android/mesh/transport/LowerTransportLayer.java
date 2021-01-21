@@ -510,7 +510,9 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                     } else {
                         mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                         Log.v(TAG, "SEG O BLOCK ACK VAL: " + mSegmentedAccessBlockAck);
-                        handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        if (MeshAddress.isValidUnicastAddress(dst)) {
+                            handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        }
 
                         final AccessMessage accessMessage = new AccessMessage();
                         accessMessage.setAszmic(szmic);
