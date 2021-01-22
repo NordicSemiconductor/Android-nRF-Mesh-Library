@@ -503,7 +503,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onDeviceDisconnected(@NonNull final BluetoothDevice device) {
         Log.v(TAG, "Disconnected");
@@ -769,7 +768,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void onMeshMessageReceived(final int src, @NonNull final MeshMessage meshMessage) {
         final ProvisionedMeshNode node = mMeshNetwork.getNode(src);
@@ -981,7 +979,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
      * We should only update the selected node, since sending messages to group address will notify with nodes that is not on the UI
      */
     private boolean updateNode(@NonNull final ProvisionedMeshNode node) {
-        if (mProvisionedMeshNode.getUnicastAddress() == node.getUnicastAddress()) {
+        if (mProvisionedMeshNode != null && mProvisionedMeshNode.getUnicastAddress() == node.getUnicastAddress()) {
             mProvisionedMeshNode = node;
             mExtendedMeshNode.postValue(node);
             return true;
