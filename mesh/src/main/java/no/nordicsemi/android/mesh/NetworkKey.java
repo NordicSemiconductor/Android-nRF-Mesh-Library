@@ -112,12 +112,12 @@ public final class NetworkKey extends MeshKey {
      *
      * @return int phase
      */
-    @KeyRefreshPhases
+    @KeyRefreshPhase
     public int getPhase() {
         return phase;
     }
 
-    public void setPhase(@KeyRefreshPhases final int phase) {
+    public void setPhase(@KeyRefreshPhase final int phase) {
         this.phase = phase;
     }
 
@@ -172,7 +172,7 @@ public final class NetworkKey extends MeshKey {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({PHASE_0, PHASE_1, PHASE_2})
-    public @interface KeyRefreshPhases {
+    public @interface KeyRefreshPhase {
     }
 
     @NonNull
