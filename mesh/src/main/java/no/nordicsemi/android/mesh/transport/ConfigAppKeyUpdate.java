@@ -35,7 +35,6 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 /**
  * Creates the ConfigAppKeyUpdate message.
  */
-@SuppressWarnings("unused")
 public class ConfigAppKeyUpdate extends ConfigMessage {
 
     private static final String TAG = ConfigAppKeyUpdate.class.getSimpleName();
@@ -50,7 +49,6 @@ public class ConfigAppKeyUpdate extends ConfigMessage {
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
     public ConfigAppKeyUpdate(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
-
         if (appKey.getKey().length != 16)
             throw new IllegalArgumentException("App key must be 16 bytes");
 
