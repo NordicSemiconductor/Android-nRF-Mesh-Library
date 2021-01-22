@@ -25,12 +25,11 @@ package no.nordicsemi.android.mesh.transport;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.opcodes.TransportLayerOpCodes;
@@ -430,13 +429,16 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Parses a segmented lower transport access pdu.
      *
-     * @param pdu The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
+     * @param ttl            TTL of the acknowledgement
+     * @param pdu            The complete pdu was received from the node. This is already de-obfuscated and decrypted at network layer.
+     * @param ivIndex        Current IV Index of the network
+     * @param sequenceNumber Sequence number
      */
     /*package*/
-    final AccessMessage parseSegmentedAccessLowerTransportPDU(@NonNull final byte[] pdu,
+    final AccessMessage parseSegmentedAccessLowerTransportPDU(final int ttl,
+                                                              @NonNull final byte[] pdu,
                                                               final int ivIndex,
                                                               @NonNull final byte[] sequenceNumber) {
-
         final byte header = pdu[10]; //Lower transport pdu starts here
         final int akf = (header >> 6) & 0x01;
         final int aid = header & 0x3F;
@@ -446,7 +448,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         final int segO = ((pdu[12] & 0x03) << 3) | ((pdu[13] & 0xE0) >> 5);
         final int segN = ((pdu[13]) & 0x1F);
 
-        final int ttl = mLowerTransportLayerCallbacks.getTtl();// pdu[2] & 0x7F;
         final byte[] src = MeshParserUtils.getSrcAddress(pdu);
         final byte[] dst = MeshParserUtils.getDstAddress(pdu);
 
@@ -474,7 +475,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             segmentedAccessMessageMap.clear();
             segmentedAccessMessageMap.put(segO, payloadBuffer.array());
             mMeshNode.setSeqAuth(blockAckDst, seqAuth);
-            //Reset the block acknowledgement value
+
+            // Reset the block acknowledgement value
             mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(null, segO);
 
             Log.v(TAG, "Starting incomplete timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
