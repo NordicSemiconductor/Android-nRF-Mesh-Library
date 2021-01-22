@@ -476,14 +476,13 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             segmentedAccessMessageMap.put(segO, payloadBuffer.array());
             mMeshNode.setSeqAuth(blockAckDst, seqAuth);
 
-            // Reset the block acknowledgement value
-            mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(null, segO);
-
             Log.v(TAG, "Starting incomplete timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
             initIncompleteTimer();
 
-            //Start acknowledgement timer only for messages directed to a unicast address.
+            //Start acknowledgement calculation and timer only for messages directed to a unicast address.
             if (MeshAddress.isValidUnicastAddress(dst)) {
+                // Calculate the initial block acknowledgement value
+                mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(null, segO);
                 //Start the block acknowledgement timer irrespective of which segment was received first
                 initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
             }
@@ -499,21 +498,23 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                     //Add +1 to segN since its zero based
                     if (receivedSegmentedMessageCount != (segN + 1)) {
                         restartIncompleteTimer();
-                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                         Log.v(TAG, "Restarting incomplete timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
 
-                        //Start acknowledgement timer only for messages directed to a unicast address.
+                        //Start acknowledgement calculation and timer only for messages directed to a unicast address.
                         //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
                         if (MeshAddress.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
+                            mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                             Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
                             //Start the block acknowledgement timer irrespective of which segment was received first
                             initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
                         }
                     } else {
-                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
-                        Log.v(TAG, "SEG O BLOCK ACK VAL: " + mSegmentedAccessBlockAck);
                         if (MeshAddress.isValidUnicastAddress(dst)) {
+                            mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                             handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                        } else {
+                            //We should cancel the incomplete timer since we have received all segments
+                            cancelIncompleteTimer();
                         }
 
                         final AccessMessage accessMessage = new AccessMessage();
@@ -730,7 +731,6 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
      */
     private void sendBlockAck(final int seqZero, final int ttl, final int src, final int dst, final int segN) {
         final int blockAck = mSegmentedAccessBlockAck;
-        //mSegmentedAccessBlockAck = null;
         if (BlockAcknowledgementMessage.hasAllSegmentsBeenReceived(blockAck, segN)) {
             Log.v(TAG, "All segments received cancelling incomplete timer");
             cancelIncompleteTimer();
@@ -746,7 +746,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         controlMessage.setSrc(src);
         controlMessage.setDst(dst);
         controlMessage.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
-        final int sequenceNumber = mUpperTransportLayerCallbacks.getNode(controlMessage.getSrc()).incrementSequenceNumber();//mMeshNode.incrementSequenceNumber();//(controlMessage.getSrc());
+        final int sequenceNumber = mUpperTransportLayerCallbacks.getNode(controlMessage.getSrc()).incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
         controlMessage.setSequenceNumber(sequenceNum);
         mBlockAckSent = true;
