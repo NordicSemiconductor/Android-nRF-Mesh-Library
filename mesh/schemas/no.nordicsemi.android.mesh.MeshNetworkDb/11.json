@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 11,
-    "identityHash": "0c51434e08492de0e57919b85dffe352",
+    "identityHash": "353eacdec62add5b4b839fbe20d885c2",
     "entities": [
       {
         "tableName": "mesh_network",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` INTEGER NOT NULL, `partial` INTEGER NOT NULL, `iv_index` TEXT NOT NULL, `last_selected` INTEGER NOT NULL, `sequence_numbers` TEXT NOT NULL, `networkExclusions` TEXT, PRIMARY KEY(`mesh_uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mesh_uuid` TEXT NOT NULL, `mesh_name` TEXT, `timestamp` INTEGER NOT NULL, `partial` INTEGER NOT NULL DEFAULT 0, `iv_index` TEXT NOT NULL, `last_selected` INTEGER NOT NULL, `sequence_numbers` TEXT NOT NULL, `networkExclusions` TEXT NOT NULL DEFAULT '{}', PRIMARY KEY(`mesh_uuid`))",
         "fields": [
           {
             "fieldPath": "meshUUID",
@@ -30,7 +30,8 @@
             "fieldPath": "partial",
             "columnName": "partial",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "ivIndex",
@@ -54,7 +55,8 @@
             "fieldPath": "networkExclusions",
             "columnName": "networkExclusions",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true,
+            "defaultValue": "'{}'"
           }
         ],
         "primaryKey": {
@@ -658,7 +660,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0c51434e08492de0e57919b85dffe352')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '353eacdec62add5b4b839fbe20d885c2')"
     ]
   }
 }

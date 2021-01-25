@@ -931,11 +931,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     private static void migrateMeshNetwork9_10(@NonNull final SupportSQLiteDatabase database) {
-        database.execSQL("ALTER TABLE mesh_network ADD COLUMN partial INTEGER NOT NULL DEFAULT 1");
+        database.execSQL("ALTER TABLE mesh_network ADD COLUMN partial INTEGER NOT NULL DEFAULT 0");
     }
 
     private static void migrateNodes10_11(@NonNull final SupportSQLiteDatabase database) {
-        //database.execSQL("ALTER TABLE nodes ADD COLUMN excluded INTEGER NOT NULL DEFAULT 0");
         addColumnNetworkExclusionList(database);
         migrateFromBlacklistedToExcluded(database);
     }
