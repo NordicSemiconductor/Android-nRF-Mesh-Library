@@ -24,45 +24,29 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
- * Creates the ConfigAppKeyUpdate message.
+ * Createe the ConfigKeyRefreshPhaseGet message.
  */
-public class ConfigAppKeyUpdate extends ConfigMessage {
+@SuppressWarnings("unused")
+public class ConfigKeyRefreshPhaseGet extends ConfigMessage {
 
-    private static final String TAG = ConfigAppKeyUpdate.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_APPKEY_UPDATE;
-
-    private final ApplicationKey mAppKey;
+    private static final String TAG = ConfigKeyRefreshPhaseGet.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_KEY_REFRESH_PHASE_GET;
+    private final NetworkKey mNetKey;
 
     /**
-     * Constructs ConfigAppKeyUpdate message.
+     * Constructs ConfigKeyRefreshPhaseGet message.
      *
-     * @param appKey application key for this message
-     * @throws IllegalArgumentException if any illegal arguments are passed
+     * @param networkKey {@link NetworkKey}
      */
-    public ConfigAppKeyUpdate(@NonNull final ApplicationKey appKey) throws IllegalArgumentException {
-        if (appKey.getKey().length != 16)
-            throw new IllegalArgumentException("App key must be 16 bytes");
-
-        this.mAppKey = appKey;
+    public ConfigKeyRefreshPhaseGet(@NonNull final NetworkKey networkKey) {
+        mNetKey = networkKey;
         assembleMessageParameters();
-    }
-
-    /**
-     * Returns the application key that is needs to be sent to the node
-     *
-     * @return app key
-     */
-    public ApplicationKey getAppKey() {
-        return mAppKey;
     }
 
     @Override
@@ -70,19 +54,10 @@ public class ConfigAppKeyUpdate extends ConfigMessage {
         return OP_CODE;
     }
 
-
     @Override
     void assembleMessageParameters() {
-        Log.v(TAG, "NetKeyIndex: " + mAppKey.getBoundNetKeyIndex());
-        Log.v(TAG, "AppKeyIndex: " + mAppKey.getKeyIndex());
-        final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getBoundNetKeyIndex());
-        final byte[] appKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
-        final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.put(netKeyIndex[1]);
-        paramsBuffer.put((byte) (((appKeyIndex[1] & 0xFF) << 4) | (netKeyIndex[0] & 0xFF) & 0x0F));
-        paramsBuffer.put((byte) (((appKeyIndex[0] & 0xFF) << 4) | (appKeyIndex[1] & 0xFF) >> 4));
-        paramsBuffer.put(mAppKey.getKey());
-
-        mParameters = paramsBuffer.array();
+        Log.v(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
+        final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
+        mParameters = new byte[]{netKeyIndex[1], (byte) ((netKeyIndex[0] & 0xFF) & 0x0F)};
     }
 }

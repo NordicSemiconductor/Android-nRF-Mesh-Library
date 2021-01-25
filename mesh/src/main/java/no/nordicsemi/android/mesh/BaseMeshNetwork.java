@@ -72,7 +72,7 @@ abstract class BaseMeshNetwork {
     @SerializedName("timestamp")
     @Expose
     long timestamp = System.currentTimeMillis();
-    @ColumnInfo(name = "partial")
+    @ColumnInfo(name = "partial", defaultValue = "0")
     @SerializedName("partial")
     @Expose
     boolean partial = false;
@@ -120,6 +120,8 @@ abstract class BaseMeshNetwork {
     protected SparseIntArray sequenceNumbers = new SparseIntArray();
     @SerializedName("networkExclusions")
     @TypeConverters(MeshTypeConverters.class)
+    @NonNull
+    @ColumnInfo(name = "networkExclusions", defaultValue = "{}")
     @Expose
     protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     @Ignore

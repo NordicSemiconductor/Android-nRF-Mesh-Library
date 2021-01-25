@@ -48,7 +48,6 @@ public abstract class ConfigStatusMessage extends MeshMessage {
             final byte[] netKeyIndex = new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]};
             final int keyIndex = encode(netKeyIndex);
             arrayList.add(keyIndex);
-            return arrayList;
         } else {
             final int firstKeyIndex = encode(new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]});
             final int secondNetKeyIndex = encode(new byte[]{
@@ -57,8 +56,8 @@ public abstract class ConfigStatusMessage extends MeshMessage {
             arrayList.add(firstKeyIndex);
             arrayList.add(secondNetKeyIndex);
             arrayList.addAll(decode(dataSize, offset + 3));
-            return arrayList;
         }
+        return arrayList;
     }
 
     private static int encode(@NonNull final byte[] netKeyIndex) {
