@@ -32,9 +32,8 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_KEY_REFRESH_PHASE_SET;
 
 /**
- * Createe the ConfigKeyRefreshPhaseSet message.
+ * Creates the ConfigKeyRefreshPhaseSet message.
  */
-@SuppressWarnings("unused")
 public class ConfigKeyRefreshPhaseSet extends ConfigMessage {
 
     private static final String TAG = ConfigKeyRefreshPhaseSet.class.getSimpleName();
@@ -43,7 +42,7 @@ public class ConfigKeyRefreshPhaseSet extends ConfigMessage {
     private final @KeyRefreshPhase int phase;
 
     /**
-     * Constructs ConfigKeyRefreshPhaseGet message.
+     * Constructs ConfigKeyRefreshPhaseSet message.
      *
      * @param networkKey {@link NetworkKey}
      */
