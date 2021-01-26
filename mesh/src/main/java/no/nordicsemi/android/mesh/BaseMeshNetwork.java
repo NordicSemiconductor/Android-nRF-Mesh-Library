@@ -555,9 +555,10 @@ abstract class BaseMeshNetwork {
      * <p>
      * This will only work if the NetworkKey bound to this ApplicationKey is in Phase 1 of the Key Refresh Procedure. Therefore the NetworkKey
      * must be updated first before updating it's bound application key. Call {@link #distributeNetKey(NetworkKey, byte[])} to initiate the
-     * Key Refresh Procedure to update a Network Key that's not in use by the provisioner or the nodes, if it has not been started already.
+     * Key Refresh Procedure to update a Network Key that's in use by the provisioner or the nodes, if it has not been started already.
+     * To update a key that's not in use call {@link #updateAppKey(ApplicationKey, String)}
      * <p>
-     * Once the provisioner nodes' AppKey is updated user must distribute the updated app key to the nodes. This can be done by sending
+     * Once the provisioner nodes' AppKey is updated user must distribute the updated AppKey to the nodes. This can be done by sending
      * {@link ConfigAppKeyUpdate} message with the new key.
      * </p>
      *
