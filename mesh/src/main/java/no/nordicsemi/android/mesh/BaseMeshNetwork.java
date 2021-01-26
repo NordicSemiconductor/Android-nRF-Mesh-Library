@@ -27,6 +27,9 @@ import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import no.nordicsemi.android.mesh.transport.ConfigAppKeyUpdate;
+import no.nordicsemi.android.mesh.transport.ConfigKeyRefreshPhaseSet;
+import no.nordicsemi.android.mesh.transport.ConfigNetKeyUpdate;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -202,6 +205,13 @@ abstract class BaseMeshNetwork {
     /**
      * Update a network key with the given 16-byte hexadecimal string in the mesh network.
      *
+     * <p>
+     * Updating a NetworkKey's key value requires initiating a Key Refresh Procedure. A NetworkKey that's in use
+     * would require a Key Refresh Procedure to update it's key contents. However a NetworkKey that's not in could
+     * be updated without this procedure. If the key is in use, call {@link #distributeNetKey(NetworkKey, String)}
+     * to initiate the Key Refresh Procedure.
+     * </p>
+     *
      * @param networkKey Network key
      * @param newNetKey  16-byte hexadecimal string
      */
@@ -209,7 +219,7 @@ abstract class BaseMeshNetwork {
         if (MeshParserUtils.validateKeyInput(newNetKey)) {
             final byte[] key = MeshParserUtils.toByteArray(newNetKey);
             if (isNetKeyExists(newNetKey)) {
-                throw new IllegalArgumentException("Net key already in use");
+                throw new IllegalArgumentException("Net key value is already in use.");
             }
 
             final int keyIndex = networkKey.getKeyIndex();
@@ -224,7 +234,7 @@ abstract class BaseMeshNetwork {
                     return false;
                 }
             } else {
-                throw new IllegalArgumentException("Unable to update a network key that's already in use.");
+                throw new IllegalArgumentException("Unable to update a network key that's already in use. ");
             }
         }
         return false;
@@ -242,6 +252,7 @@ abstract class BaseMeshNetwork {
         //We check if the contents of the key are the same
         //This will return true only if the key index and the key are the same
         if (key.equals(networkKey)) {
+            // The name might be updated so we must update the key.
             return updateMeshKey(networkKey);
         } else {
             //If the keys are not the same we check if its in use before updating the key
@@ -254,6 +265,87 @@ abstract class BaseMeshNetwork {
             }
         }
     }
+
+    /**
+     * Distribute Net Key will start the key refresh procedure and return the newly updated key.
+     *
+     * <p>
+     * This process contains three phases.
+     * Phase 1 - Distribution of the new Keys {@link #distributeNetKey(NetworkKey, String)}.
+     * Phase 2 - Switching to the new keys {@link #switchToNewKey(NetworkKey)}.
+     * Phase 3 - Revoking old keys {@link #revokeOldKey(NetworkKey)}.
+     * The new key is distributed to the provisioner node by setting the currently used key as the old key and setting the
+     * currently used key to the new key value. This will change the phase of the network key to phase 1 which is the Key
+     * Distribution phase. During this phase a node will transmit using the old key but may receive using both old and the
+     * new key. After a successful distribution to the provisioner, the user may start sending {@link ConfigNetKeyUpdate}
+     * messages to the respective nodes in the network that requires updating. In addition user may send {@link ConfigAppKeyUpdate}
+     * top update an AppKey. However it shall be only successfully processed if the Network Key bound to the Application Key
+     * is in Phase 1 and the received app key value is different or when the received app key value is the same as previously
+     * received value.
+     * Once distribution is complete user MUST send {@link ConfigKeyRefreshPhaseSet}  message with phase set to Phase 2
+     * before starting to use the new key by calling {@link #switchToNewKey(NetworkKey)}.
+     * </p>
+     *
+     * @param networkKey Network key
+     * @param newNetKey  16-byte hexadecimal string
+     */
+    public NetworkKey distributeNetKey(@NonNull final NetworkKey networkKey, @NonNull final String newNetKey) throws IllegalArgumentException {
+        if (MeshParserUtils.validateKeyInput(newNetKey)) {
+            final byte[] key = MeshParserUtils.toByteArray(newNetKey);
+            if (isNetKeyExists(newNetKey)) {
+                throw new IllegalArgumentException("Net key value is already in use.");
+            }
+
+            final int keyIndex = networkKey.getKeyIndex();
+            final NetworkKey netKey = getNetKey(keyIndex);
+            if (netKey.equals(networkKey)) {
+                netKey.distributeKey(key);
+                if (updateMeshKey(netKey)) {
+                    return netKey;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Switches the new key, this will initiate the provisioner node transmitting  messages using the new keys but will
+     * support receiving messages using both old and the new key.
+     *
+     * <p>
+     * This is phase 2 of the Key Refresh Procedure and must be called ONLY after sending {@link ConfigKeyRefreshPhaseSet}
+     * message with phase set to Phase 2.
+     * </p>
+     *
+     * @param networkKey Network key to switch too
+     * @return true if success or false otherwise
+     * @throws IllegalArgumentException if the provided key is not the same as the distributed key.
+     */
+    public boolean switchToNewKey(@NonNull final NetworkKey networkKey) throws IllegalArgumentException {
+        if (!netKeys.contains(networkKey)) {
+            throw new IllegalArgumentException("Network Key not distributed");
+        }
+        return networkKey.switchToNewKey();
+    }
+
+    /**
+     * Revokes the old key making it unusable.
+     * <p>
+     * This is phase 3 of the Key Refresh Procedure and must be called ONLY after sending {@link ConfigKeyRefreshPhaseSet}
+     * message with phase set to Phase 2 or 3. The library at this point will set the given Network Key's Phase to 0 which is
+     * Normal Operation.
+     * </p>
+     *
+     * @param networkKey Network key that was distributed
+     * @return true if success or false otherwise
+     */
+    public boolean revokeOldKey(@NonNull final NetworkKey networkKey) {
+        if (netKeys.contains(networkKey)) {
+            return networkKey.revokeOldKey();
+        }
+        return false;
+    }
+
 
     /**
      * Removes a network key from the network key list

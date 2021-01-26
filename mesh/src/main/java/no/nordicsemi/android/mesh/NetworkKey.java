@@ -34,9 +34,10 @@ import static androidx.room.ForeignKey.CASCADE;
 public final class NetworkKey extends MeshKey {
 
     // Key refresh phases
-    public static final int PHASE_0 = 0; //Distribution of new keys
-    public static final int PHASE_1 = 1; //Switching to the new keys
-    public static final int PHASE_2 = 2; //Revoking the old keys
+    public static final int PHASE_0 = 0; //Normal operation
+    public static final int PHASE_1 = 1; //Key Distribution
+    public static final int PHASE_2 = 2; //Switching to new keys
+    public static final int PHASE_3 = 3; //Revoking old keys
 
     @ColumnInfo(name = "phase")
     @Expose
@@ -117,6 +118,7 @@ public final class NetworkKey extends MeshKey {
         return phase;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setPhase(@KeyRefreshPhase final int phase) {
         this.phase = phase;
     }
@@ -166,12 +168,13 @@ public final class NetworkKey extends MeshKey {
      *
      * @param timestamp timestamp
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setTimestamp(final long timestamp) {
         this.timestamp = timestamp;
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({PHASE_0, PHASE_1, PHASE_2})
+    @IntDef({PHASE_0, PHASE_1, PHASE_2, PHASE_3})
     public @interface KeyRefreshPhase {
     }
 
@@ -179,5 +182,53 @@ public final class NetworkKey extends MeshKey {
     @Override
     public NetworkKey clone() throws CloneNotSupportedException {
         return (NetworkKey) super.clone();
+    }
+
+    /**
+     * Updates the currently used {@link #key} with the newKey  and sets the currently used key as the {@link #oldKey}
+     *
+     * @param newKey New NetworkKey value
+     * @return true if successful or false otherwise
+     * @throws IllegalArgumentException if a NetworkKey update is attempted twice
+     */
+    protected boolean distributeKey(@NonNull final byte[] newKey) throws IllegalArgumentException {
+        if (valid(newKey)) {
+            if (phase == 0 || phase == 1) {
+                phase = 1;
+                timestamp = System.currentTimeMillis();
+                return super.distributeKey(newKey);
+            } else {
+                throw new IllegalArgumentException("A NetworkKey can only be updated once during a Key Refresh Procedure.");
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Switch to New Key.
+     *
+     * @return true if successful or false otherwise.
+     */
+    protected boolean switchToNewKey() {
+        if (phase == 1) {
+            setPhase(PHASE_2);
+            timestamp = System.currentTimeMillis();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Revokes old key by switching the phase to {@link KeyRefreshPhase PHASE_3 or PHASE_0}
+     *
+     * @return true if successful or false otherwise.
+     */
+    protected boolean revokeOldKey() {
+        if (phase == PHASE_1 || phase == PHASE_2 || phase == PHASE_3) {
+            phase = PHASE_0;
+            timestamp = System.currentTimeMillis();
+            return true;
+        }
+        return false;
     }
 }
