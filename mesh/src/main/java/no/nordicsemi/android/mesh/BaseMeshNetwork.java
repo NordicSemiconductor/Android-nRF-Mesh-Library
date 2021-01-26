@@ -291,10 +291,8 @@ abstract class BaseMeshNetwork {
      * if the NetworkKey bound to the Application Key is in Phase 1 and the received app key value is different or when the received
      * AppKey value is the same as previously received value. Also note that sending a ConfigNetKeyUpdate during normal operation or
      * Phase 0 will switch the phase to phase 1.
-     * Once distribution is complete user MUST send {@link ConfigKeyRefreshPhaseSet}  message with phase set to Phase 2 before starting
-     * to use the new key by calling {@link #switchToNewKey(NetworkKey)}.
-     * <p>
-     * Please note to call distributeNetKey and update the provisioner nodes' keys before updating the other nodes.
+     * Once distribution is completed for provisioner call {@link #switchToNewKey(NetworkKey)} to start using the new key for sending messages
+     * and send {@link ConfigKeyRefreshPhaseSet} with phase set 2 to other nodes inorder to start seding messages using the new key.
      * </p>
      *
      * @param networkKey Network key
