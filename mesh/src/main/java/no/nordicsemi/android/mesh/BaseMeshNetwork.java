@@ -214,6 +214,7 @@ abstract class BaseMeshNetwork {
      *
      * @param networkKey Network key
      * @param newNetKey  16-byte hexadecimal string
+     * @throws IllegalArgumentException if the key is already in use
      */
     public boolean updateNetKey(@NonNull final NetworkKey networkKey, @NonNull final String newNetKey) throws IllegalArgumentException {
         if (MeshParserUtils.validateKeyInput(newNetKey)) {
@@ -242,6 +243,13 @@ abstract class BaseMeshNetwork {
 
     /**
      * Update a network key in the mesh network.
+     *
+     * <p>
+     * Updating a NetworkKey's key value requires initiating a Key Refresh Procedure. A NetworkKey that's in use
+     * would require a Key Refresh Procedure to update it's key contents. However a NetworkKey that's not in could
+     * be updated without this procedure. If the key is in use, call {@link #distributeNetKey(NetworkKey, String)}
+     * to initiate the Key Refresh Procedure.
+     * </p>
      *
      * @param networkKey Network key
      * @throws IllegalArgumentException if the key is already in use
@@ -278,16 +286,21 @@ abstract class BaseMeshNetwork {
      * currently used key to the new key value. This will change the phase of the network key to phase 1 which is the Key
      * Distribution phase. During this phase a node will transmit using the old key but may receive using both old and the
      * new key. After a successful distribution to the provisioner, the user may start sending {@link ConfigNetKeyUpdate}
-     * messages to the respective nodes in the network that requires updating. In addition user may send {@link ConfigAppKeyUpdate}
-     * top update an AppKey. However it shall be only successfully processed if the Network Key bound to the Application Key
-     * is in Phase 1 and the received app key value is different or when the received app key value is the same as previously
-     * received value.
-     * Once distribution is complete user MUST send {@link ConfigKeyRefreshPhaseSet}  message with phase set to Phase 2
-     * before starting to use the new key by calling {@link #switchToNewKey(NetworkKey)}.
+     * messages to the respective nodes in the network that requires updating. In addition if the user wishes to update the AppKey
+     * call {@link #distributeAppKey(ApplicationKey, String)} to update the Application Key on the provisioner and then distribute
+     * it to other nodes by sending {@link ConfigAppKeyUpdate} to update an AppKey. However it shall be only successfully processed
+     * if the NetworkKey bound to the Application Key is in Phase 1 and the received app key value is different or when the received
+     * AppKey value is the same as previously received value. Also note that sending a ConfigNetKeyUpdate during normal operation or
+     * Phase 0 will switch the phase to phase 1.
+     * Once distribution is complete user MUST send {@link ConfigKeyRefreshPhaseSet}  message with phase set to Phase 2 before starting
+     * to use the new key by calling {@link #switchToNewKey(NetworkKey)}.
+     * <p>
+     * Please note to call distributeNetKey and update the provisioner nodes' keys before updating the other nodes.
      * </p>
      *
      * @param networkKey Network key
      * @param newNetKey  16-byte hexadecimal string
+     * @throws IllegalArgumentException the key value is already in use.
      */
     public NetworkKey distributeNetKey(@NonNull final NetworkKey networkKey, @NonNull final String newNetKey) throws IllegalArgumentException {
         if (MeshParserUtils.validateKeyInput(newNetKey)) {
@@ -299,9 +312,10 @@ abstract class BaseMeshNetwork {
             final int keyIndex = networkKey.getKeyIndex();
             final NetworkKey netKey = getNetKey(keyIndex);
             if (netKey.equals(networkKey)) {
-                netKey.distributeKey(key);
-                if (updateMeshKey(netKey)) {
-                    return netKey;
+                if (netKey.distributeKey(key)) {
+                    if (updateMeshKey(netKey)) {
+                        return netKey;
+                    }
                 }
             }
         }
@@ -487,8 +501,16 @@ abstract class BaseMeshNetwork {
     /**
      * Updates an app key with a given key in the mesh network.
      *
+     * <p>
+     * Updates the Key if it is not use, if not Updating a Key's key value requires initiating a Key Refresh Procedure.
+     * This requires the bound NetworkKey of the AppKey to be updated. A NetworkKey that's in use would require a
+     * Key Refresh Procedure to update it's key contents. However a NetworkKey that's not in could be updated without this
+     * procedure. If the key is in use, call {@link #distributeNetKey(NetworkKey, String)} to initiate the Key Refresh Procedure.
+     * </p>
+     *
      * @param applicationKey {@link ApplicationKey}
      * @param newAppKey      Application key
+     * @throws IllegalArgumentException if the key is in use.
      */
     public boolean updateAppKey(@NonNull final ApplicationKey applicationKey, @NonNull final String newAppKey) throws IllegalArgumentException {
         if (MeshParserUtils.validateKeyInput(newAppKey)) {
@@ -518,6 +540,14 @@ abstract class BaseMeshNetwork {
     /**
      * Updates an app key in the mesh network.
      *
+     * <p>
+     * Updates the Key if it is not use, if not Updating a Key's key value requires initiating a Key Refresh Procedure. This requires
+     * the bound NetworkKey of the AppKey to be updated. A NetworkKey that's in use would require aKey Refresh Procedure to update
+     * it's key contents. However a NetworkKey that's not in could be updated without this procedure. If the key is in use, call
+     * {@link #distributeNetKey(NetworkKey, String)} to initiate the Key Refresh Procedure. After distributing the NetworkKey bound to
+     * the Application Key, user may call {@link #distributeAppKey(ApplicationKey, String)} to update the corresponding ApplicationKey.
+     * </p>
+     *
      * @param applicationKey {@link ApplicationKey}
      * @throws IllegalArgumentException if the key is already in use
      */
@@ -532,6 +562,41 @@ abstract class BaseMeshNetwork {
         } else {
             throw new IllegalArgumentException("Unable to update a application key that's already in use.");
         }
+    }
+
+    /**
+     * Distributes/updates the provisioner node's the application key and returns the updated Application Key.
+     *
+     * <p>
+     * This will only work if the NetworkKey bound to this ApplicationKey is in Phase 1 of the Key Refresh Procedure. Therefore the NetworkKey
+     * must be updated first before updating it's bound application key. Call {@link #distributeNetKey(NetworkKey, String)} to initiate the
+     * Key refresh procedure to update a Network Key that's not in use by the provisioner or the nodes, if it has not been started already.
+     * <p>
+     * Once the provisioner nodes' AppKey is updated user must distribute the updated app key to the nodes. This can be done by sending
+     * {@link ConfigAppKeyUpdate} message with the new key.
+     * </p>
+     *
+     * @param applicationKey Network key
+     * @param newAppKey      16-byte hexadecimal string
+     * @throws IllegalArgumentException the key value is already in use.
+     */
+    public ApplicationKey distributeAppKey(@NonNull final ApplicationKey applicationKey, @NonNull final String newAppKey) throws IllegalArgumentException {
+        if (MeshParserUtils.validateKeyInput(newAppKey)) {
+            final byte[] key = MeshParserUtils.toByteArray(newAppKey);
+            if (isAppKeyExists(newAppKey)) {
+                throw new IllegalArgumentException("App key value is already in use.");
+            }
+
+            final int keyIndex = applicationKey.getKeyIndex();
+            final ApplicationKey appKey = getAppKey(keyIndex);
+            if (appKey.equals(applicationKey)) {
+                appKey.distributeKey(key);
+                if (updateMeshKey(appKey)) {
+                    return appKey;
+                }
+            }
+        }
+        return null;
     }
 
     private boolean updateMeshKey(@NonNull final MeshKey key) {
