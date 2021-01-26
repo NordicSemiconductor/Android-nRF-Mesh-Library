@@ -1152,6 +1152,17 @@ abstract class BaseMeshNetwork {
         if (sameAddressNode != null) {
             throw new IllegalStateException("cant add node with conflicting unicast address");
         }
+        boolean hasMatchingKey = false;
+        for (NodeKey key: meshNode.getAddedNetKeys()){
+            for (NetworkKey key2: this.netKeys){
+                hasMatchingKey = key.getIndex() == key2.getKeyIndex();
+                if (hasMatchingKey) break;
+            }
+            if (hasMatchingKey) break;
+        }
+        if (!hasMatchingKey) {
+            throw new IllegalStateException("can't add node with no overlapping network keys");
+        }
 
         int index = 0;
         for (ProvisionedMeshNode node : nodes) {
