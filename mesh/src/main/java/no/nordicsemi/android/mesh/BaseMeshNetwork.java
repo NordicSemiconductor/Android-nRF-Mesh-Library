@@ -291,8 +291,8 @@ abstract class BaseMeshNetwork {
      * if the NetworkKey bound to the Application Key is in Phase 1 and the received app key value is different or when the received
      * AppKey value is the same as previously received value. Also note that sending a ConfigNetKeyUpdate during normal operation or
      * Phase 0 will switch the phase to phase 1.
-     * Once distribution is completed for provisioner call {@link #switchToNewKey(NetworkKey)} to start using the new key for sending messages
-     * and send {@link ConfigKeyRefreshPhaseSet} with phase set 2 to other nodes inorder to start seding messages using the new key.
+     * Once distribution is completed, call {@link #switchToNewKey(NetworkKey)} and and send {@link ConfigKeyRefreshPhaseSet} to
+     * other nodes.
      * </p>
      *
      * @param networkKey Network key
@@ -319,12 +319,11 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Switches the new key, this will initiate the provisioner node transmitting  messages using the new keys but will
+     * Switches the new key, this will initiate the provisioner node transmitting messages using the new keys but will
      * support receiving messages using both old and the new key.
      *
      * <p>
-     * This is phase 2 of the Key Refresh Procedure and must be called ONLY after sending {@link ConfigKeyRefreshPhaseSet}
-     * message with phase set to Phase 2.
+     * This must be called after {@link #distributeNetKey(NetworkKey, byte[])}
      * </p>
      *
      * @param networkKey Network key to switch too
@@ -339,11 +338,11 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Revokes the old key making it unusable.
+     * Revokes the old key.
      * <p>
-     * This is phase 3 of the Key Refresh Procedure and must be called ONLY after sending {@link ConfigKeyRefreshPhaseSet}
-     * message with phase set to Phase 2 or 3. The library at this point will set the given Network Key's Phase to 0 which is
-     * Normal Operation.
+     * This initiates phase 3 of the Key Refresh Procedure in which user must send {@link ConfigKeyRefreshPhaseSet} message with phase set
+     * to Phase 3 to the other nodes going through the Key Refresh Procedure. The library at this point will set the given Network Key's
+     * Phase to 0 which is Normal Operation.
      * </p>
      *
      * @param networkKey Network key that was distributed
@@ -556,7 +555,7 @@ abstract class BaseMeshNetwork {
      * <p>
      * This will only work if the NetworkKey bound to this ApplicationKey is in Phase 1 of the Key Refresh Procedure. Therefore the NetworkKey
      * must be updated first before updating it's bound application key. Call {@link #distributeNetKey(NetworkKey, byte[])} to initiate the
-     * Key refresh procedure to update a Network Key that's not in use by the provisioner or the nodes, if it has not been started already.
+     * Key Refresh Procedure to update a Network Key that's not in use by the provisioner or the nodes, if it has not been started already.
      * <p>
      * Once the provisioner nodes' AppKey is updated user must distribute the updated app key to the nodes. This can be done by sending
      * {@link ConfigAppKeyUpdate} message with the new key.
@@ -1253,7 +1252,7 @@ abstract class BaseMeshNetwork {
     /**
      * Excludes a node from the mesh network.
      * The given node will marked as excluded and added to the exclusion list and the node will be removed once
-     * the Key refresh procedure is completed. After the IV update procedure, when the network transitions to an
+     * the Key Refresh Procedure is completed. After the IV update procedure, when the network transitions to an
      * IV Normal Operation state with a higher IV index, the exclusionList object that has the ivIndex property
      * value that is lower by a count of two (or more) than the current IV index of the network is removed from
      * the networkExclusions property array.
