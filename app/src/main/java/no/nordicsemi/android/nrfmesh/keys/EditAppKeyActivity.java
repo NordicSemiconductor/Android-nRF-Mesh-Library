@@ -36,7 +36,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import dagger.hilt.android.AndroidEntryPoint;
-import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
@@ -93,16 +92,11 @@ public class EditAppKeyActivity extends AppCompatActivity implements
         mAdapter.setOnItemClickListener(this);
         binding.recyclerViewKeys.setAdapter(mAdapter);
 
-        binding.containerKey.getRoot().setOnClickListener(v -> {
-            final ApplicationKey appKey = mViewModel.getAppKeyLiveData().getValue();
-            final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(appKey.getKeyIndex(), appKey);
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKey.getRoot().setOnClickListener(v -> DialogFragmentEditAppKey.newInstance(mViewModel.getAppKeyLiveData().getValue())
+                .show(getSupportFragmentManager(), null));
 
-        binding.containerKeyName.getRoot().setOnClickListener(v -> {
-            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getAppKeyLiveData().getValue().getName());
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKeyName.getRoot().setOnClickListener(v -> DialogFragmentKeyName.
+                newInstance(mViewModel.getAppKeyLiveData().getValue().getName()).show(getSupportFragmentManager(), null));
 
         mViewModel.getAppKeyLiveData().observe(this, applicationKey -> {
             if (applicationKey != null) {
@@ -128,7 +122,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
+    public boolean onKeyUpdated(@NonNull final String key) {
         return mViewModel.setKey(key);
     }
 
@@ -137,7 +131,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements
         try {
             mViewModel.setBoundNetKeyIndex(networkKey.getKeyIndex());
         } catch (IllegalArgumentException ex) {
-            mViewModel.displaySnackBar(this, binding.container,ex.getMessage(), Snackbar.LENGTH_LONG);
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 }

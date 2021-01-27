@@ -32,7 +32,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
-import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityEditKeyBinding;
@@ -77,16 +76,13 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
         binding.containerKeyIndex.title.setText(R.string.title_key_index);
         binding.containerKeyIndex.text.setVisibility(View.VISIBLE);
 
-        binding.containerKey.getRoot().setOnClickListener(v -> {
-            final NetworkKey networkKey = mViewModel.getNetworkKeyLiveData().getValue();
-            final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(networkKey.getKeyIndex(), networkKey);
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKey.getRoot().setOnClickListener(v ->
+                DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
+                        .show(getSupportFragmentManager(), null));
 
-        binding.containerKeyName.getRoot().setOnClickListener(v -> {
-            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName());
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKeyName.getRoot().setOnClickListener(v ->
+                DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
+                        .show(getSupportFragmentManager(), null));
 
         mViewModel.getNetworkKeyLiveData().observe(this, networkKey -> {
             binding.containerKey.text.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
@@ -110,7 +106,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
     }
 
     @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
+    public boolean onKeyUpdated(@NonNull final String key) {
         return mViewModel.setKey(key);
     }
 }

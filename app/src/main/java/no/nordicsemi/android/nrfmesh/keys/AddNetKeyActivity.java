@@ -79,16 +79,13 @@ public class AddNetKeyActivity extends AppCompatActivity implements MeshKeyListe
         binding.containerKeyIndex.title.setText(R.string.title_key_index);
         binding.containerKeyIndex.text.setVisibility(View.VISIBLE);
 
-        binding.containerKey.getRoot().setOnClickListener(v -> {
-            final NetworkKey netKey = mViewModel.getNetworkKeyLiveData().getValue();
-            final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(netKey.getKeyIndex(), netKey);
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKey.getRoot().setOnClickListener(v ->
+                DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
+                        .show(getSupportFragmentManager(), null));
 
-        binding.containerKeyName.getRoot().setOnClickListener(v -> {
-            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName());
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKeyName.getRoot().setOnClickListener(v ->
+                DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
+                        .show(getSupportFragmentManager(), null));
 
         mViewModel.getNetworkKeyLiveData().observe(this, this::updateUi);
     }
@@ -110,10 +107,10 @@ public class AddNetKeyActivity extends AppCompatActivity implements MeshKeyListe
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int id = item.getItemId();
-        if(id == android.R.id.home){
+        if (id == android.R.id.home) {
             onBackPressed();
             return true;
-        } else if (id == R.id.action_save){
+        } else if (id == R.id.action_save) {
             try {
                 if (mViewModel.addNetKey())
                     onBackPressed();
@@ -132,7 +129,7 @@ public class AddNetKeyActivity extends AppCompatActivity implements MeshKeyListe
     }
 
     @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
+    public boolean onKeyUpdated(@NonNull final String key) {
         mViewModel.setKey(MeshParserUtils.toByteArray(key));
         return true;
     }
