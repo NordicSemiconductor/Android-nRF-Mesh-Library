@@ -160,7 +160,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             if (mMeshMessage instanceof ConfigAppKeyAdd) {
                                 node.setAddedAppKeyIndex(status.getAppKeyIndex());
                             } else if (mMeshMessage instanceof ConfigAppKeyUpdate) {
-                                node.updateAddedNetKey(status.getAppKeyIndex());
+                                node.updateAddedAppKey(status.getAppKeyIndex());
                             } else if (mMeshMessage instanceof ConfigAppKeyDelete) {
                                 node.removeAddedAppKeyIndex(status.getAppKeyIndex());
                             }
