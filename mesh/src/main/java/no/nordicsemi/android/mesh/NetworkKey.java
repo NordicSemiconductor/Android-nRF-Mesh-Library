@@ -204,14 +204,15 @@ public final class NetworkKey extends MeshKey {
      *
      * @param newKey New NetworkKey value
      * @return true if successful or false otherwise
-     * @throws IllegalArgumentException if a NetworkKey update is attempted twice
+     * @throws IllegalArgumentException if a NetworkKey distribution is attempted twice with different key
+     *                                  values during a single Key refresh procedure
      */
     protected boolean distributeKey(@NonNull final byte[] newKey) throws IllegalArgumentException {
         if (valid(newKey)) {
             if (phase == 0 || phase == 1) {
                 phase = 1;
                 timestamp = System.currentTimeMillis();
-                super.distributeKey(newKey);
+                return super.distributeKey(newKey);
             } else {
                 throw new IllegalArgumentException("A NetworkKey can only be updated once during a Key Refresh Procedure.");
             }
