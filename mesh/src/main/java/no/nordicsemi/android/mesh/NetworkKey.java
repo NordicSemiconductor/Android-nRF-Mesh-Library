@@ -130,6 +130,21 @@ public final class NetworkKey extends MeshKey {
     }
 
     /**
+     * Returns the NetworkKey based on the key refresh procedure phase.
+     *
+     * @return key
+     */
+    public byte[] getTxNetworkKey() {
+        switch (phase) {
+            case PHASE_1:
+                return oldKey;
+            case PHASE_2:
+            default:
+                return key;
+        }
+    }
+
+    /**
      * Uses min security
      *
      * @return true if minimum security or false otherwise
@@ -196,7 +211,7 @@ public final class NetworkKey extends MeshKey {
             if (phase == 0 || phase == 1) {
                 phase = 1;
                 timestamp = System.currentTimeMillis();
-                return super.distributeKey(newKey);
+                super.distributeKey(newKey);
             } else {
                 throw new IllegalArgumentException("A NetworkKey can only be updated once during a Key Refresh Procedure.");
             }

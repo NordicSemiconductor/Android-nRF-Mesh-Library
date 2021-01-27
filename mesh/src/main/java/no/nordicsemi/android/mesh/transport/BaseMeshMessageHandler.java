@@ -26,9 +26,6 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import org.spongycastle.crypto.InvalidCipherTextException;
 
 import java.nio.ByteBuffer;
@@ -36,6 +33,8 @@ import java.nio.ByteOrder;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -105,16 +104,22 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         final int nid = pdu[1] & 0x7F;
         final int acceptedIvIndex = network.getIvIndex().getIvIndex();
         int ivIndex = acceptedIvIndex == 0 ? 0 : acceptedIvIndex - 1;
+        NetworkKey networkKey;
+        SecureUtils.K2Output k2Output;
+        byte[] networkHeader;
+        int ctlTtl;
+        int ctl;
+        int ttl;
         while (ivIndex <= ivIndex + 1) {
             //Here we go through all the network keys and filter out network keys based on the nid.
             for (int i = 0; i < networkKeys.size(); i++) {
-                NetworkKey networkKey = networkKeys.get(i);
-                final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+                networkKey = networkKeys.get(i);
+                k2Output = SecureUtils.calculateK2(networkKey.getTxNetworkKey(), SecureUtils.K2_MASTER_INPUT);
                 if (nid == k2Output.getNid()) {
-                    final byte[] networkHeader = deObfuscateNetworkHeader(pdu, MeshParserUtils.intToBytes(ivIndex), k2Output.getPrivacyKey());
-                    final int ctlTtl = networkHeader[0];
-                    final int ctl = (ctlTtl >> 7) & 0x01;
-                    final int ttl = ctlTtl & 0x7F;
+                    networkHeader = deObfuscateNetworkHeader(pdu, MeshParserUtils.intToBytes(ivIndex), k2Output.getPrivacyKey());
+                    ctlTtl = networkHeader[0];
+                    ctl = (ctlTtl >> 7) & 0x01;
+                    ttl = ctlTtl & 0x7F;
                     Log.v(TAG, "TTL for received message: " + ttl);
                     final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
 
