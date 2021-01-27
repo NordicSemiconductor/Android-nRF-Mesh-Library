@@ -76,7 +76,7 @@ public class ConfigKeyRefreshPhaseStatus extends ConfigStatusMessage implements 
 
         final ArrayList<Integer> keyIndexes = decode(mParameters.length, 1);
         mNetKeyIndex = keyIndexes.get(0);
-        phase = mParameters[2];
+        phase = mParameters[3];
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
