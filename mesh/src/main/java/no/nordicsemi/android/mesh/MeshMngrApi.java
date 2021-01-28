@@ -190,8 +190,18 @@ interface MeshMngrApi {
      * @param networkId   network id of the mesh
      * @param serviceData advertised service data
      * @return returns true if the network ids match or false otherwise
+     * @deprecated use {@link #networkIdMatches(byte[])} instead.
      */
+    @Deprecated
     boolean networkIdMatches(@NonNull final String networkId, @NonNull final byte[] serviceData);
+
+    /**
+     * Checks if the generated network ids match. The network ID contained in the service data would be checked against a network id of each network key.
+     *
+     * @param serviceData advertised service data
+     * @return returns true if the network ids match or false otherwise
+     */
+    boolean networkIdMatches(@NonNull final byte[] serviceData);
 
     /**
      * Returns the advertised hash

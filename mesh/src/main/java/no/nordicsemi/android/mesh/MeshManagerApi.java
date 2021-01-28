@@ -768,6 +768,18 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
+    public boolean networkIdMatches(@Nullable final byte[] serviceData) {
+        final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
+        if (advertisedNetworkId != null) {
+            for (NetworkKey key : mMeshNetwork.getNetKeys()) {
+                if (Arrays.equals(key.getNetworkId(), advertisedNetworkId) || Arrays.equals(key.getOldNetworkId(), advertisedNetworkId))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean isAdvertisingWithNetworkIdentity(@Nullable final byte[] serviceData) {
         return serviceData != null && serviceData.length == 9
                 && serviceData[ADVERTISED_NETWORK_ID_OFFSET - 1] == ADVERTISEMENT_TYPE_NETWORK_ID;

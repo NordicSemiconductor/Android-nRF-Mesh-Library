@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -76,6 +77,7 @@ public final class NetworkKey extends MeshKey {
         phase = in.readInt();
         minSecurity = in.readByte() != 0;
         oldKey = in.createByteArray();
+        identityKey = in.createByteArray();
         timestamp = in.readLong();
     }
 
@@ -100,6 +102,7 @@ public final class NetworkKey extends MeshKey {
         dest.writeInt(phase);
         dest.writeByte((byte) (minSecurity ? 1 : 0));
         dest.writeByteArray(oldKey);
+        dest.writeByteArray(identityKey);
         dest.writeLong(timestamp);
     }
 
@@ -246,5 +249,14 @@ public final class NetworkKey extends MeshKey {
             return true;
         }
         return false;
+    }
+
+    protected byte[] getNetworkId() {
+        return SecureUtils.calculateK3(key);
+    }
+
+    @Nullable
+    protected byte[] getOldNetworkId() {
+        return SecureUtils.calculateK3(oldKey);
     }
 }
