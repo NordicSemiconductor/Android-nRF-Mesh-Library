@@ -234,7 +234,7 @@ public class SecureUtils {
      * @param p    master input
      */
     public static K2Output calculateK2(final byte[] data, final byte[] p) {
-        if(data == null || p == null)
+        if (data == null || p == null)
             return null;
 
         final byte[] salt = calculateSalt(SMK2);
@@ -269,7 +269,7 @@ public class SecureUtils {
      * @param n network key
      */
     public static byte[] calculateK3(final byte[] n) {
-        if(n == null)
+        if (n == null)
             return null;
 
         final byte[] salt = calculateSalt(SMK3);
@@ -320,6 +320,8 @@ public class SecureUtils {
      * @return hash value
      */
     public static byte[] calculateIdentityKey(final byte[] n) {
+        if (n == null)
+            return null;
         final byte[] salt = calculateSalt(NKIK);
         ByteBuffer buffer = ByteBuffer.allocate(ID128.length + 1);
         buffer.put(ID128);

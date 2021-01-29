@@ -187,8 +187,8 @@ abstract class MeshKey implements Parcelable, Cloneable {
     }
 
     protected boolean distributeKey(@NonNull final byte[] key) {
-        if(!Arrays.equals(this.key, oldKey))
-            this.oldKey = this.key;
+        if (!Arrays.equals(this.key, oldKey))
+            setOldKey(this.key);
         setKey(key);
         return true;
     }

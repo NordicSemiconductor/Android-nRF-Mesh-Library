@@ -55,6 +55,15 @@ public final class NetworkKey extends MeshKey {
     @Ignore
     private byte[] identityKey;
 
+    @Ignore
+    private byte[] oldIdentityKey;
+
+    @Ignore
+    private SecureUtils.K2Output derivatives;
+
+    @Ignore
+    private SecureUtils.K2Output oldDerivatives;
+
     /**
      * Constructs a NetworkKey object with a given key index and network key
      *
@@ -66,6 +75,7 @@ public final class NetworkKey extends MeshKey {
         super(keyIndex, key);
         name = "Network Key " + (keyIndex + 1);
         identityKey = SecureUtils.calculateIdentityKey(key);
+        derivatives = SecureUtils.calculateK2(key, SecureUtils.K2_MASTER_INPUT);
         timestamp = System.currentTimeMillis();
     }
 
@@ -78,6 +88,9 @@ public final class NetworkKey extends MeshKey {
         minSecurity = in.readByte() != 0;
         oldKey = in.createByteArray();
         identityKey = in.createByteArray();
+        oldIdentityKey = in.createByteArray();
+        derivatives = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
+        oldDerivatives = in.readParcelable(SecureUtils.K2Output.class.getClassLoader());
         timestamp = in.readLong();
     }
 
@@ -103,6 +116,9 @@ public final class NetworkKey extends MeshKey {
         dest.writeByte((byte) (minSecurity ? 1 : 0));
         dest.writeByteArray(oldKey);
         dest.writeByteArray(identityKey);
+        dest.writeByteArray(oldIdentityKey);
+        dest.writeParcelable(derivatives, flags);
+        dest.writeParcelable(oldDerivatives, flags);
         dest.writeLong(timestamp);
     }
 
@@ -130,6 +146,14 @@ public final class NetworkKey extends MeshKey {
     public void setKey(@NonNull final byte[] key) {
         super.setKey(key);
         identityKey = SecureUtils.calculateIdentityKey(key);
+        derivatives = SecureUtils.calculateK2(key, SecureUtils.K2_MASTER_INPUT);
+    }
+
+    @Override
+    public void setOldKey(final byte[] oldKey) {
+        super.setOldKey(oldKey);
+        oldIdentityKey = SecureUtils.calculateIdentityKey(oldKey);
+        oldDerivatives = SecureUtils.calculateK2(oldKey, SecureUtils.K2_MASTER_INPUT);
     }
 
     /**
@@ -166,10 +190,17 @@ public final class NetworkKey extends MeshKey {
     }
 
     /**
-     * Returns the identity key derived
+     * Returns the identity key derived from the current key
      */
     public byte[] getIdentityKey() {
         return identityKey;
+    }
+
+    /**
+     * Returns the identity key derived from the Old Key
+     */
+    public byte[] getOldIdentityKey() {
+        return oldIdentityKey;
     }
 
     /**
@@ -258,5 +289,25 @@ public final class NetworkKey extends MeshKey {
     @Nullable
     protected byte[] getOldNetworkId() {
         return SecureUtils.calculateK3(oldKey);
+    }
+
+
+    /**
+     * Returns the derivatives from the network key
+     *
+     * @return {@link SecureUtils.K2Output}
+     */
+    public SecureUtils.K2Output getDerivatives() {
+        return derivatives;
+    }
+
+    /**
+     * Returns the derivatives from the old network key
+     *
+     * @return {@link SecureUtils.K2Output}
+     */
+    @Nullable
+    public SecureUtils.K2Output getOldDerivatives() {
+        return oldDerivatives;
     }
 }
