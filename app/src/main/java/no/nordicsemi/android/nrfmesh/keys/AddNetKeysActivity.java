@@ -29,11 +29,18 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
+import no.nordicsemi.android.mesh.transport.ConfigKeyRefreshPhaseGet;
+import no.nordicsemi.android.mesh.transport.ConfigKeyRefreshPhaseSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyAdd;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyDelete;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyGet;
+import no.nordicsemi.android.mesh.transport.ConfigNetKeyUpdate;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
+import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+import no.nordicsemi.android.mesh.utils.SecureUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedNetKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
@@ -43,6 +50,8 @@ public class AddNetKeysActivity extends AddKeysActivity implements
         AddedNetKeyAdapter.OnItemClickListener {
     private AddedNetKeyAdapter adapter;
 
+    NetworkKey key;
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +60,27 @@ public class AddNetKeysActivity extends AddKeysActivity implements
                 mViewModel.getNetworkLiveData().getMeshNetwork().getNetKeys(), mViewModel.getSelectedMeshNode());
         binding.recyclerViewKeys.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
+
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+
+        final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+        binding.krp.setOnClickListener(v -> {
+            key = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(node.getAddedNetKeys().get(0).getIndex());
+            final byte[] nKey = MeshParserUtils.toByteArray(SecureUtils.generateRandomNetworkKey());
+            key = network.distributeNetKey(key, nKey);
+            mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), new ConfigNetKeyUpdate(key));
+
+        });
+
+        binding.switchKey.setOnClickListener(v -> mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), new ConfigKeyRefreshPhaseGet(key)));
+
+        binding.revokeOld.setOnClickListener(v -> {
+            if (mViewModel.getNetworkLiveData().getMeshNetwork().switchToNewKey(key)) {
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), new ConfigKeyRefreshPhaseSet(key, NetworkKey.PHASE_2));
+                network.revokeOldKey(key);
+                mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), new ConfigKeyRefreshPhaseSet(key, NetworkKey.PHASE_3));
+            }
+        });
         updateClickableViews();
     }
 
