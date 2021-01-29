@@ -45,6 +45,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import no.nordicsemi.android.mesh.Features;
+import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.MeshTypeConverters;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.SecureNetworkBeacon;
@@ -52,7 +53,7 @@ import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 import no.nordicsemi.android.mesh.utils.SparseIntArrayParcelable;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
     public static final int LOW = 0; //Low security
@@ -274,7 +275,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
      * Blacklist a node.
      *
      * @param blackListed true if blacklisted
-     * @deprecated Use {@link no.nordicsemi.android.mesh.MeshNetwork#excludeNode(ProvisionedMeshNode)} instead
+     * @deprecated Use {@link #setExcluded(boolean)} instead
      */
     @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -332,16 +333,21 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     public @interface SecurityState {
     }
 
+    /**
+     * Returns true if the node is marked as excluded.
+     *
+     * @return true if marked as excluded or false otherwise.
+     */
     public boolean isExcluded() {
         return excluded;
     }
 
     /**
-     * Excludes a node and is meant to be used internally by the Room DB.
+     * Marks a node as excluded. Note that to exclude a node from a network, users must call
+     * {@link MeshNetwork#excludeNode(ProvisionedMeshNode)}
      *
-     * @param excluded True if the node is to be excluded
+     * @param excluded true if the node is to be excluded or false otherwise
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setExcluded(final boolean excluded) {
         this.excluded = excluded;
     }
