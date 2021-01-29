@@ -1,16 +1,14 @@
 package no.nordicsemi.android.mesh.data;
 
+import androidx.annotation.RestrictTo;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Update;
-import androidx.annotation.RestrictTo;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("unused")
 @Dao
 public interface ApplicationKeyDao {
 
