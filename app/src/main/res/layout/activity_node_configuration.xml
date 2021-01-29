@@ -58,8 +58,8 @@
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
                 android:visibility="invisible"
-                tools:visibility="visible"
-                tools:ignore="UnusedAttribute" />
+                tools:ignore="UnusedAttribute"
+                tools:visibility="visible" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -396,6 +396,57 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/node_exclude_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.appbar.MaterialToolbar
+                            android:layout_width="match_parent"
+                            android:layout_height="?actionBarSize"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:logo="@drawable/ic_reset"
+                            app:title="@string/title_exclude_node"
+                            app:titleMarginStart="@dimen/toolbar_title_margin"
+                            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/activity_horizontal_margin"
+                            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                            android:paddingTop="@dimen/item_padding_top"
+                            android:paddingBottom="@dimen/item_padding_bottom"
+                            android:text="@string/node_exclusion_summary"
+                            android:textSize="16sp" />
+
+                        <include
+                            layout="@layout/layout_divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            style="@style/Widget.App.Switch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginStart="@dimen/item_padding_end"
+                            android:layout_marginEnd="@dimen/item_padding_start"
+                            android:padding="@dimen/item_padding_end"/>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/node_reset_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -429,7 +480,7 @@
                             android:paddingTop="@dimen/item_padding_top"
                             android:paddingBottom="@dimen/item_padding_bottom"
                             android:text="@string/reset_node_rationale"
-                            android:textSize="16sp"/>
+                            android:textSize="16sp" />
 
                         <include
                             layout="@layout/layout_divider"
