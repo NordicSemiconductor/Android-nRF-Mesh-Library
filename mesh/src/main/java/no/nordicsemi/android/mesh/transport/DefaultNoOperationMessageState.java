@@ -467,7 +467,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     private boolean isReceivedViaProxyFilter(@NonNull final Message message) {
         final ProxyFilter filter = mInternalTransportCallbacks.getProxyFilter();
         if (filter != null) {
-            if (filter.getFilterType().getType() == ProxyFilterType.WHITE_LIST_FILTER) {
+            if (filter.getFilterType().getType() == ProxyFilterType.INCLUSION_LIST_FILTER) {
                 return filterAddressMatches(filter, message.getDst());
             } else {
                 return !filterAddressMatches(filter, message.getDst());

@@ -338,11 +338,11 @@
 
     <string name="title_proxy_filter">Proxy Filter Type</string>
     <string name="title_filter_addresses">Filter Addresses</string>
-    <string name="white_list_filter">Whitelist</string>
-    <string name="black_list_filter">Blacklist</string>
+    <string name="inclusion_list">Inclusion list</string>
+    <string name="exclusion_list">Exclusion list</string>
     <string name="proxy_filter_summary">Proxy filter can be used to monitor mesh messages sent across a mesh network.
-        \n\nWhite list filter blocks all destination addresses except those that have been added to the white list.
-    \n\nThe black list filter accepts all destination addresses except those that have been added to the black list.</string>
+        \n\nInclusion list filter blocks all destination addresses except those that have been added to the inclusion list.
+    \n\nThe exclusion list filter accepts all destination addresses except those that have been added to the exclusion list.</string>
 
     <string name="action_disable">Disable</string>
     <string name="disabled">Disabled</string>

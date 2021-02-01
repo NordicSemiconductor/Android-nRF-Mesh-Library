@@ -147,8 +147,8 @@ public class ProxyFilterFragment extends Fragment implements
                 actionDisable.setSelected(true);
             }
 
-            actionEnableWhiteList.setSelected(mFilter.getFilterType().getType() == ProxyFilterType.WHITE_LIST_FILTER && !actionDisable.isSelected());
-            actionEnableBlackList.setSelected(mFilter.getFilterType().getType() == ProxyFilterType.BLACK_LIST_FILTER);
+            actionEnableWhiteList.setSelected(mFilter.getFilterType().getType() == ProxyFilterType.INCLUSION_LIST_FILTER && !actionDisable.isSelected());
+            actionEnableBlackList.setSelected(mFilter.getFilterType().getType() == ProxyFilterType.EXCLUSION_LIST_FILTER);
 
             if (!mFilter.getAddresses().isEmpty()) {
                 noAddressesAdded.setVisibility(View.GONE);
@@ -169,7 +169,7 @@ public class ProxyFilterFragment extends Fragment implements
             actionEnableBlackList.setSelected(false);
             actionDisable.setSelected(false);
             actionDisable.setEnabled(true);
-            setFilter(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
+            setFilter(new ProxyFilterType(ProxyFilterType.INCLUSION_LIST_FILTER));
         });
 
         actionEnableBlackList.setOnClickListener(v -> {
@@ -178,7 +178,7 @@ public class ProxyFilterFragment extends Fragment implements
             actionEnableWhiteList.setSelected(false);
             actionDisable.setSelected(false);
             actionDisable.setEnabled(true);
-            setFilter(new ProxyFilterType(ProxyFilterType.BLACK_LIST_FILTER));
+            setFilter(new ProxyFilterType(ProxyFilterType.EXCLUSION_LIST_FILTER));
         });
 
         actionDisable.setOnClickListener(v -> {
@@ -188,13 +188,13 @@ public class ProxyFilterFragment extends Fragment implements
             actionEnableBlackList.setSelected(false);
             addressAdapter.clearData();
             actionDisable.setEnabled(false);
-            setFilter(new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER));
+            setFilter(new ProxyFilterType(ProxyFilterType.INCLUSION_LIST_FILTER));
         });
 
         actionAddFilterAddress.setOnClickListener(v -> {
             final ProxyFilterType filterType;
             if (mFilter == null) {
-                filterType = new ProxyFilterType(ProxyFilterType.WHITE_LIST_FILTER);
+                filterType = new ProxyFilterType(ProxyFilterType.INCLUSION_LIST_FILTER);
             } else {
                 filterType = mFilter.getFilterType();
             }
