@@ -59,11 +59,11 @@ public class ProxyFilterType implements Parcelable {
     /**
      * Returns the filter type name
      */
-    public String getFilterTypeName(){
-        if(filterType == INCLUSION_LIST_FILTER){
-            return "Whitelist Filter";
+    public String getFilterTypeName() {
+        if (filterType == INCLUSION_LIST_FILTER) {
+            return "Inclusion List";
         } else {
-            return "Blacklist Filter";
+            return "Exclusion List";
         }
     }
 
