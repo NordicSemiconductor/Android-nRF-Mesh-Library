@@ -16,7 +16,7 @@ public abstract class Heartbeat {
 
 
     @Expose
-    @SerializedName("destination")
+    @SerializedName(value = "destination", alternate = "address")
     protected int dst;
     @Expose
     @SerializedName("period")
@@ -71,6 +71,15 @@ public abstract class Heartbeat {
      */
     public static int calculateHeartbeatPeriod(final short periodLog) {
         return (int) Math.pow(2, periodLog - 1);
+    }
+
+    /**
+     * Decodes the period and returns the period log value
+     *
+     * @param period period value
+     */
+    public static byte getHeartbeatPeriodLog(final short period) {
+        return (byte) ((Math.log(period)/Math.log(2)) + 1);
     }
 
     /**

@@ -89,7 +89,7 @@ public class HeartbeatPublication extends Heartbeat implements Parcelable {
                 "\nCount Log: " + Integer.toHexString(countLog) +
                 "\nPeriod Log: " + Integer.toHexString(periodLog) +
                 "\nTTL: " + ttl +
-                "\nFeatures: " + features.toString() +
+                "\nFeatures: " + features == null ? "null" : features.toString() +
                 "\nNet key index: " + Integer.toHexString(netKeyIndex);
     }
 

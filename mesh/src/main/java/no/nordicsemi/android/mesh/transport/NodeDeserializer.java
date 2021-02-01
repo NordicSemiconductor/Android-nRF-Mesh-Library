@@ -26,6 +26,7 @@ import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.utils.CompositionDataParser;
+import no.nordicsemi.android.mesh.utils.Heartbeat;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -333,10 +334,37 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         final ConfigurationServerModel model = getConfigurationServerModel(node);
         if (model != null) {
             if (jsonObject.has("heartbeatPub")) {
-                model.setHeartbeatPublication(context.deserialize(jsonObject.get("heartbeatPub"), HeartbeatPublication.class));
+                final JsonObject jsonHeartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
+                final int dst = Integer.parseInt(jsonHeartbeatPub.get("address").getAsString(), 16);
+                final JsonArray jsonFeatures = jsonHeartbeatPub.get("features").getAsJsonArray();
+                int relay = 0;
+                int proxy = 0;
+                int friend = 0;
+                int lowPower = 0;
+                for (JsonElement element : jsonFeatures) {
+                    if (element.getAsString().equalsIgnoreCase("relay")) {
+                        relay = Features.ENABLED;
+                    } else if (element.getAsString().equalsIgnoreCase("proxy")) {
+                        proxy = Features.ENABLED;
+                    } else if (element.getAsString().equalsIgnoreCase("friend")) {
+                        friend = Features.ENABLED;
+                    } else if (element.getAsString().equalsIgnoreCase("lowPower")) {
+                        lowPower = Features.ENABLED;
+                    }
+                }
+
+                final Features features = new Features(friend, lowPower, proxy, relay);
+                final int index = jsonHeartbeatPub.get("index").getAsInt();
+                final int period = jsonHeartbeatPub.get("period").getAsInt();
+
+                final int ttl = jsonHeartbeatPub.get("ttl").getAsInt();
+                model.setHeartbeatPublication(new HeartbeatPublication(dst, (byte) 0, Heartbeat.getHeartbeatPeriodLog((short) period), ttl, features, index));
             }
             if (jsonObject.has("heartbeatSub")) {
-                model.setHeartbeatSubscription(context.deserialize(jsonObject.get("heartbeatSub"), HeartbeatSubscription.class));
+                final JsonObject jsonHeartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
+                final int dst = Integer.parseInt(jsonHeartbeatSub.get("destination").getAsString(), 16);
+                final int src = Integer.parseInt(jsonHeartbeatSub.get("source").getAsString(), 16);
+                model.setHeartbeatSubscription(new HeartbeatSubscription(src, dst, (byte) 0, (byte) 0, 0, 0));
             }
         }
     }
@@ -354,20 +382,31 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
         final ConfigurationServerModel model = getConfigurationServerModel(node);
         if (model != null) {
             if (model.getHeartbeatPublication() != null) {
-                final JsonObject result = context
-                        .serialize(model.getHeartbeatPublication(), HeartbeatPublication.class)
-                        .getAsJsonObject();
-                result.remove("count");
-                jsonObject.add("heartbeatPub", result);
+                final HeartbeatPublication publication = model.getHeartbeatPublication();
+                final JsonObject heartbeatPub = new JsonObject();
+                heartbeatPub.addProperty("address", MeshAddress.formatAddress(publication.getDstAddress(), false));
+                heartbeatPub.addProperty("period", Heartbeat.calculateHeartbeatPeriod(publication.getPeriodLog()));
+                heartbeatPub.addProperty("ttl", publication.getTtl());
+                heartbeatPub.addProperty("index", publication.getNetKeyIndex());
+                final JsonArray featuresArray = new JsonArray();
+                if (publication.getFeatures().getRelay() == Features.ENABLED)
+                    featuresArray.add("relay");
+                if (publication.getFeatures().getProxy() == Features.ENABLED)
+                    featuresArray.add("proxy");
+                if (publication.getFeatures().getFriend() == Features.ENABLED)
+                    featuresArray.add("friend");
+                if (publication.getFeatures().getLowPower() == Features.ENABLED)
+                    featuresArray.add("lowPower");
+                heartbeatPub.add("features", featuresArray);
+                jsonObject.add("heartbeatPub", heartbeatPub);
             }
             if (model.getHeartbeatSubscription() != null) {
-                final JsonObject result = context
-                        .serialize(model.getHeartbeatSubscription(), HeartbeatSubscription.class)
-                        .getAsJsonObject();
-                result.remove("count");
-                result.remove("minHops");
-                result.remove("maxHops");
-                jsonObject.add("heartbeatSub", result);
+                final JsonObject subscription = new JsonObject();
+                subscription.addProperty("destination",
+                        MeshAddress.formatAddress(model.getHeartbeatSubscription().getDst(), false));
+                subscription.addProperty("source",
+                        MeshAddress.formatAddress(model.getHeartbeatSubscription().getSrc(), false));
+                jsonObject.add("heartbeatSub", subscription);
             }
         }
     }
