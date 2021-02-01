@@ -53,7 +53,9 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
             final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
             node.unicastAddress = unicastAddress;
-            final boolean security = jsonObject.get("security").getAsString().equals("high");
+            final String jsonSecurity = jsonObject.get("security").getAsString();
+            final boolean security = jsonSecurity.equalsIgnoreCase("secure") ||
+                    /*Maintaining backwards compatibility */jsonSecurity.equalsIgnoreCase("high");
             node.security = security ? 1 : 0;
             node.mAddedNetKeys = deserializeAddedIndexes(jsonObject.get("netKeys").getAsJsonArray());
             node.isConfigured = jsonObject.get("configComplete").getAsBoolean();
@@ -87,16 +89,51 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("networkTransmit")) {
                 final JsonObject jsonNetTransmit = jsonObject.getAsJsonObject("networkTransmit");
-                final NetworkTransmitSettings networkTransmitSettings =
-                        new NetworkTransmitSettings(jsonNetTransmit.get("count").getAsInt(), jsonNetTransmit.get("interval").getAsInt());
-                node.setNetworkTransmitSettings(networkTransmitSettings);
+                int count = jsonNetTransmit.get("count").getAsInt();
+                int interval = jsonNetTransmit.get("interval").getAsInt();
+                if (count < 1 || count > 8)
+                    throw new IllegalArgumentException("Error while deserializing Network Transmit on : " +
+                            MeshAddress.formatAddress(unicastAddress, true) + ", Network Transmit count must be in range 1-8.");
+
+                if (count != 0 && interval != 0) {
+                    final NetworkTransmitSettings networkTransmitSettings;
+                    // Some versions of nRF Mesh lib for Android were exporting interval
+                    // as number of steps, not the interval, therefore we can try to fix that.
+                    if (interval % 10 != 0 && interval <= 32) {
+                        // Interval that was exported as intervalSteps are imported as it is.
+                        networkTransmitSettings = new NetworkTransmitSettings(count, interval);
+                        node.setNetworkTransmitSettings(networkTransmitSettings);
+                    } else if (interval % 10 == 0) {
+                        // Interval that was exported as intervalSteps are decoded to intervalSteps.
+                        final int steps = NetworkTransmitSettings.decodeNetworkTransmissionInterval(interval);
+                        networkTransmitSettings = new NetworkTransmitSettings(count, steps);
+                        node.setNetworkTransmitSettings(networkTransmitSettings);
+                    }
+                }
             }
 
             if (jsonObject.has("relayRetransmit")) {
                 final JsonObject jsonRelay = jsonObject.getAsJsonObject("relayRetransmit");
-                final RelaySettings relaySettings =
-                        new RelaySettings(jsonRelay.get("count").getAsInt(), jsonRelay.get("interval").getAsInt());
-                node.setRelaySettings(relaySettings);
+                int count = jsonRelay.get("count").getAsInt();
+                int interval = jsonRelay.get("interval").getAsInt();
+                if (count < 1 || count > 8)
+                    throw new IllegalArgumentException("Error while deserializing Relay Retransmit on : " +
+                            MeshAddress.formatAddress(unicastAddress, true) + " Relay Retransmit count must be in range 1-8.");
+                if (count != 0 && interval != 0) {
+                    final RelaySettings relaySettings;
+                    // Some versions of nRF Mesh lib for Android were exporting interval
+                    // as number of steps, not the interval, therefore we can try to fix that.
+                    if (interval % 10 != 0 && interval <= 32) {
+                        // Interval that was exported as intervalSteps are imported as it is.
+                        relaySettings = new RelaySettings(count, interval);
+                        node.setRelaySettings(relaySettings);
+                    } else if (interval % 10 == 0) {
+                        // Interval that was exported as intervalSteps are imported as it is.
+                        final int steps = RelaySettings.decodeRelayRetransmitInterval(interval);
+                        relaySettings = new RelaySettings(count, steps);
+                        node.setRelaySettings(relaySettings);
+                    }
+                }
             }
 
             if (jsonObject.has("appKeys"))
@@ -110,7 +147,9 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
 
             if (jsonObject.has("blacklisted")) {
-                node.setBlackListed(jsonObject.get("blacklisted").getAsBoolean());
+                node.setExcluded(jsonObject.get("blacklisted").getAsBoolean());
+            } else if (jsonObject.has("excluded")) {
+                node.setExcluded(jsonObject.get("excluded").getAsBoolean());
             }
 
             if (jsonObject.has("name"))
@@ -123,7 +162,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     }
 
     @Override
-    public JsonElement serialize(final List<ProvisionedMeshNode> nodes, final Type typeOfSrc, final JsonSerializationContext context) {
+    public JsonElement serialize(final List<ProvisionedMeshNode> nodes, final Type typeOfSrc,
+                                 final JsonSerializationContext context) {
         final JsonArray jsonArray = new JsonArray();
         for (ProvisionedMeshNode node : nodes) {
             final JsonObject nodeJson = new JsonObject();
@@ -131,7 +171,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             nodeJson.addProperty("name", node.getNodeName());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
             nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
-            nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "high" : "low");
+            nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "secure" : "insecure");
             nodeJson.addProperty("configComplete", node.isConfigured());
 
             if (node.getCompanyIdentifier() != null)
@@ -161,20 +201,20 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             if (node.getNetworkTransmitSettings() != null) {
                 final JsonObject json = new JsonObject();
                 json.addProperty("count", node.getNetworkTransmitSettings().getNetworkTransmitCount());
-                json.addProperty("interval", node.getNetworkTransmitSettings().getNetworkIntervalSteps());
+                json.addProperty("interval", node.getNetworkTransmitSettings().getNetworkTransmissionInterval());
                 nodeJson.add("networkTransmit", json);
             }
             if (node.getRelaySettings() != null) {
                 final JsonObject json = new JsonObject();
                 json.addProperty("count", node.getRelaySettings().getRelayTransmitCount());
-                json.addProperty("interval", node.getRelaySettings().getRelayIntervalSteps());
+                json.addProperty("interval", node.getRelaySettings().getRetransmissionIntervals());
                 nodeJson.add("relayRetransmit", json);
             }
 
             nodeJson.add("netKeys", serializeAddedIndexes(node.getAddedNetKeys()));
             nodeJson.add("appKeys", serializeAddedIndexes(node.getAddedAppKeys()));
             nodeJson.add("elements", serializeElements(context, node.getElements()));
-            nodeJson.addProperty("blacklisted", node.isBlackListed());
+            nodeJson.addProperty("excluded", node.isExcluded());
             serializeHeartbeat(context, nodeJson, node);
             jsonArray.add(nodeJson);
         }
@@ -219,7 +259,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * @param elementsMap elements map
      * @return JsonElement
      */
-    private JsonElement serializeElements(final JsonSerializationContext context, final Map<Integer, Element> elementsMap) {
+    private JsonElement serializeElements(final JsonSerializationContext context,
+                                          final Map<Integer, Element> elementsMap) {
         final Type elementsList = new TypeToken<List<Element>>() {
         }.getType();
         return context.serialize(populateElements(elementsMap), elementsList);
@@ -231,7 +272,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * @param context Deserializer context
      * @param json    Elements json object
      */
-    private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json) {
+    private List<Element> deserializeElements(final JsonDeserializationContext context,
+                                              final JsonObject json) {
         Type elementList = new TypeToken<List<Element>>() {
         }.getType();
         return context.deserialize(json.getAsJsonArray("elements"), elementList);
@@ -244,7 +286,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * @param elementsList   List of MeshModels
      * @return Map of mesh models
      */
-    private Map<Integer, Element> populateElements(final int unicastAddress, final List<Element> elementsList) {
+    private Map<Integer, Element> populateElements(final int unicastAddress,
+                                                   final List<Element> elementsList) {
         final Map<Integer, Element> elements = new LinkedHashMap<>();
         int address = 0;
         for (int i = 0; i < elementsList.size(); i++) {
@@ -334,7 +377,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      *
      * @param node Mesh node
      */
-    private ConfigurationServerModel getConfigurationServerModel(@NonNull final ProvisionedMeshNode node) {
+    private ConfigurationServerModel getConfigurationServerModel(
+            @NonNull final ProvisionedMeshNode node) {
         final Element element = node.getElements().get(node.getUnicastAddress());
         if (element != null) {
             final MeshModel meshModel = element.getMeshModels().get((int) SigModelParser.CONFIGURATION_SERVER);
