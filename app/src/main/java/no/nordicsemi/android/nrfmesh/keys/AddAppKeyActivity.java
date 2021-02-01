@@ -96,16 +96,14 @@ public class AddAppKeyActivity extends AppCompatActivity implements
         adapter.setOnItemClickListener(this);
         netKeysRecyclerView.setAdapter(adapter);
 
-        binding.containerKey.getRoot().setOnClickListener(v -> {
-            final ApplicationKey appKey = mViewModel.getAppKeyLiveData().getValue();
-            final DialogFragmentEditAppKey fragment = DialogFragmentEditAppKey.newInstance(appKey.getKeyIndex(), appKey);
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKey.getRoot().setOnClickListener(v ->
+                DialogFragmentEditAppKey.newInstance(mViewModel.getAppKeyLiveData().getValue())
+                        .show(getSupportFragmentManager(), null));
 
-        binding.containerKeyName.getRoot().setOnClickListener(v -> {
-            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getAppKeyLiveData().getValue().getName());
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKeyName.getRoot().setOnClickListener(v ->
+                DialogFragmentKeyName.newInstance(mViewModel.getAppKeyLiveData().getValue().getName())
+                        .show(getSupportFragmentManager(), null));
+
         mViewModel.getAppKeyLiveData().observe(this, this::updateUi);
     }
 
@@ -124,10 +122,10 @@ public class AddAppKeyActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int id = item.getItemId();
-        if(id == android.R.id.home){
+        if (id == android.R.id.home) {
             onBackPressed();
             return true;
-        } else if(id == R.id.action_save) {
+        } else if (id == R.id.action_save) {
             try {
                 if (mViewModel.addAppKey())
                     onBackPressed();
@@ -146,7 +144,7 @@ public class AddAppKeyActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
+    public boolean onKeyUpdated(@NonNull final String key) {
         mViewModel.setKey(MeshParserUtils.toByteArray(key));
         return true;
     }

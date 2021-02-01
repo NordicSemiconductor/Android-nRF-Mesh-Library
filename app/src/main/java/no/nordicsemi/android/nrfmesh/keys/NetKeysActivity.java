@@ -202,7 +202,6 @@ public class NetKeysActivity extends AppCompatActivity implements
         final NetworkKey key = (NetworkKey) viewHolder.getSwipeableView().getTag();
         try {
             if (removeNetKey(key)) {
-
                 displaySnackBar(key);
             }
         } catch (Exception ex) {

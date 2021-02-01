@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
-import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
@@ -161,7 +160,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                             if (mMeshMessage instanceof ConfigAppKeyAdd) {
                                 node.setAddedAppKeyIndex(status.getAppKeyIndex());
                             } else if (mMeshMessage instanceof ConfigAppKeyUpdate) {
-                                node.updateAddedNetKey(status.getAppKeyIndex());
+                                node.updateAddedAppKey(status.getAppKeyIndex());
                             } else if (mMeshMessage instanceof ConfigAppKeyDelete) {
                                 node.removeAddedAppKeyIndex(status.getAppKeyIndex());
                             }
@@ -327,13 +326,6 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_KEY_REFRESH_PHASE_STATUS) {
                     final ConfigKeyRefreshPhaseStatus status = new ConfigKeyRefreshPhaseStatus(message);
-                    if (!isReceivedViaProxyFilter(message)) {
-                        final int index = status.getNetKeyIndex();
-                        final NetworkKey key = mInternalTransportCallbacks.getMeshNetwork().getNetKey(index);
-                        if (key != null) {
-                            key.setPhase(status.getPhase());
-                        }
-                    }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_GATT_PROXY_STATUS) {

@@ -303,90 +303,91 @@ public class MeshManagerApi implements MeshMngrApi {
                     break;
                 case PDU_TYPE_MESH_BEACON:
                     //Validate SNBs against all network keys
+                    NetworkKey networkKey;
                     for (int i = 0; i < mMeshNetwork.getNetKeys().size(); i++) {
-                        final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(i);
-                        if (networkKey != null) {
-                            final byte[] receivedBeaconData = new byte[unsegmentedPdu.length - 1];
-                            System.arraycopy(unsegmentedPdu, 1, receivedBeaconData, 0, receivedBeaconData.length);
-                            final SecureNetworkBeacon receivedBeacon = new SecureNetworkBeacon(receivedBeaconData);
+                        networkKey = mMeshNetwork.getNetKeys().get(i);
+                        final byte[] receivedBeaconData = new byte[unsegmentedPdu.length - 1];
+                        System.arraycopy(unsegmentedPdu, 1, receivedBeaconData, 0, receivedBeaconData.length);
+                        final SecureNetworkBeacon receivedBeacon = new SecureNetworkBeacon(receivedBeaconData);
 
-                            final byte[] n = networkKey.getKey();
-                            final int flags = receivedBeacon.getFlags();
-                            final byte[] networkId = SecureUtils.calculateK3(n);
-                            final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
-                            Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
+                        final byte[] n = networkKey.getTxNetworkKey();
+                        final int flags = receivedBeacon.getFlags();
+                        final byte[] networkId = SecureUtils.calculateK3(n);
+                        final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
+                        Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
 
-                            final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
-                            //Check the the beacon received is a valid by matching the authentication values
-                            if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
-                                Log.d(TAG, "Secure Network Beacon beacon authenticated.");
+                        final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
+                        //Check the the beacon received is a valid by matching the authentication values
+                        if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
+                            Log.d(TAG, "Secure Network Beacon beacon authenticated.");
 
-                                //  The library does not retransmit Secure Network Beacon.
-                                //  If this node is a member of a primary subnet and receives a Secure Network
-                                //  beacon on a secondary subnet, it will disregard it.
-                                if (mMeshNetwork.getPrimaryNetworkKey() != null && networkKey.keyIndex != 0) {
-                                    Log.d(TAG, "Discarding beacon for secondary subnet with network key index: " + networkKey.keyIndex);
-                                    return;
-                                }
+                            //  The library does not retransmit Secure Network Beacon.
+                            //  If this node is a member of a primary subnet and receives a Secure Network
+                            //  beacon on a secondary subnet, it will disregard it.
+                            if (mMeshNetwork.getPrimaryNetworkKey() != null && networkKey.keyIndex != 0) {
+                                Log.d(TAG, "Discarding beacon for secondary subnet with network key index: " + networkKey.keyIndex);
+                                return;
+                            }
 
-                                // Get the last IV Index.
-                                /// The last used IV Index for this mesh network.
-                                final IvIndex lastIvIndex = mMeshNetwork.getIvIndex();
-                                Log.d(TAG, "Last IV Index: " + lastIvIndex.getIvIndex());
-                                /// The date of the last change of IV Index or IV Update Flag.
-                                final Calendar lastTransitionDate = lastIvIndex.getTransitionDate();
-                                /// A flag whether the IV has recently been updated using IV Recovery procedure.
-                                /// The at-least-96h requirement for the duration of the current state will not apply.
-                                /// The node shall not execute more than one IV Index Recovery within a period of 192 hours.
-                                final boolean isIvRecoveryActive = lastIvIndex.getIvRecoveryFlag();
-                                /// The test mode disables the 96h rule, leaving all other behavior unchanged.
-                                final boolean isIvTestModeActive = ivUpdateTestModeActive;
+                            // Get the last IV Index.
+                            /// The last used IV Index for this mesh network.
+                            final IvIndex lastIvIndex = mMeshNetwork.getIvIndex();
+                            Log.d(TAG, "Last IV Index: " + lastIvIndex.getIvIndex());
+                            /// The date of the last change of IV Index or IV Update Flag.
+                            final Calendar lastTransitionDate = lastIvIndex.getTransitionDate();
+                            /// A flag whether the IV has recently been updated using IV Recovery procedure.
+                            /// The at-least-96h requirement for the duration of the current state will not apply.
+                            /// The node shall not execute more than one IV Index Recovery within a period of 192 hours.
+                            final boolean isIvRecoveryActive = lastIvIndex.getIvRecoveryFlag();
+                            /// The test mode disables the 96h rule, leaving all other behavior unchanged.
+                            final boolean isIvTestModeActive = ivUpdateTestModeActive;
 
-                                final boolean flag = allowIvIndexRecoveryOver42;
-                                if (!receivedBeacon.canOverwrite(lastIvIndex, lastTransitionDate, isIvRecoveryActive, isIvTestModeActive, flag)) {
-                                    String numberOfHoursSinceDate = ((Calendar.getInstance().getTimeInMillis() -
-                                            lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
-                                    Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
-                                            ", last " + lastIvIndex.getIvIndex() + ", changed: "
-                                            + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
-                                    return;
-                                }
+                            final boolean flag = allowIvIndexRecoveryOver42;
+                            if (!receivedBeacon.canOverwrite(lastIvIndex, lastTransitionDate, isIvRecoveryActive, isIvTestModeActive, flag)) {
+                                String numberOfHoursSinceDate = ((Calendar.getInstance().getTimeInMillis() -
+                                        lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
+                                Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
+                                        ", last " + lastIvIndex.getIvIndex() + ", changed: "
+                                        + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
+                                return;
+                            }
 
-                                final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
-                                mMeshNetwork.ivIndex = new IvIndex(receivedIvIndex.getIvIndex(), receivedIvIndex.isIvUpdateActive(), lastTransitionDate);
+                            final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
+                            mMeshNetwork.ivIndex = new IvIndex(receivedIvIndex.getIvIndex(), receivedIvIndex.isIvUpdateActive(), lastTransitionDate);
 
-                                if (mMeshNetwork.ivIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
-                                    Log.i(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
-                                }
+                            if (mMeshNetwork.ivIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
+                                Log.i(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
+                            }
 
-                                // If the IV Index used for transmitting messages effectively increased,
-                                // the Node shall reset the sequence number to 0x000000.
-                                if (mMeshNetwork.ivIndex.getTransmitIvIndex() > lastIvIndex.getTransmitIvIndex()) {
-                                    Log.i(TAG, "Resetting local sequence numbers to 0");
-                                    final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
-                                    final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
-                                    node.setSequenceNumber(0);
-                                }
+                            // If the IV Index used for transmitting messages effectively increased,
+                            // the Node shall reset the sequence number to 0x000000.
+                            if (mMeshNetwork.ivIndex.getTransmitIvIndex() > lastIvIndex.getTransmitIvIndex()) {
+                                Log.i(TAG, "Resetting local sequence numbers to 0");
+                                final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
+                                final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
+                                node.setSequenceNumber(0);
+                            }
 
-                                //Updating the iv recovery flag
-                                if (lastIvIndex != mMeshNetwork.ivIndex) {
-                                    final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
-                                            && !receivedBeacon.getIvIndex().isIvUpdateActive();
-                                    mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
-                                }
+                            //Updating the iv recovery flag
+                            if (lastIvIndex != mMeshNetwork.ivIndex) {
+                                final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
+                                        && !receivedBeacon.getIvIndex().isIvUpdateActive();
+                                mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
+                            }
 
-                                if (!mMeshNetwork.ivIndex.getIvRecoveryFlag()) {
-                                    final Iterator<Entry<Integer, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
-                                    while (iterator.hasNext()) {
-                                        final Entry<Integer, ArrayList<Integer>> exclusions = iterator.next();
-                                        final int expectedIncrement = exclusions.getKey() + 2;
-                                        if (mMeshNetwork.ivIndex.getIvIndex() >= expectedIncrement) {
-                                            // Clear the last known sequence number of addresses that are to be removed from the exclusion list.
-                                            for (Integer address : mMeshNetwork.networkExclusions.get(expectedIncrement)) {
-                                                mMeshNetwork.sequenceNumbers.removeAt(address);
-                                            }
-                                            iterator.remove();
-                                        }
+                            if (!mMeshNetwork.ivIndex.getIvRecoveryFlag()) {
+                                final Iterator<Entry<Integer, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
+                                while (iterator.hasNext()) {
+                                    final Entry<Integer, ArrayList<Integer>> exclusions = iterator.next();
+                                    final int expectedIncrement = exclusions.getKey() + 2;
+                                    if (mMeshNetwork.ivIndex.getIvIndex() >= expectedIncrement) {
+                                        // Clear the last known sequence number of addresses that are to be removed from the exclusion list.
+                                        // Decided to retain the last known sequence number as the IV Indexes increment the sequence number
+                                        // will be greater than the last known anyways
+                                        //for (Integer address : mMeshNetwork.networkExclusions.get(expectedIncrement)) {
+                                        //    mMeshNetwork.sequenceNumbers.removeAt(address);
+                                        //}
+                                        iterator.remove();
                                     }
                                 }
                             }
@@ -762,6 +763,18 @@ public class MeshManagerApi implements MeshMngrApi {
         if (advertisedNetworkId != null) {
             final String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase(Locale.US);
             return networkId.equals(advertisedNetworkIdString);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean networkIdMatches(@Nullable final byte[] serviceData) {
+        final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
+        if (advertisedNetworkId != null) {
+            for (NetworkKey key : mMeshNetwork.getNetKeys()) {
+                if (Arrays.equals(key.getNetworkId(), advertisedNetworkId) || Arrays.equals(key.getOldNetworkId(), advertisedNetworkId))
+                    return true;
+            }
         }
         return false;
     }

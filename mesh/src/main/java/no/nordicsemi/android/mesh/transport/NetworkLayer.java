@@ -24,10 +24,6 @@ package no.nordicsemi.android.mesh.transport;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-
 import org.spongycastle.crypto.InvalidCipherTextException;
 
 import java.nio.ByteBuffer;
@@ -35,6 +31,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.Provisioner;
@@ -498,7 +497,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final int netKeyIndex = message.getApplicationKey().getBoundNetKeyIndex();
             networkKey = mNetworkLayerCallbacks.getNetworkKey(netKeyIndex);
         }
-        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+        return SecureUtils.calculateK2(networkKey.getTxNetworkKey(), SecureUtils.K2_MASTER_INPUT);
     }
 
     /**

@@ -83,8 +83,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     private static volatile MeshNetworkDb INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseWriteExecutor =
-            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static final ExecutorService databaseWriteExecutor =
+            Executors.newFixedThreadPool(4);
 
     /**
      * Returns the mesh database
@@ -157,14 +157,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 scenesDao.insert(meshNetwork.scenes);
             }
         });
-        /*new InsertNetworkAsyncTask(meshNetworkDao,
-                netKeysDao,
-                appKeysDao,
-                provisionersDao,
-                nodesDao,
-                groupsDao,
-                scenesDao,
-                meshNetwork).execute();*/
     }
 
     void loadNetwork(@NonNull final MeshNetworkDao meshNetworkDao,
@@ -187,14 +179,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
             }
             listener.onNetworkLoadedFromDb(meshNetwork);
         });
-        /*new LoadNetworkAsyncTask(dao,
-                netKeysDao,
-                appKeysDao,
-                provisionersDao,
-                nodesDao,
-                groupsDao,
-                scenesDao,
-                listener).execute();*/
     }
 
     void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
@@ -233,7 +217,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void delete(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
-        databaseWriteExecutor.execute(() -> dao.delete(networkKey));
+        databaseWriteExecutor.execute(() -> dao.delete(networkKey.getKeyIndex()));
     }
 
     void insert(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
@@ -293,7 +277,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void delete(@NonNull final GroupDao dao, @NonNull final Group group) {
-        databaseWriteExecutor.execute(() -> dao.delete(group));
+        databaseWriteExecutor.execute(() -> dao.delete(group.getAddress()));
     }
 
     void insert(@NonNull final SceneDao dao, @NonNull final Scene scene) {
@@ -305,7 +289,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void delete(@NonNull final SceneDao dao, @NonNull final Scene scene) {
-        databaseWriteExecutor.execute(() -> dao.delete(scene));
+        databaseWriteExecutor.execute(() -> dao.delete(scene.getNumber()));
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {

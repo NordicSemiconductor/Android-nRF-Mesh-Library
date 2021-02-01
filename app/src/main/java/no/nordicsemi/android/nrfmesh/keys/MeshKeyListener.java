@@ -15,9 +15,8 @@ public interface MeshKeyListener {
     /**
      * Invoked when the name of the key has been changed
      *
-     * @param position position of the key in the list
      * @param key      Updated key
      * @return true if the key was updated or false otherwise
      */
-    boolean onKeyUpdated(final int position, @NonNull final String key);
+    boolean onKeyUpdated(@NonNull final String key);
 }

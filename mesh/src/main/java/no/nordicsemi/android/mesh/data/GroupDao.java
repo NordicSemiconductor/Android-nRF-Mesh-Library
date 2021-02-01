@@ -1,15 +1,13 @@
 package no.nordicsemi.android.mesh.data;
 
+import androidx.annotation.RestrictTo;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
 import androidx.room.Update;
-import androidx.annotation.RestrictTo;
-
 import no.nordicsemi.android.mesh.Group;
 
-@SuppressWarnings("unused")
 @Dao
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface GroupDao {
@@ -20,6 +18,6 @@ public interface GroupDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final Group group);
 
-    @Delete
-    void delete(final Group group);
+    @Query("DELETE FROM groups WHERE `group_address` = :groupAddress")
+    void delete(final int groupAddress);
 }

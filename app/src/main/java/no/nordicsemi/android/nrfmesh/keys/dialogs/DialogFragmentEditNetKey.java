@@ -46,17 +46,14 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentEditNetKey extends DialogFragment {
 
-    private static final String POSITION = "POSITION";
     private static final String NETWORK_KEY = "NETWORK_KEY";
 
     private DialogFragmentKeyInputBinding binding;
-    private int mPosition;
     private NetworkKey mNetworkKey;
 
-    public static DialogFragmentEditNetKey newInstance(final int position, @NonNull final NetworkKey networkKey) {
+    public static DialogFragmentEditNetKey newInstance(@NonNull final NetworkKey networkKey) {
         final DialogFragmentEditNetKey fragmentNetworkKey = new DialogFragmentEditNetKey();
         final Bundle args = new Bundle();
-        args.putInt(POSITION, position);
         args.putParcelable(NETWORK_KEY, networkKey);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
@@ -66,7 +63,6 @@ public class DialogFragmentEditNetKey extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mPosition = getArguments().getInt(POSITION);
             mNetworkKey = getArguments().getParcelable(NETWORK_KEY);
         }
     }
@@ -115,7 +111,7 @@ public class DialogFragmentEditNetKey extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String networkKey = binding.textInput.getEditableText().toString().trim();
             try {
-                if (validateKeyInput(networkKey) && ((MeshKeyListener) requireActivity()).onKeyUpdated(mPosition, networkKey))
+                if (validateKeyInput(networkKey) && ((MeshKeyListener) requireActivity()).onKeyUpdated(networkKey))
                     dismiss();
             } catch (Exception ex) {
                 binding.textInputLayout.setError(ex.getMessage());

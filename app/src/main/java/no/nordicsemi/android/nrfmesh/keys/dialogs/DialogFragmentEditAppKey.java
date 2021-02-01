@@ -46,17 +46,14 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentEditAppKey extends DialogFragment {
 
-    private static final String POSITION = "POSITION";
     private static final String APP_KEY = "APP_KEY";
 
     private DialogFragmentKeyInputBinding binding;
-    private int mPosition;
     private ApplicationKey mAppKey;
 
-    public static DialogFragmentEditAppKey newInstance(final int position, @NonNull final ApplicationKey appKey) {
+    public static DialogFragmentEditAppKey newInstance(final ApplicationKey appKey) {
         DialogFragmentEditAppKey fragmentNetworkKey = new DialogFragmentEditAppKey();
         final Bundle args = new Bundle();
-        args.putInt(POSITION, position);
         args.putParcelable(APP_KEY, appKey);
         fragmentNetworkKey.setArguments(args);
         return fragmentNetworkKey;
@@ -66,7 +63,6 @@ public class DialogFragmentEditAppKey extends DialogFragment {
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mPosition = getArguments().getInt(POSITION);
             mAppKey = getArguments().getParcelable(APP_KEY);
         }
     }
@@ -114,7 +110,7 @@ public class DialogFragmentEditAppKey extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String appKey = binding.textInput.getEditableText().toString().trim();
             try {
-                if (validateKeyInput(appKey) && ((MeshKeyListener) requireContext()).onKeyUpdated(mPosition, appKey))
+                if (validateKeyInput(appKey) && ((MeshKeyListener) requireContext()).onKeyUpdated(appKey))
                     dismiss();
             } catch (IllegalArgumentException ex) {
                 binding.textInputLayout.setError(ex.getMessage());
