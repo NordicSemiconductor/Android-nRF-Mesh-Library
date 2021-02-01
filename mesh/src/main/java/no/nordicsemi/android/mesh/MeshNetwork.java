@@ -889,11 +889,11 @@ public final class MeshNetwork extends BaseMeshNetwork {
         final NetworkKey key = getPrimaryNetworkKey();
         if (key != null) {
             if (key.getPhase() == NetworkKey.PHASE_2) {
-                flags |= 1 << 7;
+                flags |= 1; // << 0;
             }
 
             if (ivIndex.isIvUpdateActive()) {
-                flags |= 1 << 6;
+                flags |= 1 << 1;
             }
         }
 
