@@ -1,15 +1,13 @@
 package no.nordicsemi.android.mesh.data;
 
+import androidx.annotation.RestrictTo;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
 import androidx.room.Update;
-import androidx.annotation.RestrictTo;
-
 import no.nordicsemi.android.mesh.Scene;
 
-@SuppressWarnings("unused")
 @Dao
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface SceneDao {
@@ -20,6 +18,6 @@ public interface SceneDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(final Scene scene);
 
-    @Delete
-    void delete(final Scene scene);
+    @Query("DELETE FROM scene WHERE `number` = :number")
+    void delete(final int number);
 }

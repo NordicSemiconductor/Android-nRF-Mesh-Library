@@ -27,35 +27,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningFailedState;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
-import no.nordicsemi.android.mesh.utils.AlgorithmType;
 import no.nordicsemi.android.mesh.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.mesh.utils.InputOOBAction;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -63,7 +52,7 @@ import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 import no.nordicsemi.android.mesh.utils.StaticOOBType;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.nrfmesh.adapter.ProvisioningProgressAdapter;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityMeshProvisionerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentAuthenticationInput;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentProvisioningFailedError;
@@ -77,8 +66,8 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisioningViewModel;
 
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
-
-public class ProvisioningActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class ProvisioningActivity extends AppCompatActivity implements
         DialogFragmentSelectOOBType.DialogFragmentSelectOOBTypeListener,
         DialogFragmentAuthenticationInput.ProvisionerInputFragmentListener,
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
@@ -90,70 +79,43 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     private static final String DIALOG_FRAGMENT_AUTH_INPUT_TAG = "DIALOG_FRAGMENT_AUTH_INPUT_TAG";
     private static final String DIALOG_FRAGMENT_CONFIGURATION_STATUS = "DIALOG_FRAGMENT_CONFIGURATION_STATUS";
 
-    @BindView(R.id.container)
-    CoordinatorLayout mCoordinatorLayout;
-    @BindView(R.id.provisioning_progress_bar)
-    ProgressBar mProvisioningProgressBar;
-    @BindView(R.id.data_container)
-    ScrollView container;
-    @BindView(R.id.capabilities_container)
-    View mCapabilitiesContainer;
-    @BindView(R.id.info_provisioning_status_container)
-    View provisioningStatusContainer;
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
+    private ActivityMeshProvisionerBinding binding;
     private ProvisioningViewModel mViewModel;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mesh_provisioner);
-        ButterKnife.bind(this);
+        binding = ActivityMeshProvisionerBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(ProvisioningViewModel.class);
 
         final Intent intent = getIntent();
         final ExtendedBluetoothDevice device = intent.getParcelableExtra(Utils.EXTRA_DEVICE);
         final String deviceName = device.getName();
         final String deviceAddress = device.getAddress();
 
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(deviceName);
         getSupportActionBar().setSubtitle(deviceAddress);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ProvisioningViewModel.class);
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
 
-        // Set up views
-        final LinearLayout connectivityProgressContainer = findViewById(R.id.connectivity_progress_container);
-        final TextView connectionState = findViewById(R.id.connection_state);
-        final Button action_provision = findViewById(R.id.action_provision_device);
-
-        final View containerName = findViewById(R.id.container_name);
-        containerName.findViewById(R.id.image)
+        binding.containerName.image
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline));
-        final TextView nameTitle = containerName.findViewById(R.id.title);
-        nameTitle.setText(R.string.summary_name);
-        final TextView nameView = containerName.findViewById(R.id.text);
-        nameView.setVisibility(View.VISIBLE);
-        containerName.setOnClickListener(v -> {
+        binding.containerName.title.setText(R.string.summary_name);
+        binding.containerName.text.setVisibility(View.VISIBLE);
+        binding.containerName.getRoot().setOnClickListener(v -> {
             final DialogFragmentNodeName dialogFragmentNodeName = DialogFragmentNodeName.newInstance(deviceName);
             dialogFragmentNodeName.show(getSupportFragmentManager(), null);
         });
 
-        final View containerUnicastAddress = findViewById(R.id.container_unicast);
-        containerUnicastAddress.findViewById(R.id.image)
+        binding.containerUnicast.image
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lan_24dp));
-        final TextView unicastAddressTitle = containerUnicastAddress.findViewById(R.id.title);
-        unicastAddressTitle.setText(R.string.title_unicast_address);
-        final TextView unicastAddressView = containerUnicastAddress.findViewById(R.id.text);
-        unicastAddressView.setVisibility(View.VISIBLE);
-        containerUnicastAddress.setOnClickListener(v -> {
-
+        binding.containerUnicast.title.setText(R.string.title_unicast_address);
+        binding.containerUnicast.text.setVisibility(View.VISIBLE);
+        binding.containerUnicast.getRoot().setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
             if (node != null && node.getProvisioningCapabilities() != null) {
                 final int elementCount = node.getProvisioningCapabilities().getNumberOfElements();
@@ -163,20 +125,17 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
             }
         });
 
-        final View containerAppKey = findViewById(R.id.container_app_keys);
-        containerAppKey.findViewById(R.id.image)
+        binding.containerAppKeys.image
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
-        final TextView appKeyTitle = containerAppKey.findViewById(R.id.title);
-        appKeyTitle.setText(R.string.title_app_keys);
-        final TextView appKeyView = containerAppKey.findViewById(R.id.text);
-        appKeyView.setVisibility(View.VISIBLE);
-        containerAppKey.setOnClickListener(v -> {
+        binding.containerAppKeys.title.setText(R.string.title_app_keys);
+        binding.containerAppKeys.text.setVisibility(View.VISIBLE);
+        binding.containerAppKeys.getRoot().setOnClickListener(v -> {
             final Intent manageAppKeys = new Intent(ProvisioningActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
             startActivityForResult(manageAppKeys, Utils.SELECT_KEY);
         });
 
-        mViewModel.getConnectionState().observe(this, connectionState::setText);
+        mViewModel.getConnectionState().observe(this, binding.connectionState::setText);
 
         mViewModel.isConnected().observe(this, connected -> {
             final boolean isComplete = mViewModel.isProvisioningComplete();
@@ -190,39 +149,39 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
 
         mViewModel.isDeviceReady().observe(this, deviceReady -> {
             if (mViewModel.getBleMeshManager().isDeviceReady()) {
-                connectivityProgressContainer.setVisibility(View.GONE);
+                binding.connectivityProgressContainer.setVisibility(View.GONE);
                 final boolean isComplete = mViewModel.isProvisioningComplete();
                 if (isComplete) {
-                    mProvisioningProgressBar.setVisibility(View.VISIBLE);
-                    provisioningStatusContainer.setVisibility(View.VISIBLE);
-                    setupProvisionerStateObservers(provisioningStatusContainer);
+                    binding.provisioningProgressBar.setVisibility(View.VISIBLE);
+                    binding.infoProvisioningStatusContainer.getRoot().setVisibility(View.VISIBLE);
+                    setupProvisionerStateObservers();
                     return;
                 }
-                container.setVisibility(View.VISIBLE);
+                binding.dataContainer.setVisibility(View.VISIBLE);
             }
         });
 
         mViewModel.isReconnecting().observe(this, isReconnecting -> {
             if (isReconnecting != null && isReconnecting) {
                 mViewModel.getUnprovisionedMeshNode().removeObservers(this);
-                provisioningStatusContainer.setVisibility(View.GONE);
-                container.setVisibility(View.GONE);
-                mProvisioningProgressBar.setVisibility(View.GONE);
-                connectivityProgressContainer.setVisibility(View.VISIBLE);
+                binding.infoProvisioningStatusContainer.getRoot().setVisibility(View.GONE);
+                binding.dataContainer.setVisibility(View.GONE);
+                binding.provisioningProgressBar.setVisibility(View.GONE);
+                binding.connectivityProgressContainer.setVisibility(View.VISIBLE);
             } else {
                 setResultIntent();
             }
         });
 
         mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            nameView.setText(meshNetworkLiveData.getNodeName());
+            binding.containerName.text.setText(meshNetworkLiveData.getNodeName());
             final ApplicationKey applicationKey = meshNetworkLiveData.getSelectedAppKey();
             if (applicationKey != null) {
-                appKeyView.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
+                binding.containerAppKeys.text.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
             } else {
-                appKeyView.setText(getString(R.string.no_app_keys));
+                binding.containerAppKeys.text.setText(getString(R.string.no_app_keys));
             }
-            unicastAddressView.setText(getString(R.string.hex_format,
+            binding.containerUnicast.text.setText(getString(R.string.hex_format,
                     String.format(Locale.US, "%04X", meshNetworkLiveData.getMeshNetwork().getUnicastAddress())));
         });
 
@@ -230,9 +189,9 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
             if (meshNode != null) {
                 final ProvisioningCapabilities capabilities = meshNode.getProvisioningCapabilities();
                 if (capabilities != null) {
-                    mProvisioningProgressBar.setVisibility(View.INVISIBLE);
-                    action_provision.setText(R.string.provision_action);
-                    containerUnicastAddress.setVisibility(View.VISIBLE);
+                    binding.provisioningProgressBar.setVisibility(View.INVISIBLE);
+                    binding.actionProvisionDevice.setText(R.string.provision_action);
+                    binding.containerUnicast.getRoot().setVisibility(View.VISIBLE);
                     final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {
                         try {
@@ -242,15 +201,15 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                             network.assignUnicastAddress(unicast);
                             updateCapabilitiesUi(capabilities);
                         } catch (IllegalArgumentException ex) {
-                            action_provision.setEnabled(false);
-                            mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
+                            binding.actionProvisionDevice.setEnabled(false);
+                            mViewModel.displaySnackBar(this, binding.coordinator, ex.getMessage(), Snackbar.LENGTH_LONG);
                         }
                     }
                 }
             }
         });
 
-        action_provision.setOnClickListener(v -> {
+        binding.actionProvisionDevice.setOnClickListener(v -> {
             final UnprovisionedMeshNode node = mViewModel.getUnprovisionedMeshNode().getValue();
             if (node == null) {
                 device.setName(mViewModel.getNetworkLiveData().getNodeName());
@@ -315,7 +274,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     @Override
     public void onPinInputCanceled() {
         final String message = getString(R.string.provisioning_cancelled);
-        final Snackbar snackbar = Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_LONG);
+        final Snackbar snackbar = Snackbar.make(binding.coordinator, message, Snackbar.LENGTH_LONG);
         snackbar.show();
         disconnect();
     }
@@ -353,12 +312,12 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         mViewModel.disconnect();
     }
 
-    public void setupProvisionerStateObservers(final View provisioningStatusContainer) {
-        provisioningStatusContainer.setVisibility(View.VISIBLE);
+    public void setupProvisionerStateObservers() {
+        binding.infoProvisioningStatusContainer.getRoot().setVisibility(View.VISIBLE);
 
-        final RecyclerView recyclerView = provisioningStatusContainer.findViewById(R.id.recycler_view_provisioning_progress);
+        final RecyclerView recyclerView = binding.infoProvisioningStatusContainer.recyclerViewProvisioningProgress;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        final ProvisioningProgressAdapter adapter = new ProvisioningProgressAdapter(this, mViewModel.getProvisioningStatus());
+        final ProvisioningProgressAdapter adapter = new ProvisioningProgressAdapter(mViewModel.getProvisioningStatus());
         recyclerView.setAdapter(adapter);
 
         mViewModel.getProvisioningStatus().observe(this, provisioningStateLiveData -> {
@@ -417,7 +376,7 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
                     }
 
                 }
-                container.setVisibility(View.GONE);
+                binding.dataContainer.setVisibility(View.GONE);
             }
         });
 
@@ -455,95 +414,21 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
     }
 
     private void updateCapabilitiesUi(final ProvisioningCapabilities capabilities) {
-        mCapabilitiesContainer.setVisibility(View.VISIBLE);
+        binding.capabilitiesContainer.getRoot().setVisibility(View.VISIBLE);
 
         final String numberOfElements = String.valueOf(capabilities.getNumberOfElements());
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_element_count).
-                findViewById(R.id.text)).setText(numberOfElements);
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_supported_algorithm).
-                findViewById(R.id.text)).
-                setText(parseAlgorithms(capabilities));
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_public_key_type).
-                findViewById(R.id.text)).
-                setText(capabilities.isPublicKeyInformationAvailable() ? R.string.public_key_information_available : R.string.public_key_information_unavailable);
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_static_oob_type).
-                findViewById(R.id.text)).
-                setText(capabilities.isStaticOOBInformationAvailable() ? R.string.static_oob_information_available : R.string.static_oob_information_unavailable);
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_output_oob_size)
-                .findViewById(R.id.text))
-                .setText(String.valueOf(capabilities.getOutputOOBSize()));
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_output_actions).
-                findViewById(R.id.text)).
-                setText(parseOutputOOBActions(capabilities));
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_input_oob_size).
-                findViewById(R.id.text)).
-                setText(String.valueOf(capabilities.getInputOOBSize()));
-
-        ((TextView) mCapabilitiesContainer.
-                findViewById(R.id.container_input_actions)
-                .findViewById(R.id.text))
-                .setText(parseInputOOBActions(capabilities));
-    }
-
-    private String parseAlgorithms(final ProvisioningCapabilities capabilities) {
-        final StringBuilder algorithmTypes = new StringBuilder();
-        int count = 0;
-        for (AlgorithmType algorithmType : capabilities.getSupportedAlgorithmTypes()) {
-            if (count == 0) {
-                algorithmTypes.append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
-            } else {
-                algorithmTypes.append(", ").append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
-            }
-            count++;
-        }
-        return algorithmTypes.toString();
-    }
-
-    private String parseOutputOOBActions(final ProvisioningCapabilities capabilities) {
-        if (capabilities.getSupportedOutputOOBActions().isEmpty())
-            return getString(R.string.output_oob_actions_unavailable);
-
-        final StringBuilder outputOOBActions = new StringBuilder();
-        int count = 0;
-        for (OutputOOBAction outputOOBAction : capabilities.getSupportedOutputOOBActions()) {
-            if (count == 0) {
-                outputOOBActions.append(OutputOOBAction.getOutputOOBActionDescription(outputOOBAction));
-            } else {
-                outputOOBActions.append(", ").append(OutputOOBAction.getOutputOOBActionDescription(outputOOBAction));
-            }
-            count++;
-        }
-        return outputOOBActions.toString();
-    }
-
-    private String parseInputOOBActions(final ProvisioningCapabilities capabilities) {
-        if (capabilities.getSupportedInputOOBActions().isEmpty())
-            return getString(R.string.input_oob_actions_unavailable);
-
-        final StringBuilder inputOOBActions = new StringBuilder();
-        int count = 0;
-        for (InputOOBAction inputOOBAction : capabilities.getSupportedInputOOBActions()) {
-            if (count == 0) {
-                inputOOBActions.append(InputOOBAction.getInputOOBActionDescription(inputOOBAction));
-            } else {
-                inputOOBActions.append(", ").append(InputOOBAction.getInputOOBActionDescription(inputOOBAction));
-            }
-            count++;
-        }
-        return inputOOBActions.toString();
+        binding.capabilitiesContainer.containerElementCount.text.setText(numberOfElements);
+        binding.capabilitiesContainer.containerSupportedAlgorithm.text.setText(mViewModel.parseAlgorithms(capabilities));
+        binding.capabilitiesContainer.containerPublicKeyType.text.
+                setText(capabilities.isPublicKeyInformationAvailable() ?
+                        R.string.public_key_information_available : R.string.public_key_information_unavailable);
+        binding.capabilitiesContainer.containerStaticOobType.text.
+                setText(capabilities.isStaticOOBInformationAvailable() ?
+                        R.string.static_oob_information_available : R.string.static_oob_information_unavailable);
+        binding.capabilitiesContainer.containerOutputOobSize.text.setText(String.valueOf(capabilities.getOutputOOBSize()));
+        binding.capabilitiesContainer.containerOutputActions.text.setText(mViewModel.parseOutputOOBActions(this, capabilities));
+        binding.capabilitiesContainer.containerInputOobSize.text.setText(String.valueOf(capabilities.getInputOOBSize()));
+        binding.capabilitiesContainer.containerInputActions.text.setText(mViewModel.parseInputOOBActions(this, capabilities));
     }
 
     @Override
@@ -552,11 +437,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
-                setupProvisionerStateObservers(provisioningStatusContainer);
-                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                setupProvisionerStateObservers();
+                binding.provisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioning(node);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.coordinator, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -567,11 +452,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
-                setupProvisionerStateObservers(provisioningStatusContainer);
-                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                setupProvisionerStateObservers();
+                binding.provisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithStaticOOB(node);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.coordinator, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -582,11 +467,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
-                setupProvisionerStateObservers(provisioningStatusContainer);
-                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                setupProvisionerStateObservers();
+                binding.provisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithOutputOOB(node, action);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.coordinator, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -597,11 +482,11 @@ public class ProvisioningActivity extends AppCompatActivity implements Injectabl
         if (node != null) {
             try {
                 node.setNodeName(mViewModel.getNetworkLiveData().getNodeName());
-                setupProvisionerStateObservers(provisioningStatusContainer);
-                mProvisioningProgressBar.setVisibility(View.VISIBLE);
+                setupProvisionerStateObservers();
+                binding.provisioningProgressBar.setVisibility(View.VISIBLE);
                 mViewModel.getMeshManagerApi().startProvisioningWithInputOOB(node, action);
             } catch (IllegalArgumentException ex) {
-                mViewModel.displaySnackBar(this, mCoordinatorLayout, ex.getMessage(), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.coordinator, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }

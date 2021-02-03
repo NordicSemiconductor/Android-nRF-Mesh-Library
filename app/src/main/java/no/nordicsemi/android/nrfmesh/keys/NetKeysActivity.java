@@ -28,17 +28,12 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
@@ -46,14 +41,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityKeysBinding;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityNetKeysBinding;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageNetKeyAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.NetKeysViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -68,28 +62,22 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.MANAGE_NET_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_INDEX;
 
-public class NetKeysActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class NetKeysActivity extends AppCompatActivity implements
         ManageNetKeyAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    //UI Bindings
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-    @BindView(R.id.recycler_view_keys)
-    RecyclerView netKeysRecyclerView;
-    @BindView(R.id.fab_add)
-    ExtendedFloatingActionButton fab;
 
     private NetKeysViewModel mViewModel;
     private ManageNetKeyAdapter mAdapter;
 
+    //UI Bindings
+    CoordinatorLayout container;
+
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NetKeysViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(NetKeysViewModel.class);
 
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -107,54 +95,50 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
     }
 
     private void setupManageNetKeyUi() {
-        setContentView(R.layout.activity_net_keys);
-        //Bind ui
-        ButterKnife.bind(this);
-        netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        View containerKey = findViewById(R.id.container_primary_net_key);
-        containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
-        final TextView keyTitle = containerKey.findViewById(R.id.title);
-        final TextView keyView = containerKey.findViewById(R.id.text);
-        keyView.setVisibility(View.VISIBLE);
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        final ActivityNetKeysBinding binding = ActivityNetKeysBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        container = binding.container;
+        binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
+        binding.containerPrimaryNetKey.image
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerPrimaryNetKey.text.setVisibility(View.VISIBLE);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(R.string.title_manage_net_keys);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        containerKey.setOnClickListener(v -> {
+        binding.containerPrimaryNetKey.getRoot().setOnClickListener(v -> {
             final Intent intent = new Intent(this, EditNetKeyActivity.class);
             intent.putExtra(EDIT_KEY, 0);
             startActivity(intent);
         });
-        final CardView mSubNetKeyCard = findViewById(R.id.sub_net_key_card);
+        final CardView mSubNetKeyCard = binding.subNetKeyCard;
         mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if (network != null) {
                 final NetworkKey networkKey = network.getPrimaryNetworkKey();
                 if (networkKey != null) {
-                    keyTitle.setText(networkKey.getName());
-                    keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
+                    binding.containerPrimaryNetKey.title.setText(networkKey.getName());
+                    binding.containerPrimaryNetKey.text.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
 
                     if (network.getNetKeys().size() > 1) {
-                        mSubNetKeyCard.setVisibility(View.VISIBLE);
+                        binding.subNetKeyCard.setVisibility(View.VISIBLE);
                     } else {
-                        mSubNetKeyCard.setVisibility(View.GONE);
+                        binding.subNetKeyCard.setVisibility(View.GONE);
                     }
                 }
             }
         });
 
-        fab.setOnClickListener(v -> {
+        binding.fabAdd.setOnClickListener(v -> {
             final Intent intent = new Intent(this, AddNetKeyActivity.class);
             startActivity(intent);
         });
-        final ScrollView scrollView = findViewById(R.id.scroll_container);
+        final ScrollView scrollView = binding.scrollContainer;
         scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (scrollView.getScrollY() == 0) {
-                fab.extend();
+                binding.fabAdd.extend();
             } else {
-                fab.shrink();
+                binding.fabAdd.shrink();
             }
         });
 
@@ -162,26 +146,24 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         mAdapter = new ManageNetKeyAdapter(this, mViewModel.getNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
-        netKeysRecyclerView.setAdapter(mAdapter);
-        itemTouchHelper.attachToRecyclerView(netKeysRecyclerView);
+        binding.recyclerViewKeys.setAdapter(mAdapter);
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewKeys);
     }
 
     private void setupSelectNetKeyUi() {
-        setContentView(R.layout.activity_keys);
-
-        //Bind ui
-        ButterKnife.bind(this);
-        netKeysRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        netKeysRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        final ActivityKeysBinding binding = ActivityKeysBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        container = binding.container;
+        binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(R.string.title_manage_net_keys);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.title_select_net_key);
-        fab.hide();
+        binding.fabAdd.hide();
         mAdapter = new ManageNetKeyAdapter(this, mViewModel.getSelectedMeshNode(), mViewModel.getNetworkLiveData().getNetworkKeys());
         mAdapter.setOnItemClickListener(this);
-        netKeysRecyclerView.setAdapter(mAdapter);
+        binding.recyclerViewKeys.setAdapter(mAdapter);
     }
 
 
@@ -206,11 +188,12 @@ public class NetKeysActivity extends AppCompatActivity implements Injectable,
                     returnIntent.putExtra(RESULT_KEY, networkKey);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
+                    break;
                 case MANAGE_NET_KEY:
                     final Intent intent = new Intent(this, EditNetKeyActivity.class);
                     intent.putExtra(EDIT_KEY, networkKey.getKeyIndex());
                     startActivity(intent);
-
+                    break;
             }
         }
     }

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/scene_recall_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:logo="@drawable/ic_baseline_palette_24dp"
+            app:title="@string/title_generic_on_off_controls"
+            app:titleMarginStart="@dimen/toolbar_title_margin"
+            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/container_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scene_recall_toolbar"
+            tools:visibility="visible">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/transition"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:gravity="start"
+                android:paddingStart="@dimen/item_padding_start"
+                android:paddingEnd="@dimen/item_padding_end"
+                android:text="@string/transition_time"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toTopOf="@+id/transition_slider"
+                app:layout_constraintEnd_toStartOf="@id/transition_time"
+                app:layout_constraintStart_toStartOf="@id/transition_slider"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/transition_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:gravity="end"
+                android:paddingStart="@dimen/item_padding_start"
+                android:paddingEnd="@dimen/item_padding_end"
+                tools:text="0 ms"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@id/transition_slider"
+                app:layout_constraintStart_toEndOf="@id/transition"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/transition_slider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                app:labelBehavior="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/transition" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/delay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:gravity="start"
+                android:paddingStart="@dimen/item_padding_start"
+                android:paddingEnd="@dimen/item_padding_end"
+                android:text="@string/generic_on_off_step_delay"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@id/transition_time"
+                app:layout_constraintStart_toStartOf="@id/delay_slider"
+                app:layout_constraintTop_toBottomOf="@id/transition_slider" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/delay_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:gravity="end"
+                android:paddingStart="@dimen/item_padding_start"
+                android:paddingEnd="@dimen/item_padding_end"
+                android:text="0 ms"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@id/transition_slider"
+                app:layout_constraintStart_toStartOf="@id/delay_slider"
+                app:layout_constraintTop_toBottomOf="@id/transition_slider"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/delay_slider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                app:labelBehavior="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/delay" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            android:id="@+id/div3"
+            layout="@layout/layout_divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/container_controls" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/action_recall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="@dimen/item_padding_start"
+            android:padding="@dimen/item_padding_end"
+            android:text="@string/action_recall"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/div3" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

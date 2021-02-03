@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,22 +31,18 @@ import android.view.ViewGroup;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.FragmentNetworkBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentDeleteNode;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
@@ -60,31 +55,25 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 import static android.app.Activity.RESULT_OK;
 
-public class NetworkFragment extends Fragment implements Injectable,
+@AndroidEntryPoint
+public class NetworkFragment extends Fragment implements
         NodeAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         DialogFragmentDeleteNode.DialogFragmentDeleteNodeListener {
-
+    private FragmentNetworkBinding binding;
     private SharedViewModel mViewModel;
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-    @BindView(R.id.recycler_view_provisioned_nodes)
-    RecyclerView mRecyclerViewNodes;
     private NodeAdapter mNodeAdapter;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_network, null);
-        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
-        ButterKnife.bind(this, rootView);
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup viewGroup, @Nullable final Bundle savedInstanceState) {
+        binding = FragmentNetworkBinding.inflate(getLayoutInflater());
+        mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_node);
-        final View noNetworksConfiguredView = rootView.findViewById(R.id.no_networks_configured);
+        final ExtendedFloatingActionButton fab = binding.fabAddNode;
+        final RecyclerView mRecyclerViewNodes = binding.recyclerViewProvisionedNodes;
+        final View noNetworksConfiguredView = binding.noNetworksConfigured.getRoot();
 
         // Configure the recycler view
         mNodeAdapter = new NodeAdapter(this, mViewModel.getNodes());
@@ -133,7 +122,7 @@ public class NetworkFragment extends Fragment implements Injectable,
             startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
         });
 
-        return rootView;
+        return binding.getRoot();
     }
 
     @Override
@@ -167,7 +156,7 @@ public class NetworkFragment extends Fragment implements Injectable,
     public void onNodeDeleteConfirmed(final int position) {
         final ProvisionedMeshNode node = mNodeAdapter.getItem(position);
         if (mViewModel.getNetworkLiveData().getMeshNetwork().deleteNode(node)) {
-            mViewModel.displaySnackBar(requireActivity(), container, getString(R.string.node_deleted), Snackbar.LENGTH_LONG);
+            mViewModel.displaySnackBar(requireActivity(), binding.container, getString(R.string.node_deleted), Snackbar.LENGTH_LONG);
         }
     }
 

@@ -1,26 +1,27 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
+import static no.nordicsemi.android.mesh.Scene.isValidSceneNumber;
+
 /**
  * To be used as a wrapper class when creating a SceneDelete message.
  */
-@SuppressWarnings("unused")
 public class SceneDelete extends GenericMessage {
 
     private static final String TAG = SceneDelete.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_DELETE;
     private static final int SCENE_DELETE_PARAMS_LENGTH = 2;
 
-    private final int mSceneNumber;
+    private int sceneNumber;
 
     /**
      * Constructs SceneDelete message.
@@ -32,7 +33,8 @@ public class SceneDelete extends GenericMessage {
     public SceneDelete(@NonNull final ApplicationKey appKey,
                        final int sceneNumber) {
         super(appKey);
-        this.mSceneNumber = sceneNumber;
+        if (isValidSceneNumber(sceneNumber))
+            this.sceneNumber = sceneNumber;
         assembleMessageParameters();
     }
 
@@ -45,9 +47,13 @@ public class SceneDelete extends GenericMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Scene Number: " + mSceneNumber);
+        Log.v(TAG, "Scene Number: " + sceneNumber);
         paramsBuffer = ByteBuffer.allocate(SCENE_DELETE_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-        paramsBuffer.putShort((short) mSceneNumber);
+        paramsBuffer.putShort((short) sceneNumber);
         mParameters = paramsBuffer.array();
+    }
+
+    public int getSceneNumber() {
+        return sceneNumber;
     }
 }

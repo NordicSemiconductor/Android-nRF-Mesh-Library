@@ -1,8 +1,7 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.MutableLiveData;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
@@ -10,12 +9,12 @@ import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 /**
  * ViewModel for {@link AppKeysActivity}
  */
-public class AddNetKeyViewModel extends KeysViewModel {
+public class AddNetKeyViewModel extends BaseViewModel {
 
     private final NetworkKey networkKey;
     private MutableLiveData<NetworkKey> networkKeyLiveData = new MutableLiveData<>();
 
-    @Inject
+    @ViewModelInject
     AddNetKeyViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
         networkKey = getNetworkLiveData().getMeshNetwork().createNetworkKey();

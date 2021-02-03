@@ -27,16 +27,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -44,10 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.inject.Inject;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -66,7 +60,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.adapter.SubGroupAdapter;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityConfigGroupsBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetLevelDialogFragment;
@@ -75,7 +69,8 @@ import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetVendorDialogFragment
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.GroupControlsViewModel;
 
-public class GroupControlsActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class GroupControlsActivity extends AppCompatActivity implements
         SubGroupAdapter.OnItemClickListener,
         BottomSheetOnOffDialogFragment.BottomSheetOnOffListener,
         BottomSheetLevelDialogFragment.BottomSheetLevelListener,
@@ -87,29 +82,27 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     private static final String VENDOR_FRAGMENT = "VENDOR_FRAGMENT";
     private static final String DETAILS_FRAGMENT = "DETAILS_FRAGMENT";
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-    @BindView(R.id.container)
-    CoordinatorLayout container;
+    private ActivityConfigGroupsBinding binding;
     private GroupControlsViewModel mViewModel;
     private SubGroupAdapter groupAdapter;
     private boolean mIsConnected;
 
+    CoordinatorLayout container;
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_config_groups);
-        ButterKnife.bind(this);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(GroupControlsViewModel.class);
+        binding = ActivityConfigGroupsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(GroupControlsViewModel.class);
 
-        final Toolbar toolbar = findViewById(R.id.toolbar_info);
-        setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
+        container = binding.container;
+        setSupportActionBar(binding.toolbarInfo);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final View noModelsConfigured = findViewById(R.id.no_models_subscribed);
-        final View noAppKeysBound = findViewById(R.id.no_app_keys);
+        final View noModelsConfigured = binding.noModelsSubscribed.getRoot();
+        final View noAppKeysBound = binding.noAppKeys.getRoot();
 
-        final RecyclerView recyclerViewSubGroups = findViewById(R.id.recycler_view_grouped_models);
+        final RecyclerView recyclerViewSubGroups = binding.recyclerViewGroupedModels;
         recyclerViewSubGroups.setLayoutManager(new LinearLayoutManager(this));
         groupAdapter = new SubGroupAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork(),
@@ -182,21 +175,21 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_edit:
-                editGroup();
-                break;
-            case R.id.action_connect:
-                final Intent intent = new Intent(this, ScannerActivity.class);
-                intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-                startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
+        final int id = item.getItemId();
+        if(id == android.R.id.home){
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_edit){
+            editGroup();
+            return true;
+        } else if (id == R.id.action_connect){
+            final Intent intent = new Intent(this, ScannerActivity.class);
+            intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
+            startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+            return true;
+        } else if (id == R.id.action_disconnect){
+            mViewModel.disconnect();
+            return true;
         }
         return false;
     }
@@ -262,7 +255,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
         if (group == null)
             return;
 
-        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         final ApplicationKey applicationKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(keyIndex);
         final int tid = new Random().nextInt();
         final MeshMessage meshMessage = new GenericOnOffSetUnacknowledged(applicationKey,
@@ -299,19 +291,14 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
     }
 
     @Override
-    public void editModelItem(@NonNull final Element element, @NonNull final MeshModel model) {
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null && isConnectedToNetwork) {
-            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-            final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
-            if (node != null) {
-                mViewModel.setSelectedMeshNode(node);
-                mViewModel.setSelectedElement(element);
-                mViewModel.setSelectedModel(model);
-                mViewModel.navigateToModelActivity(this, model);
-            }
-        } else {
-            Toast.makeText(this, R.string.disconnected_network_rationale, Toast.LENGTH_SHORT).show();
+    public void onModelItemClicked(@NonNull final Element element, @NonNull final MeshModel model) {
+        final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
+        final ProvisionedMeshNode node = network.getNode(element.getElementAddress());
+        if (node != null) {
+            mViewModel.setSelectedMeshNode(node);
+            mViewModel.setSelectedElement(element);
+            mViewModel.setSelectedModel(model);
+            mViewModel.navigateToModelActivity(this, model);
         }
     }
 
@@ -354,7 +341,6 @@ public class GroupControlsActivity extends AppCompatActivity implements Injectab
             }
         }
         return null;
-
     }
 
     private void sendMessage(final int address, final MeshMessage meshMessage) {

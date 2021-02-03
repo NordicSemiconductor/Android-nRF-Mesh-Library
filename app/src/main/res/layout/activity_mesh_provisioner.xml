@@ -23,7 +23,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ProvisioningActivity"
@@ -54,7 +54,8 @@
                 android:layout_marginBottom="-7dp"
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                tools:targetApi="lollipop" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -75,7 +76,6 @@
                 android:paddingBottom="@dimen/item_padding_bottom">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/capabilities_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/activity_horizontal_margin"

@@ -5,7 +5,6 @@ import android.os.Parcel;
 import com.google.gson.annotations.Expose;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -17,7 +16,6 @@ import static androidx.room.ForeignKey.CASCADE;
 /**
  * Wrapper class for application key
  */
-@SuppressWarnings({"unused"})
 @Entity(tableName = "application_key",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -97,15 +95,6 @@ public final class ApplicationKey extends MeshKey {
      */
     public void setBoundNetKeyIndex(final int boundNetKeyIndex) {
         this.boundNetKeyIndex = boundNetKeyIndex;
-    }
-
-    @Override
-    public final boolean equals(@Nullable final Object obj) {
-        if (super.equals(obj)) {
-            final ApplicationKey appKey = (ApplicationKey) obj;
-            return boundNetKeyIndex == ((ApplicationKey) obj).boundNetKeyIndex;
-        }
-        return false;
     }
 
     @NonNull

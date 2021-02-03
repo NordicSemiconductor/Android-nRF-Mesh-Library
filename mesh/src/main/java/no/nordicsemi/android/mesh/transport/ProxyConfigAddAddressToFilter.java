@@ -1,17 +1,15 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 
 /**
  * To be used as a wrapper class to create the ProxyConfigSetFilterType message.
  */
-@SuppressWarnings("unused")
 public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
 
     private final List<AddressArray> addresses;
@@ -42,7 +40,7 @@ public class ProxyConfigAddAddressToFilter extends ProxyConfigMessage {
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return ProxyConfigMessageOpCodes.ADD_ADDRESS;
     }
 

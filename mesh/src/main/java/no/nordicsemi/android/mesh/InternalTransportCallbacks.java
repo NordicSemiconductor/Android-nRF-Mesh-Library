@@ -97,4 +97,8 @@ public interface InternalTransportCallbacks {
      * Returns the mesh network
      */
     MeshNetwork getMeshNetwork();
+
+    void storeScene(final int address, final int currentScene, final List<Integer> scenes);
+
+    void deleteScene(final int address, final int currentScene, final List<Integer> scenes);
 }

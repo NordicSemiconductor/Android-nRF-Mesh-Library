@@ -45,8 +45,8 @@ public class DialogFragmentUnassign extends DialogFragment {
     }
 
     public static DialogFragmentUnassign newInstance(final String title, final String message) {
-        Bundle args = new Bundle();
-        DialogFragmentUnassign fragment = new DialogFragmentUnassign();
+        final DialogFragmentUnassign fragment = new DialogFragmentUnassign();
+        final Bundle args = new Bundle();
         args.putString(TITLE, title);
         args.putString(MESSAGE, message);
         fragment.setArguments(args);

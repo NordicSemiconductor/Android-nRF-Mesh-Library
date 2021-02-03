@@ -23,9 +23,7 @@
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -37,12 +35,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
-import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItem2Binding;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNetKeyAdapter.ViewHolder> {
@@ -67,8 +63,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
     @NonNull
     @Override
     public ManageBoundNetKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.removable_row_item2, parent, false);
-        return new ManageBoundNetKeyAdapter.ViewHolder(layoutView);
+        return new ManageBoundNetKeyAdapter.ViewHolder(RemovableRowItem2Binding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -107,22 +102,20 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
-        FrameLayout container;
-        @BindView(R.id.title)
+
         TextView netKeyName;
-        @BindView(R.id.subtitle)
         TextView netKey;
-        @BindView(R.id.radio)
         RadioButton bound;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(final @NonNull RemovableRowItem2Binding binding) {
+            super(binding.getRoot());
+            netKeyName = binding.title;
+            netKey = binding.subtitle;
+            bound = binding.radio;
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);
-            view.findViewById(R.id.container).setOnClickListener(v -> {
+            binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final NetworkKey netKey = mNetworkKeys.get(getAdapterPosition());
                     mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);

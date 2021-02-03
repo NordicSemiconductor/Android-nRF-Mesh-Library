@@ -25,14 +25,6 @@ package no.nordicsemi.android.mesh.transport;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
-import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Ignore;
-import androidx.room.Index;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,12 +32,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.Provisioner;
+import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -56,7 +56,7 @@ import no.nordicsemi.android.mesh.utils.SparseIntArrayParcelable;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess"})
 @Entity(tableName = "nodes",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -79,7 +79,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ProvisionedMeshNode() { }
+    public ProvisionedMeshNode() {
+    }
 
     /**
      * Constructor to be used only by hte library
@@ -108,7 +109,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param netKeys     List of {@link NetworkKey}
      * @param appKeys     List of {@link ApplicationKey}
      */
-    @SuppressWarnings("ConstantConditions")
     @Ignore
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("UseSparseArrays")
@@ -166,7 +166,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         secureNetworkBeaconSupported = (Boolean) in.readValue(Boolean.class.getClassLoader());
         networkTransmitSettings = in.readParcelable(NetworkTransmitSettings.class.getClassLoader());
         relaySettings = in.readParcelable(RelaySettings.class.getClassLoader());
-        blackListed = in.readInt() != 1;
+        excluded = in.readInt() != 1;
 
     }
 
@@ -193,7 +193,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         dest.writeValue(secureNetworkBeaconSupported);
         dest.writeParcelable(networkTransmitSettings, flags);
         dest.writeParcelable(relaySettings, flags);
-        dest.writeInt((blackListed ? 1 : 0));
+        dest.writeInt((excluded ? 1 : 0));
     }
 
     @Override
@@ -242,8 +242,8 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Sets the sequence number
      * <p>
-     *     This is only meant to be used internally within the library.
-     *     However this is open now for users to set the sequence number manually in provisioner node.
+     * This is only meant to be used internally within the library.
+     * However this is open now for users to set the sequence number manually in provisioner node.
      * </p>
      *
      * @param sequenceNumber sequence number of the node
@@ -365,6 +365,17 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
             final int keyIndex = mAddedNetKeys.get(i).getIndex();
             if (keyIndex == index) {
                 mAddedNetKeys.remove(i);
+                for (Element element : mElements.values()) {
+                    for (MeshModel model : element.getMeshModels().values()) {
+                        if (model.getModelId() == SigModelParser.CONFIGURATION_SERVER) {
+                            final ConfigurationServerModel configServerModel = (ConfigurationServerModel) model;
+                            if (configServerModel.getHeartbeatPublication() != null &&
+                                    configServerModel.getHeartbeatPublication().getNetKeyIndex() == index) {
+                                configServerModel.setHeartbeatPublication(null);
+                            }
+                        }
+                    }
+                }
                 break;
             }
         }
@@ -580,7 +591,9 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Increments the sequence number
      */
-    public int incrementSequenceNumber(){
+    public int incrementSequenceNumber() {
         return sequenceNumber = sequenceNumber + 1;
     }
+
+
 }

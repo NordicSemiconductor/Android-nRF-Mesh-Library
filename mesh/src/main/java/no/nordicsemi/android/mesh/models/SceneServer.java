@@ -24,6 +24,9 @@ package no.nordicsemi.android.mesh.models;
 
 import android.os.Parcel;
 
+import java.util.Collections;
+import java.util.List;
+
 @SuppressWarnings("WeakerAccess")
 public class SceneServer extends SigModel {
 
@@ -43,8 +46,9 @@ public class SceneServer extends SigModel {
         super(modelId);
     }
 
-    private SceneServer(final Parcel source) {
+    SceneServer(final Parcel source) {
         super(source);
+        currentScene = source.readInt();
     }
 
     @Override
@@ -60,6 +64,14 @@ public class SceneServer extends SigModel {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         super.parcelMeshModel(dest, flags);
+        dest.writeInt(currentScene);
     }
 
+    public List<Integer> getScenesNumbers() {
+        return Collections.unmodifiableList(sceneNumbers);
+    }
+
+    public int getCurrentScene() {
+        return currentScene;
+    }
 }

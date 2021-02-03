@@ -24,154 +24,63 @@ package no.nordicsemi.android.nrfmesh.keys;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Looper;
 import android.view.View;
-import android.widget.ProgressBar;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.transport.ConfigAppKeyList;
 import no.nordicsemi.android.mesh.transport.ConfigAppKeyStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyStatus;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityAddKeysBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigStatus;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
+import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 
-public abstract class AddKeysActivity extends AppCompatActivity implements Injectable, SwipeRefreshLayout.OnRefreshListener {
+public abstract class AddKeysActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @BindView(R.id.container)
-    protected CoordinatorLayout container;
-    @BindView(R.id.recycler_view_keys)
-    protected RecyclerView recyclerViewKeys;
-    @BindView(R.id.fab_add)
-    protected ExtendedFloatingActionButton fab;
-    @BindView(R.id.configuration_progress_bar)
-    protected ProgressBar mProgressbar;
-    @BindView(R.id.swipe_refresh)
-    protected SwipeRefreshLayout mSwipe;
-
-    protected Handler mHandler;
-    protected View mEmptyView;
-
-    protected AddKeysViewModel mViewModel;
-    protected boolean mIsConnected;
-
+    protected ActivityAddKeysBinding binding;
     abstract void enableAdapterClickListener(final boolean enable);
+
+    @Override
+    protected void updateClickableViews() {
+        if (mIsConnected) {
+            enableClickableViews();
+        } else {
+            disableClickableViews();
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddKeysViewModel.class);
-        setContentView(R.layout.activity_add_keys);
-        ButterKnife.bind(this);
-        mHandler = new Handler();
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
+        binding = ActivityAddKeysBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(AddKeysViewModel.class);
+        init();
+        mHandler = new Handler(Looper.getMainLooper());
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mSwipe.setOnRefreshListener(this);
-        recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
+        binding.swipeRefresh.setOnRefreshListener(this);
+        binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerViewKeys.addItemDecoration(dividerItemDecoration);
-        recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
-        fab.hide();
+                new DividerItemDecoration(binding.recyclerViewKeys.getContext(), DividerItemDecoration.VERTICAL);
+        binding.recyclerViewKeys.addItemDecoration(dividerItemDecoration);
+        binding.recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
+        binding.fabAdd.hide();
 
-        mViewModel.getMeshMessage().observe(this, meshMessage -> {
-            if (meshMessage instanceof ConfigNetKeyStatus) {
-                final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
-                if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-                } else {
-                    showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
-                }
-            } else if (meshMessage instanceof ConfigAppKeyStatus) {
-                final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
-                if (status.isSuccessful()) {
-                    mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
-                } else {
-                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                }
-            } else if (meshMessage instanceof ConfigAppKeyList) {
-                final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
-                if (!mViewModel.getMessageQueue().isEmpty())
-                    mViewModel.getMessageQueue().remove();
-                if (status.isSuccessful()) {
-                    handleStatuses();
-                } else {
-                    showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
-                }
-            }
-            hideProgressBar();
-        });
-
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if (isConnected != null) {
-                mIsConnected = isConnected;
-                hideProgressBar();
-            }
-            invalidateOptionsMenu();
-        });
-
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null) {
-            mIsConnected = isConnectedToNetwork;
-        }
-        invalidateOptionsMenu();
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mIsConnected) {
-            getMenuInflater().inflate(R.menu.disconnect, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.connect, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
-        }
     }
 
     @Override
@@ -189,44 +98,29 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         }
     }
 
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, container);
-            return false;
-        }
-        return true;
-    }
-
-    protected final void showProgressbar() {
-        mHandler.postDelayed(mOperationTimeout, Utils.MESSAGE_TIME_OUT);
+    protected void showProgressBar() {
+        mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
-        mProgressbar.setVisibility(View.VISIBLE);
+        binding.configurationProgressBar.setVisibility(View.VISIBLE);
     }
 
     protected final void hideProgressBar() {
-        mSwipe.setRefreshing(false);
+        binding.swipeRefresh.setRefreshing(false);
         enableClickableViews();
-        mProgressbar.setVisibility(View.INVISIBLE);
-        mHandler.removeCallbacks(mOperationTimeout);
+        binding.configurationProgressBar.setVisibility(View.INVISIBLE);
+        mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
-
-    private final Runnable mOperationTimeout = () -> {
-        hideProgressBar();
-        mViewModel.getMessageQueue().clear();
-        DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-        fragmentMessage.show(getSupportFragmentManager(), null);
-    };
 
     protected void enableClickableViews() {
         enableAdapterClickListener(true);
-        recyclerViewKeys.setEnabled(true);
-        recyclerViewKeys.setClickable(true);
+        binding.recyclerViewKeys.setEnabled(true);
+        binding.recyclerViewKeys.setClickable(true);
     }
 
     protected void disableClickableViews() {
         enableAdapterClickListener(false);
-        recyclerViewKeys.setEnabled(false);
-        recyclerViewKeys.setClickable(false);
+        binding.recyclerViewKeys.setEnabled(false);
+        binding.recyclerViewKeys.setClickable(false);
     }
 
     private void handleStatuses() {
@@ -234,15 +128,15 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
         if (message != null) {
             sendMessage(message);
         } else {
-            mViewModel.displaySnackBar(this, container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            mViewModel.displaySnackBar(this, binding.container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
         }
     }
 
     protected void sendMessage(final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(binding.container))
                 return;
-            showProgressbar();
+            showProgressBar();
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
@@ -256,9 +150,38 @@ public abstract class AddKeysActivity extends AppCompatActivity implements Injec
     }
 
     @Override
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
+        if (meshMessage instanceof ConfigNetKeyStatus) {
+            final ConfigNetKeyStatus status = (ConfigNetKeyStatus) meshMessage;
+            if (status.isSuccessful()) {
+                mViewModel.displaySnackBar(this, binding.container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            } else {
+                showDialogFragment(getString(R.string.title_netkey_status), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigAppKeyStatus) {
+            final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
+            if (status.isSuccessful()) {
+                mViewModel.displaySnackBar(this, binding.container, getString(R.string.operation_success), Snackbar.LENGTH_SHORT);
+            } else {
+                showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+            }
+        } else if (meshMessage instanceof ConfigAppKeyList) {
+            final ConfigAppKeyList status = (ConfigAppKeyList) meshMessage;
+            if (!mViewModel.getMessageQueue().isEmpty())
+                mViewModel.getMessageQueue().remove();
+            if (status.isSuccessful()) {
+                handleStatuses();
+            } else {
+                showDialogFragment(getString(R.string.title_appkey_status), status.getStatusCodeName());
+            }
+        }
+        hideProgressBar();
+    }
+
+    @Override
     public void onRefresh() {
-        if (!checkConnectivity()) {
-            mSwipe.setRefreshing(false);
+        if (!checkConnectivity(binding.container)) {
+            binding.swipeRefresh.setRefreshing(false);
         }
     }
 }

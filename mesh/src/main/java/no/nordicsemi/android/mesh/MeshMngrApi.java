@@ -12,7 +12,6 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.InputOOBAction;
 import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 
-@SuppressWarnings("unused")
 interface MeshMngrApi {
 
     /**
@@ -191,8 +190,18 @@ interface MeshMngrApi {
      * @param networkId   network id of the mesh
      * @param serviceData advertised service data
      * @return returns true if the network ids match or false otherwise
+     * @deprecated use {@link #networkIdMatches(byte[])} instead.
      */
+    @Deprecated
     boolean networkIdMatches(@NonNull final String networkId, @NonNull final byte[] serviceData);
+
+    /**
+     * Checks if the generated network ids match. The network ID contained in the service data would be checked against a network id of each network key.
+     *
+     * @param serviceData advertised service data
+     * @return returns true if the network ids match or false otherwise
+     */
+    boolean networkIdMatches(@NonNull final byte[] serviceData);
 
     /**
      * Returns the advertised hash
@@ -228,10 +237,28 @@ interface MeshMngrApi {
     MeshNetwork getMeshNetwork();
 
     /**
-     * Exports mesh network to a json String
+     * Exports full mesh network to a json String.
      */
     @Nullable
     String exportMeshNetwork();
+
+    /**
+     * Exports a partial mesh network to a json String with the provided export configuration.
+     *
+     * @param networkKeysConfig     Export configuration for Network Keys.
+     * @param applicationKeysConfig Export configuration for Application Keys.
+     * @param nodesConfig           Export configuration for Nodes.
+     * @param provisionersConfig    Export configuration for Provisioners.
+     * @param groupsConfig          Export configuration for Groups.
+     * @param scenesConfig          Export configuration for scenes.
+     */
+    @Nullable
+    String exportMeshNetwork(@NonNull final NetworkKeysConfig networkKeysConfig,
+                             @NonNull final ApplicationKeysConfig applicationKeysConfig,
+                             @NonNull final NodesConfig nodesConfig,
+                             @NonNull final ProvisionersConfig provisionersConfig,
+                             @NonNull final GroupsConfig groupsConfig,
+                             @NonNull final ScenesConfig scenesConfig);
 
     /**
      * Starts an asynchronous task that imports a network from the mesh configuration db json

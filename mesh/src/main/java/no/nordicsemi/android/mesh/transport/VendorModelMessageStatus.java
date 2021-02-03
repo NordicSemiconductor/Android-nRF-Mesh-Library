@@ -43,7 +43,6 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
         public VendorModelMessageStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
             final int modelIdentifier = in.readInt();
-            //noinspection ConstantConditions
             return new VendorModelMessageStatus(message, modelIdentifier);
         }
 
@@ -72,7 +71,7 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return mMessage.getOpCode();
     }
 

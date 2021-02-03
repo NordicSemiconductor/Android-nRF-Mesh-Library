@@ -2,36 +2,37 @@ package no.nordicsemi.android.mesh.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import androidx.annotation.IntDef;
+
 /**
  * Wrapper class for proxy filter types
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class ProxyFilterType implements Parcelable {
 
     @SuppressWarnings("WeakerAccess")
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({WHITE_LIST_FILTER, BLACK_LIST_FILTER})
+    @IntDef({INCLUSION_LIST_FILTER, EXCLUSION_LIST_FILTER})
     public @interface FilterTypes {
     }
 
     /**
-     * A white list filter has an associated white list, which is a list of destination addresses
-     * that are of interest for the Proxy Client. The white list filter blocks all destination addresses
-     * except those that have been added to the white list.
+     * A inclusion list filter has an associated inclusion list, which is a list of destination addresses
+     * that are of interest for the Proxy Client. The inclusion list filter blocks all destination addresses
+     * except those that have been added to the inclusion list.
      */
-    public static final int WHITE_LIST_FILTER = 0x00;   //White list filter type
+    public static final int INCLUSION_LIST_FILTER = 0x00;   //inclusion list filter type
 
     /**
-     * A black list filter has an associated black list, which is a list of destination addresses
-     * that the Proxy Client does not want to receive. The black list filter accepts all destination addresses
-     * except those that have been added to the black list.
+     * A exclusion list filter has an associated exclusion list, which is a list of destination addresses
+     * that the Proxy Client does not want to receive. The exclusion list filter accepts all destination addresses
+     * except those that have been added to the exclusion list.
      */
-    public static final int BLACK_LIST_FILTER = 0x01;   //The node supports Relay feature that is enabled
+    public static final int EXCLUSION_LIST_FILTER = 0x01;   //The node supports Relay feature that is enabled
 
     /**
      * Filter type
@@ -58,11 +59,11 @@ public class ProxyFilterType implements Parcelable {
     /**
      * Returns the filter type name
      */
-    public String getFilterTypeName(){
-        if(filterType == WHITE_LIST_FILTER){
-            return "Whitelist Filter";
+    public String getFilterTypeName() {
+        if (filterType == INCLUSION_LIST_FILTER) {
+            return "Inclusion List";
         } else {
-            return "Blacklist Filter";
+            return "Exclusion List";
         }
     }
 

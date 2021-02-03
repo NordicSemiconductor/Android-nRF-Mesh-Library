@@ -28,18 +28,17 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
+@InstallIn(ApplicationComponent.class)
 @Module
-class ContextModule {
-	private final Context mContext;
+public class ContextModule {
 
-	ContextModule(final Context context) {
-		this.mContext = context.getApplicationContext();
-	}
-
-	@Provides
 	@Singleton
-    Context provideApplicationContext() {
-		return mContext;
+	@Provides
+    public Context provideApplicationContext(@ApplicationContext Context context) {
+		return context;
 	}
 }

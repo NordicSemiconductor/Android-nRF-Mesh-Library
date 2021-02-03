@@ -26,95 +26,75 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityEditKeyBinding;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.AddNetKeyViewModel;
 
-public class AddNetKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+@AndroidEntryPoint
+public class AddNetKeyActivity extends AppCompatActivity implements MeshKeyListener {
 
-    private static final String APPLICATION_KEY = "APPLICATION_KEY";
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-    private CoordinatorLayout container;
-    private TextView nameView;
-    private TextView keyView;
-    private TextView keyIndexView;
-
+    private ActivityEditKeyBinding binding;
     private AddNetKeyViewModel mViewModel;
+
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_key);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(AddNetKeyViewModel.class);
+        binding = ActivityEditKeyBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(AddNetKeyViewModel.class);
 
         //Bind ui
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(R.string.title_add_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
 
-        container = findViewById(R.id.container);
-
-        final View containerKey = findViewById(R.id.container_key);
-        containerKey.findViewById(R.id.image).
+        binding.containerKey.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
-        ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_net_key);
-        keyView = containerKey.findViewById(R.id.text);
-        keyView.setVisibility(View.VISIBLE);
+        binding.containerKey.title.setText(R.string.title_net_key);
+        binding.containerKey.text.setVisibility(View.VISIBLE);
 
-        final View containerKeyName = findViewById(R.id.container_key_name);
-        containerKeyName.findViewById(R.id.image).
+        binding.containerKeyName.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
-        ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
-        nameView = containerKeyName.findViewById(R.id.text);
-        nameView.setVisibility(View.VISIBLE);
+        binding.containerKeyName.title.setText(R.string.name);
+        binding.containerKeyName.text.setVisibility(View.VISIBLE);
 
-        final View containerKeyIndex = findViewById(R.id.container_key_index);
-        containerKeyIndex.setClickable(false);
-        containerKeyIndex.findViewById(R.id.image).
+        binding.containerKeyIndex.getRoot().setClickable(false);
+        binding.containerKeyIndex.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_index));
-        ((TextView) containerKeyIndex.findViewById(R.id.title)).setText(R.string.title_key_index);
-        keyIndexView = containerKeyIndex.findViewById(R.id.text);
-        keyIndexView.setVisibility(View.VISIBLE);
+        binding.containerKeyIndex.title.setText(R.string.title_key_index);
+        binding.containerKeyIndex.text.setVisibility(View.VISIBLE);
 
-        containerKey.setOnClickListener(v -> {
-            final NetworkKey netKey = mViewModel.getNetworkKeyLiveData().getValue();
-            final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(netKey.getKeyIndex(), netKey);
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKey.getRoot().setOnClickListener(v ->
+                DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
+                        .show(getSupportFragmentManager(), null));
 
-        containerKeyName.setOnClickListener(v -> {
-            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName());
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerKeyName.getRoot().setOnClickListener(v ->
+                DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
+                        .show(getSupportFragmentManager(), null));
 
         mViewModel.getNetworkKeyLiveData().observe(this, this::updateUi);
     }
 
     private void updateUi(@NonNull final NetworkKey networkKey) {
         if (networkKey != null) {
-            keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
-            nameView.setText(networkKey.getName());
-            keyIndexView.setText(String.valueOf(networkKey.getKeyIndex()));
+            binding.containerKey.text.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
+            binding.containerKeyName.text.setText(networkKey.getName());
+            binding.containerKeyIndex.text.setText(String.valueOf(networkKey.getKeyIndex()));
         }
     }
 
@@ -126,18 +106,18 @@ public class AddNetKeyActivity extends AppCompatActivity implements Injectable, 
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_save:
-                try {
-                    if (mViewModel.addNetKey())
-                        onBackPressed();
-                } catch (IllegalArgumentException ex) {
-                    mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
-                }
-                return true;
+        final int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_save) {
+            try {
+                if (mViewModel.addNetKey())
+                    onBackPressed();
+            } catch (IllegalArgumentException ex) {
+                mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            }
+            return true;
         }
         return false;
     }
@@ -149,7 +129,7 @@ public class AddNetKeyActivity extends AppCompatActivity implements Injectable, 
     }
 
     @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
+    public boolean onKeyUpdated(@NonNull final String key) {
         mViewModel.setKey(MeshParserUtils.toByteArray(key));
         return true;
     }

@@ -22,39 +22,26 @@
 
 package no.nordicsemi.android.nrfmesh.keys.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentKeyInputBinding;
 
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.validateKeyInput;
 
 public class DialogFragmentAddKey extends DialogFragment {
 
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout appKeysInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText appKeyInput;
-
+    private DialogFragmentKeyInputBinding binding;
     private String mAppKey;
 
     public interface DialogFragmentAddAppKeysListener {
@@ -77,13 +64,11 @@ public class DialogFragmentAddKey extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_key_input, null);
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
+        binding = DialogFragmentKeyInputBinding.inflate(getLayoutInflater());
         //Bind ui
-        appKeysInputLayout.setHint(getString(R.string.hint_app_key));
-        appKeyInput.setText(mAppKey);
-        appKeyInput.addTextChangedListener(new TextWatcher() {
+        binding.textInputLayout.setHint(getString(R.string.hint_app_key));
+        binding.textInput.setText(mAppKey);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -92,9 +77,9 @@ public class DialogFragmentAddKey extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    appKeysInputLayout.setError(getString(R.string.error_empty_key));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_key));
                 } else {
-                    appKeysInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -104,28 +89,28 @@ public class DialogFragmentAddKey extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null)
                 .setNeutralButton(R.string.generate_new_key, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_24dp);
         alertDialogBuilder.setTitle(R.string.title_manage_app_keys);
-        summary.setText(R.string.title_app_keys);
+        binding.summary.setText(R.string.title_app_keys);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String appKey = appKeyInput.getEditableText().toString().trim();
+            final String appKey = binding.textInput.getEditableText().toString().trim();
             if (validateKeyInput(appKey)) {
                 try {
                     ((DialogFragmentAddAppKeysListener) requireContext()).onAppKeyAdded(appKey);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
-                    appKeysInputLayout.setError(ex.getMessage());
+                    binding.textInputLayout.setError(ex.getMessage());
                 }
             }
         });
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).
-                setOnClickListener(v -> appKeyInput.setText(SecureUtils.generateRandomNetworkKey()));
+                setOnClickListener(v -> binding.textInput.setText(SecureUtils.generateRandomNetworkKey()));
         return alertDialog;
     }
 }

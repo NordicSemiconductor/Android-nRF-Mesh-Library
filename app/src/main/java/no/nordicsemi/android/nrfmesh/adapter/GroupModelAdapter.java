@@ -38,8 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -47,10 +45,10 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.GroupElementItemBinding;
+import no.nordicsemi.android.nrfmesh.databinding.GroupModelItemBinding;
 
 public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.ViewHolder> {
-
-    private final Context mContext;
     private Group mGroup;
     private List<Element> mElements;
     private OnItemClickListener mOnItemClickListener;
@@ -58,12 +56,10 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
     /**
      * Constructs the adapter containing the models in a group.
      *
-     * @param context  Context
      * @param group Group
      * @param elements elements containing in the group
      */
-    public GroupModelAdapter(@NonNull final Context context, @NonNull final Group group, @NonNull final List<Element> elements) {
-        this.mContext = context;
+    public GroupModelAdapter(@NonNull final Group group, @NonNull final List<Element> elements) {
         this.mGroup = group;
         this.mElements = elements;
     }
@@ -85,8 +81,7 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.group_element_item, parent, false);
-        return new ViewHolder(layoutView);
+        return new ViewHolder(GroupElementItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -101,37 +96,38 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
     }
 
     private void updateGroupItemViewHolder(final ViewHolder holder, final Element element) {
+        final Context context = holder.itemView.getContext();
         holder.elementTitle.setText(MeshAddress.formatAddress(element.getElementAddress(), true));
         holder.mModelContainer.removeAllViews();
         for (Map.Entry<Integer, MeshModel> modelEntry : element.getMeshModels().entrySet()) {
             final MeshModel model = modelEntry.getValue();
             for (Integer address : model.getSubscribedAddresses()) {
                 if (mGroup.getAddress() == address) {
-                    final View view = LayoutInflater.from(mContext).inflate(R.layout.group_model_item, holder.mModelContainer, false);
-                    final ConstraintLayout container = view.findViewById(R.id.container);
-                    final ImageView modelIcon = view.findViewById(R.id.icon);
-                    final TextView modelTitle = view.findViewById(R.id.model_title);
+                    final GroupModelItemBinding binding = GroupModelItemBinding.inflate(LayoutInflater.from(holder.itemView.getContext()), holder.mModelContainer, false);
+                    final ConstraintLayout container = binding.container;
+                    final ImageView modelIcon = binding.icon;
+                    final TextView modelTitle = binding.modelTitle;
                     modelTitle.setText(model.getModelName());
                     if(MeshParserUtils.isVendorModel(model.getModelId())){
-                        modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_domain_nordic_medium_gray));
+                        modelIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_domain_nordic_medium_gray));
                     } else {
                         switch (model.getModelId()) {
                             case SigModelParser.GENERIC_ON_OFF_SERVER:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_outline_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_lightbulb_outline_24dp));
                                 break;
                             case SigModelParser.GENERIC_ON_OFF_CLIENT:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_light_switch_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_light_switch_24dp));
                                 break;
                             case SigModelParser.GENERIC_LEVEL_SERVER:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_lightbulb_level_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_lightbulb_level_24dp));
                                 break;
                             default:
-                                modelIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_help_outline_24dp));
+                                modelIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_help_outline_24dp));
                                 break;
                         }
                     }
                     container.setOnClickListener(v -> mOnItemClickListener.onModelItemClick(element, model));
-                    holder.mModelContainer.addView(view);
+                    holder.mModelContainer.addView(binding.getRoot());
                 }
             }
         }
@@ -151,17 +147,16 @@ public class GroupModelAdapter extends RecyclerView.Adapter<GroupModelAdapter.Vi
         void onModelItemClick(final Element element, final MeshModel model);
     }
 
-    final class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.element_title)
+    static final class ViewHolder extends RecyclerView.ViewHolder {
         TextView elementTitle;
-        @BindView(R.id.model_container)
         LinearLayout mModelContainer;
-        @BindView(R.id.divider)
         View mDivider;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(final @NonNull GroupElementItemBinding binding) {
+            super(binding.getRoot());
+            elementTitle = binding.elementTitle;
+            mModelContainer = binding.modelContainer;
+            mDivider = binding.divider.divider;
         }
     }
 }

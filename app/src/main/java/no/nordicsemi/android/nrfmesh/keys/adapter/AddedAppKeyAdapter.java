@@ -23,9 +23,9 @@
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,24 +33,24 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
-import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
 
     private final List<ApplicationKey> appKeys = new ArrayList<>();
     private final List<ApplicationKey> addedAppKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
+    private boolean enableSelection = true;
 
     public AddedAppKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<ApplicationKey> appKeys,
@@ -76,11 +76,15 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         mOnItemClickListener = listener;
     }
 
+    public void enableDisableKeySelection(final boolean flag) {
+        enableSelection = flag;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public AddedAppKeyAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item_key, parent, false);
-        return new AddedAppKeyAdapter.ViewHolder(layoutView);
+        return new AddedAppKeyAdapter.ViewHolder(CheckableRowItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -89,11 +93,8 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         holder.keyName.setText(key.getName());
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
-        if (addedAppKeys.contains(key)) {
-            holder.check.setChecked(true);
-        } else {
-            holder.check.setChecked(false);
-        }
+        holder.check.setChecked(addedAppKeys.contains(key));
+        holder.check.setEnabled(enableSelection);
     }
 
     @Override
@@ -115,18 +116,18 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
         void onItemClick(@NonNull final ApplicationKey appKey);
     }
 
-    final class ViewHolder extends RemovableViewHolder {
-
-        @BindView(R.id.title)
+    final class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView icon;
         TextView keyName;
-        @BindView(R.id.subtitle)
         TextView key;
-        @BindView(R.id.check)
         CheckBox check;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(@NonNull final CheckableRowItemBinding binding) {
+            super(binding.getRoot());
+            binding.icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
+            keyName = binding.title;
+            key = binding.subtitle;
+            check = binding.check;
             check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     final ApplicationKey key = appKeys.get(getAdapterPosition());

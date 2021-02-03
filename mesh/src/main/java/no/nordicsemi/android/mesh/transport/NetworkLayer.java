@@ -502,7 +502,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final int netKeyIndex = message.getApplicationKey().getBoundNetKeyIndex();
             networkKey = mNetworkLayerCallbacks.getNetworkKey(netKeyIndex);
         }
-        return SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
+        return networkKey.getTxDerivatives();
     }
 
     /**

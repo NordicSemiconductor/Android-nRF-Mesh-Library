@@ -43,7 +43,7 @@ public class SceneSetupServer extends SigModel {
         super(modelId);
     }
 
-    private SceneSetupServer(final Parcel source) {
+    SceneSetupServer(final Parcel source) {
         super(source);
     }
 

@@ -22,9 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -35,13 +33,12 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.AddressItemBinding;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
@@ -53,7 +50,6 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         mAddresses.clear();
         mAddresses.addAll(filter.getAddresses());
         notifyDataSetChanged();
-        Log.d("TAG", "Address size: " + mAddresses.size());
     }
 
     public void clearData() {
@@ -73,8 +69,8 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     @NonNull
     @Override
     public FilterAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.address_item, parent, false);
-        return new FilterAddressAdapter.ViewHolder(layoutView);
+        final AddressItemBinding binding = AddressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new FilterAddressAdapter.ViewHolder(binding);
     }
 
     @Override
@@ -110,16 +106,15 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
     }
 
     public final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
         FrameLayout container;
-        @BindView(R.id.address_id)
         TextView addressTitle;
-        @BindView(R.id.title)
         TextView address;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(final AddressItemBinding binding) {
+            super(binding.getRoot());
+            container = binding.container;
+            addressTitle = binding.addressId;
+            address = binding.title;
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);

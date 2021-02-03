@@ -32,6 +32,7 @@ import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.Provisioner;
+import no.nordicsemi.android.mesh.Scene;
 
 /**
  * LiveData class for storing {@link MeshNetwork}
@@ -149,5 +150,9 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
      */
     public String getNodeName() {
         return nodeName;
+    }
+
+    public List<Scene> getScenes(){
+        return meshNetwork.getScenes();
     }
 }

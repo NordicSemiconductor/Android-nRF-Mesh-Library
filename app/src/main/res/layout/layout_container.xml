@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:scaleType="center"
-        app:layout_constraintBottom_toBottomOf="@+id/text"
+        app:layout_constraintBottom_toBottomOf="@id/text"
         app:layout_constraintEnd_toStartOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/title"

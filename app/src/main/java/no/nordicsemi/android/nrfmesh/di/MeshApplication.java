@@ -22,27 +22,16 @@
 
 package no.nordicsemi.android.nrfmesh.di;
 
-import javax.inject.Inject;
-
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasAndroidInjector;
+import dagger.hilt.android.HiltAndroidApp;
 
-public class MeshApplication extends MultiDexApplication implements HasAndroidInjector {
-    @Inject
-    DispatchingAndroidInjector<Object> dispatchingAndroidInjector;
+@HiltAndroidApp
+public class MeshApplication extends MultiDexApplication {
 
     @Override
     public void onCreate() {
         super.onCreate();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        AppInjector.init(this);
-    }
-
-    @Override
-    public AndroidInjector<Object> androidInjector() {
-        return dispatchingAndroidInjector;
     }
 }

@@ -24,26 +24,15 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.transport.ConfigCompositionDataGet;
@@ -62,11 +51,11 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ProxyConfigFilterStatus;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityNodeConfigurationBinding;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutContainerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentConfigurationComplete;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentProxySet;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.AddNetKeysActivity;
 import no.nordicsemi.android.nrfmesh.node.adapter.ElementAdapter;
@@ -75,9 +64,11 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNodeName;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentResetNode;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentTtl;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 import no.nordicsemi.android.nrfmesh.viewmodels.NodeConfigurationViewModel;
 
-public class NodeConfigurationActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class NodeConfigurationActivity extends BaseActivity implements
         DialogFragmentNodeName.DialogFragmentNodeNameListener,
         DialogFragmentElementName.DialogFragmentElementNameListener,
         DialogFragmentTtl.DialogFragmentTtlListener,
@@ -90,131 +81,75 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private static final String PROXY_STATE = "PROXY_STATE";
     private static final String REQUESTED_PROXY_STATE = "REQUESTED_PROXY_STATE";
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+    private ActivityNodeConfigurationBinding binding;
 
-    @BindView(R.id.container)
-    CoordinatorLayout mContainer;
-    @BindView(R.id.action_get_composition_data)
-    Button actionGetCompositionData;
-    @BindView(R.id.node_proxy_state_card)
-    View mProxyStateCard;
-    @BindView(R.id.proxy_state_summary)
-    TextView mProxyStateRationaleSummary;
-    @BindView(R.id.action_get_default_ttl)
-    Button actionGetDefaultTtl;
-    @BindView(R.id.action_set_default_ttl)
-    Button actionSetDefaultTtl;
-    @BindView(R.id.action_get_proxy_state)
-    Button actionGetProxyState;
-    @BindView(R.id.action_set_proxy_state)
-    Button actionSetProxyState;
-    @BindView(R.id.action_reset_node)
-    Button actionResetNode;
-    @BindView(R.id.recycler_view_elements)
-    RecyclerView mRecyclerViewElements;
-    @BindView(R.id.configuration_progress_bar)
-    ProgressBar mProgressbar;
-
-    private NodeConfigurationViewModel mViewModel;
-    private Handler mHandler;
     private boolean mProxyState;
     private boolean mRequestedState = true;
-    private boolean mIsConnected;
-
-    private final Runnable mRunnableOperationTimeout = () -> {
-        hideProgressBar();
-        if (mViewModel.isActivityVisibile()) {
-            DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.
-                    newInstance(getString(R.string.title_transaction_failed), getString(R.string.operation_timed_out));
-            fragmentMessage.show(getSupportFragmentManager(), null);
-        }
-    };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_node_configuration);
-        ButterKnife.bind(this);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(NodeConfigurationViewModel.class);
+        binding = ActivityNodeConfigurationBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(NodeConfigurationViewModel.class);
+        init();
 
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {
-                mProgressbar.setVisibility(View.VISIBLE);
+                binding.configurationProgressBar.setVisibility(View.VISIBLE);
                 disableClickableViews();
             } else {
-                mProgressbar.setVisibility(View.INVISIBLE);
+                binding.configurationProgressBar.setVisibility(View.INVISIBLE);
                 enableClickableViews();
             }
             mRequestedState = savedInstanceState.getBoolean(PROXY_STATE, true);
             mProxyState = savedInstanceState.getBoolean(PROXY_STATE, true);
         }
 
-        mHandler = new Handler();
         if (mViewModel.getSelectedMeshNode().getValue() == null) {
             finish();
         }
         // Set up views
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        //noinspection ConstantConditions
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.title_node_configuration);
 
-        final View containerNodeName = findViewById(R.id.container_node_name);
-        containerNodeName.findViewById(R.id.image)
+        final LayoutContainerBinding containerNodeName = binding.containerNodeName;
+        containerNodeName.image
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
-        final TextView nodeNameTitle = containerNodeName.findViewById(R.id.title);
-        nodeNameTitle.setText(R.string.title_node_name);
-        final TextView nodeNameView = containerNodeName.findViewById(R.id.text);
+        containerNodeName.title.setText(R.string.title_node_name);
+        final TextView nodeNameView = containerNodeName.text;
         nodeNameView.setVisibility(View.VISIBLE);
-        containerNodeName.setOnClickListener(v -> {
+        containerNodeName.getRoot().setOnClickListener(v -> {
             final DialogFragmentNodeName fragment = DialogFragmentNodeName.
                     newInstance(nodeNameView.getText().toString());
             fragment.show(getSupportFragmentManager(), null);
         });
         final Button actionDetails = findViewById(R.id.action_show_details);
-        actionDetails.setOnClickListener(v -> {
-            final Intent intent = new Intent(NodeConfigurationActivity.this, NodeDetailsActivity.class);
-            startActivity(intent);
-        });
+        actionDetails.setOnClickListener(v -> startActivity(new Intent(NodeConfigurationActivity.this, NodeDetailsActivity.class)));
 
-        final TextView noElementsFound = findViewById(R.id.no_elements);
-        final View compositionActionContainer = findViewById(R.id.composition_action_container);
-        mRecyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
         final ElementAdapter adapter = new ElementAdapter(this, mViewModel.getSelectedMeshNode());
         adapter.setHasStableIds(true);
         adapter.setOnItemClickListener(this);
-        mRecyclerViewElements.setAdapter(adapter);
+        binding.recyclerViewElements.setAdapter(adapter);
 
-        final View containerNetKey = findViewById(R.id.container_net_keys);
-        containerNetKey.findViewById(R.id.image)
+        binding.containerNetKeys.image
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
-        final TextView keyTitle = containerNetKey.findViewById(R.id.title);
-        keyTitle.setText(R.string.title_net_keys);
-        final TextView netKeySummary = containerNetKey.findViewById(R.id.text);
+        binding.containerNetKeys.title.setText(R.string.title_net_keys);
+        final TextView netKeySummary = binding.containerNetKeys.text;
         netKeySummary.setVisibility(View.VISIBLE);
-        containerNetKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddNetKeysActivity.class);
-            startActivity(intent);
-        });
+        binding.containerNetKeys.getRoot().setOnClickListener(v -> startActivity(new Intent(this, AddNetKeysActivity.class)));
 
-        final View containerAppKey = findViewById(R.id.container_app_keys);
-        containerAppKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
-        ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
-        final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
+        binding.containerAppKeys.image.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerAppKeys.title.setText(R.string.title_app_keys);
+        final TextView appKeySummary = binding.containerAppKeys.text;
         appKeySummary.setVisibility(View.VISIBLE);
-        containerAppKey.setOnClickListener(v -> {
-            final Intent intent = new Intent(this, AddAppKeysActivity.class);
-            startActivity(intent);
-        });
+        binding.containerAppKeys.getRoot().setOnClickListener(v -> startActivity(new Intent(this, AddAppKeysActivity.class)));
 
-        final View containerDefaultTtl = findViewById(R.id.container_ttl);
-        containerDefaultTtl.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_numeric));
-        ((TextView) containerDefaultTtl.findViewById(R.id.title)).setText(R.string.title_ttl);
-        final TextView defaultTtlSummary = containerDefaultTtl.findViewById(R.id.text);
+        binding.containerTtl.image.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_numeric));
+        binding.containerTtl.title.setText(R.string.title_ttl);
+        final TextView defaultTtlSummary = binding.containerTtl.text;
         defaultTtlSummary.setVisibility(View.VISIBLE);
 
         mViewModel.getSelectedMeshNode().observe(this, meshNode -> {
@@ -228,13 +163,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             updateClickableViews();
 
             if (!meshNode.getElements().isEmpty()) {
-                compositionActionContainer.setVisibility(View.GONE);
-                noElementsFound.setVisibility(View.INVISIBLE);
-                mRecyclerViewElements.setVisibility(View.VISIBLE);
+                binding.compositionActionContainer.setVisibility(View.GONE);
+                binding.noElements.setVisibility(View.INVISIBLE);
+                binding.recyclerViewElements.setVisibility(View.VISIBLE);
             } else {
-                noElementsFound.setVisibility(View.VISIBLE);
-                compositionActionContainer.setVisibility(View.VISIBLE);
-                mRecyclerViewElements.setVisibility(View.INVISIBLE);
+                binding.noElements.setVisibility(View.VISIBLE);
+                binding.compositionActionContainer.setVisibility(View.VISIBLE);
+                binding.recyclerViewElements.setVisibility(View.INVISIBLE);
             }
 
             if (!meshNode.getAddedNetKeys().isEmpty()) {
@@ -256,19 +191,19 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
         });
 
-        actionGetCompositionData.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+        binding.actionGetCompositionData.setOnClickListener(v -> {
+            if (!checkConnectivity(binding.container)) return;
             final ConfigCompositionDataGet configCompositionDataGet = new ConfigCompositionDataGet();
             sendMessage(configCompositionDataGet);
         });
 
-        actionGetDefaultTtl.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+        binding.actionGetDefaultTtl.setOnClickListener(v -> {
+            if (!checkConnectivity(binding.container)) return;
             final ConfigDefaultTtlGet defaultTtlGet = new ConfigDefaultTtlGet();
             sendMessage(defaultTtlGet);
         });
 
-        actionSetDefaultTtl.setOnClickListener(v -> {
+        binding.actionSetDefaultTtl.setOnClickListener(v -> {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 DialogFragmentTtl fragmentTtl = DialogFragmentTtl.newInstance(node.getTtl() == null ? -1 : node.getTtl());
@@ -276,13 +211,13 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             }
         });
 
-        actionGetProxyState.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+        binding.actionGetProxyState.setOnClickListener(v -> {
+            if (!checkConnectivity(binding.container)) return;
             final ConfigProxyGet configProxyGet = new ConfigProxyGet();
             sendMessage(configProxyGet);
         });
 
-        actionSetProxyState.setOnClickListener(v -> {
+        binding.actionSetProxyState.setOnClickListener(v -> {
             final String message;
             if (mProxyState) {
                 message = getString(R.string.proxy_set_off_rationale_summary);
@@ -294,78 +229,20 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
-        actionResetNode.setOnClickListener(v -> {
-            if (!checkConnectivity()) return;
+        binding.actionResetNode.setOnClickListener(v -> {
+            if (!checkConnectivity(binding.container)) return;
             final DialogFragmentResetNode resetNodeFragment = DialogFragmentResetNode.
                     newInstance(getString(R.string.title_reset_node), getString(R.string.reset_node_rationale_summary));
             resetNodeFragment.show(getSupportFragmentManager(), null);
         });
 
-        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
-            if (transactionStatus != null) {
-                hideProgressBar();
-                final String message;
-                if (transactionStatus.isIncompleteTimerExpired()) {
-                    message = getString(R.string.segments_not_received_timed_out);
-                } else {
-                    message = getString(R.string.operation_timed_out);
-                }
-                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance(getString(R.string.title_transaction_failed), message);
-                fragmentMessage.show(getSupportFragmentManager(), null);
-            }
-        });
-
-        mViewModel.isConnectedToProxy().observe(this, isConnected -> {
-            if (isConnected != null) {
-                mIsConnected = isConnected;
-                hideProgressBar();
-            }
-            updateClickableViews();
-            invalidateOptionsMenu();
-        });
-
-        mViewModel.getMeshMessage().observe(this, this::updateMeshMessage);
-
         updateProxySettingsCardUi();
-
-        final Boolean isConnectedToNetwork = mViewModel.isConnectedToProxy().getValue();
-        if (isConnectedToNetwork != null) {
-            mIsConnected = isConnectedToNetwork;
-        }
-        invalidateOptionsMenu();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mViewModel.setActivityVisible(true);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        if (mIsConnected) {
-            getMenuInflater().inflate(R.menu.disconnect, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.connect, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_connect:
-                mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
-                return true;
-            case R.id.action_disconnect:
-                mViewModel.disconnect();
-                return true;
-            default:
-                return false;
-        }
     }
 
     @Override
@@ -378,22 +255,16 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(PROGRESS_BAR_STATE, mProgressbar.getVisibility() == View.VISIBLE);
+        outState.putBoolean(PROGRESS_BAR_STATE, binding.configurationProgressBar.getVisibility() == View.VISIBLE);
         outState.putBoolean(PROXY_STATE, mProxyState);
         outState.putBoolean(REQUESTED_PROXY_STATE, mRequestedState);
     }
 
     @Override
     public void onElementClicked(@NonNull final Element element) {
-        final DialogFragmentElementName fragmentElementName = DialogFragmentElementName.newInstance(element);
-        fragmentElementName.show(getSupportFragmentManager(), null);
+        DialogFragmentElementName.newInstance(element).show(getSupportFragmentManager(), null);
     }
 
     @Override
@@ -438,52 +309,55 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
     private void updateProxySettingsCardUi() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.getNodeFeatures() != null && meshNode.getNodeFeatures().isProxyFeatureSupported()) {
-            mProxyStateCard.setVisibility(View.VISIBLE);
+            binding.nodeProxyStateCard.setVisibility(View.VISIBLE);
             updateProxySettingsButtonUi();
         }
     }
 
     private void updateProxySettingsButtonUi() {
         if (mProxyState) {
-            mProxyStateRationaleSummary.setText(R.string.proxy_set_off_rationale);
-            actionSetProxyState.setText(R.string.action_proxy_state_set_off);
+            binding.proxyStateSummary.setText(R.string.proxy_set_off_rationale);
+            binding.actionSetProxyState.setText(R.string.action_proxy_state_set_off);
         } else {
-            mProxyStateRationaleSummary.setText(R.string.proxy_set_on_rationale);
-            actionSetProxyState.setText(R.string.action_proxy_state_set_on);
+            binding.proxyStateSummary.setText(R.string.proxy_set_on_rationale);
+            binding.actionSetProxyState.setText(R.string.action_proxy_state_set_on);
         }
     }
 
-    private void showProgressbar() {
+
+    protected void showProgressBar() {
         mHandler.postDelayed(mRunnableOperationTimeout, Utils.MESSAGE_TIME_OUT);
         disableClickableViews();
-        mProgressbar.setVisibility(View.VISIBLE);
+        binding.configurationProgressBar.setVisibility(View.VISIBLE);
     }
 
-    private void hideProgressBar() {
+    protected void hideProgressBar() {
         enableClickableViews();
-        mProgressbar.setVisibility(View.INVISIBLE);
+        binding.configurationProgressBar.setVisibility(View.INVISIBLE);
         mHandler.removeCallbacks(mRunnableOperationTimeout);
     }
 
-    private void enableClickableViews() {
-        actionGetCompositionData.setEnabled(true);
-        actionGetDefaultTtl.setEnabled(true);
-        actionSetDefaultTtl.setEnabled(true);
-        actionGetProxyState.setEnabled(true);
-        actionSetProxyState.setEnabled(true);
-        actionResetNode.setEnabled(true);
+    protected void enableClickableViews() {
+        binding.actionGetCompositionData.setEnabled(true);
+        binding.actionGetDefaultTtl.setEnabled(true);
+        binding.actionSetDefaultTtl.setEnabled(true);
+        binding.actionGetProxyState.setEnabled(true);
+        binding.actionSetProxyState.setEnabled(true);
+        binding.actionResetNode.setEnabled(true);
     }
 
-    private void disableClickableViews() {
-        actionGetCompositionData.setEnabled(false);
-        actionGetDefaultTtl.setEnabled(false);
-        actionSetDefaultTtl.setEnabled(false);
-        actionGetProxyState.setEnabled(false);
-        actionSetProxyState.setEnabled(false);
-        actionResetNode.setEnabled(false);
+
+    protected void disableClickableViews() {
+        binding.actionGetCompositionData.setEnabled(false);
+        binding.actionGetDefaultTtl.setEnabled(false);
+        binding.actionSetDefaultTtl.setEnabled(false);
+        binding.actionGetProxyState.setEnabled(false);
+        binding.actionSetProxyState.setEnabled(false);
+        binding.actionResetNode.setEnabled(false);
     }
 
-    private void updateMeshMessage(final MeshMessage meshMessage) {
+
+    protected void updateMeshMessage(final MeshMessage meshMessage) {
         if (meshMessage instanceof ProxyConfigFilterStatus) {
             hideProgressBar();
         }
@@ -502,15 +376,7 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
         }
     }
 
-    protected final boolean checkConnectivity() {
-        if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, mContainer);
-            return false;
-        }
-        return true;
-    }
-
-    private void updateClickableViews() {
+    protected void updateClickableViews() {
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.isConfigured() &&
                 !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
@@ -519,12 +385,12 @@ public class NodeConfigurationActivity extends AppCompatActivity implements Inje
 
     private void sendMessage(final MeshMessage meshMessage) {
         try {
-            if (!checkConnectivity())
+            if (!checkConnectivity(binding.container))
                 return;
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             if (node != null) {
                 mViewModel.getMeshManagerApi().createMeshPdu(node.getUnicastAddress(), meshMessage);
-                showProgressbar();
+                showProgressBar();
             }
         } catch (IllegalArgumentException ex) {
             hideProgressBar();

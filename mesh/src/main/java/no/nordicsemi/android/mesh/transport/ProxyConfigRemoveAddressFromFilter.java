@@ -9,7 +9,6 @@ import no.nordicsemi.android.mesh.utils.AddressArray;
 /**
  * To be used as a wrapper class to create the ProxyConfigSetFilterType message.
  */
-@SuppressWarnings("unused")
 public class ProxyConfigRemoveAddressFromFilter extends ProxyConfigMessage {
 
     private final List<AddressArray> addresses;
@@ -40,7 +39,7 @@ public class ProxyConfigRemoveAddressFromFilter extends ProxyConfigMessage {
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return ProxyConfigMessageOpCodes.REMOVE_ADDRESS;
     }
 

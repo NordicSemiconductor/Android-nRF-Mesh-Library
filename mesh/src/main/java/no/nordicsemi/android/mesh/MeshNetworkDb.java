@@ -4,17 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseIntArray;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,7 +14,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import no.nordicsemi.android.mesh.data.ApplicationKeyDao;
 import no.nordicsemi.android.mesh.data.ApplicationKeysDao;
 import no.nordicsemi.android.mesh.data.GroupDao;
@@ -42,7 +42,6 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("unused")
 @Database(entities = {
         MeshNetwork.class,
         NetworkKey.class,
@@ -51,10 +50,10 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 9)
+        version = 11)
 abstract class MeshNetworkDb extends RoomDatabase {
 
-    private static String TAG = MeshNetworkDb.class.getSimpleName();
+    private static final String TAG = MeshNetworkDb.class.getSimpleName();
 
     abstract MeshNetworkDao meshNetworkDao();
 
@@ -83,6 +82,9 @@ abstract class MeshNetworkDb extends RoomDatabase {
     abstract SceneDao sceneDao();
 
     private static volatile MeshNetworkDb INSTANCE;
+    private static final int NUMBER_OF_THREADS = 4;
+    private static final ExecutorService databaseWriteExecutor =
+            Executors.newFixedThreadPool(4);
 
     /**
      * Returns the mesh database
@@ -103,6 +105,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_6_7)
                             .addMigrations(MIGRATION_7_8)
                             .addMigrations(MIGRATION_8_9)
+                            .addMigrations(MIGRATION_9_10)
+                            .addMigrations(MIGRATION_10_11)
                             .build();
                 }
 
@@ -119,7 +123,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
      * If you want to populate the database only when the database is created for the 1st time,
      * override RoomDatabase.Callback()#onCreate
      */
-    private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+    private static final RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
 
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
@@ -127,7 +131,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         }
     };
 
-    void insertNetwork(@NonNull final MeshNetworkDao dao,
+    void insertNetwork(@NonNull final MeshNetworkDao meshNetworkDao,
                        @NonNull final NetworkKeysDao netKeysDao,
                        @NonNull final ApplicationKeysDao appKeysDao,
                        @NonNull final ProvisionersDao provisionersDao,
@@ -135,174 +139,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
                        @NonNull final GroupsDao groupsDao,
                        @NonNull final ScenesDao scenesDao,
                        @NonNull final MeshNetwork meshNetwork) {
-        new InsertNetworkAsyncTask(dao,
-                netKeysDao,
-                appKeysDao,
-                provisionersDao,
-                nodesDao,
-                groupsDao,
-                scenesDao,
-                meshNetwork).execute();
-    }
+        databaseWriteExecutor.execute(() -> {
 
-    void loadNetwork(@NonNull final MeshNetworkDao dao,
-                     @NonNull final NetworkKeysDao netKeysDao,
-                     @NonNull final ApplicationKeysDao appKeysDao,
-                     @NonNull final ProvisionersDao provisionersDao,
-                     @NonNull final ProvisionedMeshNodesDao nodesDao,
-                     @NonNull final GroupsDao groupsDao,
-                     @NonNull final ScenesDao scenesDao,
-                     @NonNull final LoadNetworkCallbacks listener) {
-        new LoadNetworkAsyncTask(dao,
-                netKeysDao,
-                appKeysDao,
-                provisionersDao,
-                nodesDao,
-                groupsDao,
-                scenesDao,
-                listener).execute();
-    }
-
-    void updateNetwork(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
-        new UpdateNetworkAsyncTask(dao).execute(meshNetwork);
-    }
-
-    void updateNetwork1(@NonNull final MeshNetwork meshNetwork,
-                        @NonNull final MeshNetworkDao dao,
-                        @NonNull final NetworkKeysDao netKeyDao,
-                        @NonNull final ApplicationKeysDao appKeyDao,
-                        @NonNull final ProvisionersDao provisionerDao,
-                        @NonNull final ProvisionedMeshNodesDao nodeDao,
-                        @NonNull final GroupsDao groupsDao,
-                        @NonNull final ScenesDao sceneDao) {
-        new UpdateNetworkAsyncTask1(dao,
-                netKeyDao,
-                appKeyDao,
-                provisionerDao,
-                nodeDao,
-                groupsDao,
-                sceneDao).execute(meshNetwork);
-    }
-
-    void deleteNetwork(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
-        new DeleteNetworkAsyncTask(dao).execute(meshNetwork);
-    }
-
-    void insertNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
-        new InsertNetKeyAsyncTask(dao).execute(networkKey);
-    }
-
-    void updateNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
-        new UpdateNetKeyAsyncTask(dao).execute(networkKey);
-    }
-
-    void deleteNetKey(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
-        new DeleteNetKeyAsyncTask(dao).execute(networkKey);
-    }
-
-    void insertAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
-        new InsertAppKeyAsyncTask(dao).execute(applicationKey);
-    }
-
-    void updateAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
-        new UpdateAppKeyAsyncTask(dao).execute(applicationKey);
-    }
-
-    void deleteAppKey(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
-        new DeleteAppKeyAsyncTask(dao).execute(applicationKey);
-    }
-
-    void insertProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
-        new InsertProvisionerAsyncTask(dao).execute(provisioner);
-    }
-
-    void updateProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
-        new UpdateProvisionerAsyncTask(dao).execute(provisioner);
-    }
-
-    void updateProvisioners(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
-        new UpdateProvisionersAsyncTask(dao, provisioners).execute();
-    }
-
-    void deleteProvisioner(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
-        new DeleteProvisionerAsyncTask(dao).execute(provisioner);
-    }
-
-    void insertNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
-        new InsertNodeAsyncTask(dao).execute(node);
-    }
-
-    void updateNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
-        new UpdateNodeAsyncTask(dao).execute(node);
-    }
-
-    void updateNodes(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
-        new UpdateNodesAsyncTask(dao, nodes).execute();
-    }
-
-    void deleteNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
-        new DeleteNodeAsyncTask(dao).execute(node);
-    }
-
-    void insertGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
-        new InsertGroupAsyncTask(dao).execute(group);
-    }
-
-    void updateGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
-        new UpdateGroupAsyncTask(dao).execute(group);
-    }
-
-    void updateGroups(@NonNull final GroupsDao dao, @NonNull final List<Group> groups) {
-        new UpdateGroupsAsyncTask(dao, groups).execute();
-    }
-
-    void deleteGroup(@NonNull final GroupDao dao, @NonNull final Group group) {
-        new DeleteGroupAsyncTask(dao).execute(group);
-    }
-
-    void insertScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
-        new InsertSceneAsyncTask(dao).execute(scene);
-    }
-
-    void updateScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
-        new UpdateSceneKeyAsyncTask(dao).execute(scene);
-    }
-
-    void deleteScene(@NonNull final SceneDao dao, @NonNull final Scene scene) {
-        new DeleteSceneKeyAsyncTask(dao).execute(scene);
-    }
-
-    private static class InsertNetworkAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final MeshNetwork meshNetwork;
-        private final MeshNetworkDao meshNetworkDao;
-        private final NetworkKeysDao netKeysDao;
-        private final ApplicationKeysDao appKeysDao;
-        private final ProvisionersDao provisionersDao;
-        private final ProvisionedMeshNodesDao nodesDao;
-        private final GroupsDao groupsDao;
-        private final ScenesDao scenesDao;
-
-        InsertNetworkAsyncTask(@NonNull final MeshNetworkDao meshNetworkDao,
-                               @NonNull final NetworkKeysDao netKeysDao,
-                               @NonNull final ApplicationKeysDao appKeysDao,
-                               @NonNull final ProvisionersDao provisionersDao,
-                               @NonNull final ProvisionedMeshNodesDao nodesDao,
-                               @NonNull final GroupsDao groupsDao,
-                               @NonNull final ScenesDao scenesDao,
-                               @NonNull final MeshNetwork meshNetwork) {
-            this.meshNetworkDao = meshNetworkDao;
-            this.netKeysDao = netKeysDao;
-            this.appKeysDao = appKeysDao;
-            this.provisionersDao = provisionersDao;
-            this.nodesDao = nodesDao;
-            this.groupsDao = groupsDao;
-            this.scenesDao = scenesDao;
-            this.meshNetwork = meshNetwork;
-        }
-
-        @Override
-        protected Void doInBackground(final Void... params) {
             meshNetworkDao.insert(meshNetwork);
             netKeysDao.insert(meshNetwork.netKeys);
             appKeysDao.insert(meshNetwork.appKeys);
@@ -318,41 +156,18 @@ abstract class MeshNetworkDb extends RoomDatabase {
             if (meshNetwork.scenes != null) {
                 scenesDao.insert(meshNetwork.scenes);
             }
-            return null;
-        }
+        });
     }
 
-    private static class LoadNetworkAsyncTask extends AsyncTask<Void, Void, MeshNetwork> {
-
-        private final LoadNetworkCallbacks listener;
-        private final MeshNetworkDao meshNetworkDao;
-        private final NetworkKeysDao netKeysDao;
-        private final ApplicationKeysDao appKeysDao;
-        private final ProvisionersDao provisionersDao;
-        private final ProvisionedMeshNodesDao nodesDao;
-        private final GroupsDao groupsDao;
-        private final ScenesDao sceneDao;
-
-        LoadNetworkAsyncTask(@NonNull final MeshNetworkDao meshNetworkDao,
-                             @NonNull final NetworkKeysDao netKeysDao,
-                             @NonNull final ApplicationKeysDao appKeysDao,
-                             @NonNull final ProvisionersDao provisionersDao,
-                             @NonNull final ProvisionedMeshNodesDao nodesDao,
-                             @NonNull final GroupsDao groupsDao,
-                             @NonNull final ScenesDao sceneDao,
-                             @NonNull final LoadNetworkCallbacks listener) {
-            this.meshNetworkDao = meshNetworkDao;
-            this.netKeysDao = netKeysDao;
-            this.appKeysDao = appKeysDao;
-            this.provisionersDao = provisionersDao;
-            this.nodesDao = nodesDao;
-            this.groupsDao = groupsDao;
-            this.sceneDao = sceneDao;
-            this.listener = listener;
-        }
-
-        @Override
-        protected MeshNetwork doInBackground(final Void... params) {
+    void loadNetwork(@NonNull final MeshNetworkDao meshNetworkDao,
+                     @NonNull final NetworkKeysDao netKeysDao,
+                     @NonNull final ApplicationKeysDao appKeysDao,
+                     @NonNull final ProvisionersDao provisionersDao,
+                     @NonNull final ProvisionedMeshNodesDao nodesDao,
+                     @NonNull final GroupsDao groupsDao,
+                     @NonNull final ScenesDao scenesDao,
+                     @NonNull final LoadNetworkCallbacks listener) {
+        databaseWriteExecutor.execute(() -> {
             final MeshNetwork meshNetwork = meshNetworkDao.getMeshNetwork(true);
             if (meshNetwork != null) {
                 meshNetwork.netKeys = netKeysDao.loadNetworkKeys(meshNetwork.getMeshUUID());
@@ -360,413 +175,121 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 meshNetwork.nodes = nodesDao.getNodes(meshNetwork.getMeshUUID());
                 meshNetwork.provisioners = provisionersDao.getProvisioners(meshNetwork.getMeshUUID());
                 meshNetwork.groups = groupsDao.loadGroups(meshNetwork.getMeshUUID());
+                meshNetwork.scenes = scenesDao.loadScenes(meshNetwork.getMeshUUID());
             }
-            return meshNetwork;
-        }
-
-        @Override
-        protected void onPostExecute(final MeshNetwork meshNetwork) {
-            super.onPostExecute(meshNetwork);
             listener.onNetworkLoadedFromDb(meshNetwork);
-        }
+        });
     }
 
-    private static class UpdateNetworkAsyncTask extends AsyncTask<MeshNetwork, Void, Void> {
-
-        private MeshNetworkDao mAsyncTaskDao;
-
-        UpdateNetworkAsyncTask(@NonNull final MeshNetworkDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final MeshNetwork... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
+        databaseWriteExecutor.execute(() -> dao.update(meshNetwork));
     }
 
-    private static class UpdateNetworkAsyncTask1 extends AsyncTask<MeshNetwork, Void, Void> {
-
-        private final MeshNetworkDao meshNetworkDao;
-        private final NetworkKeysDao netKeyDao;
-        private final ApplicationKeysDao appKeyDao;
-        private final ProvisionersDao provisionersDao;
-        private final ProvisionedMeshNodesDao nodesDao;
-        private final GroupsDao groupsDao;
-        private final ScenesDao sceneDao;
-
-        UpdateNetworkAsyncTask1(@NonNull final MeshNetworkDao meshNetworkDao,
-                                @NonNull final NetworkKeysDao netKeysDao,
-                                @NonNull final ApplicationKeysDao appKeysDao,
-                                @NonNull final ProvisionersDao provisionersDao,
-                                @NonNull final ProvisionedMeshNodesDao nodesDao,
-                                @NonNull final GroupsDao groupsDao,
-                                @NonNull final ScenesDao scenesDao) {
-            this.meshNetworkDao = meshNetworkDao;
-            this.netKeyDao = netKeysDao;
-            this.appKeyDao = appKeysDao;
-            this.provisionersDao = provisionersDao;
-            this.nodesDao = nodesDao;
-            this.groupsDao = groupsDao;
-            this.sceneDao = scenesDao;
-        }
-
-        @Override
-        protected Void doInBackground(@NonNull final MeshNetwork... params) {
-            final MeshNetwork network = params[0];
-            meshNetworkDao.update(network);
-            netKeyDao.update(network.getNetKeys());
-            appKeyDao.update(network.getAppKeys());
-            provisionersDao.update(network.getProvisioners());
-            nodesDao.update(network.getNodes());
-            groupsDao.update(network.getGroups());
-            sceneDao.update(network.getScenes());
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
+    void update(@NonNull final MeshNetwork meshNetwork,
+                @NonNull final MeshNetworkDao meshNetworkDao,
+                @NonNull final NetworkKeysDao netKeyDao,
+                @NonNull final ApplicationKeysDao appKeyDao,
+                @NonNull final ProvisionersDao provisionersDao,
+                @NonNull final ProvisionedMeshNodesDao nodesDao,
+                @NonNull final GroupsDao groupsDao,
+                @NonNull final ScenesDao sceneDao) {
+        databaseWriteExecutor.execute(() -> {
+            meshNetworkDao.update(meshNetwork);
+            netKeyDao.update(meshNetwork.getNetKeys());
+            appKeyDao.update(meshNetwork.getAppKeys());
+            provisionersDao.update(meshNetwork.getProvisioners());
+            nodesDao.update(meshNetwork.getNodes());
+            groupsDao.update(meshNetwork.getGroups());
+            sceneDao.update(meshNetwork.getScenes());
+        });
     }
 
-    private static class DeleteNetworkAsyncTask extends AsyncTask<MeshNetwork, Void, Void> {
-
-        private MeshNetworkDao mAsyncTaskDao;
-
-        DeleteNetworkAsyncTask(@NonNull final MeshNetworkDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final MeshNetwork... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void delete(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
+        databaseWriteExecutor.execute(() -> dao.delete(meshNetwork));
     }
 
-    private static class InsertNetKeyAsyncTask extends AsyncTask<NetworkKey, Void, Void> {
-
-        private NetworkKeyDao mAsyncTaskDao;
-
-        InsertNetKeyAsyncTask(@NonNull final NetworkKeyDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final NetworkKey... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    void insert(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
+        databaseWriteExecutor.execute(() -> dao.insert(networkKey));
     }
 
-    private static class UpdateNetKeyAsyncTask extends AsyncTask<NetworkKey, Void, Void> {
-
-        private NetworkKeyDao mAsyncTaskDao;
-
-        UpdateNetKeyAsyncTask(@NonNull final NetworkKeyDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final NetworkKey... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
+        databaseWriteExecutor.execute(() -> dao.update(networkKey));
     }
 
-    private static class DeleteNetKeyAsyncTask extends AsyncTask<NetworkKey, Void, Void> {
-
-        private NetworkKeyDao mAsyncTaskDao;
-
-        DeleteNetKeyAsyncTask(@NonNull final NetworkKeyDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final NetworkKey... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void delete(@NonNull final NetworkKeyDao dao, @NonNull final NetworkKey networkKey) {
+        databaseWriteExecutor.execute(() -> dao.delete(networkKey.getKeyIndex()));
     }
 
-    private static class InsertAppKeyAsyncTask extends AsyncTask<ApplicationKey, Void, Void> {
-
-        private ApplicationKeyDao mAsyncTaskDao;
-
-        InsertAppKeyAsyncTask(@NonNull final ApplicationKeyDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final ApplicationKey... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    void insert(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
+        databaseWriteExecutor.execute(() -> dao.insert(applicationKey));
     }
 
-    private static class UpdateAppKeyAsyncTask extends AsyncTask<ApplicationKey, Void, Void> {
-
-        private ApplicationKeyDao mAsyncTaskDao;
-
-        UpdateAppKeyAsyncTask(@NonNull final ApplicationKeyDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final ApplicationKey... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
+        databaseWriteExecutor.execute(() -> dao.update(applicationKey));
     }
 
-    private static class DeleteAppKeyAsyncTask extends AsyncTask<ApplicationKey, Void, Void> {
-
-        private ApplicationKeyDao mAsyncTaskDao;
-
-        DeleteAppKeyAsyncTask(@NonNull final ApplicationKeyDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final ApplicationKey... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void delete(@NonNull final ApplicationKeyDao dao, @NonNull final ApplicationKey applicationKey) {
+        databaseWriteExecutor.execute(() -> dao.delete(applicationKey));
     }
 
-    private static class InsertProvisionerAsyncTask extends AsyncTask<Provisioner, Void, Void> {
-
-        private final ProvisionerDao mAsyncTaskDao;
-
-        InsertProvisionerAsyncTask(@NonNull final ProvisionerDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Provisioner... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    void insert(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+        databaseWriteExecutor.execute(() -> dao.insert(provisioner));
     }
 
-    private static class UpdateProvisionerAsyncTask extends AsyncTask<Provisioner, Void, Void> {
-
-        private final ProvisionerDao mAsyncTaskDao;
-
-        UpdateProvisionerAsyncTask(@NonNull final ProvisionerDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Provisioner... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+        databaseWriteExecutor.execute(() -> dao.update(provisioner));
     }
 
-    private static class UpdateProvisionersAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final ProvisionerDao mAsyncTaskDao;
-        private final List<Provisioner> provisioners;
-
-        UpdateProvisionersAsyncTask(@NonNull final ProvisionerDao dao,
-                                    @NonNull final List<Provisioner> provisioners) {
-            mAsyncTaskDao = dao;
-            this.provisioners = provisioners;
-        }
-
-        @Override
-        protected Void doInBackground(final Void... voids) {
-            mAsyncTaskDao.update(provisioners);
-            return null;
-        }
+    void update(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
+        databaseWriteExecutor.execute(() -> dao.update(provisioners));
     }
 
-    private static class DeleteProvisionerAsyncTask extends AsyncTask<Provisioner, Void, Void> {
-
-        private final ProvisionerDao mAsyncTaskDao;
-
-        DeleteProvisionerAsyncTask(@NonNull final ProvisionerDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Provisioner... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void delete(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
+        databaseWriteExecutor.execute(() -> dao.delete(provisioner));
     }
 
-    private static class InsertNodeAsyncTask extends AsyncTask<ProvisionedMeshNode, Void, Void> {
-
-        private ProvisionedMeshNodeDao mAsyncTaskDao;
-
-        InsertNodeAsyncTask(@NonNull final ProvisionedMeshNodeDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final ProvisionedMeshNode... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    void insert(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
+        databaseWriteExecutor.execute(() -> dao.insert(node));
     }
 
-    private static class UpdateNodeAsyncTask extends AsyncTask<ProvisionedMeshNode, Void, Void> {
-
-        private ProvisionedMeshNodeDao mAsyncTaskDao;
-
-        UpdateNodeAsyncTask(@NonNull final ProvisionedMeshNodeDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final ProvisionedMeshNode... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
+        databaseWriteExecutor.execute(() -> dao.update(node));
     }
 
-    private static class UpdateNodesAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private ProvisionedMeshNodesDao mAsyncTaskDao;
-        private List<ProvisionedMeshNode> nodes;
-
-        UpdateNodesAsyncTask(@NonNull final ProvisionedMeshNodesDao dao,
-                             @NonNull final List<ProvisionedMeshNode> nodes) {
-            mAsyncTaskDao = dao;
-            this.nodes = nodes;
-        }
-
-        @Override
-        protected Void doInBackground(final Void... params) {
-            mAsyncTaskDao.update(nodes);
-            return null;
-        }
+    void update(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
+        databaseWriteExecutor.execute(() -> dao.update(nodes));
     }
 
-    private static class DeleteNodeAsyncTask extends AsyncTask<ProvisionedMeshNode, Void, Void> {
-
-        private ProvisionedMeshNodeDao mAsyncTaskDao;
-
-        DeleteNodeAsyncTask(@NonNull final ProvisionedMeshNodeDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final ProvisionedMeshNode... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void deleteNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
+        databaseWriteExecutor.execute(() -> dao.delete(node));
     }
 
-    private static class InsertGroupAsyncTask extends AsyncTask<Group, Void, Void> {
-
-        private final GroupDao mAsyncTaskDao;
-
-        InsertGroupAsyncTask(@NonNull final GroupDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Group... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    void insert(@NonNull final GroupDao dao, @NonNull final Group group) {
+        databaseWriteExecutor.execute(() -> dao.insert(group));
     }
 
-    private static class UpdateGroupAsyncTask extends AsyncTask<Group, Void, Void> {
-
-        private final GroupDao mAsyncTaskDao;
-
-        UpdateGroupAsyncTask(@NonNull final GroupDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Group... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final GroupDao dao, @NonNull final Group group) {
+        databaseWriteExecutor.execute(() -> dao.update(group));
     }
 
-    private static class UpdateGroupsAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final GroupsDao mAsyncTaskDao;
-        private final List<Group> mGroups;
-
-        UpdateGroupsAsyncTask(@NonNull final GroupsDao dao, @NonNull final List<Group> groups) {
-            mAsyncTaskDao = dao;
-            mGroups = groups;
-        }
-
-        @Override
-        protected Void doInBackground(final Void... voids) {
-            mAsyncTaskDao.update(mGroups);
-            return null;
-        }
+    void updateGroups(@NonNull final GroupsDao dao, @NonNull final List<Group> groups) {
+        databaseWriteExecutor.execute(() -> dao.update(groups));
     }
 
-    private static class DeleteGroupAsyncTask extends AsyncTask<Group, Void, Void> {
-
-        private GroupDao mAsyncTaskDao;
-
-        DeleteGroupAsyncTask(@NonNull final GroupDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Group... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void delete(@NonNull final GroupDao dao, @NonNull final Group group) {
+        databaseWriteExecutor.execute(() -> dao.delete(group.getAddress()));
     }
 
-    private static class InsertSceneAsyncTask extends AsyncTask<Scene, Void, Void> {
-
-        private SceneDao mAsyncTaskDao;
-
-        InsertSceneAsyncTask(@NonNull final SceneDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Scene... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
+    void insert(@NonNull final SceneDao dao, @NonNull final Scene scene) {
+        databaseWriteExecutor.execute(() -> dao.insert(scene));
     }
 
-    private static class UpdateSceneKeyAsyncTask extends AsyncTask<Scene, Void, Void> {
-
-        private final SceneDao mAsyncTaskDao;
-
-        UpdateSceneKeyAsyncTask(@NonNull final SceneDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Scene... params) {
-            mAsyncTaskDao.update(params[0]);
-            return null;
-        }
+    void update(@NonNull final SceneDao dao, @NonNull final Scene scene) {
+        databaseWriteExecutor.execute(() -> dao.update(scene));
     }
 
-    private static class DeleteSceneKeyAsyncTask extends AsyncTask<Scene, Void, Void> {
-
-        private final SceneDao mAsyncTaskDao;
-
-        DeleteSceneKeyAsyncTask(@NonNull final SceneDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Scene... params) {
-            mAsyncTaskDao.delete(params[0]);
-            return null;
-        }
+    void delete(@NonNull final SceneDao dao, @NonNull final Scene scene) {
+        databaseWriteExecutor.execute(() -> dao.delete(scene.getNumber()));
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -825,6 +348,20 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             migrateProvisioner8_9(database);
+        }
+    };
+
+    private static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateMeshNetwork9_10(database);
+        }
+    };
+
+    private static final Migration MIGRATION_10_11 = new Migration(10, 11) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateNodes10_11(database);
         }
     };
 
@@ -1163,32 +700,11 @@ abstract class MeshNetworkDb extends RoomDatabase {
         addProvisionerNodes(database, provisioners);
     }
 
-    private static HashMap<UUID, ArrayList<Integer>> getKeyIndexes(@NonNull final SupportSQLiteDatabase database, final String tableName) {
-        Cursor cursor = database.query("SELECT * FROM " + tableName);
-        final HashMap<UUID, ArrayList<Integer>> netKeyIndexMap = new HashMap<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            final UUID meshUuid = UUID.fromString(cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US));
-            do {
-                final int index = cursor.getInt(cursor.getColumnIndex("index"));
-                ArrayList<Integer> indexes = netKeyIndexMap.get(meshUuid);
-                if (indexes != null) {
-                    indexes.add(index);
-                } else {
-                    indexes = new ArrayList<>();
-                    indexes.add(index);
-                }
-                netKeyIndexMap.put(meshUuid, indexes);
-            } while (cursor.moveToNext());
-        }
-        return netKeyIndexMap;
-    }
-
     private static List<NetworkKey> getNetKeys(@NonNull final SupportSQLiteDatabase database) {
         final List<NetworkKey> keys = new ArrayList<>();
         final Cursor cursor = database.query("SELECT * FROM network_key");
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
                 final int index = cursor.getInt(cursor.getColumnIndex("index"));
                 final byte[] key = cursor.getBlob(cursor.getColumnIndex("key"));
                 final NetworkKey networkKey = new NetworkKey(index, key);
@@ -1203,7 +719,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         final Cursor cursor = database.query("SELECT * FROM application_key");
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                final String meshUuid = cursor.getString(cursor.getColumnIndex("mesh_uuid")).toUpperCase(Locale.US);
                 final int index = cursor.getInt(cursor.getColumnIndex("index"));
                 final byte[] key = cursor.getBlob(cursor.getColumnIndex("key"));
                 final ApplicationKey applicationKey = new ApplicationKey(index, key);
@@ -1218,7 +733,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
         if (!provisioners.isEmpty()) {
             final List<NetworkKey> netKeys = getNetKeys(database);
             final List<ApplicationKey> appKeys = getAppKeys(database);
-            final List<ProvisionedMeshNode> nodes = new ArrayList<>();
             for (Provisioner provisioner : provisioners) {
                 final ProvisionedMeshNode node = new ProvisionedMeshNode(provisioner, netKeys, appKeys);
                 final ContentValues values = new ContentValues();
@@ -1227,7 +741,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("mesh_uuid", node.getMeshUuid());
                 values.put("uuid", node.getUuid());
                 values.put("ttl", node.getTtl());
-                values.put("blacklisted", node.isBlackListed());
+                values.put("blacklisted", node.isExcluded());
                 values.put("security", node.getSecurity());
                 values.put("unicast_address", node.getUnicastAddress());
                 values.put("configured", node.isConfigured());
@@ -1254,7 +768,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     private static void migrateMeshNetwork5_6(final SupportSQLiteDatabase database) {
-
         final HashMap<UUID, SparseIntArray> nodesMap = new HashMap<>();
         final Cursor cursor1 = database.query("SELECT mesh_uuid, unicast_address, seq_number FROM nodes");
         if (cursor1 != null && cursor1.moveToFirst()) {
@@ -1263,12 +776,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 final int unicast = cursor1.getInt(cursor1.getColumnIndex("unicast_address"));
                 final int seqNumber = cursor1.getInt(cursor1.getColumnIndex("seq_number"));
                 SparseIntArray sparseIntArray = nodesMap.get(meshUuid);
-                if (sparseIntArray != null) {
-                    sparseIntArray.put(unicast, seqNumber);
-                } else {
+                if (sparseIntArray == null) {
                     sparseIntArray = new SparseIntArray();
-                    sparseIntArray.put(unicast, seqNumber);
                 }
+                sparseIntArray.put(unicast, seqNumber);
                 nodesMap.put(meshUuid, sparseIntArray);
             } while (cursor1.moveToNext());
             cursor1.close();
@@ -1401,5 +912,62 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("DROP TABLE provisioner");
         database.execSQL("CREATE INDEX index_provisioner_mesh_uuid ON `provisioner_temp` (mesh_uuid)");
         database.execSQL("ALTER TABLE provisioner_temp RENAME TO provisioner");
+    }
+
+    private static void migrateMeshNetwork9_10(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("ALTER TABLE mesh_network ADD COLUMN partial INTEGER NOT NULL DEFAULT 0");
+    }
+
+    private static void migrateNodes10_11(@NonNull final SupportSQLiteDatabase database) {
+        addColumnNetworkExclusionList(database);
+        migrateFromBlacklistedToExcluded(database);
+    }
+
+    private static void addColumnNetworkExclusionList(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("ALTER TABLE mesh_network ADD COLUMN networkExclusions TEXT NOT NULL DEFAULT '{}'");
+    }
+
+    private static void migrateFromBlacklistedToExcluded(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `nodes_temp` " +
+                "(timestamp INTEGER NOT NULL, " +
+                "netKeys TEXT, " +
+                "name TEXT, ttl INTEGER, " +
+                "excluded INTEGER NOT NULL, " +
+                "secureNetworkBeacon INTEGER, " +
+                "mesh_uuid TEXT, uuid TEXT NOT NULL, " +
+                "security INTEGER NOT NULL, " +
+                "unicast_address INTEGER NOT NULL DEFAULT 1, " +
+                "configured INTEGER NOT NULL, " +
+                "device_key BLOB, " +
+                "seq_number INTEGER NOT NULL, " +
+                "cid INTEGER, " +
+                "pid INTEGER, " +
+                "vid INTEGER, " +
+                "crpl INTEGER, " +
+                "elements TEXT, " +
+                "appKeys TEXT, " +
+                "networkTransmitCount INTEGER, " +
+                "networkIntervalSteps INTEGER, " +
+                "relayTransmitCount INTEGER, " +
+                "relayIntervalSteps INTEGER, " +
+                "friend INTEGER, " +
+                "lowPower INTEGER, " +
+                "proxy INTEGER, " +
+                "relay INTEGER, " +
+                "PRIMARY KEY(uuid), " +
+                "FOREIGN KEY(mesh_uuid) REFERENCES mesh_network(mesh_uuid) ON UPDATE CASCADE ON DELETE CASCADE )");
+
+        database.execSQL(
+                "INSERT INTO nodes_temp (timestamp, netKeys, name, excluded, secureNetworkBeacon, mesh_uuid, " +
+                        "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, elements, " +
+                        "appKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps, " +
+                        "friend, lowPower, proxy, relay, uuid, mesh_uuid) " +
+                        "SELECT timestamp, netKeys, name, blacklisted, secureNetworkBeacon, mesh_uuid, " +
+                        "security, unicast_address, configured, device_key, seq_number, cid, pid, vid, crpl, mElements, " +
+                        "appKeys, networkTransmitCount, networkIntervalSteps, relayTransmitCount, relayIntervalSteps," +
+                        "friend, lowPower, proxy, relay, uuid, mesh_uuid FROM nodes");
+        database.execSQL("DROP TABLE nodes");
+        database.execSQL("ALTER TABLE nodes_temp RENAME TO nodes");
+        database.execSQL("CREATE INDEX index_nodes_mesh_uuid ON `nodes` (mesh_uuid)");
     }
 }

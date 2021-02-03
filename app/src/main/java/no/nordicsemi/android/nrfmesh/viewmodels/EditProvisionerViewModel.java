@@ -1,8 +1,7 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
@@ -12,7 +11,7 @@ import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
  */
 public class EditProvisionerViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     EditProvisionerViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

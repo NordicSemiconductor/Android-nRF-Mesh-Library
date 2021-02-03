@@ -24,27 +24,28 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SCENE_STATUS;
 
 /**
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
-public final class SceneStatus extends GenericStatusMessage implements Parcelable {
+@SuppressWarnings({"WeakerAccess"})
+public final class SceneStatus extends GenericStatusMessage implements Parcelable, SceneStatuses {
     private static final int SCENE_STATUS_MANDATORY_LENGTH = 3;
     private static final String TAG = SceneStatus.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_STATUS;
+    private static final int OP_CODE = SCENE_STATUS;
     private int mStatusCode;
     private int mCurrentScene;
-    private Integer mTargetScene;
+    private int mTargetScene;
     private int mRemainingTime;
     private int mTransitionSteps;
     private int mTransitionResolution;
@@ -53,7 +54,6 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
         @Override
         public SceneStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            //noinspection ConstantConditions
             return new SceneStatus(message);
         }
 
@@ -82,22 +82,22 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
         buffer.position(0);
         mStatusCode = buffer.get() & 0xFF;
         mCurrentScene = buffer.getShort() & 0xFFFF;
-        Log.v(TAG, "Status: " + mStatusCode);
-        Log.v(TAG, "Current Scene : " + mCurrentScene);
+        Log.d(TAG, "Status: " + mStatusCode);
+        Log.d(TAG, "Current Scene : " + mCurrentScene);
         if (buffer.limit() > SCENE_STATUS_MANDATORY_LENGTH) {
             mTargetScene = buffer.getShort() & 0xFFFF;
             mRemainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (mRemainingTime & 0x3F);
             mTransitionResolution = (mRemainingTime >> 6);
-            Log.v(TAG, "Target on: " + mTargetScene);
-            Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
-            Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
+            Log.d(TAG, "Target scene: " + mTargetScene);
+            Log.d(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
+            Log.d(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
+            Log.d(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
         }
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return OP_CODE;
     }
 
@@ -108,6 +108,13 @@ public final class SceneStatus extends GenericStatusMessage implements Parcelabl
      */
     public final int getStatus() {
         return mStatusCode;
+    }
+
+    /**
+     * Returns true if the message was successful.
+     */
+    public final boolean isSuccessful() {
+        return mStatusCode == 0;
     }
 
     /**

@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -34,60 +33,41 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAdapter;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.FragmentGroupsBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentCreateGroup;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-public class GroupsFragment extends Fragment implements Injectable,
+public class GroupsFragment extends Fragment implements
         ItemTouchHelperAdapter,
         GroupAdapter.OnItemClickListener,
         GroupCallbacks {
-
+    private FragmentGroupsBinding binding;
     private SharedViewModel mViewModel;
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-    @BindView(android.R.id.empty)
-    View mEmptyView;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_groups, null);
-        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
-        ButterKnife.bind(this, rootView);
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup viewGroup, @Nullable final Bundle savedInstanceState) {
+        mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        binding = FragmentGroupsBinding.inflate(getLayoutInflater());
 
-        final ExtendedFloatingActionButton fab = rootView.findViewById(R.id.fab_add_group);
+        final ExtendedFloatingActionButton fab = binding.fabAddGroup;
 
         // Configure the recycler view
-        final RecyclerView recyclerViewGroups = rootView.findViewById(R.id.recycler_view_groups);
+        final RecyclerView recyclerViewGroups = binding.recyclerViewGroups;
         recyclerViewGroups.setLayoutManager(new LinearLayoutManager(requireContext()));
         final DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerViewGroups.getContext(), DividerItemDecoration.VERTICAL);
         recyclerViewGroups.addItemDecoration(dividerItemDecoration);
@@ -100,17 +80,14 @@ public class GroupsFragment extends Fragment implements Injectable,
 
         mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
-                if (meshNetworkLiveData.getMeshNetwork().getGroups().isEmpty()) {
-                    mEmptyView.setVisibility(View.VISIBLE);
+                final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
+                if (network.getGroups().isEmpty()) {
+                    binding.empty.getRoot().setVisibility(View.VISIBLE);
                 } else {
-                    mEmptyView.setVisibility(View.INVISIBLE);
+                    binding.empty.getRoot().setVisibility(View.INVISIBLE);
                 }
+                adapter.updateAdapter(network, network.getGroups());
             }
-        });
-
-        mViewModel.getGroups().observe(getViewLifecycleOwner(), groups -> {
-            final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-            adapter.updateAdapter(network, groups);
         });
 
         fab.setOnClickListener(v -> {
@@ -133,7 +110,7 @@ public class GroupsFragment extends Fragment implements Injectable,
             }
         });
 
-        return rootView;
+        return binding.getRoot();
 
     }
 
@@ -157,7 +134,7 @@ public class GroupsFragment extends Fragment implements Injectable,
     @Override
     public void onItemDismissFailed(final RemovableViewHolder viewHolder) {
         final String message = getString(R.string.error_group_unsubscribe_to_delete);
-        mViewModel.displaySnackBar(requireActivity(), container, message, Snackbar.LENGTH_LONG);
+        mViewModel.displaySnackBar(requireActivity(), binding.container, message, Snackbar.LENGTH_LONG);
     }
 
     @Override
@@ -196,10 +173,10 @@ public class GroupsFragment extends Fragment implements Injectable,
 
     private void displaySnackBar(final Group group) {
         final String message = getString(R.string.group_deleted, group.getName());
-        Snackbar.make(container, message, Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.container, message, Snackbar.LENGTH_LONG)
                 .setActionTextColor(getResources().getColor(R.color.colorSecondary))
                 .setAction(R.string.undo, v -> {
-                    mEmptyView.setVisibility(View.INVISIBLE);
+                    binding.empty.getRoot().setVisibility(View.INVISIBLE);
                     final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {
                         network.addGroup(group);
