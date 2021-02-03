@@ -3,6 +3,7 @@ package no.nordicsemi.android.nrfmesh.node;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -45,11 +46,10 @@ import static no.nordicsemi.android.mesh.Features.DISABLED;
 import static no.nordicsemi.android.mesh.Features.ENABLED;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.COUNT_MIN;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.DEFAULT_PUBLICATION_TTL;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_LOG_MAX;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_LOG_MIN;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatCount;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPeriod;
-import static no.nordicsemi.android.mesh.utils.PeriodLogStateRange.periodToTime;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.periodToTime;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.HEARTBEAT_PUBLICATION_NET_KEY;
@@ -122,9 +122,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             destination.show(getSupportFragmentManager(), null);
         });
 
-        binding.countSlider.setValueFrom(COUNT_MIN);
-        binding.countSlider.setValueTo(0x12);
-        binding.countSlider.setStepSize(1);
         binding.countSlider.addOnChangeListener((slider, value, fromUser) -> {
             switch ((int) value) {
                 case 0:
@@ -138,12 +135,10 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
                 default:
                     binding.count.setText(String.valueOf(calculateHeartbeatCount((int) value)));
                     binding.periodSlider.setEnabled(true);
+                    break;
             }
         });
 
-        binding.periodSlider.setValueFrom(PERIOD_LOG_MIN);
-        binding.periodSlider.setValueTo(PERIOD_LOG_MAX);
-        binding.periodSlider.setStepSize(1);
         binding.periodSlider.addOnChangeListener((slider, value, fromUser) ->
                 binding.period.setText(periodToTime(calculateHeartbeatPeriod((short) value))));
 
@@ -171,18 +166,31 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             setPublication();
         });
 
-        binding.countSlider.setValue(1);
-        binding.periodSlider.setValue(1);
-        updateDestinationAddress(mDestination);
-        updateTtl(5);
-        updateNetKeyIndex(mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey());
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-        if (node != null) {
-            final Features features = node.getNodeFeatures();
+        if (meshModel.getHeartbeatPublication() != null) {
+            final HeartbeatPublication publication = meshModel.getHeartbeatPublication();
+            updateCountLog(publication.getCountLog());
+            updatePeriodLog(publication.getPeriodLog());
+            updateDestinationAddress(publication.getDst());
+            updateTtl(publication.getTtl());
+            updateNetKeyIndex(mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(publication.getNetKeyIndex()));
+            final Features features = publication.getFeatures();
             updateFeatures(features.isRelayFeatureSupported(), features.getRelay(),
                     features.isProxyFeatureSupported(), features.getProxy(),
                     features.isFriendFeatureSupported(), features.getFriend(),
-                    features.isLowPowerFeatureSupported(), features.getLowPower());
+                    features.getFriend());
+        } else {
+            updateCountLog(COUNT_MIN);
+            updatePeriodLog(PERIOD_LOG_MIN);
+            updateDestinationAddress(mDestination);
+            updateTtl(5);
+            updateNetKeyIndex(mNetKey = mViewModel.getNetworkLiveData().getMeshNetwork().getPrimaryNetworkKey());
+            if (node != null) {
+                final Features features = node.getNodeFeatures();
+                updateFeatures(features.isRelayFeatureSupported(), features.getRelay(),
+                        features.isProxyFeatureSupported(), features.getProxy(),
+                        features.isFriendFeatureSupported(), features.getFriend(), features.getFriend());
+            }
         }
     }
 
@@ -250,7 +258,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             updateFeatures(features.isRelayFeatureSupported(), savedInstanceState.getBoolean(RELAY) ? 1 : 0,
                     features.isProxyFeatureSupported(), savedInstanceState.getBoolean(PROXY) ? 1 : 0,
                     features.isFriendFeatureSupported(), savedInstanceState.getBoolean(FRIEND) ? 1 : 0,
-                    features.isLowPowerFeatureSupported(), savedInstanceState.getBoolean(LOW_POWER) ? 1 : 0);
+                    savedInstanceState.getBoolean(LOW_POWER) ? 1 : 0);
             mNetKey = savedInstanceState.getParcelable(NET_KEY);
             if (mNetKey == null) {
                 final NodeKey key = node.getAddedNetKeys().get(0);
@@ -327,11 +335,19 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
     }
 
     private void updateCountLog(final int countLog) {
-        binding.countSlider.setValue(countLog);
+        try {
+            binding.countSlider.setValue(countLog);
+        } catch (Exception ex) {
+            Log.d("TAG", "Weird crash");
+        }
     }
 
     private void updatePeriodLog(final int periodLog) {
-        binding.periodSlider.setValue(periodLog == 0 ? 1 : periodLog);
+        try {
+            binding.periodSlider.setValue(periodLog == 0 ? 1 : periodLog);
+        } catch (Exception ex) {
+            Log.d("TAG", "Weird crash");
+        }
     }
 
     private void updateFeatures(final boolean relaySupported,
@@ -340,7 +356,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
                                 final int proxy,
                                 final boolean friendSupported,
                                 final int friend,
-                                final boolean lowPowerSupported,
                                 final int lowPower) {
         binding.checkRelay.setEnabled(relaySupported);
         if (relaySupported)
@@ -351,8 +366,8 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
         binding.checkFriend.setEnabled(friendSupported);
         if (friendSupported)
             binding.checkFriend.setChecked(friend == ENABLED);
-        binding.checkLowPower.setEnabled(lowPowerSupported);
-        if (lowPowerSupported)
+        binding.checkLowPower.setEnabled(friendSupported);
+        if (friendSupported)
             binding.checkLowPower.setChecked(lowPower == ENABLED);
     }
 

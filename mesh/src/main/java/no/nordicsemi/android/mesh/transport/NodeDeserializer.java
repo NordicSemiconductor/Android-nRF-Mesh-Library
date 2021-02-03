@@ -155,7 +155,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("name"))
                 node.nodeName = jsonObject.get("name").getAsString();
-            deserializeHeartbeat(context, jsonObject, node);
+            deserializeHeartbeat(jsonObject, node);
             nodes.add(node);
         }
 
@@ -216,7 +216,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             nodeJson.add("appKeys", serializeAddedIndexes(node.getAddedAppKeys()));
             nodeJson.add("elements", serializeElements(context, node.getElements()));
             nodeJson.addProperty("excluded", node.isExcluded());
-            serializeHeartbeat(context, nodeJson, node);
+            serializeHeartbeat(nodeJson, node);
             jsonArray.add(nodeJson);
         }
         return jsonArray;
@@ -324,12 +324,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Deserialize Heartbeat settings
      *
-     * @param context    Deserialization context
      * @param jsonObject JsonObject to deserialize from
      * @param node       MeshNode
      */
-    private void deserializeHeartbeat(@NonNull final JsonDeserializationContext context,
-                                      @NonNull final JsonObject jsonObject,
+    private void deserializeHeartbeat(@NonNull final JsonObject jsonObject,
                                       @NonNull final ProvisionedMeshNode node) {
         final ConfigurationServerModel model = getConfigurationServerModel(node);
         if (model != null) {
@@ -355,10 +353,10 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
                 final Features features = new Features(friend, lowPower, proxy, relay);
                 final int index = jsonHeartbeatPub.get("index").getAsInt();
-                final int period = jsonHeartbeatPub.get("period").getAsInt();
+                final byte period = Heartbeat.decodeHeartbeatPeriod(jsonHeartbeatPub.get("period").getAsInt());
 
                 final int ttl = jsonHeartbeatPub.get("ttl").getAsInt();
-                model.setHeartbeatPublication(new HeartbeatPublication(dst, (byte) 0, Heartbeat.getHeartbeatPeriodLog((short) period), ttl, features, index));
+                model.setHeartbeatPublication(new HeartbeatPublication(dst, (byte) 0, period, ttl, features, index));
             }
             if (jsonObject.has("heartbeatSub")) {
                 final JsonObject jsonHeartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
@@ -372,19 +370,17 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Serialize Heartbeat settings.
      *
-     * @param context    Serialization context
      * @param jsonObject Json object
      * @param node       MeshNode
      */
-    private void serializeHeartbeat(@NonNull final JsonSerializationContext context,
-                                    @NonNull final JsonObject jsonObject,
+    private void serializeHeartbeat(@NonNull final JsonObject jsonObject,
                                     @NonNull final ProvisionedMeshNode node) {
         final ConfigurationServerModel model = getConfigurationServerModel(node);
         if (model != null) {
             if (model.getHeartbeatPublication() != null) {
                 final HeartbeatPublication publication = model.getHeartbeatPublication();
                 final JsonObject heartbeatPub = new JsonObject();
-                heartbeatPub.addProperty("address", MeshAddress.formatAddress(publication.getDstAddress(), false));
+                heartbeatPub.addProperty("address", MeshAddress.formatAddress(publication.getDst(), false));
                 heartbeatPub.addProperty("period", Heartbeat.calculateHeartbeatPeriod(publication.getPeriodLog()));
                 heartbeatPub.addProperty("ttl", publication.getTtl());
                 heartbeatPub.addProperty("index", publication.getNetKeyIndex());

@@ -31,15 +31,9 @@ import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
-import no.nordicsemi.android.mesh.utils.Heartbeat;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
 import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
-import no.nordicsemi.android.mesh.utils.PeriodLogState;
-import no.nordicsemi.android.mesh.utils.PeriodLogStateDisabled;
-import no.nordicsemi.android.mesh.utils.PeriodLogStateExact;
-import no.nordicsemi.android.mesh.utils.PeriodLogStateInvalid;
-import no.nordicsemi.android.mesh.utils.PeriodLogStateRange;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutConfigServerModelBinding;
@@ -51,7 +45,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.DEFAULT_PUBLICATION_TTL;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.DO_NOT_SEND_PERIODICALLY;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatCount;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
 
@@ -376,13 +369,10 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 mHeartbeatPublicationDisabled.setVisibility(GONE);
                 mClearPublication.setVisibility(VISIBLE);
                 mRefreshPublication.setVisibility(VISIBLE);
-                mHeartbeatPublicationDst.setText(formatAddress(publication.getDstAddress(), true));
-                mHeartbeatPublicationCount.setText(createHeartbeatCountSummary(publication.getCountLog()));
-                if (publication.getCountLog() > Heartbeat.COUNT_MIN) {
-                    mHeartbeatPublicationPeriod.setText(createHeartbeatPeriodSummary(publication.getPeriod()));
-                } else {
-                    mHeartbeatPublicationPeriod.setText(getString(R.string.disabled));
-                }
+                mHeartbeatPublicationDst.setText(formatAddress(publication.getDst(), true));
+                mHeartbeatPublicationCount.setText(publication.getCountLogDescription());
+                mHeartbeatPublicationPeriod.setText((publication.getPeriodLogDescription()));
+
                 final NetworkKey key = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(publication.getNetKeyIndex());
                 mHeartbeatPublicationFeatures.setText(parseFeatures(publication.getFeatures()));
                 mHeartbeatPublicationKey.setText(getString(R.string.key_name_and_index, key.getName(), key.getKeyIndex()));
@@ -406,8 +396,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 mRefreshSubscription.setVisibility(VISIBLE);
                 mHeartbeatSubscriptionSrc.setText(formatAddress(subscription.getSrc(), true));
                 mHeartbeatSubscriptionDst.setText(formatAddress(subscription.getDst(), true));
-                mHeartbeatSubscriptionPeriod.setText(createHeartbeatPeriodSummary(subscription.getPeriod()));
-                mHeartbeatSubscriptionCount.setText(String.valueOf(calculateHeartbeatCount(subscription.getCountLog())));
+                mHeartbeatSubscriptionPeriod.setText(subscription.getPeriodLogDescription());
+                mHeartbeatSubscriptionCount.setText(subscription.getCountLogDescription());
                 mHeartbeatSubscriptionMinHops.setText(String.valueOf(subscription.getMinHops()));
                 mHeartbeatSubscriptionMaxHops.setText(String.valueOf(subscription.getMaxHops()));
             } else {
@@ -458,27 +448,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                         (byte) 0x01);
             }
             sendMessage(message);
-        }
-    }
-
-    private String createHeartbeatPeriodSummary(final PeriodLogState periodLogState) {
-        if (periodLogState instanceof PeriodLogStateDisabled)
-            return ((PeriodLogStateDisabled) periodLogState).getPeriodDescription();
-        else if (periodLogState instanceof PeriodLogStateExact)
-            return String.valueOf(((PeriodLogStateExact) periodLogState).getValue());
-        else if (periodLogState instanceof PeriodLogStateRange)
-            return ((PeriodLogStateRange) periodLogState).getPeriodDescription();
-        else return ((PeriodLogStateInvalid) periodLogState).getPeriodDescription();
-    }
-
-    private String createHeartbeatCountSummary(final byte countLog) {
-        switch (countLog) {
-            case 0:
-                return getString(R.string.disabled);
-            case 0x12:
-                return (getString(R.string.indefinitely));
-            default:
-                return (String.valueOf(calculateHeartbeatCount((int) countLog)));
         }
     }
 

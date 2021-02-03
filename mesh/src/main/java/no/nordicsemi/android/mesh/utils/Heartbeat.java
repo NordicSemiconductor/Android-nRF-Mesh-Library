@@ -16,7 +16,7 @@ public abstract class Heartbeat {
 
 
     @Expose
-    @SerializedName(value = "destination", alternate = "address")
+    @SerializedName("destination")
     protected int dst;
     @Expose
     @SerializedName("period")
@@ -51,20 +51,6 @@ public abstract class Heartbeat {
     }
 
     /**
-     * Returns the remaining {@link PeriodLogState}
-     */
-    public PeriodLogState getPeriod() {
-        if (periodLog == 0x00)
-            return new PeriodLogStateDisabled(periodLog);
-        else if (periodLog == 0x01 || periodLog == 0x11)
-            return new PeriodLogStateExact(periodLog);
-        else if (periodLog > 0x02 && periodLog < 0x11) {
-            return new PeriodLogStateRange(periodLog);
-        } else
-            return new PeriodLogStateInvalid(periodLog);
-    }
-
-    /**
      * Calculates the heart beat period interval in seconds
      *
      * @param periodLog period value
@@ -78,8 +64,19 @@ public abstract class Heartbeat {
      *
      * @param period period value
      */
-    public static byte getHeartbeatPeriodLog(final short period) {
-        return (byte) ((Math.log(period)/Math.log(2)) + 1);
+    public static byte decodeHeartbeatPeriod(final int period) {
+        switch (period) {
+            case 0x0000:
+                return 0x00;
+            case 0xFFFF:
+                return 0x11;
+            default:
+                return log2(period);
+        }
+    }
+
+    private static byte log2(final int period) {
+        return (byte) ((Math.log(period) / Math.log(2)) + 1);
     }
 
     /**
@@ -126,15 +123,20 @@ public abstract class Heartbeat {
     }
 
     /**
-     * Returns the remaining {@link CountLogState}
+     * Converts the perio to time
+     *
+     * @param seconds PeriodLog
      */
-    public CountLogState getCount() {
-        if (countLog == 0x00 || countLog == 0x01)
-            return new CountLogStateExact(countLog);
-        else if (countLog == 0xFF && countLog == 0x11) {
-            return new CountLogStateRange(countLog);
-        } else if (countLog >= 0x02 && countLog <= 0x10) {
-            return new CountLogStateRange(countLog);
-        } else return new CountLogStateInvalid(countLog);
+    public static String periodToTime(final int seconds) {
+        if (seconds == 1)
+            return seconds + " second";
+        else if (seconds > 1 && seconds < 60) {
+            return seconds + " seconds";
+        } else if (seconds >= 60 && seconds < 3600) {
+            return seconds / 60 + " min " + (seconds % 60) + " sec";
+        } else if (seconds >= 3600 && seconds <= 65535) {
+            return seconds / 3600 + " h " + ((seconds % 3600) / 60) + " min " + (seconds % 3600 % 60) + " sec";
+        } else
+            return seconds / 3600 + " h " + ((seconds % 3600) / 60) + " min " + ((seconds % 3600 % 60) - 1) + " sec";
     }
 }
