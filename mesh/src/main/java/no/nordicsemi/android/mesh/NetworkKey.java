@@ -172,6 +172,21 @@ public final class NetworkKey extends MeshKey {
     }
 
     /**
+     * Returns the NetworkKey based on the key refresh procedure phase.
+     *
+     * @return key
+     */
+    public SecureUtils.K2Output getTxDerivatives() {
+        switch (phase) {
+            case PHASE_1:
+                return oldDerivatives;
+            case PHASE_2:
+            default:
+                return derivatives;
+        }
+    }
+
+    /**
      * Uses min security
      *
      * @return true if minimum security or false otherwise

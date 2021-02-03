@@ -172,7 +172,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
         return message;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     final Message createRetransmitNetworkLayerPDU(@NonNull final Message message, final int segment) {
         final SecureUtils.K2Output k2Output = getK2Output(message);
@@ -497,7 +496,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final int netKeyIndex = message.getApplicationKey().getBoundNetKeyIndex();
             networkKey = mNetworkLayerCallbacks.getNetworkKey(netKeyIndex);
         }
-        return SecureUtils.calculateK2(networkKey.getTxNetworkKey(), SecureUtils.K2_MASTER_INPUT);
+        return networkKey.getTxDerivatives();
     }
 
     /**
