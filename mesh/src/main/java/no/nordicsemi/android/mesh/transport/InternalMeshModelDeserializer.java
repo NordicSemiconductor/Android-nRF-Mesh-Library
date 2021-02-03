@@ -154,9 +154,9 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 final JsonObject heartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
                 final int destination;
                 if (heartbeatPub.has("address") && !heartbeatPub.has("destination")) {
-                    destination = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
+                    destination = heartbeatPub.get("address").getAsInt();
                 } else {
-                    destination = Integer.parseInt(heartbeatPub.get("destination").getAsString(), 16);
+                    destination = heartbeatPub.get("destination").getAsInt();
                 }
                 final int countLog = heartbeatPub.get("count").getAsInt();
                 final int period = (heartbeatPub.get("period").getAsInt());
@@ -174,12 +174,12 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             }
             if (jsonObject.has("heartbeatSub")) {
                 final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
-                final int source = Integer.parseInt(heartbeatSub.get("source").getAsString(), 16);
+                final int source = heartbeatSub.get("source").getAsInt();
                 final int destination;
                 if (heartbeatSub.has("address") && !heartbeatSub.has("destination")) {
-                    destination = Integer.parseInt(heartbeatSub.get("address").getAsString(), 16);
+                    destination = heartbeatSub.get("address").getAsInt();
                 } else {
-                    destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
+                    destination = heartbeatSub.get("destination").getAsInt();
                 }
                 final int period = (heartbeatSub.get("period").getAsInt());
                 final int countLog = heartbeatSub.get("count").getAsInt();

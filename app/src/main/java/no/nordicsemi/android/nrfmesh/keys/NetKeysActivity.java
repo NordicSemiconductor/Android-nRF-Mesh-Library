@@ -188,11 +188,12 @@ public class NetKeysActivity extends AppCompatActivity implements
                     returnIntent.putExtra(RESULT_KEY, networkKey);
                     setResult(Activity.RESULT_OK, returnIntent);
                     finish();
+                    break;
                 case MANAGE_NET_KEY:
                     final Intent intent = new Intent(this, EditNetKeyActivity.class);
                     intent.putExtra(EDIT_KEY, networkKey.getKeyIndex());
                     startActivity(intent);
-
+                    break;
             }
         }
     }

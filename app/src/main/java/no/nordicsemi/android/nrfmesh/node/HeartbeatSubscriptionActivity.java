@@ -24,6 +24,7 @@ import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.Heartbeat;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
@@ -35,7 +36,6 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatSource;
 import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPeriod;
-import static no.nordicsemi.android.mesh.utils.PeriodLogStateRange.periodToTime;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 
 @AndroidEntryPoint
@@ -107,14 +107,19 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements
         binding.periodSlider.setValueTo(0x11);
         binding.periodSlider.setStepSize(1);
         binding.periodSlider.addOnChangeListener((slider, value, fromUser) -> binding.period
-                .setText(periodToTime(calculateHeartbeatPeriod((short) value))));
+                .setText(Heartbeat.periodToTime(calculateHeartbeatPeriod((short) value))));
 
         binding.fabApply.setOnClickListener(v -> {
             if (!checkConnectivity()) return;
             setSubscription();
         });
-        updateSourceAddress(mSource);
-        updateDestinationAddress(mDestination);
+        if (meshModel.getHeartbeatSubscription() != null) {
+            updateSourceAddress(meshModel.getHeartbeatSubscription().getSrc());
+            updateDestinationAddress(meshModel.getHeartbeatSubscription().getDst());
+        } else {
+            updateSourceAddress(mSource);
+            updateDestinationAddress(mDestination);
+        }
         binding.periodSlider.setValue(1);
     }
 
@@ -236,11 +241,11 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements
     }
 
     private void setSubscription() {
-        if(mSource == 0) {
+        if (mSource == 0) {
             mViewModel.displaySnackBar(this, binding.container, getString(R.string.error_set_src), Snackbar.LENGTH_SHORT);
         } else if (mDestination == 0) {
             mViewModel.displaySnackBar(this, binding.container, getString(R.string.error_set_dst), Snackbar.LENGTH_SHORT);
-        }else {
+        } else {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final Element element = mViewModel.getSelectedElement().getValue();
             final MeshModel model = mViewModel.getSelectedModel().getValue();

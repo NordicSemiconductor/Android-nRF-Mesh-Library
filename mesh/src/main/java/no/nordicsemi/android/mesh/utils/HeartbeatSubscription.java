@@ -112,6 +112,42 @@ public class HeartbeatSubscription extends Heartbeat implements Parcelable {
      * Returns true if the heartbeat subscriptions are enabled.
      */
     public boolean isEnabled() {
-        return src != UNASSIGNED_ADDRESS && dst != UNASSIGNED_ADDRESS && periodLog != DO_NOT_SEND_PERIODICALLY;
+        return src != UNASSIGNED_ADDRESS && dst != UNASSIGNED_ADDRESS;
+    }
+
+    public String getCountLogDescription() {
+        if (countLog == 0x00 || countLog == 0x01)
+            return String.valueOf(countLog);
+        else if (countLog >= 0x02 && countLog <= 0x10) {
+            final int lowerBound = (int) (Math.pow(2, countLog - 1));
+            final int upperBound = Math.min(0xFFFE, (int) (Math.pow(2, countLog)) - 1);
+            return lowerBound + " ... " + upperBound;
+        } else {
+            return "More than 65534"; //0xFFFE
+        }
+    }
+
+    public String getPeriodLogDescription() {
+        if (periodLog == 0x00)
+            return "Disabled";
+        else if (periodLog == 0x01)
+            return "1";
+        else if (periodLog >= 0x02 && periodLog < 0x11) {
+            final int lowerBound = (int) (Math.pow(2, periodLog - 1));
+            final int upperBound = (int) (Math.pow(2, periodLog) - 1);
+            return periodToTime(lowerBound) + " ... " + periodToTime(upperBound);
+        } else if (periodLog == 0x11)
+            return "65535";
+        else return "Invalid";
+    }
+
+    public Short getPeriodLog2Period() {
+        if (periodLog == 0x00)
+            return 0x0000;
+        else if (periodLog >= 0x01 && periodLog <= 0x10) {
+            return (short) (Math.pow(2, periodLog - 1));
+        } else if (periodLog == 0x11)
+            return (short) 0xFFFF;
+        else throw new IllegalArgumentException("Period Log out of range");
     }
 }
