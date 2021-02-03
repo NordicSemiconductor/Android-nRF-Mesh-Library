@@ -69,7 +69,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Runnable for incomplete timer
      */
-    private Runnable mIncompleteTimerRunnable = new Runnable() {
+    private final Runnable mIncompleteTimerRunnable = new Runnable() {
         @Override
         public void run() {
             mLowerTransportLayerCallbacks.onIncompleteTimerExpired();
