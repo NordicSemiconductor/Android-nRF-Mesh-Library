@@ -93,6 +93,10 @@ public class HeartbeatPublication extends Heartbeat implements Parcelable {
                 "\nNet key index: " + Integer.toHexString(netKeyIndex);
     }
 
+    public int getPeriod(){
+        return calculateHeartbeatPeriod(periodLog);
+    }
+
     /**
      * Returns the publication ttl.
      */
@@ -119,11 +123,6 @@ public class HeartbeatPublication extends Heartbeat implements Parcelable {
      */
     public boolean isEnabled() {
         return dst != UNASSIGNED_ADDRESS;
-    }
-
-    @Override
-    public byte getPeriodLog() {
-        return super.getPeriodLog();
     }
 
     public String getPeriodLogDescription() {

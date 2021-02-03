@@ -381,7 +381,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 final HeartbeatPublication publication = model.getHeartbeatPublication();
                 final JsonObject heartbeatPub = new JsonObject();
                 heartbeatPub.addProperty("address", MeshAddress.formatAddress(publication.getDst(), false));
-                heartbeatPub.addProperty("period", Heartbeat.calculateHeartbeatPeriod(publication.getPeriodLog()));
+                heartbeatPub.addProperty("period", publication.getPeriod());
                 heartbeatPub.addProperty("ttl", publication.getTtl());
                 heartbeatPub.addProperty("index", publication.getNetKeyIndex());
                 final JsonArray featuresArray = new JsonArray();
