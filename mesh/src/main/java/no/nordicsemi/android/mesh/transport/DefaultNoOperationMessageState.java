@@ -332,6 +332,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigProxyStatus status = new ConfigProxyStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_LOW_POWER_NODE_POLLTIMEOUT_STATUS) {
+                    final ConfigLowPowerNodePollTimeoutStatus status = new ConfigLowPowerNodePollTimeoutStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_OFF_STATUS) {
                     final GenericOnOffStatus status = new GenericOnOffStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
