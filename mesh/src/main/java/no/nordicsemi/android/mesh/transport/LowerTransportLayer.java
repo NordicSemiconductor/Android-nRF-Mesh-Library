@@ -69,7 +69,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     /**
      * Runnable for incomplete timer
      */
-    private Runnable mIncompleteTimerRunnable = new Runnable() {
+    private final Runnable mIncompleteTimerRunnable = new Runnable() {
         @Override
         public void run() {
             mLowerTransportLayerCallbacks.onIncompleteTimerExpired();
@@ -387,7 +387,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         final int aid = header & 0x3F;
         if (seg == 0) { //Unsegmented message
             Log.d(TAG, "IV Index of received message: " + ivIndex);
-            final int seqAuth = (ivIndex << 24) | MeshParserUtils.getSequenceNumber(sequenceNumber);
+            final int seqAuth = (ivIndex << 24) | MeshParserUtils.convert24BitsToInt(sequenceNumber);
             final byte[] src = MeshParserUtils.getSrcAddress(pdu);
             final int srcAdd = MeshParserUtils.unsignedBytesToInt(src[1], src[0]);
             Log.d(TAG, "SeqAuth: " + seqAuth);
@@ -395,7 +395,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                 return null;
             }
             mMeshNode.setSeqAuth(srcAdd, seqAuth);
-            mMeshNode.setSequenceNumber(MeshParserUtils.getSequenceNumber(sequenceNumber));
+            mMeshNode.setSequenceNumber(MeshParserUtils.convert24BitsToInt(sequenceNumber));
             message = new AccessMessage();
             if (akf == 0) {// device key was used to encrypt
                 final int lowerTransportPduLength = pdu.length - 10;
@@ -457,7 +457,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
         Log.v(TAG, "SEG O: " + segO);
         Log.v(TAG, "SEG N: " + segN);
 
-        final int seqNumber = getTransportLayerSequenceNumber(MeshParserUtils.getSequenceNumber(sequenceNumber), seqZero);
+        final int seqNumber = getTransportLayerSequenceNumber(MeshParserUtils.convert24BitsToInt(sequenceNumber), seqZero);
         final int seqAuth = ivIndex << 24 | seqNumber;
         final Integer lastSeqAuth = mMeshNode.getSeqAuth(blockAckDst);
         if (lastSeqAuth != null)

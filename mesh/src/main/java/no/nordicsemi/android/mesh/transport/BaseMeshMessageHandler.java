@@ -129,7 +129,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     }
 
                     final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
-                    Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
+                    Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.convert24BitsToInt(sequenceNumber));
                     //TODO validate ivi
                     byte[] nonce;
                     try {

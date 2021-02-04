@@ -280,12 +280,14 @@ public class MeshParserUtils {
         return null;
     }
 
-    public static int getSequenceNumber(final byte[] sequenceNumber) {
-        return (((sequenceNumber[0] & 0xFF) << 16) | ((sequenceNumber[1] & 0xFF) << 8) | (sequenceNumber[2] & 0xFF));
+    public static int convert24BitsToInt(@NonNull final byte[] byteArray) {
+        if (byteArray.length != 3)
+            throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");
+        return (((byteArray[0] & 0xFF) << 16) | ((byteArray[1] & 0xFF) << 8) | (byteArray[2] & 0xFF));
     }
 
     public static int getSequenceNumberFromPDU(final byte[] pdu) {
-        return (((pdu[3] & 0xFF) << 16) | ((pdu[4] & 0xFF) << 8) | (pdu[5] & 0xFF)); // get sequence number array from pduge
+        return convert24BitsToInt(new byte[]{pdu[3], pdu[4], pdu[5]}); // get sequence number array from pdu
     }
 
     public static int calculateSeqZero(final byte[] sequenceNumber) {
