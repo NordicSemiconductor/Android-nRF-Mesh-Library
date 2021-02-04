@@ -28,8 +28,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.mesh.utils.Heartbeat;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
+
+import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_LOG_MIN;
+import static no.nordicsemi.android.mesh.utils.Heartbeat.isValidHeartbeatPeriodLog;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidHeartbeatSubscriptionDestination;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidHeartbeatSubscriptionSource;
 
 /**
  * ConfigHeartbeatSubscriptionSet message.
@@ -41,6 +45,13 @@ public class ConfigHeartbeatSubscriptionSet extends ConfigMessage {
     private int srcAddress;
     private int dstAddress;
     private byte periodLog;
+
+    /**
+     * Constructs ConfigHeartbeatSubscriptionSet message. Use this constructor to clear Heartbeat Subscriptions.
+     */
+    public ConfigHeartbeatSubscriptionSet() throws IllegalArgumentException {
+        this(UNASSIGNED_ADDRESS, UNASSIGNED_ADDRESS, (byte) PERIOD_LOG_MIN);
+    }
 
     /**
      * Constructs ConfigHeartbeatSubscriptionSet message.
@@ -58,11 +69,11 @@ public class ConfigHeartbeatSubscriptionSet extends ConfigMessage {
     public ConfigHeartbeatSubscriptionSet(final int srcAddress,
                                           final int dstAddress,
                                           final byte periodLog) throws IllegalArgumentException {
-        if (MeshAddress.isValidHeartbeatSubscriptionSource(srcAddress))
+        if (isValidHeartbeatSubscriptionSource(srcAddress))
             this.srcAddress = srcAddress;
-        if (MeshAddress.isValidHeartbeatSubscriptionDestination(dstAddress))
+        if (isValidHeartbeatSubscriptionDestination(dstAddress))
             this.dstAddress = dstAddress;
-        if (Heartbeat.isValidHeartbeatPeriodLog(periodLog))
+        if (isValidHeartbeatPeriodLog(periodLog))
             this.periodLog = periodLog;
         assembleMessageParameters();
     }

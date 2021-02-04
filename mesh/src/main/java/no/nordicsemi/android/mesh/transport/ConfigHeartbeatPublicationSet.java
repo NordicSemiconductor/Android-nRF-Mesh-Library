@@ -30,6 +30,7 @@ import java.nio.ByteOrder;
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
+import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 import static no.nordicsemi.android.mesh.utils.Heartbeat.isValidHeartbeatPeriodLog;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidHeartbeatPublicationDestination;
@@ -50,6 +51,15 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
     private final int ttl;
     private final Features features;
     private final int netKeyIndex;
+
+
+    /**
+     * Constructs ConfigHeartbeatPublicationSet message. Use this constructor to clear Heartbeat Publications.
+     */
+    public ConfigHeartbeatPublicationSet() throws IllegalArgumentException {
+        this(MeshAddress.UNASSIGNED_ADDRESS, (byte) 0, (byte) 0, 0,
+                new Features(Features.UNSUPPORTED, Features.UNSUPPORTED, Features.UNSUPPORTED, Features.UNSUPPORTED), 0);
+    }
 
     /**
      * Constructs ConfigHeartbeatPublicationSet message.
