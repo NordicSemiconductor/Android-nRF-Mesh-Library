@@ -68,7 +68,6 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.PublicationSettings;
 import no.nordicsemi.android.mesh.utils.CompositionDataParser;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.GroupAddressAdapter;
@@ -87,6 +86,9 @@ import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
+import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidGroupAddress;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidVirtualAddress;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.MESSAGE_TIME_OUT;
@@ -425,21 +427,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
             if (element != null) {
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
-                    if (!model.getBoundAppKeyIndexes().isEmpty()) {
-                        final int address = MeshAddress.UNASSIGNED_ADDRESS;
-                        final int appKeyIndex = model.getPublicationSettings().getAppKeyIndex();
-                        final boolean credentialFlag = model.getPublicationSettings().getCredentialFlag();
-                        final int ttl = model.getPublicationSettings().getPublishTtl();
-                        final int publicationSteps = model.getPublicationSettings().getPublicationSteps();
-                        final int publicationResolution = model.getPublicationSettings().getPublicationResolution();
-                        final int retransmitCount = model.getPublicationSettings().getPublishRetransmitCount();
-                        final int retransmitIntervalSteps = model.getPublicationSettings().getPublishRetransmitIntervalSteps();
-                        final ConfigModelPublicationSet configModelPublicationSet = new ConfigModelPublicationSet(element.getElementAddress(), address, appKeyIndex,
-                                credentialFlag, ttl, publicationSteps, publicationResolution, retransmitCount, retransmitIntervalSteps, model.getModelId());
-                        sendMessage(meshNode.getUnicastAddress(), configModelPublicationSet);
-                    } else {
-                        mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
-                    }
+                    sendMessage(meshNode.getUnicastAddress(), new ConfigModelPublicationSet(element.getElementAddress(), model.getModelId()));
                 }
             }
         }
@@ -459,7 +447,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                     final MeshModel model = mViewModel.getSelectedModel().getValue();
                     if (model != null) {
                         MeshMessage subscriptionDelete = null;
-                        if (MeshAddress.isValidGroupAddress(address)) {
+                        if (isValidGroupAddress(address)) {
                             subscriptionDelete = new ConfigModelSubscriptionDelete(element.getElementAddress(), address, model.getModelId());
                         } else {
                             final UUID uuid = model.getLabelUUID(address);
@@ -541,22 +529,20 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         final PublicationSettings publicationSettings = meshModel.getPublicationSettings();
         if (publicationSettings != null) {
             final int publishAddress = publicationSettings.getPublishAddress();
-            if (publishAddress != MeshAddress.UNASSIGNED_ADDRESS) {
-                if (MeshAddress.isValidVirtualAddress(publishAddress)) {
-                    final UUID uuid = publicationSettings.getLabelUUID();
-                    if (uuid != null) {
-                        mPublishAddressView.setText(uuid.toString().toUpperCase(Locale.US));
-                    } else {
-                        mPublishAddressView.setText(MeshAddress.formatAddress(publishAddress, true));
-                    }
+            if (isValidVirtualAddress(publishAddress)) {
+                final UUID uuid = publicationSettings.getLabelUUID();
+                if (uuid != null) {
+                    mPublishAddressView.setText(uuid.toString().toUpperCase(Locale.US));
                 } else {
-                    mPublishAddressView.setText(MeshAddress.formatAddress(publishAddress, true));
+                    mPublishAddressView.setText(formatAddress(publishAddress, true));
                 }
-                mActionClearPublication.setVisibility(View.VISIBLE);
             } else {
-                mPublishAddressView.setText(R.string.none);
-                mActionClearPublication.setVisibility(View.GONE);
+                mPublishAddressView.setText(formatAddress(publishAddress, true));
             }
+            mActionClearPublication.setVisibility(View.VISIBLE);
+        } else {
+            mPublishAddressView.setText(R.string.none);
+            mActionClearPublication.setVisibility(View.GONE);
         }
     }
 

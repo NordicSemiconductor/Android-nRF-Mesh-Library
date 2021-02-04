@@ -24,7 +24,6 @@ import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
-import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
@@ -47,9 +46,6 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.DEFAULT_PUBLICATION_TTL;
-import static no.nordicsemi.android.mesh.utils.Heartbeat.DO_NOT_SEND_PERIODICALLY;
-import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
 
 @AndroidEntryPoint
@@ -157,7 +153,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mRefreshPublication.setOnClickListener(v -> sendMessage(new ConfigHeartbeatPublicationGet()));
 
             mClearPublication = nodeControlsContainerBinding.actionClearHeartbeatPublication;
-            mClearPublication.setOnClickListener(v -> clearPublication());
+            mClearPublication.setOnClickListener(v ->
+                    sendMessage(new ConfigHeartbeatPublicationSet()));
 
             mSetPublication = nodeControlsContainerBinding.actionSetHeartbeatPublication;
             mSetPublication.setOnClickListener(v -> {
@@ -169,7 +166,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mRefreshSubscription.setOnClickListener(v -> sendMessage(new ConfigHeartbeatSubscriptionGet()));
 
             mClearSubscription = nodeControlsContainerBinding.actionClearHeartbeatSubscription;
-            mClearSubscription.setOnClickListener(v -> clearSubscription());
+            mClearSubscription.setOnClickListener(v -> sendMessage(new ConfigHeartbeatPublicationSet()));
 
             mSetSubscription = nodeControlsContainerBinding.actionSetHeartbeatSubscription;
             mSetSubscription.setOnClickListener(v -> {
@@ -454,48 +451,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 mClearSubscription.setVisibility(GONE);
                 mRefreshSubscription.setVisibility(GONE);
             }
-        }
-    }
-
-    private void clearPublication() {
-        final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (model != null) {
-            final ConfigurationServerModel serverModel = (ConfigurationServerModel) model;
-            final HeartbeatPublication publication = serverModel.getHeartbeatPublication();
-            final ConfigHeartbeatPublicationSet message;
-            if (publication != null) {
-                message = new ConfigHeartbeatPublicationSet(UNASSIGNED_ADDRESS,
-                        publication.getCountLog(), publication.getPeriodLog(), publication.getTtl(),
-                        publication.getFeatures(), publication.getNetKeyIndex());
-                sendMessage(message);
-            } else {
-                final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-                if (node != null) {
-                    message = new ConfigHeartbeatPublicationSet(UNASSIGNED_ADDRESS,
-                            (byte) DO_NOT_SEND_PERIODICALLY, (byte) DO_NOT_SEND_PERIODICALLY, DEFAULT_PUBLICATION_TTL,
-                            node.getNodeFeatures(), node.getAddedNetKeys().get(0).getIndex());
-                    sendMessage(message);
-                }
-            }
-        }
-    }
-
-    private void clearSubscription() {
-        final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (model != null) {
-            final ConfigurationServerModel serverModel = (ConfigurationServerModel) model;
-            final HeartbeatSubscription subscription = serverModel.getHeartbeatSubscription();
-            final ConfigHeartbeatSubscriptionSet message;
-            if (subscription != null) {
-                message = new ConfigHeartbeatSubscriptionSet(UNASSIGNED_ADDRESS,
-                        UNASSIGNED_ADDRESS,
-                        subscription.getPeriodLog());
-            } else {
-                message = new ConfigHeartbeatSubscriptionSet(UNASSIGNED_ADDRESS,
-                        UNASSIGNED_ADDRESS,
-                        (byte) 0x01);
-            }
-            sendMessage(message);
         }
     }
 
