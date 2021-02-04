@@ -14,6 +14,355 @@
         android:paddingBottom="@dimen/activity_vertical_margin">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/config_relay_set_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardElevation="1dp"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            tools:visibility="visible">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/config_relay_tool_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:logo="@drawable/ic_repeat"
+                    app:title="@string/title_relay_retransmit_info"
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_relay_retransmit_count"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="false"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/item_padding_top"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/item_padding_bottom"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/config_relay_tool_bar">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/relay_retransmit_count_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/title_relay_retransmit_count"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/relay_retransmit_count"
+                        android:layout_width="0dp"
+                        android:layout_height="19dp"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="1 time(s)"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
+                        app:layout_constraintTop_toBottomOf="@id/relay_retransmit_count_title"
+                        tools:ignore="HardcodedText" />
+
+                    <ImageView
+                        android:id="@+id/image_relay_retransmit_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@id/relay_retransmit_count"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/relay_retransmit_count_title"
+                        app:srcCompat="@drawable/ic_numeric"
+                        tools:ignore="ContentDescription" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_relay_retransmit_interval_steps"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="false"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/item_padding_top"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/item_padding_bottom"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_count">
+
+                    <ImageView
+                        android:id="@+id/image_relay_retransmit_interval_steps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@+id/relay_retransmit_interval_steps"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/relay_retransmit_interval_steps_title"
+                        app:srcCompat="@drawable/ic_index"
+                        tools:ignore="ContentDescription" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/relay_retransmit_interval_steps_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/title_relay_retransmit_interval"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/relay_retransmit_interval_steps"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="1 step(s)"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
+                        app:layout_constraintTop_toBottomOf="@id/relay_retransmit_interval_steps_title"
+                        tools:ignore="HardcodedText" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <include
+                    android:id="@+id/relay_retransmit_divider"
+                    layout="@layout/layout_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_relay_retransmit_configure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:text="@string/action_relay_retransmit_set"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/network_transmit_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            app:cardElevation="1dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/network_transmit_tool_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:logo="@drawable/ic_repeat"
+                    app:title="@string/title_network_transmit_info"
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_network_transmit_count"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="false"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/item_padding_top"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/item_padding_bottom"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/network_transmit_tool_bar">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/network_transmit_count_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/title_network_transmit_count"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/network_transmit_count"
+                        android:layout_width="0dp"
+                        android:layout_height="19dp"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="1 time(s)"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
+                        app:layout_constraintTop_toBottomOf="@id/network_transmit_count_title"
+                        tools:ignore="HardcodedText" />
+
+                    <ImageView
+                        android:id="@+id/image_network_transmit_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@+id/network_transmit_count"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/network_transmit_count_title"
+                        app:srcCompat="@drawable/ic_numeric"
+                        tools:ignore="ContentDescription" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/container_network_transmit_interval_steps"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="false"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/item_padding_top"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/item_padding_bottom"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_network_transmit_count">
+
+                    <ImageView
+                        android:id="@+id/image_network_transmit_interval_steps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="@+id/network_transmit_interval_steps"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/network_transmit_interval_steps_title"
+                        app:srcCompat="@drawable/ic_index"
+                        tools:ignore="ContentDescription" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/network_transmit_interval_steps_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/title_network_transmit_interval"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/network_transmit_interval_steps"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="@dimen/activity_horizontal_margin"
+                        android:paddingEnd="@dimen/activity_horizontal_margin"
+                        android:text="1 step(s)"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
+                        app:layout_constraintTop_toBottomOf="@id/network_transmit_interval_steps_title"
+                        tools:ignore="HardcodedText" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <include
+                    android:id="@+id/network_transmit_divider"
+                    layout="@layout/layout_divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/action_network_transmit_configure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:text="@string/action_network_transmit_set"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/network_transmit_divider" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/node_exclude_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:logo="@drawable/ic_baseline_sensors_24"
+                    app:title="@string/secure_network_beacon"
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/item_padding_top"
+                    android:paddingBottom="@dimen/item_padding_bottom"
+                    android:text="@string/secure_network_beacon_state_summary"
+                    android:textSize="16sp" />
+
+                <include
+                    layout="@layout/layout_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_snb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:padding="@dimen/item_padding_end"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/heart_beat_publish_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -179,304 +528,6 @@
                     tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/config_relay_set_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:cardElevation="1dp"
-            tools:visibility="visible">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/config_relay_tool_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?actionBarSize"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_repeat"
-                    app:title="@string/title_relay_retransmit_info"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText" />
-
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/container_relay_retransmit_count"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground"
-                    android:clickable="false"
-                    android:paddingStart="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/item_padding_top"
-                    android:paddingEnd="@dimen/activity_horizontal_margin"
-                    android:paddingBottom="@dimen/item_padding_bottom"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/config_relay_tool_bar">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/relay_retransmit_count_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="@string/title_relay_retransmit_count"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/relay_retransmit_count"
-                        android:layout_width="0dp"
-                        android:layout_height="19dp"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="1 time(s)"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_count"
-                        app:layout_constraintTop_toBottomOf="@id/relay_retransmit_count_title"
-                        tools:ignore="HardcodedText" />
-
-                    <ImageView
-                        android:id="@+id/image_relay_retransmit_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="@id/relay_retransmit_count"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/relay_retransmit_count_title"
-                        app:srcCompat="@drawable/ic_numeric"
-                        tools:ignore="ContentDescription" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/container_relay_retransmit_interval_steps"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground"
-                    android:clickable="false"
-                    android:paddingStart="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/item_padding_top"
-                    android:paddingEnd="@dimen/activity_horizontal_margin"
-                    android:paddingBottom="@dimen/item_padding_bottom"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_count">
-
-                    <ImageView
-                        android:id="@+id/image_relay_retransmit_interval_steps"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="@+id/relay_retransmit_interval_steps"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/relay_retransmit_interval_steps_title"
-                        app:srcCompat="@drawable/ic_index"
-                        tools:ignore="ContentDescription" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/relay_retransmit_interval_steps_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="@string/title_relay_retransmit_interval"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/relay_retransmit_interval_steps"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="1 step(s)"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_relay_retransmit_interval_steps"
-                        app:layout_constraintTop_toBottomOf="@id/relay_retransmit_interval_steps_title"
-                        tools:ignore="HardcodedText" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <include
-                    android:id="@+id/relay_retransmit_divider"
-                    layout="@layout/layout_divider"
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_relay_retransmit_interval_steps" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/action_relay_retransmit_configure"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginEnd="@dimen/item_padding_start"
-                    android:text="@string/action_relay_retransmit_set"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/relay_retransmit_divider" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/network_transmit_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            app:cardElevation="1dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/network_transmit_tool_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?actionBarSize"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:logo="@drawable/ic_repeat"
-                    app:title="@string/title_network_transmit_info"
-                    app:titleMarginStart="@dimen/toolbar_title_margin"
-                    app:titleTextAppearance="@style/Toolbar.TitleText" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/container_network_transmit_count"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground"
-                    android:clickable="false"
-                    android:paddingStart="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/item_padding_top"
-                    android:paddingEnd="@dimen/activity_horizontal_margin"
-                    android:paddingBottom="@dimen/item_padding_bottom"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/network_transmit_tool_bar">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/network_transmit_count_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="@string/title_network_transmit_count"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/network_transmit_count"
-                        android:layout_width="0dp"
-                        android:layout_height="19dp"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="1 time(s)"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_count"
-                        app:layout_constraintTop_toBottomOf="@id/network_transmit_count_title"
-                        tools:ignore="HardcodedText" />
-
-                    <ImageView
-                        android:id="@+id/image_network_transmit_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="@+id/network_transmit_count"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/network_transmit_count_title"
-                        app:srcCompat="@drawable/ic_numeric"
-                        tools:ignore="ContentDescription" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/container_network_transmit_interval_steps"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:background="?selectableItemBackground"
-                    android:clickable="false"
-                    android:paddingStart="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/item_padding_top"
-                    android:paddingEnd="@dimen/activity_horizontal_margin"
-                    android:paddingBottom="@dimen/item_padding_bottom"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_network_transmit_count">
-
-                    <ImageView
-                        android:id="@+id/image_network_transmit_interval_steps"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="@+id/network_transmit_interval_steps"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/network_transmit_interval_steps_title"
-                        app:srcCompat="@drawable/ic_index"
-                        tools:ignore="ContentDescription" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/network_transmit_interval_steps_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="@string/title_network_transmit_interval"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/network_transmit_interval_steps"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/activity_horizontal_margin"
-                        android:paddingEnd="@dimen/activity_horizontal_margin"
-                        android:text="1 step(s)"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/image_network_transmit_interval_steps"
-                        app:layout_constraintTop_toBottomOf="@id/network_transmit_interval_steps_title"
-                        tools:ignore="HardcodedText" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <include
-                    android:id="@+id/network_transmit_divider"
-                    layout="@layout/layout_divider"
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/container_network_transmit_interval_steps" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/action_network_transmit_configure"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginEnd="@dimen/item_padding_start"
-                    android:text="@string/action_network_transmit_set"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/network_transmit_divider" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

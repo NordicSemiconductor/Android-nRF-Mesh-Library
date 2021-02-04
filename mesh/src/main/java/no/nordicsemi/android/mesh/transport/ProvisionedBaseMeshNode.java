@@ -56,6 +56,8 @@ import no.nordicsemi.android.mesh.utils.SparseIntArrayParcelable;
 @SuppressWarnings({"WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
+    public static final int DISABLED = 0; //The node is not broadcasting a Secure Network beacon
+    public static final int ENABLED = 1; //The node is broadcasting a Secure Network beacon
     public static final int LOW = 0; //Low security
     public static final int HIGH = 1; //High security
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
@@ -294,8 +296,8 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
      * Sets the {@link SecureNetworkBeacon} beacon for this node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setSecureNetworkBeaconSupported(final Boolean secureNetworkBeacon) {
-        this.secureNetworkBeaconSupported = secureNetworkBeacon;
+    public void setSecureNetworkBeaconSupported(final Boolean enable) {
+        this.secureNetworkBeaconSupported = enable;
     }
 
     /**
@@ -331,6 +333,11 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LOW, HIGH})
     public @interface SecurityState {
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({DISABLED, ENABLED})
+    public @interface SecureNetworkBeaconState {
     }
 
     /**
