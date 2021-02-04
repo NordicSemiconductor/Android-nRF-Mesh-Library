@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -328,6 +329,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigBeaconStatus status = new ConfigBeaconStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         node.setSecureNetworkBeaconSupported(status.isEnable());
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_FRIEND_STATUS) {
+                    final ConfigFriendStatus status = new ConfigFriendStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        node.getNodeFeatures().setFriend(status.isEnable() ? Features.ENABLED : Features.DISABLED);
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);

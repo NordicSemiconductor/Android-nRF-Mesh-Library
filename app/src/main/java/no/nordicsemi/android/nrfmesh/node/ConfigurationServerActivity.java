@@ -18,6 +18,8 @@ import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.transport.ConfigBeaconSet;
 import no.nordicsemi.android.mesh.transport.ConfigBeaconStatus;
+import no.nordicsemi.android.mesh.transport.ConfigFriendSet;
+import no.nordicsemi.android.mesh.transport.ConfigFriendStatus;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
@@ -90,6 +92,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private TextView mNetworkTransmitIntervalStepsText;
 
     private SwitchMaterial switchSnb;
+    private SwitchMaterial switchFriend;
 
     private int mRelayRetransmitCount = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
     private int mRelayRetransmitIntervalSteps = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
@@ -198,8 +201,18 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 sendMessage(new ConfigBeaconSet(switchSnb.isChecked()));
             });
 
+            switchFriend = nodeControlsContainerBinding.switchFriend;
+            switchFriend.setOnClickListener(v -> {
+                if (!checkConnectivity(mContainer)) {
+                    switchFriend.toggle();
+                    return;
+                }
+                sendMessage(new ConfigFriendSet(switchFriend.isChecked()));
+            });
+
             mViewModel.getSelectedMeshNode().observe(this, node -> {
                 updateSecureNetworkBeaconStateUi(node);
+                updateFriendStateUi(node);
                 updateNetworkTransmitUi(node);
                 updateRelayUi(node);
                 updateHeartbeatPublication();
@@ -257,6 +270,13 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mViewModel.removeMessage();
             handleStatuses();
             updateSecureNetworkBeaconStateUi(meshNode);
+        } else if (meshMessage instanceof ConfigFriendStatus) {
+            final ConfigFriendStatus status = (ConfigFriendStatus) meshMessage;
+            final ProvisionedMeshNode meshNode = mViewModel.getNetworkLiveData()
+                    .getMeshNetwork().getNode(status.getSrc());
+            mViewModel.removeMessage();
+            handleStatuses();
+            updateFriendStateUi(meshNode);
         } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
             final ConfigHeartbeatPublicationStatus status = (ConfigHeartbeatPublicationStatus) meshMessage;
             mViewModel.removeMessage();
@@ -348,6 +368,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void updateSecureNetworkBeaconStateUi(@NonNull final ProvisionedMeshNode meshNode) {
         if (meshNode.isSecureNetworkBeaconSupported() != null)
             switchSnb.setChecked(meshNode.isSecureNetworkBeaconSupported());
+    }
+
+    private void updateFriendStateUi(@NonNull final ProvisionedMeshNode meshNode) {
+        switchFriend.setEnabled(meshNode.getNodeFeatures().isFriendFeatureSupported());
+        switchFriend.setChecked(meshNode.getNodeFeatures().getFriend() == Features.ENABLED);
     }
 
     private void updateNetworkTransmitUi(@NonNull final ProvisionedMeshNode meshNode) {
