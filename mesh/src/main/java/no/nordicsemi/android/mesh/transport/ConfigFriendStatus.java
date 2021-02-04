@@ -8,21 +8,21 @@ import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
- * Creates the ConfigBeaconStatus message.
+ * Creates the ConfigFriendStatus message.
  */
-public class ConfigBeaconStatus extends ConfigStatusMessage {
+public class ConfigFriendStatus extends ConfigStatusMessage {
 
-    private static final String TAG = ConfigBeaconStatus.class.getSimpleName();
-    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_BEACON_STATUS;
+    private static final String TAG = ConfigFriendStatus.class.getSimpleName();
+    private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_FRIEND_STATUS;
 
     private boolean enable;
 
     /**
-     * Constructs ConfigBeaconStatus message.
+     * Constructs ConfigFriendStatus message.
      *
      * @param message {@link AccessMessage}
      */
-    public ConfigBeaconStatus(@NonNull final AccessMessage message) {
+    public ConfigFriendStatus(@NonNull final AccessMessage message) {
         super(message);
         mParameters = message.getParameters();
         parseStatusParameters();
@@ -31,7 +31,7 @@ public class ConfigBeaconStatus extends ConfigStatusMessage {
     @Override
     void parseStatusParameters() {
         enable = MeshParserUtils.unsignedByteToInt(mParameters[0]) == ProvisionedBaseMeshNode.ENABLED;
-        Log.d(TAG, "Secure Network Beacon State: " + enable);
+        Log.d(TAG, "Friend status: " + enable);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ConfigBeaconStatus extends ConfigStatusMessage {
     }
 
     /**
-     * Returns the true if the Secure Network beacon State is set to send periodic Secure Network Beacons or false otherwise.
+     * Returns the true if the Friend feature is enabled or not.
      */
     public boolean isEnable() {
         return enable;

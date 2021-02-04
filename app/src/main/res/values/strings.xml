@@ -657,6 +657,9 @@
         no longer be able to receive or send messages to the mesh network.</string>
     <string name="continue_confirmation">This cannot be undone, do you want to continue?</string>
     <string name="secure_network_beacon">Secure Network Beacon</string>
-    <string name="secure_network_beacon_state_summary">The Secure Network Beacon State determines if a node is periodically broadcasting Secure
+    <string name="secure_network_beacon_state_summary">The Secure Network Beacon state determines if a node is periodically broadcasting Secure
         Network Beacons.</string>
+    <string name="friend_feature">Friend Feature</string>
+    <string name="friend_feature_summary">The Friend Feature state indicates support for the Friend feature. Disabling this feature will terminate
+        all Friend relationships and clear the associated Friend Queue.</string>
 </resources>

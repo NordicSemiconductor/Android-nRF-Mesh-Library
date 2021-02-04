@@ -313,7 +313,6 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/node_exclude_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -352,6 +351,55 @@
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switch_snb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="@dimen/item_padding_end"
+                    android:layout_marginEnd="@dimen/item_padding_start"
+                    android:padding="@dimen/item_padding_end"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            app:cardElevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:logo="@drawable/ic_baseline_sensors_24"
+                    app:title="@string/friend_feature"
+                    app:titleMarginStart="@dimen/toolbar_title_margin"
+                    app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/item_padding_top"
+                    android:paddingBottom="@dimen/item_padding_bottom"
+                    android:text="@string/friend_feature_summary"
+                    android:textSize="16sp" />
+
+                <include
+                    layout="@layout/layout_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_friend"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
