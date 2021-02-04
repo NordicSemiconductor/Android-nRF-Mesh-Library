@@ -19,6 +19,7 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutSceneSetupServerBinding;
 import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
+import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
@@ -109,7 +110,7 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     }
 
     private void sendSceneStore(final Scene scene) {
-        final ApplicationKey key = getDefaultApplicationKey();
+        final ApplicationKey key = ((ModelConfigurationViewModel) mViewModel).getDefaultApplicationKey();
         if (key != null) {
             final SceneStore sceneStore = new SceneStore(key, scene.getNumber());
             sendMessage(sceneStore);
@@ -117,7 +118,7 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
     }
 
     private void sendSceneDelete(final Scene scene) {
-        final ApplicationKey key = getDefaultApplicationKey();
+        final ApplicationKey key = ((ModelConfigurationViewModel) mViewModel).getDefaultApplicationKey();
         if (key != null) {
             final SceneDelete sceneStore = new SceneDelete(key, scene.getNumber());
             sendMessage(sceneStore);

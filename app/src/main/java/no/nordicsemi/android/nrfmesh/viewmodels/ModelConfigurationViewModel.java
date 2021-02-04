@@ -24,6 +24,15 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 
 import androidx.annotation.NonNull;
 import androidx.hilt.lifecycle.ViewModelInject;
+import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.models.SigModelParser;
+import no.nordicsemi.android.mesh.transport.ConfigBeaconGet;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
+import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitGet;
+import no.nordicsemi.android.mesh.transport.ConfigRelayGet;
+import no.nordicsemi.android.mesh.transport.MeshModel;
+import no.nordicsemi.android.mesh.transport.SceneGet;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
@@ -56,5 +65,28 @@ public class ModelConfigurationViewModel extends BaseViewModel {
 
     public void setActivityVisible(final boolean visible) {
         isActivityVisible = visible;
+    }
+
+    public void prepareMessageQueue() {
+        switch (getSelectedModel().getValue().getModelId()) {
+            case SigModelParser.CONFIGURATION_SERVER:
+                messageQueue.add(new ConfigHeartbeatPublicationGet());
+                messageQueue.add(new ConfigHeartbeatSubscriptionGet());
+                messageQueue.add(new ConfigRelayGet());
+                messageQueue.add(new ConfigNetworkTransmitGet());
+                messageQueue.add(new ConfigBeaconGet());
+                break;
+            case SigModelParser.SCENE_SERVER:
+                messageQueue.add(new SceneGet(getDefaultApplicationKey()));
+                break;
+        }
+    }
+
+    public ApplicationKey getDefaultApplicationKey() {
+        final MeshModel meshModel = getSelectedModel().getValue();
+        if (meshModel != null && !meshModel.getBoundAppKeyIndexes().isEmpty()) {
+            return getNetworkLiveData().getAppKeys().get(meshModel.getBoundAppKeyIndexes().get(0));
+        }
+        return null;
     }
 }

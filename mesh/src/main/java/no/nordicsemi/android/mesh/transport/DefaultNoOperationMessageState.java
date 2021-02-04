@@ -324,6 +324,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_BEACON_STATUS) {
+                    final ConfigBeaconStatus status = new ConfigBeaconStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        node.setSecureNetworkBeaconSupported(status.isEnable());
+                    }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_KEY_REFRESH_PHASE_STATUS) {
                     final ConfigKeyRefreshPhaseStatus status = new ConfigKeyRefreshPhaseStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);

@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -15,16 +16,16 @@ import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.transport.ConfigBeaconSet;
+import no.nordicsemi.android.mesh.transport.ConfigBeaconStatus;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionStatus;
-import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitGet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
-import no.nordicsemi.android.mesh.transport.ConfigRelayGet;
 import no.nordicsemi.android.mesh.transport.ConfigRelaySet;
 import no.nordicsemi.android.mesh.transport.ConfigRelayStatus;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -40,6 +41,7 @@ import no.nordicsemi.android.nrfmesh.databinding.LayoutConfigServerModelBinding;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentNetworkTransmitSettings;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogRelayRetransmitSettings;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
+import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -86,6 +88,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private TextView mRelayRetransmitIntervalStepsText;
     private TextView mNetworkTransmitCountText;
     private TextView mNetworkTransmitIntervalStepsText;
+
+    private SwitchMaterial switchSnb;
 
     private int mRelayRetransmitCount = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
     private int mRelayRetransmitIntervalSteps = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
@@ -185,13 +189,21 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 fragment.show(getSupportFragmentManager(), null);
             });
 
-            mViewModel.getSelectedMeshNode().observe(this, node -> {
-                if (node != null) {
-                    updateNetworkTransmitUi(node);
-                    updateRelayUi(node);
-                    updateHeartbeatPublication();
-                    updateHeartbeatSubscription();
+            switchSnb = nodeControlsContainerBinding.switchSnb;
+            switchSnb.setOnClickListener(v -> {
+                if (!checkConnectivity(mContainer)) {
+                    switchSnb.toggle();
+                    return;
                 }
+                sendMessage(new ConfigBeaconSet(switchSnb.isChecked()));
+            });
+
+            mViewModel.getSelectedMeshNode().observe(this, node -> {
+                updateSecureNetworkBeaconStateUi(node);
+                updateNetworkTransmitUi(node);
+                updateRelayUi(node);
+                updateHeartbeatPublication();
+                updateHeartbeatSubscription();
             });
 
             if (savedInstanceState == null) {
@@ -215,10 +227,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                 model instanceof ConfigurationServerModel) {
             mViewModel.displaySnackBar(this, mContainer,
                     getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
-            mViewModel.getMessageQueue().add(new ConfigHeartbeatPublicationGet());
-            mViewModel.getMessageQueue().add(new ConfigHeartbeatSubscriptionGet());
-            mViewModel.getMessageQueue().add(new ConfigRelayGet());
-            mViewModel.getMessageQueue().add(new ConfigNetworkTransmitGet());
+            ((ModelConfigurationViewModel) mViewModel).prepareMessageQueue();
             sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
         } else {
             mSwipe.setRefreshing(false);
@@ -241,6 +250,13 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mViewModel.removeMessage();
             handleStatuses();
             updateRelayUi(meshNode);
+        } else if (meshMessage instanceof ConfigBeaconStatus) {
+            final ConfigBeaconStatus status = (ConfigBeaconStatus) meshMessage;
+            final ProvisionedMeshNode meshNode = mViewModel.getNetworkLiveData()
+                    .getMeshNetwork().getNode(status.getSrc());
+            mViewModel.removeMessage();
+            handleStatuses();
+            updateSecureNetworkBeaconStateUi(meshNode);
         } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
             final ConfigHeartbeatPublicationStatus status = (ConfigHeartbeatPublicationStatus) meshMessage;
             mViewModel.removeMessage();
@@ -276,6 +292,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         mClearSubscription.setEnabled(true);
         mActionSetRelayState.setEnabled(true);
         mSetNetworkTransmitStateButton.setEnabled(true);
+        switchSnb.setEnabled(true);
     }
 
     @Override
@@ -289,6 +306,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         mSetSubscription.setEnabled(false);
         mActionSetRelayState.setEnabled(false);
         mSetNetworkTransmitStateButton.setEnabled(false);
+        switchSnb.setEnabled(false);
     }
 
     @Override
@@ -325,6 +343,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             hideProgressBar();
             Log.e(TAG, "Error ConfigNetworkTransmitSet: " + e.getMessage());
         }
+    }
+
+    private void updateSecureNetworkBeaconStateUi(@NonNull final ProvisionedMeshNode meshNode) {
+        if (meshNode.isSecureNetworkBeaconSupported() != null)
+            switchSnb.setChecked(meshNode.isSecureNetworkBeaconSupported());
     }
 
     private void updateNetworkTransmitUi(@NonNull final ProvisionedMeshNode meshNode) {

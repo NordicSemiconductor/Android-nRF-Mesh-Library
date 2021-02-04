@@ -23,6 +23,7 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutSceneServerBinding;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.BottomSheetSceneRecallDialogFragment;
+import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
@@ -90,10 +91,7 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
     @Override
     public void onRefresh() {
         super.onRefresh();
-        final MeshModel model = mViewModel.getSelectedModel().getValue();
-        if (model.getModelId() == SigModelParser.SCENE_SERVER) {
-            mViewModel.getMessageQueue().add(new SceneGet(getDefaultApplicationKey()));
-        }
+        ((ModelConfigurationViewModel) mViewModel).prepareMessageQueue();
     }
 
     @Override
@@ -122,16 +120,8 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         hideProgressBar();
     }
 
-    protected ApplicationKey getDefaultApplicationKey() {
-        final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
-        if (meshModel != null && !meshModel.getBoundAppKeyIndexes().isEmpty()) {
-            return mViewModel.getNetworkLiveData().getAppKeys().get(meshModel.getBoundAppKeyIndexes().get(0));
-        }
-        return null;
-    }
-
     private void sendGetCurrentScene() {
-        final ApplicationKey key = getDefaultApplicationKey();
+        final ApplicationKey key = ((ModelConfigurationViewModel) mViewModel).getDefaultApplicationKey();
         if (key != null) {
             sendMessage(new SceneGet(key));
         }
@@ -143,7 +133,7 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
     }
 
     private void sendSceneRecall(@NonNull final Scene scene, final int transitionSteps, final int transitionStepResolution, final int delay) {
-        final ApplicationKey key = getDefaultApplicationKey();
+        final ApplicationKey key = ((ModelConfigurationViewModel) mViewModel).getDefaultApplicationKey();
         if (key != null) {
             final SceneRecall recall;
             if (transitionSteps == 0 && transitionStepResolution == 0 && delay == 0) {
