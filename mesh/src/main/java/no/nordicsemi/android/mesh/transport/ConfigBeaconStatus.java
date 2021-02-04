@@ -8,7 +8,7 @@ import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
- * Creates the ConfigDefaultTtlSet message.
+ * Creates the ConfigBeaconStatus message.
  */
 public class ConfigBeaconStatus extends ConfigStatusMessage {
 
@@ -18,7 +18,7 @@ public class ConfigBeaconStatus extends ConfigStatusMessage {
     private boolean enable;
 
     /**
-     * Constructs ConfigDefaultTtlStatus message.
+     * Constructs ConfigBeaconStatus message.
      *
      * @param message {@link AccessMessage}
      */
