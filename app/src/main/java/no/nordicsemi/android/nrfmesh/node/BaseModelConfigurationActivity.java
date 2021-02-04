@@ -350,11 +350,11 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
             if (model instanceof SigModel) {
                 if (!(model instanceof ConfigurationServerModel) && !(model instanceof ConfigurationClientModel)) {
                     mViewModel.displaySnackBar(this, mContainer, getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
-                    final ConfigSigModelAppGet appGet = new ConfigSigModelAppGet(element.getElementAddress(), model.getModelId());
-                    final ConfigSigModelSubscriptionGet subscriptionGet = new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId());
-                    mViewModel.getMessageQueue().add(appGet);
-                    mViewModel.getMessageQueue().add(subscriptionGet);
-                    queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
+                    mViewModel.getMessageQueue().add(new ConfigSigModelAppGet(element.getElementAddress(), model.getModelId()));
+                    if (model.getModelId() != SigModelParser.SCENE_SETUP_SERVER) {
+                        mViewModel.getMessageQueue().add(new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId()));
+                        queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
+                    }
                     sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
                 } else {
                     mSwipe.setRefreshing(false);
