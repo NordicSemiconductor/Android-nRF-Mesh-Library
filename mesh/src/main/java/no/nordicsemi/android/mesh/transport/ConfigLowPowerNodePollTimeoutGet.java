@@ -8,7 +8,7 @@ import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 /**
- * Creates the ConfigDefaultTtlGet message.
+ * Creates the ConfigLowPowerNodePollTimeoutGet message.
  */
 public class ConfigLowPowerNodePollTimeoutGet extends ConfigMessage {
 
@@ -35,7 +35,7 @@ public class ConfigLowPowerNodePollTimeoutGet extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        final ByteBuffer paramsBuffer = ByteBuffer.allocate(9).order(ByteOrder.LITTLE_ENDIAN);
+        final ByteBuffer paramsBuffer = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.putShort((short) address);
         mParameters = paramsBuffer.array();
     }

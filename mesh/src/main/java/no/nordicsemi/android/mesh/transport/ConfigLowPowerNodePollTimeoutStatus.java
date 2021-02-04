@@ -6,7 +6,7 @@ import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
- * Creates the ConfigDefaultTtlSet message.
+ * Creates the ConfigLowPowerNodePollTimeoutStatus message.
  */
 @SuppressWarnings({"WeakerAccess"})
 public class ConfigLowPowerNodePollTimeoutStatus extends ConfigStatusMessage {
@@ -18,7 +18,7 @@ public class ConfigLowPowerNodePollTimeoutStatus extends ConfigStatusMessage {
     private int pollTimeout;
 
     /**
-     * Constructs ConfigDefaultTtlStatus message.
+     * Constructs ConfigLowPowerNodePollTimeoutStatus message.
      *
      * @param message {@link AccessMessage}
      */
