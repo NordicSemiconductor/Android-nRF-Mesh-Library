@@ -29,6 +29,7 @@ import no.nordicsemi.android.mesh.utils.RelaySettings;
 
 import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnassignedAddress;
 
 class DefaultNoOperationMessageState extends MeshMessageState {
 
@@ -112,7 +113,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (status.isSuccessful()) {
                             final MeshModel model = getMeshModel(node, status.getSrc(), CONFIGURATION_SERVER);
                             if (model != null) {
-                                ((ConfigurationServerModel) model).setHeartbeatPublication(status.getHeartbeatPublication());
+                                ((ConfigurationServerModel) model).
+                                        setHeartbeatPublication(!isValidUnassignedAddress(status.getHeartbeatPublication().getDst()) ? status.getHeartbeatPublication() : null);
                             }
                         }
                     }
@@ -297,7 +299,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (status.isSuccessful()) {
                             final MeshModel model = getMeshModel(node, message.getSrc(), CONFIGURATION_SERVER);
                             if (model != null) {
-                                ((ConfigurationServerModel) model).setHeartbeatSubscription(status.getHeartbeatSubscription());
+                                ((ConfigurationServerModel) model).
+                                        setHeartbeatSubscription((!isValidUnassignedAddress(status.getHeartbeatSubscription().getSrc()) ||
+                                                !isValidUnassignedAddress(status.getHeartbeatSubscription().getDst()))
+                                                ? status.getHeartbeatSubscription() : null);
                             }
                         }
                     }

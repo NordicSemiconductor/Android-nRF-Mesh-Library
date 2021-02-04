@@ -18,8 +18,10 @@ import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.MeshAddress.addressBytesToInt;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnassignedAddress;
 
 /**
  * Do not touch this class, implemented for mesh model deserialization
@@ -65,7 +67,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             for (int j = 0; j < jsonArray.size(); j++) {
                 subscriptionAddress[j] = jsonArray.get(j).getAsByte();
             }
-            meshModel.addSubscriptionAddress(MeshAddress.addressBytesToInt(subscriptionAddress));
+            meshModel.addSubscriptionAddress(addressBytesToInt(subscriptionAddress));
         }
 
         if (jsonObject.getAsJsonObject().has("mPublicationSettings")) {
@@ -158,19 +160,21 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 } else {
                     destination = heartbeatPub.get("destination").getAsInt();
                 }
-                final int countLog = heartbeatPub.get("count").getAsInt();
-                final int period = (heartbeatPub.get("period").getAsInt());
-                final int ttl = heartbeatPub.get("ttl").getAsInt();
-                final int index = heartbeatPub.get("index").getAsInt();
+                if (!isValidUnassignedAddress(destination)) {
+                    final int countLog = heartbeatPub.get("count").getAsInt();
+                    final int period = (heartbeatPub.get("period").getAsInt());
+                    final int ttl = heartbeatPub.get("ttl").getAsInt();
+                    final int index = heartbeatPub.get("index").getAsInt();
 
-                final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
-                final Features features = new Features(featuresJson.get("friend").getAsInt(),
-                        featuresJson.get("lowPower").getAsInt(),
-                        featuresJson.get("relay").getAsInt(),
-                        featuresJson.get("proxy").getAsInt());
-                ((ConfigurationServerModel) meshModel)
-                        .setHeartbeatPublication(new HeartbeatPublication(destination, (byte) countLog,
-                                (byte) period, ttl, features, index));
+                    final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
+                    final Features features = new Features(featuresJson.get("friend").getAsInt(),
+                            featuresJson.get("lowPower").getAsInt(),
+                            featuresJson.get("relay").getAsInt(),
+                            featuresJson.get("proxy").getAsInt());
+                    ((ConfigurationServerModel) meshModel)
+                            .setHeartbeatPublication(new HeartbeatPublication(destination, (byte) countLog,
+                                    (byte) period, ttl, features, index));
+                }
             }
             if (jsonObject.has("heartbeatSub")) {
                 final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
@@ -181,13 +185,15 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                 } else {
                     destination = heartbeatSub.get("destination").getAsInt();
                 }
-                final int period = (heartbeatSub.get("period").getAsInt());
-                final int countLog = heartbeatSub.get("count").getAsInt();
-                final int minHops = heartbeatSub.get("minHops").getAsInt();
-                final int maxHops = heartbeatSub.get("maxHops").getAsInt();
-                ((ConfigurationServerModel) meshModel)
-                        .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, (byte) period,
-                                (byte) countLog, minHops, maxHops));
+                if (isValidUnassignedAddress(destination)) {
+                    final int period = (heartbeatSub.get("period").getAsInt());
+                    final int countLog = heartbeatSub.get("count").getAsInt();
+                    final int minHops = heartbeatSub.get("minHops").getAsInt();
+                    final int maxHops = heartbeatSub.get("maxHops").getAsInt();
+                    ((ConfigurationServerModel) meshModel)
+                            .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, (byte) period,
+                                    (byte) countLog, minHops, maxHops));
+                }
             }
         }
 
@@ -261,6 +267,8 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                     } else {
                         publishAddress = jsonElement.getAsInt();
                     }
+                    if (isValidUnassignedAddress(publishAddress))
+                        return meshModel;
 
                     if (jsonPublicationSettings.has("labelUUID")) {
                         final String uuid = jsonPublicationSettings.get("labelUUID").getAsString();
