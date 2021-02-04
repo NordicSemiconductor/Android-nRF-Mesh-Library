@@ -123,7 +123,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 for (int i = 0; i < lowerTransportPduMap.size(); i++) {
                     final byte[] lowerTransportPdu = lowerTransportPduMap.get(i);
                     if (i != 0) {
-                        node.setSequenceNumber(MeshParserUtils.getSequenceNumber(message.getSequenceNumber()));
+                        node.setSequenceNumber(MeshParserUtils.convert24BitsToInt(message.getSequenceNumber()));
                         final byte[] sequenceNumber = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
                         message.setSequenceNumber(sequenceNumber);
                     }
@@ -200,7 +200,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         if (message.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(message.getSrc());
             final byte[] lowerTransportPdu = lowerTransportPduMap.get(segment);
-            node.setSequenceNumber(MeshParserUtils.getSequenceNumber(message.getSequenceNumber()));
+            node.setSequenceNumber(MeshParserUtils.convert24BitsToInt(message.getSequenceNumber()));
             //final int sequenceNumber = node.incrementSequenceNumber();//incrementSequenceNumber(mNetworkLayerCallbacks.getProvisioner(), message.getSequenceNumber());
             final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
             message.setSequenceNumber(sequenceNum);
