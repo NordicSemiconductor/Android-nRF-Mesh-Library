@@ -37,6 +37,9 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
+import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhase;
+import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhaseTransition;
+
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 abstract class BaseMeshNetwork {
     private static final String TAG = "BaseMeshNetwork";
@@ -278,21 +281,20 @@ abstract class BaseMeshNetwork {
      *
      * <p>
      * This process contains three phases.
-     * Phase 1 - Distribution of the new Keys {@link #distributeNetKey(NetworkKey, byte[])}.
-     * Phase 2 - Switching to the new keys {@link #switchToNewKey(NetworkKey)}.
-     * Phase 3 - Revoking old keys {@link #revokeOldKey(NetworkKey)}.
+     * {@link KeyRefreshPhase#KEY_DISTRIBUTION} - Distribution of the new Keys {@link #distributeNetKey(NetworkKey, byte[])}.
+     * {@link KeyRefreshPhase#USING_NEW_KEYS} - Switching to the new keys {@link #switchToNewKey(NetworkKey)}.
+     * {@link KeyRefreshPhase#REVOKE_OLD_KEYS} - Revoking old keys {@link #revokeOldKey(NetworkKey)}.
      * The new key is distributed to the provisioner node by setting the currently used key as the old key and setting the
-     * currently used key to the new key value. This will change the phase of the network key to phase 1 which is the Key
-     * Distribution phase. During this phase a node will transmit using the old key but may receive using both old and the
-     * new key. After a successful distribution to the provisioner, the user may start sending {@link ConfigNetKeyUpdate}
-     * messages to the respective nodes in the network that requires updating. In addition if the user wishes to update the AppKey
-     * call {@link #distributeAppKey(ApplicationKey, byte[])} to update the Application Key on the provisioner and then distribute
-     * it to other nodes by sending {@link ConfigAppKeyUpdate} to update an AppKey. However it shall be only successfully processed
-     * if the NetworkKey bound to the Application Key is in Phase 1 and the received app key value is different or when the received
-     * AppKey value is the same as previously received value. Also note that sending a ConfigNetKeyUpdate during normal operation or
-     * Phase 0 will switch the phase to phase 1.
-     * Once distribution is completed, call {@link #switchToNewKey(NetworkKey)} and and send {@link ConfigKeyRefreshPhaseSet} to
-     * other nodes.
+     * currently used key to the new key value. This will change the phase of the network key to{@link KeyRefreshPhase#KEY_DISTRIBUTION}.
+     * During this phase a node will transmit using the old key but may receive using both old and the new key. After a successful
+     * distribution to the provisioner, the user may start sending {@link ConfigNetKeyUpdate} messages to the respective nodes in the
+     * network that requires updating. In addition if the user wishes to update the AppKey call {@link #distributeAppKey(ApplicationKey, byte[])}
+     * to update the Application Key on the provisioner and then distribute it to other nodes by sending {@link ConfigAppKeyUpdate} to
+     * update an AppKey. However it shall be only successfully processed if the NetworkKey bound to the Application Key is in
+     * {@link KeyRefreshPhase#KEY_DISTRIBUTION} and the received app key value is different or when the received AppKey value is the same as
+     * previously received value. Also note that sending a ConfigNetKeyUpdate during {@link KeyRefreshPhase#NORMAL_OPERATION} will switch the
+     * phase to {@link KeyRefreshPhase#KEY_DISTRIBUTION}. Once distribution is completed, call {@link #switchToNewKey(NetworkKey)} and
+     * send {@link ConfigKeyRefreshPhaseSet} to other nodes.
      * </p>
      *
      * @param networkKey Network key
@@ -340,9 +342,9 @@ abstract class BaseMeshNetwork {
     /**
      * Revokes the old key.
      * <p>
-     * This initiates phase 3 of the Key Refresh Procedure in which user must send {@link ConfigKeyRefreshPhaseSet} message with phase set
-     * to Phase 3 to the other nodes going through the Key Refresh Procedure. The library at this point will set the given Network Key's
-     * Phase to 0 which is Normal Operation.
+     * This initiates {@link KeyRefreshPhase#REVOKE_OLD_KEYS} of the Key Refresh Procedure in which user must send {@link ConfigKeyRefreshPhaseSet}
+     * message with transition set to {@link KeyRefreshPhaseTransition#REVOKE_OLD_KEYS} to the other nodes going through the Key Refresh Procedure.
+     * The library at this point will set the given Network Key's Phase to {@link KeyRefreshPhase#NORMAL_OPERATION}.
      * </p>
      *
      * @param networkKey Network key that was distributed

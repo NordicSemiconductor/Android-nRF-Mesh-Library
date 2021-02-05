@@ -35,14 +35,18 @@ import static androidx.room.ForeignKey.CASCADE;
 public final class NetworkKey extends MeshKey {
 
     // Key refresh phases
-    public static final int PHASE_0 = 0; //Normal operation
-    public static final int PHASE_1 = 1; //Key Distribution
-    public static final int PHASE_2 = 2; //Switching to new keys
-    public static final int PHASE_3 = 3; //Revoking old keys
+    public static final int NORMAL_OPERATION = 0;
+    public static final int KEY_DISTRIBUTION = 1;
+    public static final int USING_NEW_KEYS = 2;
+    //public static final int REVOKING_OLD_KEYS   = 3; This phase is instantaneous.
+
+    // Transitions
+    public static final int USE_NEW_KEYS = 2; //Normal operation
+    public static final int REVOKE_OLD_KEYS = 3; //Key Distribution
 
     @ColumnInfo(name = "phase")
     @Expose
-    private int phase = PHASE_0;
+    private int phase = NORMAL_OPERATION;
 
     @ColumnInfo(name = "security")
     @Expose
@@ -163,9 +167,9 @@ public final class NetworkKey extends MeshKey {
      */
     public byte[] getTxNetworkKey() {
         switch (phase) {
-            case PHASE_1:
+            case KEY_DISTRIBUTION:
                 return oldKey;
-            case PHASE_2:
+            case USING_NEW_KEYS:
             default:
                 return key;
         }
@@ -178,9 +182,9 @@ public final class NetworkKey extends MeshKey {
      */
     public SecureUtils.K2Output getTxDerivatives() {
         switch (phase) {
-            case PHASE_1:
+            case KEY_DISTRIBUTION:
                 return oldDerivatives;
-            case PHASE_2:
+            case USING_NEW_KEYS:
             default:
                 return derivatives;
         }
@@ -233,14 +237,12 @@ public final class NetworkKey extends MeshKey {
     public String getPhaseDescription() {
         switch (phase) {
             default:
-            case PHASE_0:
+            case NORMAL_OPERATION:
                 return "Normal Operation";
-            case PHASE_1:
-                return "Distributing Keys";
-            case PHASE_2:
-                return "Switching to New Keys";
-            case PHASE_3:
-                return "Revoking Old  Keys";
+            case KEY_DISTRIBUTION:
+                return "Key Distribution";
+            case USING_NEW_KEYS:
+                return "Using New Keys";
         }
     }
 
@@ -255,8 +257,13 @@ public final class NetworkKey extends MeshKey {
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({PHASE_0, PHASE_1, PHASE_2, PHASE_3})
+    @IntDef({NORMAL_OPERATION, KEY_DISTRIBUTION, USING_NEW_KEYS})
     public @interface KeyRefreshPhase {
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({USE_NEW_KEYS, REVOKE_OLD_KEYS})
+    public @interface KeyRefreshPhaseTransition {
     }
 
     @NonNull
@@ -293,7 +300,7 @@ public final class NetworkKey extends MeshKey {
      */
     protected boolean switchToNewKey() {
         if (phase == 1) {
-            setPhase(PHASE_2);
+            setPhase(USING_NEW_KEYS);
             timestamp = System.currentTimeMillis();
             return true;
         }
@@ -301,13 +308,13 @@ public final class NetworkKey extends MeshKey {
     }
 
     /**
-     * Revokes old key by switching the phase to {@link KeyRefreshPhase PHASE_3 or PHASE_0}
+     * Revokes old key by switching the phase to {@link KeyRefreshPhase KEY_DISTRIBUTION or USING_NEW_KEYS}
      *
      * @return true if successful or false otherwise.
      */
     protected boolean revokeOldKey() {
-        if (phase == PHASE_1 || phase == PHASE_2 || phase == PHASE_3) {
-            phase = PHASE_0;
+        if (phase == KEY_DISTRIBUTION || phase == USING_NEW_KEYS) {
+            phase = NORMAL_OPERATION;
             timestamp = System.currentTimeMillis();
             return true;
         }
