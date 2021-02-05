@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityEditKeyBinding;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
@@ -88,6 +89,12 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
         binding.containerPhase.text.setVisibility(View.VISIBLE);
         binding.containerPhase.getRoot().setVisibility(View.VISIBLE);
 
+        binding.containerLastModified.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_time));
+        binding.containerLastModified.title.setText(R.string.last_modified);
+        binding.containerLastModified.text.setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
+
         binding.containerKey.getRoot().setOnClickListener(v ->
                 DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
                         .show(getSupportFragmentManager(), null));
@@ -96,12 +103,13 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
                 DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
                         .show(getSupportFragmentManager(), null));
 
-        mViewModel.getNetworkKeyLiveData().observe(this, networkKey -> {
-            binding.containerKeyName.text.setText(networkKey.getName());
-            binding.containerKey.text.setText(bytesToHex(networkKey.getKey(), false));
-            binding.containerOldKey.text.setText(networkKey.getOldKey() != null ? bytesToHex(networkKey.getOldKey(), false) : getString(R.string.na));
-            binding.containerPhase.text.setText(networkKey.getPhaseDescription());
-            binding.containerKeyIndex.text.setText(String.valueOf(networkKey.getKeyIndex()));
+        mViewModel.getNetworkKeyLiveData().observe(this, key -> {
+            binding.containerKeyName.text.setText(key.getName());
+            binding.containerKey.text.setText(bytesToHex(key.getKey(), false));
+            binding.containerOldKey.text.setText(key.getOldKey() != null ? bytesToHex(key.getOldKey(), false) : getString(R.string.na));
+            binding.containerKeyIndex.text.setText(String.valueOf(key.getKeyIndex()));
+            binding.containerPhase.text.setText(key.getPhaseDescription());
+            binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(key.getTimestamp()));
         });
     }
 

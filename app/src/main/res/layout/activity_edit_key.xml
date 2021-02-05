@@ -93,6 +93,7 @@
                             layout="@layout/layout_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:visibility="gone"
                             tools:visibility="visible" />
 
                         <include
@@ -103,6 +104,14 @@
 
                         <include
                             android:id="@+id/container_phase"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <include
+                            android:id="@+id/container_last_modified"
                             layout="@layout/layout_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
