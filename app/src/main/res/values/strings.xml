@@ -214,6 +214,7 @@
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
     <string name="title_manage_net_keys">Manage Net Keys</string>
+    <string name="key">Key</string>
     <string name="title_net_key">Net Key</string>
     <string name="title_add_net_key">Add Net Key</string>
     <string name="title_edit_net_key">Edit Net Key</string>

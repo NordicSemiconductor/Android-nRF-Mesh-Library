@@ -76,7 +76,7 @@ public class EditAppKeyActivity extends AppCompatActivity implements
 
         binding.containerKey.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
-        binding.containerKey.title.setText(R.string.title_app_key);
+        binding.containerKey.title.setText(R.string.key);
         binding.containerKey.text.setVisibility(View.VISIBLE);
 
         binding.containerOldKey.image.
