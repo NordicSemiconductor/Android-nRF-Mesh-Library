@@ -111,8 +111,7 @@
                             android:id="@+id/sub_net_key_container"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:paddingBottom="@dimen/item_padding_bottom">
+                            android:orientation="vertical">
 
                             <com.google.android.material.appbar.MaterialToolbar
                                 android:id="@+id/sub_net_key_toolbar"
@@ -148,7 +147,6 @@
                                 android:id="@+id/delete_hint"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/item_padding_end"
                                 android:padding="@dimen/activity_horizontal_margin"
                                 android:text="@string/hint_delete_key"
                                 app:layout_constraintBottom_toBottomOf="parent"
