@@ -662,4 +662,7 @@
     <string name="friend_feature">Friend Feature</string>
     <string name="friend_feature_summary">The Friend Feature state indicates support for the Friend feature. Disabling this feature will terminate
         all Friend relationships and clear the associated Friend Queue.</string>
+    <string name="old_key">Old Key</string>
+    <string name="na">N/A</string>
+    <string name="phase">Phase</string>
 </resources>

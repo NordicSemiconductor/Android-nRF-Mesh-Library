@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018, Nordic Semiconductor
   ~ All rights reserved.
   ~
@@ -21,8 +20,7 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -44,7 +42,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -76,25 +74,40 @@
                             android:layout_height="?actionBarSize"
                             app:logo="@drawable/ic_info_24dp"
                             app:title="@string/title_key_details"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
-
-                        <include
-                            android:id="@+id/container_key"
-                            layout="@layout/layout_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin" />
 
                         <include
                             android:id="@+id/container_key_name"
                             layout="@layout/layout_container"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
+
+                        <include
+                            android:id="@+id/container_key"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                        <include
+                            android:id="@+id/container_old_key"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            tools:visibility="visible" />
 
                         <include
                             android:id="@+id/container_key_index"
                             layout="@layout/layout_container"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
+
+                        <include
+                            android:id="@+id/container_phase"
+                            layout="@layout/layout_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -118,14 +131,14 @@
                             android:layout_height="?actionBarSize"
                             app:logo="@drawable/ic_folder_key_24dp"
                             app:title="@string/title_bound_net_key"
-                            app:titleMarginStart="@dimen/toolbar_title_margin"/>
+                            app:titleMarginStart="@dimen/toolbar_title_margin" />
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recycler_view_keys"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:clipToPadding="false"
-                            android:scrollbars="none"/>
+                            android:scrollbars="none" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

@@ -228,6 +228,23 @@ public final class NetworkKey extends MeshKey {
     }
 
     /**
+     * Returns the current phase description
+     */
+    public String getPhaseDescription() {
+        switch (phase) {
+            default:
+            case PHASE_0:
+                return "Normal Operation";
+            case PHASE_1:
+                return "Distributing Keys";
+            case PHASE_2:
+                return "Switching to New Keys";
+            case PHASE_3:
+                return "Revoking Old  Keys";
+        }
+    }
+
+    /**
      * Set the timestamp when the the phase change happened
      *
      * @param timestamp timestamp
