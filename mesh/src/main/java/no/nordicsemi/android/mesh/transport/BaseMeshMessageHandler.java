@@ -149,7 +149,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                         }
                         if (state != null) {
                             //TODO look in to proxy filter messages
-                            ((DefaultNoOperationMessageState) state).parseMeshPdu(node, pdu, networkHeader, decryptedPayload, ivIndex, sequenceNumber);
+                            ((DefaultNoOperationMessageState) state).parseMeshPdu(networkKey, node, pdu, networkHeader, decryptedPayload, ivIndex, sequenceNumber);
                             return;
                         }
                     } catch (InvalidCipherTextException ex) {

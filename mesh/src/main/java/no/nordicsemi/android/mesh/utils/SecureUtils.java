@@ -294,9 +294,11 @@ public class SecureUtils {
     /**
      * Calculate k4
      *
-     * @param n network key
+     * @param n key
      */
     public static byte calculateK4(final byte[] n) {
+        if (n == null || n.length != 16)
+            throw new IllegalArgumentException("Key cannot be empty and must be 16-bytes long.");
 
         byte[] salt = calculateSalt(SMK4);
 
