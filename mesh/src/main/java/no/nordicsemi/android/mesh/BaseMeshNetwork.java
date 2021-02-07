@@ -311,6 +311,7 @@ abstract class BaseMeshNetwork {
             final NetworkKey netKey = getNetKey(keyIndex);
             if (netKey.equals(networkKey)) {
                 if (netKey.distributeKey(newNetKey)) {
+                    updateNodeKeyStatus(netKey);
                     if (updateMeshKey(netKey)) {
                         return netKey;
                     }
@@ -318,6 +319,33 @@ abstract class BaseMeshNetwork {
             }
         }
         return null;
+    }
+
+    /**
+     * Updates the NodeKey object for Network or Application Keys
+     *
+     * @param meshKey Updated Key
+     */
+    private void updateNodeKeyStatus(@NonNull final MeshKey meshKey) {
+        for (Provisioner provisioner : provisioners) {
+            for (ProvisionedMeshNode node : nodes) {
+                if (node.getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                    if (meshKey instanceof NetworkKey) {
+                        for (NodeKey key : node.getAddedNetKeys()) {
+                            if (key.getIndex() == meshKey.getKeyIndex()) {
+                                key.setUpdated(true);
+                            }
+                        }
+                    } else {
+                        for (NodeKey key : node.getAddedAppKeys()) {
+                            if (key.getIndex() == meshKey.getKeyIndex()) {
+                                key.setUpdated(true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -577,9 +605,11 @@ abstract class BaseMeshNetwork {
             final int keyIndex = applicationKey.getKeyIndex();
             final ApplicationKey appKey = getAppKey(keyIndex);
             if (appKey.equals(applicationKey)) {
-                appKey.distributeKey(newAppKey);
-                if (updateMeshKey(appKey)) {
-                    return appKey;
+                if(appKey.distributeKey(newAppKey)){
+                    updateNodeKeyStatus(appKey);
+                    if (updateMeshKey(appKey)) {
+                        return appKey;
+                    }
                 }
             }
         }
