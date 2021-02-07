@@ -28,8 +28,13 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.formatTimeStamp;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.formatUuid;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.isUuidPattern;
+
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
+    private static final String ID = "http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#";
 
     @Override
     public MeshNetwork deserialize(final JsonElement json,
@@ -43,7 +48,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         }
 
         final String uuid = jsonObject.get("meshUUID").getAsString();
-        final String meshUuid = MeshParserUtils.formatUuid(uuid);
+        final String meshUuid = formatUuid(uuid);
         final MeshNetwork network = new MeshNetwork(meshUuid == null ? uuid : meshUuid);
 
         final String schema = jsonObject.get("$schema").getAsString();
@@ -51,10 +56,15 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported schema");
         network.schema = schema;
         final String id = jsonObject.get("id").getAsString();
-        if (!id.equalsIgnoreCase("http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#"))
-            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported ID");
+        if (!id.equalsIgnoreCase(ID)) {
+            if (id.equalsIgnoreCase("TBD"))
+                network.id = ID;
+            else
+                throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported ID");
+        } else {
+            network.id = id;
+        }
         network.version = jsonObject.get("version").getAsString();
-        network.id = id;
         network.meshName = jsonObject.get("meshName").getAsString();
 
         try {
@@ -63,6 +73,11 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, " +
                     "mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
         }
+
+        if (jsonObject.has("partial")) {
+            network.partial = jsonObject.get("partial").getAsBoolean();
+        }
+
         network.netKeys = deserializeNetKeys(context,
                 jsonObject.getAsJsonArray("netKeys"), network.meshUUID);
         network.appKeys = deserializeAppKeys(context,
@@ -95,7 +110,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.addProperty("version", network.getVersion());
         jsonObject.addProperty("meshUUID", meshUuid);
         jsonObject.addProperty("meshName", network.getMeshName());
-        jsonObject.addProperty("timestamp", MeshParserUtils.formatTimeStamp(network.getTimestamp()));
+        jsonObject.addProperty("timestamp", formatTimeStamp(network.getTimestamp()));
         jsonObject.addProperty("partial", network.partial);
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
@@ -119,19 +134,20 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @return true if valid and false otherwise
      */
     private boolean isValidMeshObject(@NonNull final JsonObject mesh) {
+        // Partial, groups and scenes are commented out to maintain backward compatibility.
         return mesh.has("$schema") &&
                 mesh.has("id") &&
                 mesh.has("version") &&
                 mesh.has("meshUUID") &&
                 mesh.has("meshName") &&
                 mesh.has("timestamp") &&
-                mesh.has("partial") &&
+                /*mesh.has("partial") &&*/
                 mesh.has("provisioners") &&
                 mesh.has("netKeys") &&
                 mesh.has("appKeys") &&
-                mesh.has("nodes") &&
+                mesh.has("nodes") /*&&
                 mesh.has("groups") &&
-                mesh.has("scenes");
+                mesh.has("scenes")*/;
     }
 
     /**
@@ -219,7 +235,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             final JsonObject jsonProvisioner = jsonProvisioners.get(i).getAsJsonObject();
             final String name = jsonProvisioner.get("provisionerName").getAsString();
             final String uuid = jsonProvisioner.get("UUID").getAsString().toUpperCase();
-            final String provisionerUuid = MeshParserUtils.formatUuid(uuid);
+            final String provisionerUuid = formatUuid(uuid);
 
             if (provisionerUuid == null)
                 throw new IllegalArgumentException("Invalid Mesh Provisioning/Configuration " +
@@ -401,9 +417,13 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             if (group.getAddressLabel() == null) {
                 groupObj.addProperty("address", MeshAddress.formatAddress(group.getAddress(), false));
             } else {
-                groupObj.addProperty("address", group.getAddressLabel().toString().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(group.getAddressLabel())*/);
+                groupObj.addProperty("address", MeshParserUtils.uuidToHex(group.getAddressLabel()));
             }
-            groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getParentAddress(), false));
+            if (group.getParentAddressLabel() == null) {
+                groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getAddress(), false));
+            } else {
+                groupObj.addProperty("parentAddress", MeshParserUtils.uuidToHex(group.getAddressLabel()));
+            }
             groupsArray.add(groupObj);
         }
         return groupsArray;
@@ -419,27 +439,26 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
     private List<Group> deserializeGroups(@NonNull final JsonObject jsonNetwork,
                                           @NonNull final String meshUuid) {
         final List<Group> groups = new ArrayList<>();
+        if (!jsonNetwork.has("groups"))
+            return groups;
 
         final JsonArray jsonGroups = jsonNetwork.getAsJsonArray("groups");
         for (int i = 0; i < jsonGroups.size(); i++) {
             try {
                 final JsonObject jsonGroup = jsonGroups.get(i).getAsJsonObject();
                 final String name = jsonGroup.get("name").getAsString();
-                final String address = jsonGroup.get("address").getAsString();
-                final String parentAddress = jsonGroup.get("parentAddress").getAsString();
+                String address = jsonGroup.get("address").getAsString();
+                String parentAddress = jsonGroup.get("parentAddress").getAsString();
                 final Group group;
-                if (MeshParserUtils.isUuidPattern(address)) {
-                    if (MeshParserUtils.isUuidPattern(address)) {
-                        group = new Group(UUID.fromString(address), UUID.fromString(parentAddress), meshUuid);
-                    } else {
-                        group = new Group(UUID.fromString(address), Integer.parseInt(parentAddress, 16), meshUuid);
-                    }
+
+                if (isUuidPattern(address) && isUuidPattern(parentAddress)) {
+                    group = new Group(UUID.fromString(formatUuid(address)), UUID.fromString(formatUuid(parentAddress)), meshUuid);
+                } else if (isUuidPattern(address)) {
+                    group = new Group(UUID.fromString(formatUuid(address)), Integer.parseInt(parentAddress, 16), meshUuid);
+                } else if (isUuidPattern(parentAddress)) {
+                    group = new Group(Integer.parseInt(parentAddress, 16), UUID.fromString(formatUuid(parentAddress)), meshUuid);
                 } else {
-                    if (MeshParserUtils.isUuidPattern(address)) {
-                        group = new Group(Integer.parseInt(address, 16), UUID.fromString(parentAddress), meshUuid);
-                    } else {
-                        group = new Group(Integer.parseInt(address, 16), Integer.parseInt(address, 16), meshUuid);
-                    }
+                    group = new Group(Integer.parseInt(address, 16), Integer.parseInt(parentAddress, 16), meshUuid);
                 }
                 group.setName(name);
                 groups.add(group);
@@ -483,6 +502,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                                           @NonNull final String meshUuid) {
         final List<Scene> scenes = new ArrayList<>();
         try {
+            if (!jsonNetwork.has("scenes"))
+                return scenes;
+
             final JsonArray jsonScenes = jsonNetwork.getAsJsonArray("scenes");
             for (int i = 0; i < jsonScenes.size(); i++) {
                 final JsonObject jsonScene = jsonScenes.get(i).getAsJsonObject();

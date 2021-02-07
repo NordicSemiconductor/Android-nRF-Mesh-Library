@@ -1,7 +1,5 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.text.TextUtils;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -44,7 +42,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             final MeshModel meshModel = getMeshModel(modelId);
             if (meshModel != null) {
                 meshModel.mPublicationSettings = deserializePublicationSettings(jsonObject);
-                setSubscriptionAddresses(meshModel, jsonObject);
+                deserializeSubscription(meshModel, jsonObject);
                 final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
                 meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
                 meshModels.add(meshModel);
@@ -91,7 +89,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final String hexAddress = publish.get("address").getAsString();
         final int publishAddress;
         UUID uuid = null;
-        if (!TextUtils.isEmpty(hexAddress) && hexAddress.length() == 32) {
+        if (MeshParserUtils.isUuidPattern(hexAddress)) {
             uuid = UUID.fromString(MeshParserUtils.formatUuid(hexAddress));
             publishAddress = MeshAddress.generateVirtualAddress(uuid);
         } else {
@@ -103,10 +101,9 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         //Previous version stored the publication period as resolution and steps.
         //Now it's stored as an interval in ms
-        final JsonObject periodJson = publish.get("period").getAsJsonObject();
         final int publicationResolution;
         final int publicationSteps;
-        if (periodJson == null) {
+        if (!publish.get("period").isJsonObject()) {
             final int period = publish.get("period").getAsInt();
             if (period % 600000 == 0) {
                 publicationResolution = RESOLUTION_10_M;
@@ -126,6 +123,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
                 publicationSteps = period >> 6;
             }
         } else {
+            final JsonObject periodJson = publish.get("period").getAsJsonObject();
             publicationSteps = periodJson.get("numberOfSteps").getAsInt();
             publicationResolution = periodJson.get("resolution").getAsInt();
         }
@@ -160,7 +158,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      * @param meshModel  Mesh Model
      * @param jsonObject Json representation of the mesh model
      */
-    private void setSubscriptionAddresses(final MeshModel meshModel, final JsonObject jsonObject) {
+    private void deserializeSubscription(final MeshModel meshModel, final JsonObject jsonObject) {
         final List<Integer> subscriptions = new ArrayList<>();
         if (!(jsonObject.has("subscribe"))) {
             return;
@@ -204,7 +202,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         final JsonArray subscriptionsJson = new JsonArray();
         for (Integer address : model.getSubscribedAddresses()) {
             if (MeshAddress.isValidVirtualAddress(address)) {
-                subscriptionsJson.add(model.getLabelUUID(address).toString().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(uuid)*/);
+                subscriptionsJson.add(MeshParserUtils.uuidToHex(model.getLabelUUID(address).toString().toUpperCase(Locale.US)));
             } else {
                 subscriptionsJson.add(MeshAddress.formatAddress(address, false));
             }
@@ -220,7 +218,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
     private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
         if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress())) {
-            publicationJson.addProperty("address", settings.getLabelUUID().toString().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(settings.getLabelUUID())*/);
+            publicationJson.addProperty("address", MeshParserUtils.uuidToHex(settings.getLabelUUID()));
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
         }

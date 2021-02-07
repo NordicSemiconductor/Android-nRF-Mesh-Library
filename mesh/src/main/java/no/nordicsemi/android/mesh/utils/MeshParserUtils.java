@@ -654,6 +654,24 @@ public class MeshParserUtils {
     }
 
     /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final UUID uuid) {
+        return uuid.toString().replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
+     * Returns UUID as a hex
+     *
+     * @param uuid UUID
+     */
+    public static String uuidToHex(@NonNull final String uuid) {
+        return uuid.replace("-", "").toUpperCase(Locale.US);
+    }
+
+    /**
      * Returns UUID in bytes
      *
      * @param uuid UUID
