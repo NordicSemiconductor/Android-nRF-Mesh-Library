@@ -713,10 +713,10 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         for (NetworkKey key : mMeshNetwork.netKeys) {
-            //if generated hash is null return false
-            final byte[] generatedHash = SecureUtils.
-                    calculateHash(key.getIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()));
-            if (Arrays.equals(advertisedHash, generatedHash))
+            if (Arrays.equals(advertisedHash, SecureUtils.
+                    calculateHash(key.getIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()))) ||
+                    Arrays.equals(advertisedHash, SecureUtils.
+                            calculateHash(key.getOldIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()))))
                 return true;
         }
         return false;
@@ -1138,10 +1138,21 @@ public class MeshManagerApi implements MeshMngrApi {
             return null;
         }
 
+        @Override
+        public List<ApplicationKey> getApplicationKeys(final int boundNetKeyIndex) {
+            final List<ApplicationKey> keys = new ArrayList<>();
+            for (ApplicationKey key : mMeshNetwork.getAppKeys()) {
+                if (key.getBoundNetKeyIndex() == boundNetKeyIndex) {
+                    keys.add(key);
+                }
+            }
+            return keys;
+        }
+
         @Nullable
         @Override
-        public UUID getLabel(final int address) {
-            return mMeshNetwork.getLabelUuid(address);
+        public List<Group> gerVirtualGroups() {
+            return mMeshNetwork.getGroups();
         }
     };
 

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 
 import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhase;
+import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhaseTransition;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_KEY_REFRESH_PHASE_STATUS;
 
 /**
@@ -43,7 +44,7 @@ public class ConfigKeyRefreshPhaseStatus extends ConfigStatusMessage implements 
     private static final int OP_CODE = CONFIG_KEY_REFRESH_PHASE_STATUS;
     private int mNetKeyIndex;
     private @KeyRefreshPhase
-    int phase;
+    int transition;
 
     public static final Creator<ConfigKeyRefreshPhaseStatus> CREATOR = new Creator<ConfigKeyRefreshPhaseStatus>() {
         @Override
@@ -76,12 +77,12 @@ public class ConfigKeyRefreshPhaseStatus extends ConfigStatusMessage implements 
 
         final ArrayList<Integer> keyIndexes = decode(mParameters.length, 1);
         mNetKeyIndex = keyIndexes.get(0);
-        phase = mParameters[3];
+        transition = mParameters[3];
 
         Log.v(TAG, "Status code: " + mStatusCode);
         Log.v(TAG, "Status message: " + mStatusCodeName);
         Log.v(TAG, "Net key index: " + Integer.toHexString(mNetKeyIndex));
-        Log.v(TAG, "Phase index: " + phase);
+        Log.v(TAG, "Transition: " + transition);
     }
 
     @Override
@@ -101,9 +102,9 @@ public class ConfigKeyRefreshPhaseStatus extends ConfigStatusMessage implements 
     /**
      * Returns the current key refresh phase.
      */
-    @KeyRefreshPhase
-    public final int getPhase() {
-        return phase;
+    @KeyRefreshPhaseTransition
+    public final int getTransition() {
+        return transition;
     }
 
     /**

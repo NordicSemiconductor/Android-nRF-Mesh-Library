@@ -240,6 +240,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * This method will drop messages with an invalid sequence number as all mesh messages are supposed to have a sequence
      * </p>
      *
+     * @param key                     Network Key used to decrypt
      * @param node                    Mesh node.
      * @param data                    PDU received from the mesh node.
      * @param networkHeader           Network header.
@@ -247,7 +248,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param ivIndex                 IV Index of the network.
      * @return complete {@link Message} that was successfully parsed or null otherwise.
      */
-    final Message parseMeshMessage(@NonNull final ProvisionedMeshNode node,
+    final Message parseMeshMessage(@NonNull final NetworkKey key,
+                                   @NonNull final ProvisionedMeshNode node,
                                    @NonNull final byte[] data,
                                    @NonNull final byte[] networkHeader,
                                    @NonNull final byte[] decryptedNetworkPayload,
@@ -261,15 +263,16 @@ abstract class NetworkLayer extends LowerTransportLayer {
         Log.v(TAG, "TTL for received message: " + ttl);
         final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
         if (ctl == 1) {
-            return parseControlMessage(provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber, ivIndex);
+            return parseControlMessage(key, provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
         } else {
-            return parseAccessMessage(data, networkHeader, decryptedNetworkPayload, src, sequenceNumber, ivIndex);
+            return parseAccessMessage(key, data, networkHeader, decryptedNetworkPayload, src, sequenceNumber, ivIndex);
         }
     }
 
     /**
      * Parses access message
      *
+     * @param key                     Network Key used to decrypt
      * @param data                    Received from the node.
      * @param networkHeader           De-obfuscated network header.
      * @param decryptedNetworkPayload Decrypted network payload.
@@ -279,7 +282,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @return access message
      */
     @VisibleForTesting
-    private AccessMessage parseAccessMessage(@NonNull final byte[] data,
+    private AccessMessage parseAccessMessage(@NonNull final NetworkKey key,
+                                             @NonNull final byte[] data,
                                              @NonNull final byte[] networkHeader,
                                              @NonNull final byte[] decryptedNetworkPayload,
                                              final int src,
@@ -324,6 +328,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 if (message != null) {
                     final SparseArray<byte[]> segmentedMessages = segmentedAccessMessagesMessages.clone();
                     segmentedAccessMessagesMessages = null;
+                    message.setNetworkKey(key);
                     message.setIvIndex(MeshParserUtils.intToBytes(ivIndex));
                     message.setNetworkLayerPdu(segmentedMessages);
                     message.setTtl(receivedTtl);
@@ -346,6 +351,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 final AccessMessage message = parseUnsegmentedAccessLowerTransportPDU(pdu, ivIndex, sequenceNumber);
                 if (message == null)
                     return null;
+                message.setNetworkKey(key);
                 message.setIvIndex(MeshParserUtils.intToBytes(ivIndex));
                 final SparseArray<byte[]> pduArray = new SparseArray<>();
                 pduArray.put(0, data);
@@ -366,21 +372,22 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses control message
      *
+     * @param key                     Network Key used to decrypt
      * @param provisionerAddress      Provisioner address.
      * @param data                    Data received from the node.
      * @param networkHeader           De-obfuscated network header.
      * @param decryptedNetworkPayload Decrypted network payload.
      * @param src                     Source address where the pdu originated from.
      * @param sequenceNumber          Sequence number of the received message.
-     * @param ivIndex                 IV Index used for decryption.
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseControlMessage(@Nullable final Integer provisionerAddress,
+    private ControlMessage parseControlMessage(@NonNull final NetworkKey key,
+                                               @Nullable final Integer provisionerAddress,
                                                @NonNull final byte[] data,
                                                @NonNull final byte[] networkHeader,
                                                @NonNull final byte[] decryptedNetworkPayload,
                                                final int src,
-                                               @NonNull final byte[] sequenceNumber, int ivIndex) throws ExtendedInvalidCipherTextException {
+                                               @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
         try {
             final int ttl = networkHeader[0] & 0x7F;
             final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
@@ -410,13 +417,13 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     }
 
                     if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-                        return parseSegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst);
+                        return parseSegmentedControlMessage(key, data, decryptedProxyPdu, ttl, src, dst);
                     } else {
-                        return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
+                        return parseUnsegmentedControlMessage(key, data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
                     }
                 case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
                     //Proxy configuration messages are segmented only at the gatt level
-                    return parseUnsegmentedControlMessage(data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
+                    return parseUnsegmentedControlMessage(key, data, decryptedProxyPdu, ttl, src, dst, sequenceNumber);
                 default:
                     return null;
             }
@@ -428,6 +435,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses an unsegmented control message
      *
+     * @param key                     Network Key used to decrypt
      * @param data              Received pdu data
      * @param decryptedProxyPdu Decrypted proxy pdu
      * @param ttl               TTL of the pdu
@@ -436,13 +444,15 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param sequenceNumber    Sequence number of the pdu
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseUnsegmentedControlMessage(@NonNull final byte[] data,
+    private ControlMessage parseUnsegmentedControlMessage(@NonNull final NetworkKey key,
+                                                          @NonNull final byte[] data,
                                                           @NonNull final byte[] decryptedProxyPdu,
                                                           final int ttl,
                                                           final int src,
                                                           final int dst,
                                                           @NonNull final byte[] sequenceNumber) throws ExtendedInvalidCipherTextException {
         final ControlMessage message = new ControlMessage();
+        message.setNetworkKey(key);
         message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
         final SparseArray<byte[]> proxyPduArray = new SparseArray<>();
         proxyPduArray.put(0, data);
@@ -460,6 +470,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses a unsegmented control message
      *
+     * @param key                     Network Key used to decrypt
      * @param data              Received pdu data
      * @param decryptedProxyPdu Decrypted proxy pdu
      * @param ttl               TTL of the pdu
@@ -467,7 +478,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
      * @param dst               Destination address to which the pdu was sent
      * @return a complete {@link ControlMessage} or null if the message was unable to parsed
      */
-    private ControlMessage parseSegmentedControlMessage(@NonNull final byte[] data, @NonNull final byte[] decryptedProxyPdu, final int ttl, final int src, final int dst) {
+    private ControlMessage parseSegmentedControlMessage(@NonNull final NetworkKey key, @NonNull final byte[] data, @NonNull final byte[] decryptedProxyPdu, final int ttl, final int src, final int dst) {
         if (segmentedControlMessagesMessages == null) {
             segmentedControlMessagesMessages = new SparseArray<>();
             segmentedControlMessagesMessages.put(0, data);
@@ -480,6 +491,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         if (message != null) {
             final SparseArray<byte[]> segmentedMessages = segmentedControlMessagesMessages.clone();
             segmentedControlMessagesMessages = null;
+            message.setNetworkKey(key);
             message.setIvIndex(mUpperTransportLayerCallbacks.getIvIndex());
             message.setNetworkLayerPdu(segmentedMessages);
             message.setTtl(ttl);

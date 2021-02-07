@@ -37,7 +37,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityEditKeyBinding;
 import no.nordicsemi.android.nrfmesh.keys.adapter.ManageBoundNetKeyAdapter;
@@ -45,6 +44,7 @@ import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditAppKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditAppKeyViewModel;
 
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 
 @AndroidEntryPoint
@@ -69,15 +69,21 @@ public class EditAppKeyActivity extends AppCompatActivity implements
         getSupportActionBar().setTitle(R.string.title_edit_app_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        binding.containerKey.image.
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_24dp));
-        binding.containerKey.title.setText(R.string.title_app_key);
-        binding.containerKey.text.setVisibility(View.VISIBLE);
-
         binding.containerKeyName.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
         binding.containerKeyName.title.setText(R.string.name);
         binding.containerKeyName.text.setVisibility(View.VISIBLE);
+
+        binding.containerKey.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerKey.title.setText(R.string.key);
+        binding.containerKey.text.setVisibility(View.VISIBLE);
+
+        binding.containerOldKey.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerOldKey.title.setText(R.string.old_key);
+        binding.containerOldKey.text.setVisibility(View.VISIBLE);
+        binding.containerOldKey.getRoot().setVisibility(View.VISIBLE);
 
         binding.containerKeyIndex.getRoot().setClickable(false);
         binding.containerKeyIndex.image.
@@ -100,8 +106,10 @@ public class EditAppKeyActivity extends AppCompatActivity implements
 
         mViewModel.getAppKeyLiveData().observe(this, applicationKey -> {
             if (applicationKey != null) {
-                binding.containerKey.text.setText(MeshParserUtils.bytesToHex(applicationKey.getKey(), false));
                 binding.containerKeyName.text.setText(applicationKey.getName());
+                binding.containerKey.text.setText(bytesToHex(applicationKey.getKey(), false));
+                binding.containerOldKey.text.setText(applicationKey.getOldKey() != null ?
+                        bytesToHex(applicationKey.getKey(), false) : getString(R.string.na));
                 binding.containerKeyIndex.text.setText(String.valueOf(applicationKey.getKeyIndex()));
             }
         });

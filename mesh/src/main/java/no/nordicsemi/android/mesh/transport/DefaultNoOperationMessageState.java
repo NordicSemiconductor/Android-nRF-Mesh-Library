@@ -12,6 +12,7 @@ import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
+import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
@@ -53,7 +54,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         return null;
     }
 
-    void parseMeshPdu(@NonNull final ProvisionedMeshNode node,
+    void parseMeshPdu(@NonNull final NetworkKey key,
+                      @NonNull final ProvisionedMeshNode node,
                       @NonNull final byte[] pdu,
                       @NonNull final byte[] networkHeader,
                       @NonNull final byte[] decryptedNetworkPayload,
@@ -61,7 +63,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                       @NonNull final byte[] sequenceNumber) {
         final Message message;
         try {
-            message = mMeshTransport.parseMeshMessage(node, pdu, networkHeader, decryptedNetworkPayload, ivIndex, sequenceNumber);
+            message = mMeshTransport.parseMeshMessage(key, node, pdu, networkHeader, decryptedNetworkPayload, ivIndex, sequenceNumber);
             if (message != null) {
                 if (message instanceof AccessMessage) {
                     parseAccessMessage((AccessMessage) message);
@@ -198,7 +200,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigSigModelAppList appKeyList = new ConfigSigModelAppList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (appKeyList.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, appKeyList.getSrc(), appKeyList.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, appKeyList.getElementAddress(), appKeyList.getModelIdentifier());
                             if (model != null) {
                                 model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
                             }
@@ -210,7 +212,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigVendorModelAppList appKeyList = new ConfigVendorModelAppList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (appKeyList.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, appKeyList.getSrc(), appKeyList.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, appKeyList.getElementAddress(), appKeyList.getModelIdentifier());
                             if (model != null) {
                                 model.setBoundAppKeyIndexes(appKeyList.getKeyIndexes());
                             }
@@ -222,7 +224,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigModelPublicationStatus status = new ConfigModelPublicationStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, status.getElementAddress(), status.getModelIdentifier());
                             if (model != null) {
                                 if (mMeshMessage instanceof ConfigModelPublicationGet) {
                                     model.updatePublicationStatus(status);
@@ -242,7 +244,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigModelSubscriptionStatus status = new ConfigModelSubscriptionStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, status.getElementAddress(), status.getModelIdentifier());
                             if (model != null) {
                                 if (mMeshMessage instanceof ConfigModelSubscriptionAdd) {
                                     model.addSubscriptionAddress(status.getSubscriptionAddress());
@@ -271,7 +273,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigSigModelSubscriptionList status = new ConfigSigModelSubscriptionList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, status.getElementAddress(), status.getModelIdentifier());
                             if (model != null) {
                                 model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                             }
@@ -284,7 +286,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigVendorModelSubscriptionList status = new ConfigVendorModelSubscriptionList(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, status.getSrc(), status.getModelIdentifier());
+                            final MeshModel model = getMeshModel(node, status.getElementAddress(), status.getModelIdentifier());
                             if (model != null) {
                                 model.updateSubscriptionAddressesList(status.getSubscriptionAddresses());
                             }

@@ -888,7 +888,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         int flags = 0;
         final NetworkKey key = getPrimaryNetworkKey();
         if (key != null) {
-            if (key.getPhase() == NetworkKey.PHASE_2) {
+            if (key.getPhase() == NetworkKey.USING_NEW_KEYS) {
                 flags |= 1; // << 0;
             }
 

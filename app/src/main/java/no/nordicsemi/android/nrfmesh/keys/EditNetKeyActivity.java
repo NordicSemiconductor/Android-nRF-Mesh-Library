@@ -39,6 +39,7 @@ import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 
 @AndroidEntryPoint
@@ -60,21 +61,39 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
         getSupportActionBar().setTitle(R.string.title_edit_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        binding.containerKey.image.
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_24dp));
-        binding.containerKey.title.setText(R.string.title_net_key);
-        binding.containerKey.text.setVisibility(View.VISIBLE);
-
         binding.containerKeyName.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
         binding.containerKeyName.title.setText(R.string.name);
         binding.containerKeyName.text.setVisibility(View.VISIBLE);
+
+        binding.containerKey.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerKey.title.setText(R.string.key);
+        binding.containerKey.text.setVisibility(View.VISIBLE);
+
+        binding.containerOldKey.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerOldKey.title.setText(R.string.old_key);
+        binding.containerOldKey.text.setVisibility(View.VISIBLE);
+        binding.containerOldKey.getRoot().setVisibility(View.VISIBLE);
 
         binding.containerKeyIndex.getRoot().setClickable(false);
         binding.containerKeyIndex.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_index));
         binding.containerKeyIndex.title.setText(R.string.title_key_index);
         binding.containerKeyIndex.text.setVisibility(View.VISIBLE);
+
+        binding.containerPhase.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_numeric));
+        binding.containerPhase.title.setText(R.string.phase);
+        binding.containerPhase.text.setVisibility(View.VISIBLE);
+        binding.containerPhase.getRoot().setVisibility(View.VISIBLE);
+
+        binding.containerLastModified.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_time));
+        binding.containerLastModified.title.setText(R.string.last_modified);
+        binding.containerLastModified.text.setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
 
         binding.containerKey.getRoot().setOnClickListener(v ->
                 DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
@@ -84,10 +103,13 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
                 DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
                         .show(getSupportFragmentManager(), null));
 
-        mViewModel.getNetworkKeyLiveData().observe(this, networkKey -> {
-            binding.containerKey.text.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
-            binding.containerKeyName.text.setText(networkKey.getName());
-            binding.containerKeyIndex.text.setText(String.valueOf(networkKey.getKeyIndex()));
+        mViewModel.getNetworkKeyLiveData().observe(this, key -> {
+            binding.containerKeyName.text.setText(key.getName());
+            binding.containerKey.text.setText(bytesToHex(key.getKey(), false));
+            binding.containerOldKey.text.setText(key.getOldKey() != null ? bytesToHex(key.getOldKey(), false) : getString(R.string.na));
+            binding.containerKeyIndex.text.setText(String.valueOf(key.getKeyIndex()));
+            binding.containerPhase.text.setText(key.getPhaseDescription());
+            binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(key.getTimestamp()));
         });
     }
 

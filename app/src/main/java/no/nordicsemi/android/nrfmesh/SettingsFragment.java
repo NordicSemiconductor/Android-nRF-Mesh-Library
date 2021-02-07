@@ -35,8 +35,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
-
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 
@@ -46,6 +44,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.databinding.FragmentSettingsBinding;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutContainerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
@@ -88,74 +87,67 @@ public class SettingsFragment extends Fragment implements
         final FragmentSettingsBinding binding = FragmentSettingsBinding.inflate(getLayoutInflater());
 
         // Set up views
-        final LayoutContainerBinding containerNetworkName = binding.containerNetworkName;
-        containerNetworkName.image
+        binding.containerNetworkName.image
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_label));
-        final TextView networkNameTitle = binding.containerNetworkName.title;
-        networkNameTitle.setText(R.string.title_network_name);
-        final TextView networkNameView = binding.containerNetworkName.title;
-        networkNameView.setVisibility(View.VISIBLE);
-        containerNetworkName.getRoot().setOnClickListener(v -> {
+        binding.containerNetworkName.title.setText(R.string.name);
+        binding.containerNetworkName.text.setVisibility(View.VISIBLE);
+        binding.containerNetworkName.getRoot().setOnClickListener(v -> {
             final DialogFragmentNetworkName fragment = DialogFragmentNetworkName.
-                    newInstance(networkNameView.getText().toString());
+                    newInstance(binding.containerNetworkName.text.getText().toString());
             fragment.show(getChildFragmentManager(), null);
         });
 
-        final LayoutContainerBinding containerProvisioner = binding.containerProvisioners;
-        containerProvisioner.image
+        binding.containerProvisioners.image
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_provisioner_24dp));
-        final TextView provisionerTitle = containerProvisioner.title;
-        final TextView provisionerSummary = containerProvisioner.text;
-        provisionerSummary.setVisibility(View.VISIBLE);
-        provisionerTitle.setText(R.string.title_provisioners);
-        containerProvisioner.getRoot().setOnClickListener(v -> startActivity(new Intent(requireContext(), ProvisionersActivity.class)));
+        binding.containerProvisioners.title.setText(R.string.title_provisioners);
+        binding.containerProvisioners.text.setVisibility(View.VISIBLE);
+        binding.containerProvisioners.getRoot().setOnClickListener(v -> startActivity(new Intent(requireContext(), ProvisionersActivity.class)));
 
-        final LayoutContainerBinding containerNetKey = binding.containerNetKeys;
-        containerNetKey.image
+        binding.containerNetKeys.image
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
-        containerNetKey.title.setText(R.string.title_net_keys);
-        final TextView netKeySummary = containerNetKey.text;
-        netKeySummary.setVisibility(View.VISIBLE);
-        containerNetKey.getRoot().setOnClickListener(v -> {
+        binding.containerNetKeys.title.setText(R.string.title_net_keys);
+        binding.containerNetKeys.text.setVisibility(View.VISIBLE);
+        binding.containerNetKeys.getRoot().setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), NetKeysActivity.class);
             intent.putExtra(Utils.EXTRA_DATA, Utils.MANAGE_NET_KEY);
             startActivity(intent);
         });
 
-        final LayoutContainerBinding containerAppKey = binding.containerAppKeys;
-        containerAppKey.image.
+        binding.containerAppKeys.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
-        containerAppKey.title.setText(R.string.title_app_keys);
-        final TextView appKeySummary = containerAppKey.text;
-        appKeySummary.setVisibility(View.VISIBLE);
-        containerAppKey.getRoot().setOnClickListener(v ->
+        binding.containerAppKeys.title.setText(R.string.title_app_keys);
+        binding.containerAppKeys.text.setVisibility(View.VISIBLE);
+        binding.containerAppKeys.getRoot().setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), AppKeysActivity.class)));
 
-        final LayoutContainerBinding containerScenes = binding.containerScenes;
-        containerScenes.image.
+        binding.containerScenes.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_palette_24dp));
-        containerScenes.title.setText(R.string.title_scenes);
-        final TextView scenesSummary = containerScenes.text;
-        scenesSummary.setVisibility(View.VISIBLE);
-        containerScenes.getRoot().setOnClickListener(v ->
+        binding.containerScenes.title.setText(R.string.title_scenes);
+        binding.containerScenes.text.setVisibility(View.VISIBLE);
+        binding.containerScenes.getRoot().setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), ScenesActivity.class)));
 
-        final LayoutContainerBinding containerIvTestMode = binding.containerIvTestMode;
-        containerIvTestMode.image.
+        binding.containerIvTestMode.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
-        containerIvTestMode.title.setText(R.string.title_iv_test_mode);
-        final TextView ivTestModeSummary = containerIvTestMode.text;
-        ivTestModeSummary.setText(R.string.iv_test_mode_summary);
-        ivTestModeSummary.setVisibility(View.VISIBLE);
-        final SwitchMaterial actionChangeIvTestMode = containerIvTestMode.actionChangeTestMode;
-        actionChangeIvTestMode.setVisibility(View.VISIBLE);
-        actionChangeIvTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
-        actionChangeIvTestMode.setOnClickListener(v ->
-                mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(actionChangeIvTestMode.isChecked()));
-        containerIvTestMode.getRoot().setOnClickListener(v ->
+        binding.containerIvTestMode.title.setText(R.string.title_iv_test_mode);
+        binding.containerIvTestMode.text.setText(R.string.iv_test_mode_summary);
+        binding.containerIvTestMode.text.setVisibility(View.VISIBLE);
+
+        binding.containerIvTestMode.actionChangeTestMode.setVisibility(View.VISIBLE);
+        binding.containerIvTestMode.actionChangeTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
+        binding.containerIvTestMode.actionChangeTestMode.setOnClickListener(v ->
+                mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(binding.containerIvTestMode.actionChangeTestMode.isChecked()));
+        binding.containerIvTestMode.getRoot().setOnClickListener(v ->
                 DialogFragmentError.newInstance(getString(R.string.info), getString(R.string.iv_test_mode_info))
                         .show(getChildFragmentManager(), null)
         );
+
+        binding.containerLastModified.image.
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_time));
+        binding.containerLastModified.title.setText(R.string.last_modified);
+        binding.containerLastModified.text.setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setClickable(false);
 
         final LayoutContainerBinding containerVersion = binding.containerVersion;
         containerVersion.getRoot().setClickable(false);
@@ -172,11 +164,12 @@ public class SettingsFragment extends Fragment implements
 
         mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
-                networkNameView.setText(meshNetworkLiveData.getNetworkName());
-                netKeySummary.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
-                provisionerSummary.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
-                appKeySummary.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
-                scenesSummary.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
+                binding.containerNetworkName.text.setText(meshNetworkLiveData.getNetworkName());
+                binding.containerNetKeys.text.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
+                binding.containerProvisioners.text.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
+                binding.containerAppKeys.text.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
+                binding.containerScenes.text.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
+                binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(meshNetworkLiveData.getMeshNetwork().getTimestamp()));
             }
         });
 
@@ -208,16 +201,16 @@ public class SettingsFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         final int id = item.getItemId();
-        if(id == R.id.action_import_network){
+        if (id == R.id.action_import_network) {
             final String title = getString(R.string.title_network_import);
             final String message = getString(R.string.network_import_rationale);
             final DialogFragmentMeshImport fragment = DialogFragmentMeshImport.newInstance(title, message);
             fragment.show(getChildFragmentManager(), null);
             return true;
-        } else if (id == R.id.action_export_network){
+        } else if (id == R.id.action_export_network) {
             startActivity(new Intent(requireContext(), ExportNetworkActivity.class));
             return true;
-        } else if (id == R.id.action_reset_network){
+        } else if (id == R.id.action_reset_network) {
             final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
                     newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));
             dialogFragmentResetNetwork.show(getChildFragmentManager(), null);

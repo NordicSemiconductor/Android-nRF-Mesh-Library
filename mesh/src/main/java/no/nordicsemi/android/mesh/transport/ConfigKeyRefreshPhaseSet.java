@@ -26,9 +26,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.NetworkKey;
-import no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhase;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
+import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhaseTransition;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_KEY_REFRESH_PHASE_SET;
 
 /**
@@ -39,16 +39,17 @@ public class ConfigKeyRefreshPhaseSet extends ConfigMessage {
     private static final String TAG = ConfigKeyRefreshPhaseSet.class.getSimpleName();
     private static final int OP_CODE = CONFIG_KEY_REFRESH_PHASE_SET;
     private final NetworkKey mNetKey;
-    private final @KeyRefreshPhase int phase;
+    private final @KeyRefreshPhaseTransition
+    int transition;
 
     /**
      * Constructs ConfigKeyRefreshPhaseSet message.
      *
      * @param networkKey {@link NetworkKey}
      */
-    public ConfigKeyRefreshPhaseSet(@NonNull final NetworkKey networkKey, @KeyRefreshPhase final int phase) {
+    public ConfigKeyRefreshPhaseSet(@NonNull final NetworkKey networkKey, @KeyRefreshPhaseTransition final int transition) {
         mNetKey = networkKey;
-        this.phase = phase;
+        this.transition = transition;
         assembleMessageParameters();
     }
 
@@ -61,6 +62,6 @@ public class ConfigKeyRefreshPhaseSet extends ConfigMessage {
     void assembleMessageParameters() {
         Log.d(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
-        mParameters = new byte[]{netKeyIndex[1], (byte) ((netKeyIndex[0] & 0xFF) & 0x0F), (byte) phase};
+        mParameters = new byte[]{netKeyIndex[1], (byte) ((netKeyIndex[0] & 0xFF) & 0x0F), (byte) transition};
     }
 }
