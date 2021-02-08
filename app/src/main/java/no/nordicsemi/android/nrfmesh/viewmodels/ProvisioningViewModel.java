@@ -22,19 +22,25 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import no.nordicsemi.android.mesh.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.AlgorithmType;
+import no.nordicsemi.android.mesh.utils.InputOOBAction;
+import no.nordicsemi.android.mesh.utils.OutputOOBAction;
 import no.nordicsemi.android.nrfmesh.ProvisioningActivity;
+import no.nordicsemi.android.nrfmesh.R;
 
 /**
  * ViewModel for {@link ProvisioningActivity}
  */
 public class ProvisioningViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     ProvisioningViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
@@ -99,6 +105,55 @@ public class ProvisioningViewModel extends BaseViewModel {
      */
     public boolean isNetworkRetransmitSetCompleted() {
         return mNrfMeshRepository.isNetworkRetransmitSetCompleted();
+    }
+
+
+    public String parseAlgorithms(final ProvisioningCapabilities capabilities) {
+        final StringBuilder algorithmTypes = new StringBuilder();
+        int count = 0;
+        for (AlgorithmType algorithmType : capabilities.getSupportedAlgorithmTypes()) {
+            if (count == 0) {
+                algorithmTypes.append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
+            } else {
+                algorithmTypes.append(", ").append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
+            }
+            count++;
+        }
+        return algorithmTypes.toString();
+    }
+
+    public String parseOutputOOBActions(@NonNull final Context context, @NonNull final ProvisioningCapabilities capabilities) {
+        if (capabilities.getSupportedOutputOOBActions().isEmpty())
+            return context.getString(R.string.output_oob_actions_unavailable);
+
+        final StringBuilder outputOOBActions = new StringBuilder();
+        int count = 0;
+        for (OutputOOBAction outputOOBAction : capabilities.getSupportedOutputOOBActions()) {
+            if (count == 0) {
+                outputOOBActions.append(OutputOOBAction.getOutputOOBActionDescription(outputOOBAction));
+            } else {
+                outputOOBActions.append(", ").append(OutputOOBAction.getOutputOOBActionDescription(outputOOBAction));
+            }
+            count++;
+        }
+        return outputOOBActions.toString();
+    }
+
+    public String parseInputOOBActions(@NonNull final Context context, @NonNull final ProvisioningCapabilities capabilities) {
+        if (capabilities.getSupportedInputOOBActions().isEmpty())
+            return context.getString(R.string.input_oob_actions_unavailable);
+
+        final StringBuilder inputOOBActions = new StringBuilder();
+        int count = 0;
+        for (InputOOBAction inputOOBAction : capabilities.getSupportedInputOOBActions()) {
+            if (count == 0) {
+                inputOOBActions.append(InputOOBAction.getInputOOBActionDescription(inputOOBAction));
+            } else {
+                inputOOBActions.append(", ").append(InputOOBAction.getInputOOBActionDescription(inputOOBAction));
+            }
+            count++;
+        }
+        return inputOOBActions.toString();
     }
 
 }

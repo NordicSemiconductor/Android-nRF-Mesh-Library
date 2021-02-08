@@ -1,28 +1,18 @@
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Switch;
-import android.widget.TextView;
-
-import com.google.android.material.slider.Slider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentRelaySettingsBinding;
 
 
 public class DialogRelayRetransmitSettings extends DialogFragment {
-
-    private static final String TAG = DialogRelayRetransmitSettings.class.getSimpleName();
 
     private static final String RELAY = "RELAY";
     private static final String TRANSMIT_COUNT = "TRANSMIT_COUNT";
@@ -34,16 +24,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
     private static final int MIN_RETRANSMIT_INTERVAL_STEPS = 0;
     private static final int MAX_RETRANSMIT_INTERVAL_STEPS = 0b11111;
 
-    @BindView(R.id.switch_relay_state)
-    Switch relaySwitch;
-    @BindView(R.id.dialog_relay_retransmit_count)
-    TextView relayRetransmitCountText;
-    @BindView(R.id.dialog_relay_retransmit_count_slider)
-    Slider retransmitCountSlider;
-    @BindView(R.id.dialog_relay_interval_steps)
-    TextView relayRetransmitIntervalStepsText;
-    @BindView(R.id.dialog_relay_interval_steps_slider)
-    Slider retransmitIntervalStepsSlider;
+    private DialogFragmentRelaySettingsBinding binding;
 
     private int mRelay = 0;
     private int mTransmitCount = 0;
@@ -73,28 +54,27 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_fragment_relay_settings, null);
-        ButterKnife.bind(this, rootView);
+        binding = DialogFragmentRelaySettingsBinding.inflate(getLayoutInflater());
 
         setRelay(mRelay);
         setRelayRetransmitCount(mTransmitCount);
         setRelayRetransmitIntervalSteps(mTransmitIntervalSteps);
 
-        relaySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> mRelay = isChecked ? 1 : 0);
+        binding.switchRelayState.setOnCheckedChangeListener((buttonView, isChecked) -> mRelay = isChecked ? 1 : 0);
 
-        retransmitCountSlider.setValueFrom(MIN_RETRANSMIT_COUNT);
-        retransmitCountSlider.setValueTo(MAX_RETRANSMIT_COUNT);
-        retransmitCountSlider.setValue(mTransmitCount);
-        retransmitCountSlider.setStepSize(1);
-        retransmitCountSlider.addOnChangeListener((slider, value, fromUser) -> setRelayRetransmitCount((int) value));
+        binding.dialogRelayRetransmitCountSlider.setValueFrom(MIN_RETRANSMIT_COUNT);
+        binding.dialogRelayRetransmitCountSlider.setValueTo(MAX_RETRANSMIT_COUNT);
+        binding.dialogRelayRetransmitCountSlider.setValue(mTransmitCount);
+        binding.dialogRelayRetransmitCountSlider.setStepSize(1);
+        binding.dialogRelayRetransmitCountSlider.addOnChangeListener((slider, value, fromUser) -> setRelayRetransmitCount((int) value));
 
-        retransmitIntervalStepsSlider.setValueFrom(MIN_RETRANSMIT_INTERVAL_STEPS);
-        retransmitIntervalStepsSlider.setValueTo(MAX_RETRANSMIT_INTERVAL_STEPS);
-        retransmitIntervalStepsSlider.setValue(mTransmitIntervalSteps);
-        retransmitIntervalStepsSlider.addOnChangeListener((slider, value, fromUser) -> setRelayRetransmitIntervalSteps((int) value));
+        binding.dialogRelayIntervalStepsSlider.setValueFrom(MIN_RETRANSMIT_INTERVAL_STEPS);
+        binding.dialogRelayIntervalStepsSlider.setValueTo(MAX_RETRANSMIT_INTERVAL_STEPS);
+        binding.dialogRelayIntervalStepsSlider.setValue(mTransmitIntervalSteps);
+        binding.dialogRelayIntervalStepsSlider.addOnChangeListener((slider, value, fromUser) -> setRelayRetransmitIntervalSteps((int) value));
 
         return new AlertDialog.Builder(requireContext())
-                .setView(rootView)
+                .setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     if (getParentFragment() == null) {
                         ((DialogFragmentRelaySettingsListener) requireActivity())
@@ -110,25 +90,23 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
 
     private void setRelay(final int relay) {
         mRelay = relay;
-        relaySwitch.setChecked(RelaySettings.isRelaySupported(relay));
+        binding.switchRelayState.setChecked(RelaySettings.isRelaySupported(relay));
     }
 
     private void setRelayRetransmitCount(final int relayRetransmitCount) {
         mTransmitCount = relayRetransmitCount;
-        relayRetransmitCountText.setText(getResources().getQuantityString(
+        binding.dialogRelayRetransmitCount.setText(getResources().getQuantityString(
                 R.plurals.transmit_count, relayRetransmitCount, relayRetransmitCount));
     }
 
     private void setRelayRetransmitIntervalSteps(final int transmitIntervalSteps) {
         mTransmitIntervalSteps = transmitIntervalSteps;
         final int transmitIntervalMilliseconds = transmitIntervalSteps * 10;
-        relayRetransmitIntervalStepsText.setText(getResources().getString(
+        binding.dialogRelayIntervalSteps.setText(getResources().getString(
                 R.string.time_ms, transmitIntervalMilliseconds));
     }
 
     public interface DialogFragmentRelaySettingsListener {
-
         void onRelayRetransmitSet(final int relay, final int transmitCount, final int transmitIntervalSteps);
-
     }
 }

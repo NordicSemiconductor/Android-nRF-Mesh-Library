@@ -36,14 +36,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.CompanyIdentifiers;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.NetworkItemBinding;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
@@ -68,8 +67,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.network_item, parent, false);
-        return new NodeAdapter.ViewHolder(layoutView);
+        return new NodeAdapter.ViewHolder(NetworkItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -126,24 +124,23 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
     }
 
     final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
         FrameLayout container;
-        @BindView(R.id.node_name)
         TextView name;
-        @BindView(R.id.configured_node_info_container)
         View nodeInfoContainer;
-        @BindView(R.id.unicast)
         TextView unicastAddress;
-        @BindView(R.id.company_identifier)
         TextView companyIdentifier;
-        @BindView(R.id.elements)
         TextView elements;
-        @BindView(R.id.models)
         TextView models;
 
-        private ViewHolder(final View provisionedView) {
-            super(provisionedView);
-            ButterKnife.bind(this, provisionedView);
+        private ViewHolder(final @NonNull NetworkItemBinding binding) {
+            super(binding.getRoot());
+            container = binding.container;
+            name = binding.nodeName;
+            nodeInfoContainer = binding.configuredNodeInfoContainer;
+            unicastAddress = binding.unicast;
+            companyIdentifier = binding.companyIdentifier;
+            elements = binding.elements;
+            models = binding.models;
             container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onConfigureClicked(mNodes.get(getAdapterPosition()));

@@ -104,4 +104,11 @@
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">18sp</item>
     </style>
+
+    <style name="ThemeOverlay.App.Switch" parent="">
+        <item name="colorSecondary">@color/red</item>
+    </style>
+    <style name="Widget.App.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Switch</item>
+    </style>
 </resources>

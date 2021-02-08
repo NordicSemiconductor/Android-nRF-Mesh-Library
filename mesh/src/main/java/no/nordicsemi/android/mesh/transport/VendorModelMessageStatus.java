@@ -24,15 +24,15 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
  * To be used as a wrapper class for when creating the VendorModelMessageStatus Message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public final class VendorModelMessageStatus extends GenericStatusMessage implements Parcelable {
 
     private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
@@ -43,7 +43,6 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
         public VendorModelMessageStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
             final int modelIdentifier = in.readInt();
-            //noinspection ConstantConditions
             return new VendorModelMessageStatus(message, modelIdentifier);
         }
 
@@ -61,7 +60,6 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
      */
     public VendorModelMessageStatus(@NonNull final AccessMessage message, final int modelIdentifier) {
         super(message);
-        this.mMessage = message;
         this.mParameters = message.getParameters();
         this.mModelIdentifier = modelIdentifier;
         parseStatusParameters();
@@ -73,7 +71,7 @@ public final class VendorModelMessageStatus extends GenericStatusMessage impleme
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return mMessage.getOpCode();
     }
 

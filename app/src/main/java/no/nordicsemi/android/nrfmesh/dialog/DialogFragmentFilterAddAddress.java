@@ -22,20 +22,12 @@
 
 package no.nordicsemi.android.nrfmesh.dialog;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.KeyListener;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,29 +38,21 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.FilterAddressAdapter1;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentFilterAddressBinding;
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
-
 
 public class DialogFragmentFilterAddAddress extends DialogFragment {
 
     private static final String PROXY_FILTER_KEY = "PROXY_FILTER";
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout addressInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText addressInput;
-    @BindView(R.id.recycler_view_addresses)
-    RecyclerView recyclerViewAddresses;
+    private DialogFragmentFilterAddressBinding binding;
+
     private ArrayList<AddressArray> addresses = new ArrayList<>();
     private ProxyFilterType filterType;
 
@@ -95,27 +79,23 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_filter_address, null);
+        binding = DialogFragmentFilterAddressBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
         if (savedInstanceState != null) {
             filterType = savedInstanceState.getParcelable(PROXY_FILTER_KEY);
             addresses = savedInstanceState.getParcelableArrayList("AddressList");
         }
 
         final FilterAddressAdapter1 adapter = new FilterAddressAdapter1(requireContext(), addresses);
-        recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerViewAddresses.setItemAnimator(new DefaultItemAnimator());
-        recyclerViewAddresses.setAdapter(adapter);
+        binding.recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        binding.recyclerViewAddresses.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerViewAddresses.setAdapter(adapter);
         adapter.notifyDataSetChanged();
 
-        final Button actionAdd = rootView.findViewById(R.id.action_add);
-        actionAdd.setOnClickListener(v -> {
-            final String addressVal = addressInput.getEditableText().toString().trim();
+        binding.actionAdd.setOnClickListener(v -> {
+            final String addressVal = binding.textInput.getEditableText().toString().trim();
             if (validateInput(addressVal)) {
-                addressInput.getEditableText().clear();
+                binding.textInput.getEditableText().clear();
                 final byte[] address = MeshParserUtils.toByteArray(addressVal);
                 addresses.add(new AddressArray(address[0], address[1]));
                 adapter.notifyDataSetChanged();
@@ -123,9 +103,9 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
         });
 
         final KeyListener hexKeyListener = new HexKeyListener();
-        addressInputLayout.setHint(getString((R.string.hint_filter_address)));
-        addressInput.setKeyListener(hexKeyListener);
-        addressInput.addTextChangedListener(new TextWatcher() {
+        binding.textInputLayout.setHint(getString((R.string.hint_filter_address)));
+        binding.textInput.setKeyListener(hexKeyListener);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -133,7 +113,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                addressInputLayout.setError(null);
+                binding.textInputLayout.setError(null);
             }
 
             @Override
@@ -142,9 +122,9 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             }
         });
 
-        summary.setText(getString(R.string.dialog_summary_filter_address, filterType.getFilterTypeName()));
+        binding.summary.setText(getString(R.string.dialog_summary_filter_address, filterType.getFilterTypeName()));
 
-        return new AlertDialog.Builder(requireContext()).setView(rootView)
+        return new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     if (!addresses.isEmpty()) {
                         ((DialogFragmentFilterAddressListener) requireParentFragment()).addAddresses(addresses);
@@ -167,17 +147,17 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
     private boolean validateInput(final String input) {
         try {
             if (input.length() % 4 != 0 || !input.matches(Utils.HEX_PATTERN)) {
-                addressInputLayout.setError(getString(R.string.invalid_address_value));
+                binding.textInputLayout.setError(getString(R.string.invalid_address_value));
                 return false;
             }
 
             final byte[] address = MeshParserUtils.toByteArray(input);
             if (!MeshAddress.isValidProxyFilterAddress(address)) {
-                addressInputLayout.setError(getString(R.string.invalid_filter_address));
+                binding.textInputLayout.setError(getString(R.string.invalid_filter_address));
                 return false;
             }
         } catch (IllegalArgumentException ex) {
-            addressInputLayout.setError(ex.getMessage());
+            binding.textInputLayout.setError(ex.getMessage());
             return false;
         }
 

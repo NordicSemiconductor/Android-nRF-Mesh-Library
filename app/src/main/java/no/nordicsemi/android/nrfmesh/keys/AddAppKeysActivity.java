@@ -31,6 +31,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
@@ -40,41 +41,41 @@ import no.nordicsemi.android.mesh.transport.ConfigAppKeyGet;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedAppKeyAdapter;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 
-public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
+@AndroidEntryPoint
+public class AddAppKeysActivity extends AddKeysActivity implements
         AddedAppKeyAdapter.OnItemClickListener {
     private AddedAppKeyAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_added_app_keys);
-        mEmptyView = findViewById(R.id.empty_app_keys);
         adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterClickListener(true);
-        recyclerViewKeys.setAdapter(adapter);
+        binding.recyclerViewKeys.setAdapter(adapter);
+        adapter.setOnItemClickListener(this);
+        updateClickableViews();
         setUpObserver();
     }
 
     @Override
     public void onItemClick(@NonNull final ApplicationKey appKey) {
-        if (!checkConnectivity())
+        if (!checkConnectivity(binding.container))
             return;
         final MeshMessage meshMessage;
         final String message;
         final NetworkKey networkKey = mViewModel.getNetworkLiveData().getMeshNetwork().getNetKey(appKey.getBoundNetKeyIndex());
-        if (!mViewModel.isAppKeyAdded(appKey.getKeyIndex())) {
+        if (!((AddKeysViewModel) mViewModel).isAppKeyAdded(appKey.getKeyIndex())) {
             message = getString(R.string.adding_app_key);
             meshMessage = new ConfigAppKeyAdd(networkKey, appKey);
         } else {
             message = getString(R.string.deleting_app_key);
             meshMessage = new ConfigAppKeyDelete(networkKey, appKey);
         }
-        mViewModel.displaySnackBar(this, container, message, Snackbar.LENGTH_SHORT);
+        mViewModel.displaySnackBar(this, binding.container, message, Snackbar.LENGTH_SHORT);
         sendMessage(meshMessage);
     }
 
@@ -97,7 +98,7 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
             if (networkLiveData != null) {
                 final List<ApplicationKey> keys = networkLiveData.getAppKeys();
                 if (keys != null) {
-                    mEmptyView.setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.emptyAppKeys.getRoot().setVisibility(keys.isEmpty() ? View.VISIBLE : View.GONE);
                 }
             }
         });
@@ -105,6 +106,6 @@ public class AddAppKeysActivity extends AddKeysActivity implements Injectable,
 
     @Override
     void enableAdapterClickListener(final boolean enable) {
-        adapter.setOnItemClickListener(enable ? this : null);
+        adapter.enableDisableKeySelection(enable);
     }
 }

@@ -22,9 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh.provisioners.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -33,8 +31,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.AddressRange;
 import no.nordicsemi.android.mesh.AllocatedGroupRange;
 import no.nordicsemi.android.mesh.AllocatedSceneRange;
@@ -43,6 +39,7 @@ import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.Range;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.RangeItemBinding;
 import no.nordicsemi.android.nrfmesh.widgets.RangeView;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
@@ -50,12 +47,10 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
 
     private final ArrayList<Range> mRanges;
     private final List<Provisioner> mProvisioners;
-    private final Context mContext;
     private final String mUuid;
     private OnItemClickListener mOnItemClickListener;
 
-    public RangeAdapter(@NonNull final Context context, @NonNull final String uuid, @NonNull final List<? extends Range> ranges, @NonNull final List<Provisioner> provisioners) {
-        mContext = context;
+    public RangeAdapter(@NonNull final String uuid, @NonNull final List<? extends Range> ranges, @NonNull final List<Provisioner> provisioners) {
         mUuid = uuid;
         mRanges = new ArrayList<>(ranges);
         mProvisioners = provisioners;
@@ -74,8 +69,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
     @NonNull
     @Override
     public RangeAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.range_item, parent, false);
-        return new RangeAdapter.ViewHolder(layoutView);
+        return new RangeAdapter.ViewHolder(RangeItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -89,7 +83,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
             low = MeshAddress.formatAddress(((AllocatedSceneRange) range).getFirstScene(), true);
             high = MeshAddress.formatAddress(((AllocatedSceneRange) range).getLastScene(), true);
         }
-        holder.rangeValue.setText(mContext.getString(R.string.range_adapter_format, low, high));
+        holder.rangeValue.setText(holder.itemView.getContext().getString(R.string.range_adapter_format, low, high));
         holder.rangeView.clearRanges();
         holder.rangeView.addRange(range);
         addOverlappingRanges(range, holder.rangeView);
@@ -160,16 +154,14 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
     }
 
     final class ViewHolder extends RemovableViewHolder {
-
-        @BindView(R.id.range_text)
         TextView rangeValue;
-        @BindView(R.id.range)
         RangeView rangeView;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-            view.findViewById(R.id.container).setOnClickListener(v -> {
+        private ViewHolder(final @NonNull RangeItemBinding binding) {
+            super(binding.getRoot());
+            rangeValue = binding.rangeText;
+            rangeView = binding.range;
+            binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(getAdapterPosition(), mRanges.get(getAdapterPosition()));
                 }

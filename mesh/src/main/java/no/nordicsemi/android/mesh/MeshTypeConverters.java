@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -149,5 +150,17 @@ public class MeshTypeConverters {
         final Type newIvIndex = new TypeToken<IvIndex>() {
         }.getType();
         return new Gson().fromJson(ivIndex, newIvIndex);
+    }
+
+    @TypeConverter
+    public static String networkExclusionsToJson(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
+        return new Gson().toJson(networkExclusions);
+    }
+
+    @TypeConverter
+    public static Map<Integer, ArrayList<Integer>> fromJsonToNetworkExclusions(@NonNull final String networkExclusions) {
+        final Type newNetworkExclusions = new TypeToken<Map<Integer, ArrayList<Integer>>>() {
+        }.getType();
+        return new Gson().fromJson(networkExclusions, newNetworkExclusions);
     }
 }

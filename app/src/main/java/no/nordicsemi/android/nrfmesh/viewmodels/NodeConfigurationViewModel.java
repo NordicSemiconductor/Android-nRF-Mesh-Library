@@ -22,10 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
-
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
 
 /**
@@ -33,7 +31,7 @@ import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
  */
 public class NodeConfigurationViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     NodeConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
@@ -42,13 +40,5 @@ public class NodeConfigurationViewModel extends BaseViewModel {
     protected void onCleared() {
         super.onCleared();
         mNrfMeshRepository.clearTransactionStatus();
-    }
-
-    public boolean isActivityVisibile() {
-        return isActivityVisibile;
-    }
-
-    public void setActivityVisible(final boolean visible){
-        isActivityVisibile = visible;
     }
 }

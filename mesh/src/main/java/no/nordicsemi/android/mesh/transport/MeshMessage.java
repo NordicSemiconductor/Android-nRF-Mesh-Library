@@ -31,7 +31,7 @@ public abstract class MeshMessage {
      *
      * @return opcode
      */
-    abstract int getOpCode();
+    public abstract int getOpCode();
 
     /**
      * Returns the parameters of this message.
@@ -90,7 +90,7 @@ public abstract class MeshMessage {
     /**
      * Sets the TTL for this message.
      * If a TTL is not specified the message will use the default ttl set for the provisioner node.
-     * @param messageTtl
+     * @param messageTtl TTL value
      */
     public void setMessageTtl(final Integer messageTtl) {
         this.messageTtl = messageTtl;

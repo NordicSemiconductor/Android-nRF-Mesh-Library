@@ -89,15 +89,12 @@ public class HeartbeatPublication extends Heartbeat implements Parcelable {
                 "\nCount Log: " + Integer.toHexString(countLog) +
                 "\nPeriod Log: " + Integer.toHexString(periodLog) +
                 "\nTTL: " + ttl +
-                "\nFeatures: " + features.toString() +
+                "\nFeatures: " + features == null ? "null" : features.toString() +
                 "\nNet key index: " + Integer.toHexString(netKeyIndex);
     }
 
-    /**
-     * Returns the destination address of the Heartbeat publications.
-     */
-    public int getDstAddress() {
-        return dst;
+    public int getPeriod(){
+        return calculateHeartbeatPeriod(periodLog);
     }
 
     /**
@@ -126,5 +123,40 @@ public class HeartbeatPublication extends Heartbeat implements Parcelable {
      */
     public boolean isEnabled() {
         return dst != UNASSIGNED_ADDRESS;
+    }
+
+    public String getPeriodLogDescription() {
+        if (periodLog == 0x00)
+            return "Disabled";
+        else if (periodLog >= 0x01 || periodLog <= 0x11)
+            return (int) Math.pow(2, periodLog - 1) + " s";
+        else
+            return "Prohibited";
+    }
+
+    public Short getPeriodLog2Period(final int periodLog) {
+        if (periodLog == 0x00)
+            return 0x0000;
+        else if (periodLog >= 0x01 && periodLog <= 0x10) {
+            return (short) (Math.pow(2, periodLog - 1));
+        } else return (short) 0xFFFF;
+    }
+
+    public String getCountLogDescription() {
+        if (countLog == 0x00)
+            return "Disabled";
+        else if (countLog == 0xFF)
+            return "Indefinite";
+        else if (countLog == 0x01 || countLog == 0x02)
+            return String.valueOf(countLog);
+        else if (countLog == 0x11) {
+            return "0x8001 ... 0xFFFE";
+        } else if (countLog >= 0x03 && countLog <= 0x10) {
+            final int lowerBound = (int) (Math.pow(2, countLog - 2)) + 1;
+            final int upperBound = (int) Math.pow(2, countLog - 1);
+            return lowerBound + " ... " + upperBound;
+        } else {
+            return "Invalid";
+        }
     }
 }

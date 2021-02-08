@@ -27,14 +27,15 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
     <application
-        android:name="no.nordicsemi.android.nrfmesh.di.MeshApplication"
+        android:name=".di.MeshApplication"
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
@@ -43,7 +44,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.SplashScreenActivity"
+            android:name=".SplashScreenActivity"
             android:launchMode="singleTop"
             android:noHistory="true"
             android:theme="@style/AppTheme.SplashScreen">
@@ -53,7 +54,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.MainActivity"
+            android:name=".MainActivity"
             android:icon="@drawable/ic_mesh_feature"
             android:label="@string/feature_name"
             android:launchMode="singleTop"
@@ -64,87 +65,101 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.ble.ScannerActivity"
+            android:name=".ble.ScannerActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.ble.ReconnectActivity"
+            android:name=".ble.ReconnectActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.GroupControlsActivity"
+            android:name=".GroupControlsActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity"
+            android:name=".provisioners.ProvisionersActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.provisioners.AddProvisionerActivity"
+            android:name=".provisioners.AddProvisionerActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.provisioners.EditProvisionerActivity"
+            android:name=".provisioners.EditProvisionerActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.provisioners.RangesActivity"
+            android:name=".provisioners.RangesActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.NetKeysActivity"
+            android:name=".keys.NetKeysActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.EditNetKeyActivity"
+            android:name=".keys.EditNetKeyActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.AddNetKeyActivity"
+            android:name=".keys.AddNetKeyActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.AppKeysActivity"
+            android:name=".keys.AppKeysActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.AddAppKeyActivity"
+            android:name=".keys.AddAppKeyActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.EditAppKeyActivity"
+            android:name=".keys.EditAppKeyActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.ProvisioningActivity"
+            android:name=".ProvisioningActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity"
+            android:name=".node.NodeConfigurationActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.AddNetKeysActivity"
+            android:name=".keys.AddNetKeysActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.keys.AddAppKeysActivity"
+            android:name=".keys.AddAppKeysActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.PublicationSettingsActivity"
+            android:name=".scenes.ScenesActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.NodeDetailsActivity"
+            android:name=".scenes.StoredScenesActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity"
+            android:name=".node.PublicationSettingsActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity"
+            android:name=".node.NodeDetailsActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.VendorModelActivity"
+            android:name=".node.GenericLevelServerActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity"
+            android:name=".node.GenericOnOffServerActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity"
+            android:name=".node.SceneServerModelActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.SceneSetupServerModelActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.VendorModelActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.ConfigurationServerActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.HeartbeatPublicationActivity"
             android:launchMode="singleTop" />
         <activity
             android:name=".node.HeartbeatSubscriptionActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity"
+            android:name=".node.ConfigurationClientActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name="no.nordicsemi.android.nrfmesh.node.GenericModelConfigurationActivity"
+            android:name=".node.GenericModelConfigurationActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".export.ExportNetworkActivity"
             android:launchMode="singleTop" />
     </application>
-
 </manifest>

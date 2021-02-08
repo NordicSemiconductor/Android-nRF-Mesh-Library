@@ -229,7 +229,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             }
 
             unprovisionedMeshNode = new UnprovisionedMeshNode(uuid);
-            unprovisionedMeshNode.setNetworkKey(networkKey.getKey());
+            unprovisionedMeshNode.setNetworkKey(networkKey.getTxNetworkKey());
             unprovisionedMeshNode.setKeyIndex(networkKey.getKeyIndex());
             unprovisionedMeshNode.setFlags(flagBytes);
             unprovisionedMeshNode.setIvIndex(ivIndexBytes);

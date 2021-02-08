@@ -22,13 +22,18 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.transport.MeshMessage;
+import androidx.hilt.lifecycle.ViewModelInject;
+import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.models.SigModelParser;
+import no.nordicsemi.android.mesh.transport.ConfigBeaconGet;
+import no.nordicsemi.android.mesh.transport.ConfigFriendGet;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
+import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitGet;
+import no.nordicsemi.android.mesh.transport.ConfigRelayGet;
+import no.nordicsemi.android.mesh.transport.MeshModel;
+import no.nordicsemi.android.mesh.transport.SceneGet;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
@@ -43,9 +48,7 @@ import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
  */
 public class ModelConfigurationViewModel extends BaseViewModel {
 
-    private Queue<MeshMessage> messageQueue = new LinkedList<>();
-
-    @Inject
+    @ViewModelInject
     ModelConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
@@ -57,20 +60,35 @@ public class ModelConfigurationViewModel extends BaseViewModel {
         messageQueue.clear();
     }
 
-    public Queue<MeshMessage> getMessageQueue() {
-        return messageQueue;
-    }
-
-    public void removeMessage() {
-        if (!messageQueue.isEmpty())
-            messageQueue.remove();
-    }
-
     public boolean isActivityVisible() {
-        return isActivityVisibile;
+        return isActivityVisible;
     }
 
     public void setActivityVisible(final boolean visible) {
-        isActivityVisibile = visible;
+        isActivityVisible = visible;
+    }
+
+    public void prepareMessageQueue() {
+        switch (getSelectedModel().getValue().getModelId()) {
+            case SigModelParser.CONFIGURATION_SERVER:
+                messageQueue.add(new ConfigHeartbeatPublicationGet());
+                messageQueue.add(new ConfigHeartbeatSubscriptionGet());
+                messageQueue.add(new ConfigRelayGet());
+                messageQueue.add(new ConfigNetworkTransmitGet());
+                messageQueue.add(new ConfigBeaconGet());
+                messageQueue.add(new ConfigFriendGet());
+                break;
+            case SigModelParser.SCENE_SERVER:
+                messageQueue.add(new SceneGet(getDefaultApplicationKey()));
+                break;
+        }
+    }
+
+    public ApplicationKey getDefaultApplicationKey() {
+        final MeshModel meshModel = getSelectedModel().getValue();
+        if (meshModel != null && !meshModel.getBoundAppKeyIndexes().isEmpty()) {
+            return getNetworkLiveData().getAppKeys().get(meshModel.getBoundAppKeyIndexes().get(0));
+        }
+        return null;
     }
 }

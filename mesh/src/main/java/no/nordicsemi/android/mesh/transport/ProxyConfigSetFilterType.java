@@ -6,7 +6,7 @@ import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 /**
  * To be used as a wrapper class to create the ProxyConfigSetFilterType message.
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public class ProxyConfigSetFilterType extends ProxyConfigMessage {
 
     private final ProxyFilterType filterType;
@@ -27,7 +27,7 @@ public class ProxyConfigSetFilterType extends ProxyConfigMessage {
     }
 
     @Override
-    int getOpCode() {
+    public int getOpCode() {
         return ProxyConfigMessageOpCodes.SET_FILTER_TYPE;
     }
 

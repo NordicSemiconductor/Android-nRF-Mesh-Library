@@ -171,6 +171,5 @@
         android:text="@string/title_add_provisioner"
         app:elevation="@dimen/fab_elevation"
         app:fabSize="normal"
-        app:icon="@drawable/ic_add_white"
-        app:srcCompat="@drawable/ic_add_white" />
+        app:icon="@drawable/ic_add_white" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

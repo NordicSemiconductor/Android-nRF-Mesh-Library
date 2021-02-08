@@ -22,9 +22,11 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.Nullable;
+import java.util.List;
 
-import java.util.UUID;
+import androidx.annotation.Nullable;
+import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.Group;
 
 /**
  * Upper transport layer call backs
@@ -51,13 +53,16 @@ public interface UpperTransportLayerCallbacks {
      */
     byte[] getApplicationKey(final int aid);
 
+    /**
+     * Returns a list of Application Keys matching the bound net key index and AID.
+     *
+     * @param boundNetKeyIndex Index of the bound network key.
+     */
+    List<ApplicationKey> getApplicationKeys(final int boundNetKeyIndex);
 
     /**
-     * Returns the label UUID of the destination address
-     *
-     * @param address Virtual address
-     * @return The label uuid if it's known to the provisioner or null otherwise
+     * Returns the list of groups
      */
     @Nullable
-    UUID getLabel(final int address);
+    List<Group> gerVirtualGroups();
 }

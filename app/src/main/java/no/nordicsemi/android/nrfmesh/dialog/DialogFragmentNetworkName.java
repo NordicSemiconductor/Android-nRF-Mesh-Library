@@ -22,38 +22,26 @@
 
 package no.nordicsemi.android.nrfmesh.dialog;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNameBinding;
 
 public class DialogFragmentNetworkName extends DialogFragment {
 
     private static final String NETWORK_NAME = "NETWORK_NAME";
 
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout networkNameInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText networkNameInput;
-
+    private DialogFragmentNameBinding binding;
     private String mNetworkName;
 
     public static DialogFragmentNetworkName newInstance(final String networkName) {
@@ -75,15 +63,12 @@ public class DialogFragmentNetworkName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater
-                .from(getContext()).inflate(R.layout.dialog_fragment_name, null);
+        binding = DialogFragmentNameBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
-        networkNameInputLayout.setHint(getString(R.string.hint_global_network_name));
-        networkNameInput.setText(mNetworkName);
-        networkNameInput.addTextChangedListener(new TextWatcher() {
+        final TextView summary = binding.summary;
+        binding.textInputLayout.setHint(getString(R.string.hint_global_network_name));
+        binding.textInput.setText(mNetworkName);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -92,9 +77,9 @@ public class DialogFragmentNetworkName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    networkNameInputLayout.setError(getString(R.string.error_empty_name));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    networkNameInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -104,7 +89,7 @@ public class DialogFragmentNetworkName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_label);
@@ -113,7 +98,7 @@ public class DialogFragmentNetworkName extends DialogFragment {
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String networkKey = networkNameInput.getEditableText().toString().trim();
+            final String networkKey = binding.textInput.getEditableText().toString().trim();
             if (validateInput(networkKey)) {
                 if(getParentFragment() == null) {
                     ((DialogFragmentNetworkNameListener) requireActivity()).onNetworkNameEntered(networkKey);
@@ -127,9 +112,15 @@ public class DialogFragmentNetworkName extends DialogFragment {
         return alertDialog;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private boolean validateInput(final String input) {
         if(TextUtils.isEmpty(input)){
-            networkNameInputLayout.setError(getString(R.string.error_empty_name));
+            binding.textInputLayout.setError(getString(R.string.error_empty_name));
             return false;
         }
 
@@ -137,8 +128,6 @@ public class DialogFragmentNetworkName extends DialogFragment {
     }
 
     public interface DialogFragmentNetworkNameListener {
-
         void onNetworkNameEntered(@NonNull final String name);
-
     }
 }

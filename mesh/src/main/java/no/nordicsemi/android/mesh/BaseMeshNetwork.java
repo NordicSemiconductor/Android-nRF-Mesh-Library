@@ -14,7 +14,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import androidx.annotation.IntDef;
@@ -25,12 +27,18 @@ import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import no.nordicsemi.android.mesh.transport.ConfigAppKeyUpdate;
+import no.nordicsemi.android.mesh.transport.ConfigKeyRefreshPhaseSet;
+import no.nordicsemi.android.mesh.transport.ConfigNetKeyUpdate;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
+
+import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhase;
+import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhaseTransition;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 abstract class BaseMeshNetwork {
@@ -57,7 +65,7 @@ abstract class BaseMeshNetwork {
     @Ignore
     @SerializedName("id")
     @Expose
-    String id = "TBD";
+    String id = "http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#";
     @Ignore
     @SerializedName("version")
     @Expose
@@ -70,11 +78,16 @@ abstract class BaseMeshNetwork {
     @SerializedName("timestamp")
     @Expose
     long timestamp = System.currentTimeMillis();
+    @ColumnInfo(name = "partial", defaultValue = "0")
+    @SerializedName("partial")
+    @Expose
+    boolean partial = false;
     @ColumnInfo(name = "iv_index")
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     @NonNull
     IvIndex ivIndex = new IvIndex(0, false, Calendar.getInstance());
+    //Properties with Ignore are stored in their own table with the network's UUID as the foreign key
     @Ignore
     @SerializedName("netKeys")
     @Expose
@@ -111,6 +124,12 @@ abstract class BaseMeshNetwork {
     @TypeConverters(MeshTypeConverters.class)
     @ColumnInfo(name = "sequence_numbers")
     protected SparseIntArray sequenceNumbers = new SparseIntArray();
+    @SerializedName("networkExclusions")
+    @TypeConverters(MeshTypeConverters.class)
+    @NonNull
+    @ColumnInfo(name = "networkExclusions", defaultValue = "{}")
+    @Expose
+    protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -120,6 +139,9 @@ abstract class BaseMeshNetwork {
     @Ignore
     protected final Comparator<Group> groupComparator = (group1, group2) ->
             Integer.compare(group1.getAddress(), group2.getAddress());
+    @Ignore
+    protected final Comparator<Scene> sceneComparator = (scene1, scene2) ->
+            Integer.compare(scene1.getNumber(), scene2.getNumber());
     @Ignore
     protected final Comparator<AllocatedUnicastRange> unicastRangeComparator = (range1, range2) ->
             Integer.compare(range1.getLowAddress(), range2.getLowAddress());
@@ -134,10 +156,9 @@ abstract class BaseMeshNetwork {
         this.meshUUID = meshUUID;
     }
 
-    private boolean isNetKeyExists(final String appKey) {
+    private boolean isNetKeyExists(@NonNull final byte[] key) {
         for (int i = 0; i < netKeys.size(); i++) {
-            final NetworkKey networkKey = netKeys.get(i);
-            if (appKey.equalsIgnoreCase(MeshParserUtils.bytesToHex(networkKey.getKey(), false))) {
+            if (Arrays.equals(key, netKeys.get(i).getKey())) {
                 return true;
             }
         }
@@ -163,7 +184,7 @@ abstract class BaseMeshNetwork {
      * @throws IllegalArgumentException if the key already exists.
      */
     public boolean addNetKey(@NonNull final NetworkKey newNetKey) {
-        if (isNetKeyExists(MeshParserUtils.bytesToHex(newNetKey.getKey(), false))) {
+        if (isNetKeyExists(newNetKey.getKey())) {
             throw new IllegalArgumentException("Net key already exists, check the contents of the key!");
         } else {
             newNetKey.setMeshUuid(meshUUID);
@@ -186,14 +207,22 @@ abstract class BaseMeshNetwork {
     /**
      * Update a network key with the given 16-byte hexadecimal string in the mesh network.
      *
+     * <p>
+     * Updating a NetworkKey's key value requires initiating a Key Refresh Procedure. A NetworkKey that's in use
+     * would require a Key Refresh Procedure to update it's key contents. However a NetworkKey that's not in could
+     * be updated without this procedure. If the key is in use, call {@link #distributeNetKey(NetworkKey, byte[])}
+     * to initiate the Key Refresh Procedure.
+     * </p>
+     *
      * @param networkKey Network key
      * @param newNetKey  16-byte hexadecimal string
+     * @throws IllegalArgumentException if the key is already in use
      */
     public boolean updateNetKey(@NonNull final NetworkKey networkKey, @NonNull final String newNetKey) throws IllegalArgumentException {
         if (MeshParserUtils.validateKeyInput(newNetKey)) {
             final byte[] key = MeshParserUtils.toByteArray(newNetKey);
-            if (isNetKeyExists(newNetKey)) {
-                throw new IllegalArgumentException("Net key already in use");
+            if (isNetKeyExists(key)) {
+                throw new IllegalArgumentException("Net key value is already in use.");
             }
 
             final int keyIndex = networkKey.getKeyIndex();
@@ -208,7 +237,7 @@ abstract class BaseMeshNetwork {
                     return false;
                 }
             } else {
-                throw new IllegalArgumentException("Unable to update a network key that's already in use.");
+                throw new IllegalArgumentException("Unable to update a network key that's already in use. ");
             }
         }
         return false;
@@ -216,6 +245,13 @@ abstract class BaseMeshNetwork {
 
     /**
      * Update a network key in the mesh network.
+     *
+     * <p>
+     * Updating a NetworkKey's key value requires initiating a Key Refresh Procedure. A NetworkKey that's in use
+     * would require a Key Refresh Procedure to update it's key contents. However a NetworkKey that's not in could
+     * be updated without this procedure. If the key is in use, call {@link #distributeNetKey(NetworkKey, byte[])}
+     * to initiate the Key Refresh Procedure.
+     * </p>
      *
      * @param networkKey Network key
      * @throws IllegalArgumentException if the key is already in use
@@ -226,6 +262,7 @@ abstract class BaseMeshNetwork {
         //We check if the contents of the key are the same
         //This will return true only if the key index and the key are the same
         if (key.equals(networkKey)) {
+            // The name might be updated so we must update the key.
             return updateMeshKey(networkKey);
         } else {
             //If the keys are not the same we check if its in use before updating the key
@@ -238,6 +275,116 @@ abstract class BaseMeshNetwork {
             }
         }
     }
+
+    /**
+     * Distribute Net Key will start the key refresh procedure and return the newly updated key.
+     *
+     * <p>
+     * This process contains three phases.
+     * {@link KeyRefreshPhase#KEY_DISTRIBUTION} - Distribution of the new Keys {@link #distributeNetKey(NetworkKey, byte[])}.
+     * {@link KeyRefreshPhase#USING_NEW_KEYS} - Switching to the new keys {@link #switchToNewKey(NetworkKey)}.
+     * {@link KeyRefreshPhase#REVOKE_OLD_KEYS} - Revoking old keys {@link #revokeOldKey(NetworkKey)}.
+     * The new key is distributed to the provisioner node by setting the currently used key as the old key and setting the
+     * currently used key to the new key value. This will change the phase of the network key to{@link KeyRefreshPhase#KEY_DISTRIBUTION}.
+     * During this phase a node will transmit using the old key but may receive using both old and the new key. After a successful
+     * distribution to the provisioner, the user may start sending {@link ConfigNetKeyUpdate} messages to the respective nodes in the
+     * network that requires updating. In addition if the user wishes to update the AppKey call {@link #distributeAppKey(ApplicationKey, byte[])}
+     * to update the Application Key on the provisioner and then distribute it to other nodes by sending {@link ConfigAppKeyUpdate} to
+     * update an AppKey. However it shall be only successfully processed if the NetworkKey bound to the Application Key is in
+     * {@link KeyRefreshPhase#KEY_DISTRIBUTION} and the received app key value is different or when the received AppKey value is the same as
+     * previously received value. Also note that sending a ConfigNetKeyUpdate during {@link KeyRefreshPhase#NORMAL_OPERATION} will switch the
+     * phase to {@link KeyRefreshPhase#KEY_DISTRIBUTION}. Once distribution is completed, call {@link #switchToNewKey(NetworkKey)} and
+     * send {@link ConfigKeyRefreshPhaseSet} to other nodes.
+     * </p>
+     *
+     * @param networkKey Network key
+     * @param newNetKey  16-byte key
+     * @throws IllegalArgumentException the key value is already in use.
+     */
+    public NetworkKey distributeNetKey(@NonNull final NetworkKey networkKey, @NonNull final byte[] newNetKey) throws IllegalArgumentException {
+        if (validateKey(newNetKey)) {
+            if (isNetKeyExists(newNetKey)) {
+                throw new IllegalArgumentException("Net key value is already in use.");
+            }
+
+            final int keyIndex = networkKey.getKeyIndex();
+            final NetworkKey netKey = getNetKey(keyIndex);
+            if (netKey.equals(networkKey)) {
+                if (netKey.distributeKey(newNetKey)) {
+                    updateNodeKeyStatus(netKey);
+                    if (updateMeshKey(netKey)) {
+                        return netKey;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Updates the NodeKey object for Network or Application Keys
+     *
+     * @param meshKey Updated Key
+     */
+    private void updateNodeKeyStatus(@NonNull final MeshKey meshKey) {
+        for (Provisioner provisioner : provisioners) {
+            for (ProvisionedMeshNode node : nodes) {
+                if (node.getUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                    if (meshKey instanceof NetworkKey) {
+                        for (NodeKey key : node.getAddedNetKeys()) {
+                            if (key.getIndex() == meshKey.getKeyIndex()) {
+                                key.setUpdated(true);
+                            }
+                        }
+                    } else {
+                        for (NodeKey key : node.getAddedAppKeys()) {
+                            if (key.getIndex() == meshKey.getKeyIndex()) {
+                                key.setUpdated(true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Switches the new key, this will initiate the provisioner node transmitting messages using the new keys but will
+     * support receiving messages using both old and the new key.
+     *
+     * <p>
+     * This must be called after {@link #distributeNetKey(NetworkKey, byte[])}
+     * </p>
+     *
+     * @param networkKey Network key to switch too
+     * @return true if success or false otherwise
+     * @throws IllegalArgumentException if the provided key is not the same as the distributed key.
+     */
+    public boolean switchToNewKey(@NonNull final NetworkKey networkKey) throws IllegalArgumentException {
+        if (!netKeys.contains(networkKey)) {
+            throw new IllegalArgumentException("Network Key not distributed");
+        }
+        return networkKey.switchToNewKey();
+    }
+
+    /**
+     * Revokes the old key.
+     * <p>
+     * This initiates {@link KeyRefreshPhase#REVOKE_OLD_KEYS} of the Key Refresh Procedure in which user must send {@link ConfigKeyRefreshPhaseSet}
+     * message with transition set to {@link KeyRefreshPhaseTransition#REVOKE_OLD_KEYS} to the other nodes going through the Key Refresh Procedure.
+     * The library at this point will set the given Network Key's Phase to {@link KeyRefreshPhase#NORMAL_OPERATION}.
+     * </p>
+     *
+     * @param networkKey Network key that was distributed
+     * @return true if success or false otherwise
+     */
+    public boolean revokeOldKey(@NonNull final NetworkKey networkKey) {
+        if (netKeys.contains(networkKey)) {
+            return networkKey.revokeOldKey();
+        }
+        return false;
+    }
+
 
     /**
      * Removes a network key from the network key list
@@ -303,7 +450,7 @@ abstract class BaseMeshNetwork {
             throw new IllegalStateException("Cannot create an App Key without a Network key. Consider creating a network key first");
         }
 
-        if (isAppKeyExists(MeshParserUtils.bytesToHex(newAppKey.getKey(), false))) {
+        if (isAppKeyExists(newAppKey.getKey())) {
             throw new IllegalArgumentException("App key already exists, check the contents of the key!");
         } else {
             newAppKey.setMeshUuid(meshUUID);
@@ -356,16 +503,6 @@ abstract class BaseMeshNetwork {
         return applicationKeys;
     }
 
-    private boolean isAppKeyExists(@NonNull final String appKey) {
-        for (int i = 0; i < appKeys.size(); i++) {
-            final ApplicationKey applicationKey = appKeys.get(i);
-            if (appKey.equalsIgnoreCase(MeshParserUtils.bytesToHex(applicationKey.getKey(), false))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private boolean isAppKeyExists(@NonNull final byte[] appKey) {
         for (int i = 0; i < appKeys.size(); i++) {
             final ApplicationKey applicationKey = appKeys.get(i);
@@ -379,13 +516,21 @@ abstract class BaseMeshNetwork {
     /**
      * Updates an app key with a given key in the mesh network.
      *
+     * <p>
+     * Updates the Key if it is not use, if not Updating a Key's key value requires initiating a Key Refresh Procedure.
+     * This requires the bound NetworkKey of the AppKey to be updated. A NetworkKey that's in use would require a
+     * Key Refresh Procedure to update it's key contents. However a NetworkKey that's not in could be updated without this
+     * procedure. If the key is in use, call {@link #distributeNetKey(NetworkKey, byte[])} to initiate the Key Refresh Procedure.
+     * </p>
+     *
      * @param applicationKey {@link ApplicationKey}
      * @param newAppKey      Application key
+     * @throws IllegalArgumentException if the key is in use.
      */
     public boolean updateAppKey(@NonNull final ApplicationKey applicationKey, @NonNull final String newAppKey) throws IllegalArgumentException {
         if (MeshParserUtils.validateKeyInput(newAppKey)) {
             final byte[] key = MeshParserUtils.toByteArray(newAppKey);
-            if (isNetKeyExists(newAppKey)) {
+            if (isNetKeyExists(key)) {
                 throw new IllegalArgumentException("Net key already in use");
             }
 
@@ -410,6 +555,14 @@ abstract class BaseMeshNetwork {
     /**
      * Updates an app key in the mesh network.
      *
+     * <p>
+     * Updates the Key if it is not use, if not Updating a Key's key value requires initiating a Key Refresh Procedure. This requires
+     * the bound NetworkKey of the AppKey to be updated. A NetworkKey that's in use would require aKey Refresh Procedure to update
+     * it's key contents. However a NetworkKey that's not in could be updated without this procedure. If the key is in use, call
+     * {@link #distributeNetKey(NetworkKey, byte[])} to initiate the Key Refresh Procedure. After distributing the NetworkKey bound to
+     * the Application Key, user may call {@link #distributeAppKey(ApplicationKey, byte[])} to update the corresponding ApplicationKey.
+     * </p>
+     *
      * @param applicationKey {@link ApplicationKey}
      * @throws IllegalArgumentException if the key is already in use
      */
@@ -424,6 +577,43 @@ abstract class BaseMeshNetwork {
         } else {
             throw new IllegalArgumentException("Unable to update a application key that's already in use.");
         }
+    }
+
+    /**
+     * Distributes/updates the provisioner node's the application key and returns the updated Application Key.
+     *
+     * <p>
+     * This will only work if the NetworkKey bound to this ApplicationKey is in Phase 1 of the Key Refresh Procedure. Therefore the NetworkKey
+     * must be updated first before updating it's bound application key. Call {@link #distributeNetKey(NetworkKey, byte[])} to initiate the
+     * Key Refresh Procedure to update a Network Key that's in use by the provisioner or the nodes, if it has not been started already.
+     * To update a key that's not in use call {@link #updateAppKey(ApplicationKey, String)}
+     * <p>
+     * Once the provisioner nodes' AppKey is updated user must distribute the updated AppKey to the nodes. This can be done by sending
+     * {@link ConfigAppKeyUpdate} message with the new key.
+     * </p>
+     *
+     * @param applicationKey Network key
+     * @param newAppKey      16-byte key
+     * @throws IllegalArgumentException the key value is already in use.
+     */
+    public ApplicationKey distributeAppKey(@NonNull final ApplicationKey applicationKey, @NonNull final byte[] newAppKey) throws IllegalArgumentException {
+        if (validateKey(newAppKey)) {
+            if (isAppKeyExists(newAppKey)) {
+                throw new IllegalArgumentException("App key value is already in use.");
+            }
+
+            final int keyIndex = applicationKey.getKeyIndex();
+            final ApplicationKey appKey = getAppKey(keyIndex);
+            if (appKey.equals(applicationKey)) {
+                if(appKey.distributeKey(newAppKey)){
+                    updateNodeKeyStatus(appKey);
+                    if (updateMeshKey(appKey)) {
+                        return appKey;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private boolean updateMeshKey(@NonNull final MeshKey key) {
@@ -845,7 +1035,7 @@ abstract class BaseMeshNetwork {
         return null;
     }
 
-    public boolean isProvisionerUuidInUse(@NonNull final String uuid) {
+    protected boolean isProvisionerUuidInUse(@NonNull final String uuid) {
         for (Provisioner provisioner : provisioners) {
             if (provisioner.getProvisionerUuid().equalsIgnoreCase(uuid)) {
                 return true;
@@ -868,6 +1058,23 @@ abstract class BaseMeshNetwork {
      */
     void setNodes(@NonNull List<ProvisionedMeshNode> nodes) {
         this.nodes = nodes;
+    }
+
+    /**
+     * Returns the list of {@link ProvisionedMeshNode} containing the given network key
+     *
+     * @param networkKey Network Key
+     */
+    public List<ProvisionedMeshNode> getNodes(final NetworkKey networkKey) {
+        final List<ProvisionedMeshNode> nodes = new ArrayList<>();
+        for (ProvisionedMeshNode node : this.nodes) {
+            for (NodeKey nodeKey : node.getAddedNetKeys()) {
+                if (nodeKey.getIndex() == networkKey.getKeyIndex()) {
+                    nodes.add(node);
+                }
+            }
+        }
+        return nodes;
     }
 
     /**
@@ -948,6 +1155,7 @@ abstract class BaseMeshNetwork {
         for (ProvisionedMeshNode node : nodes) {
             if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
                 nodes.remove(node);
+                excludeNode(node);
                 notifyNodeDeleted(meshNode);
                 nodeDeleted = true;
                 break;
@@ -966,18 +1174,9 @@ abstract class BaseMeshNetwork {
         return nodeDeleted;
     }
 
-    boolean deleteResetNode(@NonNull final ProvisionedMeshNode meshNode) {
-        for (ProvisionedMeshNode node : nodes) {
-            if (meshNode.getUnicastAddress() == node.getUnicastAddress()) {
-                nodes.remove(node);
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns true if the given node is a provisioner node
+     *
      * @param node {@link ProvisionedMeshNode}
      * @return True if the node is a provisioner or false otherwise
      */
@@ -1049,6 +1248,22 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * Returns the map of network exclusions
+     */
+    public Map<Integer, ArrayList<Integer>> getNetworkExclusions() {
+        return Collections.unmodifiableMap(networkExclusions);
+    }
+
+    /**
+     * Setter required by room db and is restricted for internal use.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setNetworkExclusions(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
+        this.networkExclusions = networkExclusions;
+    }
+
+
+    /**
      * Returns the {@link ProxyFilter} set on the proxy
      */
     @Nullable
@@ -1065,6 +1280,35 @@ abstract class BaseMeshNetwork {
      */
     public void setProxyFilter(@Nullable final ProxyFilter proxyFilter) {
         this.proxyFilter = proxyFilter;
+    }
+
+    /**
+     * Excludes a node from the mesh network.
+     * The given node will marked as excluded and added to the exclusion list and the node will be removed once
+     * the Key Refresh Procedure is completed. After the IV update procedure, when the network transitions to an
+     * IV Normal Operation state with a higher IV index, the exclusionList object that has the ivIndex property
+     * value that is lower by a count of two (or more) than the current IV index of the network is removed from
+     * the networkExclusions property array.
+     *
+     * @param node Provisioned mesh node.
+     */
+    private void excludeNode(@NonNull final ProvisionedMeshNode node) {
+        //Exclude node
+        node.setExcluded(true);
+        ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
+        if (nodes == null) {
+            nodes = new ArrayList<>();
+        }
+
+        nodes.addAll(node.getElements().keySet());
+        networkExclusions.put(ivIndex.getIvIndex(), nodes);
+        notifyNodeUpdated(node);
+    }
+
+    private boolean validateKey(@NonNull final byte[] key) {
+        if (key.length != 16)
+            throw new IllegalArgumentException("Key must be 16 bytes");
+        return true;
     }
 
     final void notifyNetworkUpdated() {

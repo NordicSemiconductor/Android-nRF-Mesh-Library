@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -36,50 +34,44 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+import no.nordicsemi.android.nrfmesh.databinding.FragmentSettingsBinding;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutContainerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshExportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImport;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentMeshImportMsg;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentNetworkName;
-import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentPermissionRationale;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentResetNetwork;
+import no.nordicsemi.android.nrfmesh.export.ExportNetworkActivity;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 import no.nordicsemi.android.nrfmesh.provisioners.ProvisionersActivity;
+import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
 import static android.app.Activity.RESULT_OK;
 
-public class SettingsFragment extends Fragment implements Injectable,
+@AndroidEntryPoint
+public class SettingsFragment extends Fragment implements
         DialogFragmentNetworkName.DialogFragmentNetworkNameListener,
         DialogFragmentResetNetwork.DialogFragmentResetNetworkListener,
-        DialogFragmentMeshImport.DialogFragmentNetworkImportListener,
-        DialogFragmentPermissionRationale.StoragePermissionListener {
+        DialogFragmentMeshImport.DialogFragmentNetworkImportListener {
 
-    private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
-    private static final int READ_FILE_REQUEST_CODE = 42;
     private static final String TAG = SettingsFragment.class.getSimpleName();
-
+    private static final int READ_FILE_REQUEST_CODE = 42;
     private SharedViewModel mViewModel;
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,79 +82,79 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater,
-                             @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = inflater.inflate(R.layout.fragment_settings, null);
-        mViewModel = new ViewModelProvider(requireActivity(), mViewModelFactory).get(SharedViewModel.class);
+                             @Nullable final ViewGroup viewGroup, @Nullable final Bundle savedInstanceState) {
+        mViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        final FragmentSettingsBinding binding = FragmentSettingsBinding.inflate(getLayoutInflater());
 
         // Set up views
-        final View containerNetworkName = rootView.findViewById(R.id.container_network_name);
-        containerNetworkName.findViewById(R.id.image)
+        binding.containerNetworkName.image
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_label));
-        final TextView networkNameTitle = containerNetworkName.findViewById(R.id.title);
-        networkNameTitle.setText(R.string.title_network_name);
-        final TextView networkNameView = containerNetworkName.findViewById(R.id.text);
-        networkNameView.setVisibility(View.VISIBLE);
-        containerNetworkName.setOnClickListener(v -> {
+        binding.containerNetworkName.title.setText(R.string.name);
+        binding.containerNetworkName.text.setVisibility(View.VISIBLE);
+        binding.containerNetworkName.getRoot().setOnClickListener(v -> {
             final DialogFragmentNetworkName fragment = DialogFragmentNetworkName.
-                    newInstance(networkNameView.getText().toString());
+                    newInstance(binding.containerNetworkName.text.getText().toString());
             fragment.show(getChildFragmentManager(), null);
         });
 
-        final View containerProvisioner = rootView.findViewById(R.id.container_provisioners);
-        containerProvisioner.findViewById(R.id.image)
+        binding.containerProvisioners.image
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_provisioner_24dp));
-        final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
-        final TextView provisionerSummary = containerProvisioner.findViewById(R.id.text);
-        provisionerSummary.setVisibility(View.VISIBLE);
-        provisionerTitle.setText(R.string.title_provisioners);
-        containerProvisioner.setOnClickListener(v -> startActivity(new Intent(requireContext(), ProvisionersActivity.class)));
+        binding.containerProvisioners.title.setText(R.string.title_provisioners);
+        binding.containerProvisioners.text.setVisibility(View.VISIBLE);
+        binding.containerProvisioners.getRoot().setOnClickListener(v -> startActivity(new Intent(requireContext(), ProvisionersActivity.class)));
 
-        final View containerNetKey = rootView.findViewById(R.id.container_net_keys);
-        containerNetKey.findViewById(R.id.image)
+        binding.containerNetKeys.image
                 .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
-        final TextView keyTitle = containerNetKey.findViewById(R.id.title);
-        keyTitle.setText(R.string.title_net_keys);
-        final TextView netKeySummary = containerNetKey.findViewById(R.id.text);
-        netKeySummary.setVisibility(View.VISIBLE);
-        containerNetKey.setOnClickListener(v -> {
+        binding.containerNetKeys.title.setText(R.string.title_net_keys);
+        binding.containerNetKeys.text.setVisibility(View.VISIBLE);
+        binding.containerNetKeys.getRoot().setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), NetKeysActivity.class);
             intent.putExtra(Utils.EXTRA_DATA, Utils.MANAGE_NET_KEY);
             startActivity(intent);
         });
 
-        final View containerAppKey = rootView.findViewById(R.id.container_app_keys);
-        containerAppKey.findViewById(R.id.image).
+        binding.containerAppKeys.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
-        ((TextView) containerAppKey.findViewById(R.id.title)).setText(R.string.title_app_keys);
-        final TextView appKeySummary = containerAppKey.findViewById(R.id.text);
-        appKeySummary.setVisibility(View.VISIBLE);
-        containerAppKey.setOnClickListener(v ->
+        binding.containerAppKeys.title.setText(R.string.title_app_keys);
+        binding.containerAppKeys.text.setVisibility(View.VISIBLE);
+        binding.containerAppKeys.getRoot().setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), AppKeysActivity.class)));
 
-        final View containerIvTestMode = rootView.findViewById(R.id.container_iv_test_mode);
-        containerIvTestMode.findViewById(R.id.image).
+        binding.containerScenes.image.
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_baseline_palette_24dp));
+        binding.containerScenes.title.setText(R.string.title_scenes);
+        binding.containerScenes.text.setVisibility(View.VISIBLE);
+        binding.containerScenes.getRoot().setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ScenesActivity.class)));
+
+        binding.containerIvTestMode.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_folder_key_24dp));
-        ((TextView) containerIvTestMode.findViewById(R.id.title)).setText(R.string.title_iv_test_mode);
-        final TextView ivTestModeSummary = containerIvTestMode.findViewById(R.id.text);
-        ivTestModeSummary.setText(R.string.iv_test_mode_summary);
-        ivTestModeSummary.setVisibility(View.VISIBLE);
-        final SwitchMaterial actionChangeIvTestMode = containerIvTestMode.findViewById(R.id.action_change_test_mode);
-        actionChangeIvTestMode.setVisibility(View.VISIBLE);
-        actionChangeIvTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
-        actionChangeIvTestMode.setOnClickListener(v ->
-                mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(actionChangeIvTestMode.isChecked()));
-        containerIvTestMode.setOnClickListener(v ->
+        binding.containerIvTestMode.title.setText(R.string.title_iv_test_mode);
+        binding.containerIvTestMode.text.setText(R.string.iv_test_mode_summary);
+        binding.containerIvTestMode.text.setVisibility(View.VISIBLE);
+
+        binding.containerIvTestMode.actionChangeTestMode.setVisibility(View.VISIBLE);
+        binding.containerIvTestMode.actionChangeTestMode.setChecked(mViewModel.getMeshManagerApi().isIvUpdateTestModeActive());
+        binding.containerIvTestMode.actionChangeTestMode.setOnClickListener(v ->
+                mViewModel.getMeshManagerApi().setIvUpdateTestModeActive(binding.containerIvTestMode.actionChangeTestMode.isChecked()));
+        binding.containerIvTestMode.getRoot().setOnClickListener(v ->
                 DialogFragmentError.newInstance(getString(R.string.info), getString(R.string.iv_test_mode_info))
                         .show(getChildFragmentManager(), null)
         );
 
-        final View containerAbout = rootView.findViewById(R.id.container_version);
-        containerAbout.setClickable(false);
-        containerAbout.findViewById(R.id.image).
+        binding.containerLastModified.image.
+                setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_time));
+        binding.containerLastModified.title.setText(R.string.last_modified);
+        binding.containerLastModified.text.setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setClickable(false);
+
+        final LayoutContainerBinding containerVersion = binding.containerVersion;
+        containerVersion.getRoot().setClickable(false);
+        containerVersion.image.
                 setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.ic_puzzle));
-        final TextView versionTitle = containerAbout.findViewById(R.id.title);
-        versionTitle.setText(R.string.summary_version);
-        final TextView version = containerAbout.findViewById(R.id.text);
+        containerVersion.title.setText(R.string.summary_version);
+        final TextView version = containerVersion.text;
         version.setVisibility(View.VISIBLE);
         try {
             version.setText(requireContext().getPackageManager().getPackageInfo(requireContext().getPackageName(), 0).versionName);
@@ -172,10 +164,12 @@ public class SettingsFragment extends Fragment implements Injectable,
 
         mViewModel.getNetworkLiveData().observe(getViewLifecycleOwner(), meshNetworkLiveData -> {
             if (meshNetworkLiveData != null) {
-                networkNameView.setText(meshNetworkLiveData.getNetworkName());
-                netKeySummary.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
-                provisionerSummary.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
-                appKeySummary.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
+                binding.containerNetworkName.text.setText(meshNetworkLiveData.getNetworkName());
+                binding.containerNetKeys.text.setText(String.valueOf(meshNetworkLiveData.getNetworkKeys().size()));
+                binding.containerProvisioners.text.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
+                binding.containerAppKeys.text.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
+                binding.containerScenes.text.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
+                binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(meshNetworkLiveData.getMeshNetwork().getTimestamp()));
             }
         });
 
@@ -195,7 +189,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             fragment.show(getChildFragmentManager(), null);
         });
 
-        return rootView;
+        return binding.getRoot();
 
     }
 
@@ -207,21 +201,20 @@ public class SettingsFragment extends Fragment implements Injectable,
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         final int id = item.getItemId();
-        switch (id) {
-            case R.id.action_import_network:
-                final String title = getString(R.string.title_network_import);
-                final String message = getString(R.string.network_import_rationale);
-                final DialogFragmentMeshImport fragment = DialogFragmentMeshImport.newInstance(title, message);
-                fragment.show(getChildFragmentManager(), null);
-                return true;
-            case R.id.action_export_network:
-                handleNetworkExport();
-                break;
-            case R.id.action_reset_network:
-                final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
-                        newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));
-                dialogFragmentResetNetwork.show(getChildFragmentManager(), null);
-                return true;
+        if (id == R.id.action_import_network) {
+            final String title = getString(R.string.title_network_import);
+            final String message = getString(R.string.network_import_rationale);
+            final DialogFragmentMeshImport fragment = DialogFragmentMeshImport.newInstance(title, message);
+            fragment.show(getChildFragmentManager(), null);
+            return true;
+        } else if (id == R.id.action_export_network) {
+            startActivity(new Intent(requireContext(), ExportNetworkActivity.class));
+            return true;
+        } else if (id == R.id.action_reset_network) {
+            final DialogFragmentResetNetwork dialogFragmentResetNetwork = DialogFragmentResetNetwork.
+                    newInstance(getString(R.string.title_reset_network), getString(R.string.message_reset_network));
+            dialogFragmentResetNetwork.show(getChildFragmentManager(), null);
+            return true;
         }
         return false;
     }
@@ -231,7 +224,7 @@ public class SettingsFragment extends Fragment implements Injectable,
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == READ_FILE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                if (data != null) {
+                if (data != null && data.getData() != null) {
                     //Disconnect from network before importing
                     mViewModel.disconnect();
                     final Uri uri = data.getData();
@@ -242,7 +235,7 @@ public class SettingsFragment extends Fragment implements Injectable,
             }
         } else if (requestCode == 2011) {
             if (resultCode == RESULT_OK) {
-                if (data != null) {
+                if (data != null && data.getData() != null) {
                     final Uri uri = data.getData();
                     try {
                         final OutputStream stream = requireContext().getContentResolver().openOutputStream(uri);
@@ -251,16 +244,6 @@ public class SettingsFragment extends Fragment implements Injectable,
                         e.printStackTrace();
                     }
                 }
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            if (PackageManager.PERMISSION_GRANTED != grantResults[0]) {
-                Toast.makeText(getContext(), getString(R.string.ext_storage_permission_denied), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -280,12 +263,6 @@ public class SettingsFragment extends Fragment implements Injectable,
         performFileSearch();
     }
 
-    @Override
-    public void requestPermission() {
-        Utils.markWriteStoragePermissionRequested(getContext());
-        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
-    }
-
     /**
      * Fires an intent to spin up the "file chooser" UI to select a file
      */
@@ -299,27 +276,5 @@ public class SettingsFragment extends Fragment implements Injectable,
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, READ_FILE_REQUEST_CODE);
-    }
-
-    private void handleNetworkExport() {
-        if (!Utils.isWriteExternalStoragePermissionsGranted(getContext())
-                || Utils.isWriteExternalStoragePermissionDeniedForever(requireActivity())) {
-            final DialogFragmentPermissionRationale fragmentPermissionRationale = DialogFragmentPermissionRationale.
-                    newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(requireActivity()),
-                            getString(R.string.title_permission_required),
-                            getString(R.string.external_storage_permission_required));
-            fragmentPermissionRationale.show(getChildFragmentManager(), null);
-        } else {
-            final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
-            if (Utils.isKitkatOrAbove()) {
-                final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("application/json");
-                intent.putExtra(Intent.EXTRA_TITLE, networkName);
-                startActivityForResult(intent, 2011);
-            } else {
-                mViewModel.exportMeshNetwork();
-            }
-        }
     }
 }

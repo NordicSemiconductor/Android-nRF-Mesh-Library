@@ -18,7 +18,7 @@ import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
-@SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
 public final class MeshNetwork extends BaseMeshNetwork {
 
@@ -29,6 +29,29 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
     void setCallbacks(final MeshNetworkCallbacks mCallbacks) {
         this.mCallbacks = mCallbacks;
+    }
+
+    /**
+     * Returns true if the configuration contains full information about the mesh network, or false otherwise
+     *
+     * <p>
+     * In a partial configuration may not have all the network keys, application keys, provisioners,
+     * nodes(some nodes may contain their device keys and some may not).
+     * Hence when shared a user will gain only limited access to the given mesh network.
+     * </p>
+     */
+    public boolean isPartial() {
+        return partial;
+    }
+
+    /**
+     * Set the partial configuration flag to true. To be used internally
+     *
+     * @param partial true if the network is set to be exported partially.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void setPartial(final boolean partial) {
+        this.partial = partial;
     }
 
     public void setIvIndex(final IvIndex ivIndex) {
@@ -44,16 +67,8 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return schema;
     }
 
-    void setSchema(String schema) {
-        this.schema = schema;
-    }
-
     public String getId() {
         return id;
-    }
-
-    void setId(String id) {
-        this.id = id;
     }
 
     public String getVersion() {
@@ -128,32 +143,39 @@ public final class MeshNetwork extends BaseMeshNetwork {
             throw new IllegalArgumentException("Please allocate a unicast address range to the provisioner");
         }
 
-        Collections.sort(nodes, nodeComparator);
+        // Populate all addresses that are currently in use
+        final ArrayList<Integer> usedAddresses = new ArrayList<>();
+        for (ProvisionedMeshNode node : nodes) {
+            usedAddresses.addAll(node.getElements().keySet());
+        }
+        // Excluded addresses with the current IvIndex and current IvIndex - 1 must be considered as addresses in use.
+        if (networkExclusions.get(ivIndex.getIvIndex()) != null)
+            usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex()));
+        if (networkExclusions.get(ivIndex.getIvIndex() - 1) != null)
+            usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex() - 1));
+
+        Collections.sort(usedAddresses);
         // Iterate through all nodes just once, while iterating over ranges.
         int index = 0;
         for (AllocatedUnicastRange range : provisioner.getAllocatedUnicastRanges()) {
             // Start from the beginning of the current range.
             int address = range.getLowAddress();
 
-            // Iterate through nodes that weren't checked yet.
-            int currentIndex = index;
-            for (int i = currentIndex; i < nodes.size(); i++) {
-                final ProvisionedMeshNode node = nodes.get(i);
-                index += i;
-                final int lastUnicastInNode = node.getLastUnicastAddress();
+            // Iterate through nodes that weren't checked yet in essence the used addresses which include the excluded adresses
+            for (int usedAddress : usedAddresses) {
 
                 // Skip nodes with addresses below the range.
-                if (address > lastUnicastInNode) {
+                if (address > usedAddress) {
                     continue;
                 }
 
                 // If we found a space before the current node, return the address.
-                if (node.getUnicastAddress() > address + (elementCount - 1)) {
+                if (usedAddress > (address + (elementCount - 1))) {
                     return address;
                 }
 
                 // Else, move the address to the next available address.
-                address = lastUnicastInNode + 1;
+                address = usedAddress + 1;
 
                 // If the new address is outside of the range, go to the next one.
                 if (range.highAddress < address + (elementCount - 1)) {
@@ -205,6 +227,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
      *
      * @param rangeSize Range size
      */
+    @Nullable
     public AllocatedSceneRange nextAvailableSceneAddressRange(final int rangeSize) {
         final List<AllocatedSceneRange> ranges = new ArrayList<>();
         for (Provisioner provisioner : provisioners) {
@@ -457,6 +480,10 @@ public final class MeshNetwork extends BaseMeshNetwork {
         throw new IllegalArgumentException("Group already exists");
     }
 
+    /**
+     * Returns a group based on the group number
+     */
+    @Nullable
     public Group getGroup(final int address) {
         for (final Group group : groups) {
             if (address == group.getAddress()) {
@@ -520,6 +547,240 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return false;
     }
 
+
+    /**
+     * Returns the next available Scene number from the Provisioner's range
+     * that can be assigned to a new Scene.
+     *
+     * @param provisioner provisioner
+     * @return The next available Scene number that can be assigned to a new Scene,
+     * or null, if there are no more available numbers in the allocated range.
+     * @throws IllegalArgumentException if there is no allocated scene range to the provisioner
+     */
+    @Nullable
+    public Integer nextAvailableSceneNumber(Provisioner provisioner) throws IllegalArgumentException {
+        if (provisioner.getAllocatedSceneRanges().isEmpty()) {
+            throw new IllegalArgumentException("Please allocate a scene range to the provisioner");
+        }
+
+        Collections.sort(scenes, sceneComparator);
+        // Iterate through all nodes just once, while iterating over ranges.
+        int index = 0;
+        for (AllocatedSceneRange sceneRange : provisioner.getAllocatedSceneRanges()) {
+            // Start from the beginning of the current range.
+            int number = sceneRange.getFirstScene();
+
+            // Iterate through nodes that weren't checked yet.
+            int currentIndex = index;
+            for (int i = currentIndex; i < scenes.size(); i++) {
+                final Scene scene = scenes.get(i);
+                index += i;
+
+                // Skip scenes with number below the range.
+                if (number > scene.getNumber()) {
+                    continue;
+                }
+
+                // If we found a space before the current scene, return the scene number.
+                if (number < scene.getNumber()) {
+                    return number;
+                }
+
+                // Else, move the address to the next available address.
+                number = scene.getNumber() + 1;
+
+                // If the new address is outside of the range, go to the next one.
+                if (number > sceneRange.getLastScene()) {
+                    break;
+                }
+            }
+            // If the range has available space, return the address.
+            if (number <= sceneRange.getLastScene()) {
+                return number;
+            }
+        }
+
+        // No scene number was found :(
+        return null;
+    }
+
+    /**
+     * Creates a group using the next available group address based on the provisioners allocated group range
+     *
+     * @param provisioner provisioner
+     * @return a group or null if creation failed
+     */
+    public Scene createScene(@NonNull final Provisioner provisioner) {
+        final Integer address = nextAvailableSceneNumber(provisioner);
+        if (address != null) {
+            return new Scene(address, meshUUID);
+        }
+        return null;
+    }
+
+    /**
+     * Creates a group using the next available group address based on the provisioners allocated group range
+     *
+     * @param provisioner provisioner
+     * @return a group or null if creation failed
+     */
+    public Scene createScene(@NonNull final Provisioner provisioner, @NonNull final String name) {
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("Scene name cannot be empty");
+        }
+
+        final Integer address = nextAvailableSceneNumber(provisioner);
+        if (address != null) {
+            final Scene scene = new Scene(address, meshUUID);
+            scene.setName(name);
+            return scene;
+        }
+        return null;
+    }
+
+    /**
+     * Creates with a given number and name.
+     *
+     * @param number Address of the group which must be within the allocated range
+     * @param name   Friendly name of the group
+     * @return true if the group was successfully added and false otherwise since a group may already exist with the same group address
+     * @throws IllegalArgumentException if there is no group range allocated or if the address is out of the range allocated to the provisioner
+     */
+    public Scene createScene(@NonNull final Provisioner provisioner,
+                             final int number,
+                             @NonNull final String name) throws IllegalArgumentException {
+        if (provisioner.getAllocatedSceneRanges().isEmpty()) {
+            throw new IllegalArgumentException("Unable to create scene," +
+                    " there is no scene range allocated to the current provisioner");
+        }
+
+        for (AllocatedSceneRange range : provisioner.getAllocatedSceneRanges()) {
+            if (range.getLowerBound() > number || range.getUpperBound() < number) {
+                throw new IllegalArgumentException("Unable to create a scene, " +
+                        "the number is outside the range allocated to the provisioner");
+            }
+        }
+
+        final Scene scene = new Scene(number, meshUUID);
+        if (!TextUtils.isEmpty(name))
+            scene.setName(name);
+        return scene;
+    }
+
+    /**
+     * Adds a scene to the existing scenes list within the network
+     *
+     * @param scene to be added
+     * @return true if the scene was successfully added and false otherwise since a scene may already exist with the same group address.
+     * @throws IllegalArgumentException if there is no group range allocated or if the address is out of the range allocated to the provisioner.
+     */
+    public boolean addScene(@NonNull final Scene scene) throws IllegalArgumentException {
+
+        final Provisioner provisioner = getSelectedProvisioner();
+        if (provisioner.getAllocatedSceneRanges().isEmpty()) {
+            throw new IllegalArgumentException("Unable to create scene," +
+                    " there is no scene range allocated to the current provisioner");
+        }
+        return insertScene(scene);
+    }
+
+    private boolean insertScene(@NonNull final Scene scene) {
+        if (!isSceneExist(scene)) {
+            this.scenes.add(scene);
+            notifySceneAdded(scene);
+            return true;
+        }
+        throw new IllegalArgumentException("Group already exists");
+    }
+
+    /**
+     * Returns a scene based on the scene number.
+     */
+    @Nullable
+    public Scene getScene(final int number) {
+        for (final Scene scene : scenes) {
+            if (number == scene.getNumber()) {
+                return scene;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Updates a scene in the mesh network
+     *
+     * @param scene scene to be updated
+     */
+    public boolean updateScene(@NonNull final Scene scene) {
+        if (isSceneExist(scene)) {
+            notifySceneUpdated(scene);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes a scene from the mesh network.
+     *
+     * @param scene scene to be deleted
+     */
+    public boolean removeScene(@NonNull final Scene scene) {
+        if (scenes.remove(scene)) {
+            notifySceneDeleted(scene);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if a scene exists with the same scene number
+     *
+     * @param number Group address
+     */
+    public boolean isSceneExist(final int number) {
+        for (final Scene scene : scenes) {
+            if (scene.getNumber() == number) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if a scene already exists with te same number
+     *
+     * @param scene Scene
+     */
+    public boolean isSceneExist(@NonNull final Scene scene) {
+        for (final Scene scn : scenes) {
+            if (scn.getNumber() == scene.getNumber()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns a list of scenes applied on a given node.
+     *
+     * @param address node address
+     */
+    public ArrayList<Scene> getStoredScenes(final int address) {
+        if (!MeshAddress.isValidUnicastAddress(address)) {
+            throw new IllegalArgumentException("Invalid address, address must be a unicast address");
+        }
+        final ArrayList<Scene> scenesList = new ArrayList<>();
+        for (Scene scene : scenes) {
+            for (Integer addr : scene.getAddresses()) {
+                if (addr == address) {
+                    scenesList.add(scene);
+                    break;
+                }
+            }
+        }
+        return scenesList;
+    }
+
     /**
      * Returns a list of elements assigned to a particular group
      *
@@ -574,8 +835,11 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return models;
     }
 
+    /**
+     * Returns a list of scenes.
+     */
     public List<Scene> getScenes() {
-        return scenes;
+        return Collections.unmodifiableList(scenes);
     }
 
     void setScenes(List<Scene> scenes) {
@@ -606,7 +870,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return null;
     }
 
-    void setNetKeys(List<NetworkKey> netKeys) {
+    void setNetKeys(@NonNull final List<NetworkKey> netKeys) {
         this.netKeys = netKeys;
     }
 
@@ -617,10 +881,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
         return Collections.unmodifiableList(appKeys);
     }
 
-    void setAppKeys(List<ApplicationKey> appKeys) {
-        this.appKeys = appKeys;
-    }
-
     /**
      * Returns the provisioning flags
      */
@@ -628,12 +888,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
         int flags = 0;
         final NetworkKey key = getPrimaryNetworkKey();
         if (key != null) {
-            if (key.getPhase() == NetworkKey.PHASE_2) {
-                flags |= 1 << 7;
+            if (key.getPhase() == NetworkKey.USING_NEW_KEYS) {
+                flags |= 1; // << 0;
             }
 
             if (ivIndex.isIvUpdateActive()) {
-                flags |= 1 << 6;
+                flags |= 1 << 1;
             }
         }
 
@@ -672,8 +932,6 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 }
             }
         }
-
         return null;
     }
-
 }

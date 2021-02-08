@@ -25,84 +25,91 @@ package no.nordicsemi.android.nrfmesh.keys;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import no.nordicsemi.android.mesh.NetworkKey;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityEditKeyBinding;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 
-public class EditNetKeyActivity extends AppCompatActivity implements Injectable, MeshKeyListener {
+@AndroidEntryPoint
+public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
+    private ActivityEditKeyBinding binding;
     private EditNetKeyViewModel mViewModel;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_key);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(EditNetKeyViewModel.class);
+        binding = ActivityEditKeyBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(EditNetKeyViewModel.class);
         final int index = getIntent().getExtras().getInt(EDIT_KEY);
         mViewModel.selectNetKey(index);
 
-        //Bind ui
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(R.string.title_edit_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final View containerKey = findViewById(R.id.container_key);
-        containerKey.findViewById(R.id.image).
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_lock_open_24dp));
-        ((TextView) containerKey.findViewById(R.id.title)).setText(R.string.title_net_key);
-        final TextView keyView = containerKey.findViewById(R.id.text);
-        keyView.setVisibility(View.VISIBLE);
-
-        final View containerKeyName = findViewById(R.id.container_key_name);
-        containerKeyName.findViewById(R.id.image).
+        binding.containerKeyName.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label));
-        ((TextView) containerKeyName.findViewById(R.id.title)).setText(R.string.name);
-        final TextView name = containerKeyName.findViewById(R.id.text);
-        name.setVisibility(View.VISIBLE);
+        binding.containerKeyName.title.setText(R.string.name);
+        binding.containerKeyName.text.setVisibility(View.VISIBLE);
 
-        final View containerKeyIndex = findViewById(R.id.container_key_index);
-        containerKeyIndex.setClickable(false);
-        containerKeyIndex.findViewById(R.id.image).
+        binding.containerKey.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerKey.title.setText(R.string.key);
+        binding.containerKey.text.setVisibility(View.VISIBLE);
+
+        binding.containerOldKey.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
+        binding.containerOldKey.title.setText(R.string.old_key);
+        binding.containerOldKey.text.setVisibility(View.VISIBLE);
+        binding.containerOldKey.getRoot().setVisibility(View.VISIBLE);
+
+        binding.containerKeyIndex.getRoot().setClickable(false);
+        binding.containerKeyIndex.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_index));
-        ((TextView) containerKeyIndex.findViewById(R.id.title)).setText(R.string.title_key_index);
-        final TextView keyIndexView = containerKeyIndex.findViewById(R.id.text);
-        keyIndexView.setVisibility(View.VISIBLE);
+        binding.containerKeyIndex.title.setText(R.string.title_key_index);
+        binding.containerKeyIndex.text.setVisibility(View.VISIBLE);
 
-        containerKey.setOnClickListener(v -> {
-            final NetworkKey networkKey = mViewModel.getNetworkKeyLiveData().getValue();
-            final DialogFragmentEditNetKey fragment = DialogFragmentEditNetKey.newInstance(networkKey.getKeyIndex(), networkKey);
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerPhase.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_numeric));
+        binding.containerPhase.title.setText(R.string.phase);
+        binding.containerPhase.text.setVisibility(View.VISIBLE);
+        binding.containerPhase.getRoot().setVisibility(View.VISIBLE);
 
-        containerKeyName.setOnClickListener(v -> {
-            final DialogFragmentKeyName fragment = DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName());
-            fragment.show(getSupportFragmentManager(), null);
-        });
+        binding.containerLastModified.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_time));
+        binding.containerLastModified.title.setText(R.string.last_modified);
+        binding.containerLastModified.text.setVisibility(View.VISIBLE);
+        binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
 
-        mViewModel.getNetworkKeyLiveData().observe(this, networkKey -> {
-            keyView.setText(MeshParserUtils.bytesToHex(networkKey.getKey(), false));
-            name.setText(networkKey.getName());
-            keyIndexView.setText(String.valueOf(networkKey.getKeyIndex()));
+        binding.containerKey.getRoot().setOnClickListener(v ->
+                DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
+                        .show(getSupportFragmentManager(), null));
+
+        binding.containerKeyName.getRoot().setOnClickListener(v ->
+                DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
+                        .show(getSupportFragmentManager(), null));
+
+        mViewModel.getNetworkKeyLiveData().observe(this, key -> {
+            binding.containerKeyName.text.setText(key.getName());
+            binding.containerKey.text.setText(bytesToHex(key.getKey(), false));
+            binding.containerOldKey.text.setText(key.getOldKey() != null ? bytesToHex(key.getOldKey(), false) : getString(R.string.na));
+            binding.containerKeyIndex.text.setText(String.valueOf(key.getKeyIndex()));
+            binding.containerPhase.text.setText(key.getPhaseDescription());
+            binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(key.getTimestamp()));
         });
     }
 
@@ -121,7 +128,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements Injectable,
     }
 
     @Override
-    public boolean onKeyUpdated(final int position, @NonNull final String key) {
+    public boolean onKeyUpdated(@NonNull final String key) {
         return mViewModel.setKey(key);
     }
 }

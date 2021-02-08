@@ -22,37 +22,24 @@
 
 package no.nordicsemi.android.nrfmesh.node.dialog;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNameBinding;
 
 public class DialogFragmentNodeName extends DialogFragment {
 
     private static final String NODE_NAME = "NODE_NAME";
-
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout nodeNameInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText nodeNameInput;
+    private DialogFragmentNameBinding binding;
 
     private String mNodeName;
 
@@ -75,14 +62,11 @@ public class DialogFragmentNodeName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
+        binding = no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNameBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
-        nodeNameInputLayout.setHint(getString(R.string.hint_friendly_name));
-        nodeNameInput.setText(mNodeName);
-        nodeNameInput.addTextChangedListener(new TextWatcher() {
+        binding.textInputLayout.setHint(getString(R.string.hint_friendly_name));
+        binding.textInput.setText(mNodeName);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -91,9 +75,9 @@ public class DialogFragmentNodeName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString().trim())) {
-                    nodeNameInputLayout.setError(getString(R.string.error_empty_name));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    nodeNameInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -103,16 +87,16 @@ public class DialogFragmentNodeName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_label);
         alertDialogBuilder.setTitle(R.string.title_node_name);
-        summary.setText(R.string.node_name_rationale);
+        binding.summary.setText(R.string.node_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String nodeName = nodeNameInput.getEditableText().toString().trim();
+            final String nodeName = binding.textInput.getEditableText().toString().trim();
             if (!TextUtils.isEmpty(nodeName)) {
                 if (((DialogFragmentNodeNameListener) requireContext()).onNodeNameUpdated(nodeName)) {
                     dismiss();
@@ -124,8 +108,6 @@ public class DialogFragmentNodeName extends DialogFragment {
     }
 
     public interface DialogFragmentNodeNameListener {
-
         boolean onNodeNameUpdated(@NonNull final String nodeName);
-
     }
 }

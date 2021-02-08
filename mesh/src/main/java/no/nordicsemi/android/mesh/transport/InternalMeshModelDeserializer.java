@@ -13,12 +13,15 @@ import java.util.UUID;
 
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
+import no.nordicsemi.android.mesh.models.SceneServer;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.MeshAddress.addressBytesToInt;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnassignedAddress;
 
 /**
  * Do not touch this class, implemented for mesh model deserialization
@@ -64,7 +67,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             for (int j = 0; j < jsonArray.size(); j++) {
                 subscriptionAddress[j] = jsonArray.get(j).getAsByte();
             }
-            meshModel.addSubscriptionAddress(MeshAddress.addressBytesToInt(subscriptionAddress));
+            meshModel.addSubscriptionAddress(addressBytesToInt(subscriptionAddress));
         }
 
         if (jsonObject.getAsJsonObject().has("mPublicationSettings")) {
@@ -152,41 +155,54 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
             if (jsonObject.has("heartbeatPub")) {
                 final JsonObject heartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
                 final int destination;
-                if(heartbeatPub.has("address") && !heartbeatPub.has("destination")){
-                    destination = Integer.parseInt(heartbeatPub.get("address").getAsString(), 16);
+                if (heartbeatPub.has("address") && !heartbeatPub.has("destination")) {
+                    destination = heartbeatPub.get("address").getAsInt();
                 } else {
-                    destination = Integer.parseInt(heartbeatPub.get("destination").getAsString(), 16);
+                    destination = heartbeatPub.get("destination").getAsInt();
                 }
-                final int countLog = heartbeatPub.get("count").getAsInt();
-                final int period = (heartbeatPub.get("period").getAsInt());
-                final int ttl = heartbeatPub.get("ttl").getAsInt();
-                final int index = heartbeatPub.get("index").getAsInt();
+                if (!isValidUnassignedAddress(destination)) {
+                    final int countLog = heartbeatPub.get("count").getAsInt();
+                    final int period = (heartbeatPub.get("period").getAsInt());
+                    final int ttl = heartbeatPub.get("ttl").getAsInt();
+                    final int index = heartbeatPub.get("index").getAsInt();
 
-                final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
-                final Features features = new Features(featuresJson.get("friend").getAsInt(),
-                        featuresJson.get("lowPower").getAsInt(),
-                        featuresJson.get("relay").getAsInt(),
-                        featuresJson.get("proxy").getAsInt());
-                ((ConfigurationServerModel) meshModel)
-                        .setHeartbeatPublication(new HeartbeatPublication(destination, (byte)countLog,
-                                (byte)period, ttl, features, index));
+                    final JsonObject featuresJson = heartbeatPub.get("features").getAsJsonObject();
+                    final Features features = new Features(featuresJson.get("friend").getAsInt(),
+                            featuresJson.get("lowPower").getAsInt(),
+                            featuresJson.get("relay").getAsInt(),
+                            featuresJson.get("proxy").getAsInt());
+                    ((ConfigurationServerModel) meshModel)
+                            .setHeartbeatPublication(new HeartbeatPublication(destination, (byte) countLog,
+                                    (byte) period, ttl, features, index));
+                }
             }
             if (jsonObject.has("heartbeatSub")) {
                 final JsonObject heartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
-                final int source = Integer.parseInt(heartbeatSub.get("source").getAsString(), 16);
+                final int source = heartbeatSub.get("source").getAsInt();
                 final int destination;
-                if(heartbeatSub.has("address") && !heartbeatSub.has("destination")){
-                    destination = Integer.parseInt(heartbeatSub.get("address").getAsString(), 16);
+                if (heartbeatSub.has("address") && !heartbeatSub.has("destination")) {
+                    destination = heartbeatSub.get("address").getAsInt();
                 } else {
-                    destination = Integer.parseInt(heartbeatSub.get("destination").getAsString(), 16);
+                    destination = heartbeatSub.get("destination").getAsInt();
                 }
-                final int period = (heartbeatSub.get("period").getAsInt());
-                final int countLog = heartbeatSub.get("count").getAsInt();
-                final int minHops = heartbeatSub.get("minHops").getAsInt();
-                final int maxHops = heartbeatSub.get("maxHops").getAsInt();
-                ((ConfigurationServerModel) meshModel)
-                        .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, (byte)period,
-                                (byte)countLog, minHops, maxHops));
+                if (isValidUnassignedAddress(destination)) {
+                    final int period = (heartbeatSub.get("period").getAsInt());
+                    final int countLog = heartbeatSub.get("count").getAsInt();
+                    final int minHops = heartbeatSub.get("minHops").getAsInt();
+                    final int maxHops = heartbeatSub.get("maxHops").getAsInt();
+                    ((ConfigurationServerModel) meshModel)
+                            .setHeartbeatSubscription(new HeartbeatSubscription(source, destination, (byte) period,
+                                    (byte) countLog, minHops, maxHops));
+                }
+            }
+        }
+
+        if (meshModel instanceof SceneServer) {
+            if (jsonObject.has("sceneNumbers")) {
+                final JsonArray scenesArray = jsonObject.get("sceneNumbers").getAsJsonArray();
+                for (JsonElement element : scenesArray) {
+                    meshModel.sceneNumbers.add(element.getAsInt());
+                }
             }
         }
 
@@ -251,6 +267,8 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
                     } else {
                         publishAddress = jsonElement.getAsInt();
                     }
+                    if (isValidUnassignedAddress(publishAddress))
+                        return meshModel;
 
                     if (jsonPublicationSettings.has("labelUUID")) {
                         final String uuid = jsonPublicationSettings.get("labelUUID").getAsString();

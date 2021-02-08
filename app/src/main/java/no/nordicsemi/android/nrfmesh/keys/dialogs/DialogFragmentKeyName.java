@@ -22,43 +22,30 @@
 
 package no.nordicsemi.android.nrfmesh.keys.dialogs;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNameBinding;
 import no.nordicsemi.android.nrfmesh.keys.MeshKeyListener;
 
 public class DialogFragmentKeyName extends DialogFragment {
 
     private static final String KEY_NAME = "NODE_NAME";
 
-    //UI Bindings
-    @BindView(R.id.text_input_layout)
-    TextInputLayout keyNameInputLayout;
-    @BindView(R.id.text_input)
-    TextInputEditText keyNameInput;
-
+    private DialogFragmentNameBinding binding;
     private String name;
 
     public static DialogFragmentKeyName newInstance(@NonNull final String name) {
-        DialogFragmentKeyName fragmentNetworkKey = new DialogFragmentKeyName();
+        final DialogFragmentKeyName fragmentNetworkKey = new DialogFragmentKeyName();
         final Bundle args = new Bundle();
         args.putString(KEY_NAME, name);
         fragmentNetworkKey.setArguments(args);
@@ -76,14 +63,11 @@ public class DialogFragmentKeyName extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-        @SuppressLint("InflateParams") final View rootView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_fragment_name, null);
+        binding = DialogFragmentNameBinding.inflate(getLayoutInflater());
 
-        //Bind ui
-        ButterKnife.bind(this, rootView);
-        final TextView summary = rootView.findViewById(R.id.summary);
-        keyNameInputLayout.setHint(getString(R.string.name));
-        keyNameInput.setText(name);
-        keyNameInput.addTextChangedListener(new TextWatcher() {
+        binding.textInputLayout.setHint(getString(R.string.name));
+        binding.textInput.setText(name);
+        binding.textInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 
@@ -92,9 +76,9 @@ public class DialogFragmentKeyName extends DialogFragment {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (TextUtils.isEmpty(s.toString())) {
-                    keyNameInputLayout.setError(getString(R.string.error_empty_name));
+                    binding.textInputLayout.setError(getString(R.string.error_empty_name));
                 } else {
-                    keyNameInputLayout.setError(null);
+                    binding.textInputLayout.setError(null);
                 }
             }
 
@@ -104,22 +88,22 @@ public class DialogFragmentKeyName extends DialogFragment {
             }
         });
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(rootView)
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(requireContext()).setView(binding.getRoot())
                 .setPositiveButton(R.string.ok, null).setNegativeButton(R.string.cancel, null);
 
         alertDialogBuilder.setIcon(R.drawable.ic_vpn_key_24dp);
         alertDialogBuilder.setTitle(R.string.title_edit_key_name);
-        summary.setText(R.string.key_name_rationale);
+        binding.summary.setText(R.string.key_name_rationale);
 
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            final String nodeName = keyNameInput.getEditableText().toString().trim();
+            final String nodeName = binding.textInput.getEditableText().toString().trim();
             try {
                 if (((MeshKeyListener) requireContext()).onKeyNameUpdated(nodeName)) {
                     dismiss();
                 }
             } catch (IllegalArgumentException ex) {
-                keyNameInputLayout.setError(ex.getMessage());
+                binding.textInputLayout.setError(ex.getMessage());
             }
         });
 

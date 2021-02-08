@@ -28,13 +28,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.addressIntToBytes;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isAddressInRange;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnicastAddress;
 
 /**
  * To be used as a wrapper class to create a ConfigModelPublicationSet message.
  */
-@SuppressWarnings("unused")
 public class ConfigModelPublicationSet extends ConfigMessage {
 
     private static final String TAG = ConfigModelPublicationSet.class.getSimpleName();
@@ -55,7 +59,20 @@ public class ConfigModelPublicationSet extends ConfigMessage {
     private final int modelIdentifier;
 
     /**
-     * Constructs a ConfigModelPublicationSet message
+     * Constructs a ConfigModelPublicationSet message. Use this constructor to clear publications
+     *
+     * @param elementAddress  Element address that should publish
+     * @param modelIdentifier identifier for this model that will do publication
+     * @throws IllegalArgumentException for invalid arguments
+     */
+    public ConfigModelPublicationSet(final int elementAddress,
+                                     final int modelIdentifier) throws IllegalArgumentException {
+        this(elementAddress, UNASSIGNED_ADDRESS, 0, false, 0,
+                0, 0, 0, 0, modelIdentifier);
+    }
+
+    /**
+     * Constructs a ConfigModelPublicationSet message.
      *
      * @param elementAddress          Element address that should publish
      * @param publishAddress          Address to which the element must publish
@@ -81,10 +98,10 @@ public class ConfigModelPublicationSet extends ConfigMessage {
                                      final int retransmitCount,
                                      final int retransmitIntervalSteps,
                                      final int modelIdentifier) throws IllegalArgumentException {
-        if (!MeshAddress.isValidUnicastAddress(elementAddress))
+        if (!isValidUnicastAddress(elementAddress))
             throw new IllegalArgumentException("Invalid unicast address, unicast address must be a 16-bit value, and must range from 0x0001 to 0x7FFF");
         this.elementAddress = elementAddress;
-        if (!MeshAddress.isAddressInRange(publishAddress))
+        if (!isAddressInRange(publishAddress))
             throw new IllegalArgumentException("Invalid publish address, publish address must be a 16-bit value");
         this.publishAddress = publishAddress;
 
@@ -110,14 +127,14 @@ public class ConfigModelPublicationSet extends ConfigMessage {
         final ByteBuffer paramsBuffer;
         final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(appKeyIndex);
         Log.v(TAG, "AppKeyIndex: " + appKeyIndex);
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
-        Log.v(TAG, "Publish address: " + MeshAddress.formatAddress(publishAddress, true));
+        Log.v(TAG, "Element address: " + formatAddress(elementAddress, true));
+        Log.v(TAG, "Publish address: " + formatAddress(publishAddress, true));
         Log.v(TAG, "Publish ttl: " + publishTtl);
         Log.v(TAG, "Publish steps: " + publicationSteps);
         Log.v(TAG, "Publish resolution: " + publicationResolution);
         Log.v(TAG, "Retransmission count: " + publishRetransmitCount);
         Log.v(TAG, "Retransmission interval steps: " + publishRetransmitIntervalSteps);
-        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(modelIdentifier), false));
+        Log.v(TAG, "Model: " + MeshParserUtils.bytesToHex(addressIntToBytes(modelIdentifier), false));
 
         final int rfu = 0; // We ignore the rfu here
         final int octet5 = (applicationKeyIndex[0] | (credentialFlag ? 0b01 : 0b00) << 4);

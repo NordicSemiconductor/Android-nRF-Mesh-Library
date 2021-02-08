@@ -65,7 +65,7 @@ public class DialogFragmentPermissionRationale extends DialogFragmentMessage {
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
         alertDialogBuilder = new AlertDialog.Builder(requireActivity());
         alertDialogBuilder.setIcon(R.drawable.ic_info_outline);
-        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((StoragePermissionListener)getParentFragment()).requestPermission());
+        alertDialogBuilder.setPositiveButton(getString(R.string.ok), (dialog, which) -> ((StoragePermissionListener)requireActivity()).requestPermission());
         if(isDeniedForever){
             message = message + getString(R.string.permission_rationale_settings);
             alertDialogBuilder.setNeutralButton(getString(R.string.settings), (dialog, which) -> {

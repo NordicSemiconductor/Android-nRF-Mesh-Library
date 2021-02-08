@@ -2,7 +2,6 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,11 +10,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.GenericLevelServerModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -28,13 +24,12 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.LayoutGenericLevelBinding;
 
+@AndroidEntryPoint
 public class GenericLevelServerActivity extends ModelConfigurationActivity {
 
     private static final String TAG = GenericOnOffServerActivity.class.getSimpleName();
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
 
     private TextView level;
     private TextView time;
@@ -52,31 +47,30 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
         mSwipe.setOnRefreshListener(this);
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model instanceof GenericLevelServerModel) {
-            final ConstraintLayout container = findViewById(R.id.node_controls_container);
-            final View nodeControlsContainer = LayoutInflater.from(this).inflate(R.layout.layout_generic_level, container);
-            time = nodeControlsContainer.findViewById(R.id.transition_time);
-            remainingTime = nodeControlsContainer.findViewById(R.id.transition_state);
-            mTransitionTimeSlider = nodeControlsContainer.findViewById(R.id.transition_slider);
+            final LayoutGenericLevelBinding nodeControlsContainer = LayoutGenericLevelBinding.inflate(getLayoutInflater(), binding.nodeControlsContainer, true);
+            time = nodeControlsContainer.transitionTime;
+            remainingTime = nodeControlsContainer.transitionState;
+            mTransitionTimeSlider = nodeControlsContainer.transitionSlider;
             mTransitionTimeSlider.setValueFrom(0);
             mTransitionTimeSlider.setValueTo(230);
             mTransitionTimeSlider.setValue(0);
             mTransitionTimeSlider.setStepSize(1);
 
-            mDelaySlider = nodeControlsContainer.findViewById(R.id.delay_slider);
+            mDelaySlider = nodeControlsContainer.delaySlider;
             mDelaySlider.setValueFrom(0);
             mDelaySlider.setValueTo(255);
             mDelaySlider.setValue(0);
             mDelaySlider.setStepSize(1);
-            final TextView delayTime = nodeControlsContainer.findViewById(R.id.delay_time);
+            final TextView delayTime = nodeControlsContainer.delayTime;
 
-            level = nodeControlsContainer.findViewById(R.id.level);
-            mLevelSlider = nodeControlsContainer.findViewById(R.id.level_seek_bar);
+            level = nodeControlsContainer.level;
+            mLevelSlider = nodeControlsContainer.levelSeekBar;
             mLevelSlider.setValueTo(0);
             mLevelSlider.setValueTo(100);
             mLevelSlider.setValue(0);
             mLevelSlider.setStepSize(1);
 
-            mActionRead = nodeControlsContainer.findViewById(R.id.action_read);
+            mActionRead = nodeControlsContainer.actionRead;
             mActionRead.setOnClickListener(v -> sendGenericLevelGet());
             mTransitionTimeSlider.addOnChangeListener(new Slider.OnChangeListener() {
                 int lastValue = 0;
@@ -143,6 +137,14 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
                     sendGenericLevel(genericLevel, delay);
                 }
             });
+
+            mViewModel.getSelectedModel().observe(this, meshModel -> {
+                if (meshModel != null) {
+                    updateAppStatusUi(meshModel);
+                    updatePublicationUi(meshModel);
+                    updateSubscriptionUi(meshModel);
+                }
+            });
         }
     }
 
@@ -197,7 +199,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
      * Send generic on off get to mesh node
      */
     public void sendGenericLevelGet() {
-        if (!checkConnectivity()) return;
+        if (!checkConnectivity(mContainer)) return;
         final Element element = mViewModel.getSelectedElement().getValue();
         if (element != null) {
             final MeshModel model = mViewModel.getSelectedModel().getValue();
@@ -224,7 +226,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
      * @param delay message execution delay in 5ms steps. After this delay milliseconds the model will execute the required behaviour.
      */
     public void sendGenericLevel(final int level, final Integer delay) {
-        if (!checkConnectivity()) return;
+        if (!checkConnectivity(mContainer)) return;
         final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
         if (node != null) {
             final Element element = mViewModel.getSelectedElement().getValue();

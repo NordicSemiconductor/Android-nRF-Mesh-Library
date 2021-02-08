@@ -28,45 +28,46 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyAdd;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyDelete;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyGet;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
 import no.nordicsemi.android.nrfmesh.keys.adapter.AddedNetKeyAdapter;
+import no.nordicsemi.android.nrfmesh.viewmodels.AddKeysViewModel;
 
-public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
+@AndroidEntryPoint
+public class AddNetKeysActivity extends AddKeysActivity implements
         AddedNetKeyAdapter.OnItemClickListener {
     private AddedNetKeyAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //noinspection ConstantConditions
         getSupportActionBar().setTitle(R.string.title_added_net_keys);
-        mEmptyView = findViewById(R.id.empty_net_keys);
         adapter = new AddedNetKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getNetKeys(), mViewModel.getSelectedMeshNode());
-        enableAdapterClickListener(true);
-        recyclerViewKeys.setAdapter(adapter);
+        binding.recyclerViewKeys.setAdapter(adapter);
+        adapter.setOnItemClickListener(this);
+        updateClickableViews();
     }
 
     @Override
     public void onItemClick(@NonNull final NetworkKey networkKey) {
-        if (!checkConnectivity())
+        if (!checkConnectivity(binding.container))
             return;
         final MeshMessage meshMessage;
         final String message;
-        if (!mViewModel.isNetKeyAdded(networkKey.getKeyIndex())) {
+        if (!((AddKeysViewModel) mViewModel).isNetKeyAdded(networkKey.getKeyIndex())) {
             meshMessage = new ConfigNetKeyAdd(networkKey);
             message = getString(R.string.adding_net_key);
         } else {
             meshMessage = new ConfigNetKeyDelete(networkKey);
             message = getString(R.string.deleting_net_key);
         }
-        mViewModel.displaySnackBar(this, container, message, Snackbar.LENGTH_SHORT);
+        mViewModel.displaySnackBar(this, binding.container, message, Snackbar.LENGTH_SHORT);
         sendMessage(meshMessage);
     }
 
@@ -79,6 +80,6 @@ public class AddNetKeysActivity extends AddKeysActivity implements Injectable,
 
     @Override
     void enableAdapterClickListener(final boolean enable) {
-        adapter.setOnItemClickListener(enable ? this : null);
+        adapter.enableDisableKeySelection(enable);
     }
 }

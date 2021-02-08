@@ -46,9 +46,6 @@ public class MeshParserUtils {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
-    private static final int TAI_YEAR = 2000;
-    private static final int TAI_MONTH = 1;
-    private static final int TAI_DATE = 1;
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MID = 0x80;
@@ -283,12 +280,14 @@ public class MeshParserUtils {
         return null;
     }
 
-    public static int getSequenceNumber(final byte[] sequenceNumber) {
-        return (((sequenceNumber[0] & 0xFF) << 16) | ((sequenceNumber[1] & 0xFF) << 8) | (sequenceNumber[2] & 0xFF));
+    public static int convert24BitsToInt(@NonNull final byte[] byteArray) {
+        if (byteArray.length != 3)
+            throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");
+        return (((byteArray[0] & 0xFF) << 16) | ((byteArray[1] & 0xFF) << 8) | (byteArray[2] & 0xFF));
     }
 
     public static int getSequenceNumberFromPDU(final byte[] pdu) {
-        return (((pdu[3] & 0xFF) << 16) | ((pdu[4] & 0xFF) << 8) | (pdu[5] & 0xFF)); // get sequence number array from pduge
+        return convert24BitsToInt(new byte[]{pdu[3], pdu[4], pdu[5]}); // get sequence number array from pdu
     }
 
     public static int calculateSeqZero(final byte[] sequenceNumber) {
@@ -332,11 +331,11 @@ public class MeshParserUtils {
             case 1:
                 return accessPayload[0];
             case 2:
-                return MeshParserUtils.unsignedBytesToInt(accessPayload[1], accessPayload[0]);
+                return unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             default:
-                return ((byte) (MeshParserUtils.unsignedByteToInt(accessPayload[1]))
-                        | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[0]) << 8)
-                        | (byte) ((MeshParserUtils.unsignedByteToInt(accessPayload[2]) << 16))));
+                return unsignedByteToInt(accessPayload[1]) << 8
+                        | unsignedByteToInt(accessPayload[0]) << 16
+                        | unsignedByteToInt(accessPayload[2]);
         }
     }
 
@@ -389,7 +388,8 @@ public class MeshParserUtils {
      * @return length of opcodes
      */
     public static byte[] createVendorOpCode(final int opCode, final int companyIdentifier) {
-        final byte[] opCodes = getOpCode(opCode);
+        final byte[] opCodes = new byte[3];
+        opCodes[0] = (byte) (opCode | 0xC0);
         opCodes[1] = (byte) (companyIdentifier & 0xFF);
         opCodes[2] = (byte) ((companyIdentifier >> 8) & 0xFF);
         return opCodes;
@@ -687,13 +687,15 @@ public class MeshParserUtils {
      */
     public static String formatUuid(@NonNull final String uuidHex) {
         if (isUuidPattern(uuidHex)) {
-            return new StringBuffer(uuidHex).
-                    insert(8, "-").
-                    insert(13, "-").
-                    insert(18, "-").
-                    insert(23, "-").toString();
+            return new StringBuffer(uuidHex)
+                    .insert(8, "-")
+                    .insert(13, "-")
+                    .insert(18, "-")
+                    .insert(23, "-")
+                    .toString()
+                    .toUpperCase(Locale.US);
         }
-        return null;
+        return uuidHex;
     }
 
     public static boolean isUuidPattern(@NonNull final String uuidHex) {
@@ -706,13 +708,14 @@ public class MeshParserUtils {
      * @param uuidHex Hex string
      */
     public static UUID getUuid(@NonNull final String uuidHex) {
-        if (uuidHex.matches(PATTERN_UUID_HEX)) {
-            return UUID.fromString(new StringBuffer(uuidHex).
-                    insert(8, "-").
-                    insert(4, "-").
-                    insert(4, "-").
-                    insert(4, "-").toString());
-        }
+        if (uuidHex.matches(PATTERN_UUID_HEX))
+            return UUID.fromString(new StringBuffer(uuidHex)
+                    .insert(8, "-")
+                    .insert(4, "-")
+                    .insert(4, "-")
+                    .insert(4, "-")
+                    .toString());
+
         return null;
     }
 

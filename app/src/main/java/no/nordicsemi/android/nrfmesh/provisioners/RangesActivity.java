@@ -25,9 +25,7 @@ package no.nordicsemi.android.nrfmesh.provisioners;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -35,21 +33,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.AddressRange;
 import no.nordicsemi.android.mesh.AllocatedGroupRange;
 import no.nordicsemi.android.mesh.AllocatedSceneRange;
@@ -59,7 +51,7 @@ import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.Range;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityRangesBinding;
 import no.nordicsemi.android.nrfmesh.provisioners.adapter.RangeAdapter;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentGroupRange;
 import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentSceneRange;
@@ -67,28 +59,19 @@ import no.nordicsemi.android.nrfmesh.provisioners.dialogs.DialogFragmentUnicastR
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.RangesViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
-import no.nordicsemi.android.nrfmesh.widgets.RangeView;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-public class RangesActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class RangesActivity extends AppCompatActivity implements
         RangeAdapter.OnItemClickListener,
         ItemTouchHelperAdapter,
         RangeListener {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    //UI Bindings
-    @BindView(android.R.id.empty)
-    View mEmptyView;
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-    @BindView(R.id.fab_resolve)
-    ExtendedFloatingActionButton mFabResolve;
-    private RangeView mRangeView;
-    private int mType;
+    private ActivityRangesBinding binding;
     private RangesViewModel mViewModel;
+
+    private int mType;
     private RangeAdapter mRangeAdapter;
     private Provisioner mProvisioner;
 
@@ -98,56 +81,44 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     private final Comparator<AllocatedSceneRange> sceneRangeComparator = (sceneRange1, sceneRange2) ->
             Integer.compare(sceneRange1.getFirstScene(), sceneRange2.getFirstScene());
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ranges);
-        ButterKnife.bind(this);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(RangesViewModel.class);
+        binding = ActivityRangesBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(RangesViewModel.class);
         mType = getIntent().getExtras().getInt(Utils.RANGE_TYPE);
 
-        //Bind ui
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        final View rangesContainer = findViewById(R.id.info_ranges);
-        rangesContainer.findViewById(R.id.container).setVisibility(View.VISIBLE);
-        mRangeView = rangesContainer.findViewById(R.id.range);
-        final TextView startAddress = rangesContainer.findViewById(R.id.start_address);
-        final TextView endAddress = rangesContainer.findViewById(R.id.end_address);
-        final ExtendedFloatingActionButton fab_add = findViewById(R.id.fab_add);
+        binding.infoRanges.getRoot().setVisibility(View.VISIBLE);
 
         mProvisioner = mViewModel.getSelectedProvisioner().getValue();
 
         switch (mType) {
             case Utils.GROUP_RANGE:
-                startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_GROUP_ADDRESS, true));
-                endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_GROUP_ADDRESS, true));
+                binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_GROUP_ADDRESS, true));
+                binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_GROUP_ADDRESS, true));
                 getSupportActionBar().setTitle(R.string.title_edit_group_ranges);
-                mRangeAdapter = new RangeAdapter(this,
-                        mProvisioner.getProvisionerUuid(),
+                mRangeAdapter = new RangeAdapter(mProvisioner.getProvisionerUuid(),
                         mProvisioner.getAllocatedGroupRanges(),
                         mViewModel.getNetworkLiveData().getProvisioners());
                 break;
             case Utils.SCENE_RANGE:
-                startAddress.setText(MeshAddress.formatAddress(0x0000, true));
-                endAddress.setText(MeshAddress.formatAddress(0xFFFF, true));
+                binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(0x0000, true));
+                binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(0xFFFF, true));
                 getSupportActionBar().setTitle(R.string.title_edit_scene_ranges);
-                mRangeAdapter = new RangeAdapter(this,
-                        mProvisioner.getProvisionerUuid(),
+                mRangeAdapter = new RangeAdapter(mProvisioner.getProvisionerUuid(),
                         mProvisioner.getAllocatedSceneRanges(),
                         mViewModel.getNetworkLiveData().getProvisioners());
                 break;
             default:
             case Utils.UNICAST_RANGE:
-                startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_UNICAST_ADDRESS, true));
-                endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_UNICAST_ADDRESS, true));
+                binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_UNICAST_ADDRESS, true));
+                binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_UNICAST_ADDRESS, true));
                 getSupportActionBar().setTitle(R.string.title_edit_unicast_ranges);
-                mRangeAdapter = new RangeAdapter(this,
-                        mProvisioner.getProvisionerUuid(),
+                mRangeAdapter = new RangeAdapter(mProvisioner.getProvisionerUuid(),
                         mProvisioner.getAllocatedUnicastRanges(),
                         mViewModel.getNetworkLiveData().getProvisioners());
                 break;
@@ -155,17 +126,17 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
         mRangeAdapter.setOnItemClickListener(this);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
-                new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mRangeAdapter);
+                new DividerItemDecoration(binding.recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+        binding.recyclerView.addItemDecoration(dividerItemDecoration);
+        binding.recyclerView.setItemAnimator(new DefaultItemAnimator());
+        binding.recyclerView.setAdapter(mRangeAdapter);
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView);
 
-        fab_add.setOnClickListener(v -> {
+        binding.fabAdd.setOnClickListener(v -> {
             switch (mType) {
                 case Utils.GROUP_RANGE:
                     final DialogFragmentGroupRange groupRange = DialogFragmentGroupRange.newInstance(null);
@@ -183,7 +154,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
             }
         });
 
-        mFabResolve.setOnClickListener(v -> resolveRanges());
+        binding.fabResolve.setOnClickListener(v -> resolveRanges());
 
         updateRanges();
         updateOtherRanges();
@@ -247,7 +218,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                 updateResolveFab();
             } catch (Exception ex) {
                 mRangeAdapter.notifyDataSetChanged();
-                mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -259,17 +230,17 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
 
     private void updateRanges() {
         if (mProvisioner != null) {
-            mRangeView.clearRanges();
+            binding.infoRanges.range.clearRanges();
             switch (mType) {
                 case Utils.GROUP_RANGE:
-                    mRangeView.addRanges(mProvisioner.getAllocatedGroupRanges());
+                    binding.infoRanges.range.addRanges(mProvisioner.getAllocatedGroupRanges());
                     break;
                 case Utils.SCENE_RANGE:
-                    mRangeView.addRanges(mProvisioner.getAllocatedSceneRanges());
+                    binding.infoRanges.range.addRanges(mProvisioner.getAllocatedSceneRanges());
                     break;
                 default:
                 case Utils.UNICAST_RANGE:
-                    mRangeView.addRanges(mProvisioner.getAllocatedUnicastRanges());
+                    binding.infoRanges.range.addRanges(mProvisioner.getAllocatedUnicastRanges());
                     break;
             }
         }
@@ -278,19 +249,19 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     private void updateOtherRanges() {
         final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
         if (network != null) {
-            mRangeView.clearOtherRanges();
+            binding.infoRanges.range.clearOtherRanges();
             for (Provisioner other : network.getProvisioners()) {
                 if (!other.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid()))
                     switch (mType) {
                         case Utils.GROUP_RANGE:
-                            mRangeView.addOtherRanges(other.getAllocatedGroupRanges());
+                            binding.infoRanges.range.addOtherRanges(other.getAllocatedGroupRanges());
                             break;
                         case Utils.SCENE_RANGE:
-                            mRangeView.addOtherRanges(other.getAllocatedSceneRanges());
+                            binding.infoRanges.range.addOtherRanges(other.getAllocatedSceneRanges());
                             break;
                         default:
                         case Utils.UNICAST_RANGE:
-                            mRangeView.addOtherRanges(other.getAllocatedUnicastRanges());
+                            binding.infoRanges.range.addOtherRanges(other.getAllocatedUnicastRanges());
                             break;
                     }
             }
@@ -305,27 +276,27 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
                     switch (mType) {
                         case Utils.GROUP_RANGE:
                             if (mProvisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())) {
-                                mFabResolve.show();
+                                binding.fabResolve.show();
                                 return;
                             } else {
-                                mFabResolve.hide();
+                                binding.fabResolve.hide();
                             }
                             break;
                         case Utils.SCENE_RANGE:
                             if (mProvisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
-                                mFabResolve.show();
+                                binding.fabResolve.show();
                                 return;
                             } else {
-                                mFabResolve.hide();
+                                binding.fabResolve.hide();
                             }
                             break;
                         default:
                         case Utils.UNICAST_RANGE:
                             if (mProvisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())) {
-                                mFabResolve.show();
+                                binding.fabResolve.show();
                                 return;
                             } else {
-                                mFabResolve.hide();
+                                binding.fabResolve.hide();
                             }
                             break;
                     }
@@ -336,9 +307,9 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     private void updateEmptyView() {
         // Show the empty view
         if (mRangeAdapter.isEmpty()) {
-            mEmptyView.setVisibility(View.VISIBLE);
+            binding.empty.getRoot().setVisibility(View.VISIBLE);
         } else {
-            mEmptyView.setVisibility(View.GONE);
+            binding.empty.getRoot().setVisibility(View.GONE);
         }
     }
 
@@ -355,7 +326,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
     }
 
     private void displaySnackBar(final int position, final Range range) {
-        Snackbar.make(container, getString(R.string.range_deleted), Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.container, getString(R.string.range_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     mRangeAdapter.addItem(position, range);
                     mProvisioner.addRange(range);
@@ -388,7 +359,7 @@ public class RangesActivity extends AppCompatActivity implements Injectable,
             List<AllocatedUnicastRange> ranges = new ArrayList<>(mProvisioner.getAllocatedUnicastRanges());
             Collections.sort(ranges, addressRangeComparator);
             for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
-                if(!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
+                if (!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
                     final List<AllocatedUnicastRange> otherRanges = new ArrayList<>(p.getAllocatedUnicastRanges());
                     Collections.sort(otherRanges, addressRangeComparator);
                     for (AllocatedUnicastRange otherRange : otherRanges) {

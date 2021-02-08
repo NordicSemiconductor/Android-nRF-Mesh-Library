@@ -1,12 +1,7 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.transport.ConfigAppKeyGet;
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
@@ -15,17 +10,11 @@ import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 /**
  * ViewModel for {@link NetKeysActivity}, {@link AppKeysActivity}
  */
-public class AddKeysViewModel extends KeysViewModel {
+public class AddKeysViewModel extends BaseViewModel {
 
-    private Queue<ConfigAppKeyGet> messageQueue = new LinkedList<>();
-
-    @Inject
+    @ViewModelInject
     AddKeysViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
-    }
-
-    public Queue<ConfigAppKeyGet> getMessageQueue() {
-        return messageQueue;
     }
 
     /**

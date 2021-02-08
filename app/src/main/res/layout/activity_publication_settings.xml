@@ -210,7 +210,7 @@
                                 app:layout_constraintStart_toEndOf="@id/img_friendship_credentials"
                                 app:layout_constraintTop_toTopOf="parent" />
 
-                            <Switch
+                            <com.google.android.material.switchmaterial.SwitchMaterial
                                 android:id="@+id/friendship_credential_flag"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"

@@ -22,13 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,33 +30,31 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import no.nordicsemi.android.nrfmesh.R;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import no.nordicsemi.android.nrfmesh.databinding.ProgressItemBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionerProgress;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisioningStatusLiveData;
 
 public class ProvisioningProgressAdapter extends RecyclerView.Adapter<ProvisioningProgressAdapter.ViewHolder> {
-    private final Context mContext;
     private final List<ProvisionerProgress> mProgress = new ArrayList<>();
 
-    public ProvisioningProgressAdapter(@NonNull final Context mContext, @NonNull final ProvisioningStatusLiveData provisioningProgress) {
-        this.mContext = mContext;
+    public ProvisioningProgressAdapter(@NonNull final ProvisioningStatusLiveData provisioningProgress) {
         this.mProgress.addAll(provisioningProgress.getStateList());
     }
 
     @NonNull
     @Override
     public ProvisioningProgressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.progress_item, parent, false);
-        return new ProvisioningProgressAdapter.ViewHolder(layoutView);
+        return new ViewHolder(ProgressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         final ProvisionerProgress provisioningProgress = mProgress.get(position);
-        if(provisioningProgress != null) {
-            holder.image.setImageDrawable(ContextCompat.getDrawable(mContext, provisioningProgress.getResId()));
+        if (provisioningProgress != null) {
+            holder.image.setImageDrawable(ContextCompat.getDrawable(holder.itemView.getContext(), provisioningProgress.getResId()));
             holder.progress.setText(provisioningProgress.getMessage());
         }
     }
@@ -82,15 +74,14 @@ public class ProvisioningProgressAdapter extends RecyclerView.Adapter<Provisioni
         notifyDataSetChanged();
     }
 
-    final class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.image)
+    static final class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
-        @BindView(R.id.text)
         TextView progress;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(@NonNull final ProgressItemBinding binding) {
+            super(binding.getRoot());
+            image = binding.image;
+            progress = binding.text;
         }
     }
 }

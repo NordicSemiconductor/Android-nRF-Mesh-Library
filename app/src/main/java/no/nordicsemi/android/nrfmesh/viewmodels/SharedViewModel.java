@@ -24,9 +24,8 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 
 import java.io.OutputStream;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import no.nordicsemi.android.nrfmesh.GroupsFragment;
 import no.nordicsemi.android.nrfmesh.NetworkFragment;
@@ -40,9 +39,9 @@ import no.nordicsemi.android.nrfmesh.utils.NetworkExportUtils;
 public class SharedViewModel extends BaseViewModel implements NetworkExportUtils.NetworkExportCallbacks {
 
     private final ScannerRepository mScannerRepository;
-    private SingleLiveEvent<String> networkExportState = new SingleLiveEvent<>();
+    private final SingleLiveEvent<String> networkExportState = new SingleLiveEvent<>();
 
-    @Inject
+    @ViewModelInject
     SharedViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
         super(nrfMeshRepository);
         mScannerRepository = scannerRepository;

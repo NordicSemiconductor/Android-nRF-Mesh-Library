@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmesh.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,10 +32,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.AuthenticationOOBMethods;
-import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.OobTypeItemBinding;
 
 public class AuthenticationOOBMethodsAdapter extends BaseAdapter {
 
@@ -78,8 +76,9 @@ public class AuthenticationOOBMethodsAdapter extends BaseAdapter {
         View view = convertView;
         ViewHolder viewHolder;
         if (view == null) {
-            view = LayoutInflater.from(mContext).inflate(R.layout.oob_type_item, parent, false);
-            viewHolder = new ViewHolder(view);
+            final OobTypeItemBinding binding = OobTypeItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            view = binding.getRoot();
+            viewHolder = new ViewHolder(binding);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -94,13 +93,11 @@ public class AuthenticationOOBMethodsAdapter extends BaseAdapter {
         return mOOBTypes.isEmpty();
     }
 
-    public final class ViewHolder {
-
-        @BindView(R.id.oob_type_name)
+    public static final class ViewHolder {
         TextView oobTypeName;
 
-        private ViewHolder(final View view) {
-            ButterKnife.bind(this, view);
+        private ViewHolder(final OobTypeItemBinding binding) {
+            oobTypeName = binding.oobTypeName;
         }
     }
 }

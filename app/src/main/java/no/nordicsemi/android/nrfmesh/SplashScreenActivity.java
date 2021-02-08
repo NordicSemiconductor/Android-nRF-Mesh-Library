@@ -22,35 +22,32 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
-
-import javax.inject.Inject;
-
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
+import no.nordicsemi.android.nrfmesh.databinding.ActivitySplashScreenBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.SplashViewModel;
 
-public class SplashScreenActivity extends AppCompatActivity implements Injectable {
-
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
+@AndroidEntryPoint
+public class SplashScreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        setContentView(R.layout.activity_splash_screen);
+        final ActivitySplashScreenBinding binding = ActivitySplashScreenBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         super.onCreate(savedInstanceState);
-        final SplashViewModel viewModel = new ViewModelProvider(SplashScreenActivity.this, mViewModelFactory).get(SplashViewModel.class);
+        final SplashViewModel viewModel = new ViewModelProvider(this).get(SplashViewModel.class);
         viewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
-            if(meshNetworkLiveData != null && meshNetworkLiveData.getMeshNetwork() != null) {
+            if (meshNetworkLiveData != null && meshNetworkLiveData.getMeshNetwork() != null) {
                 navigateActivity();
             }
         });
     }
 
-    private void navigateActivity(){
+    private void navigateActivity() {
         final Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(intent);

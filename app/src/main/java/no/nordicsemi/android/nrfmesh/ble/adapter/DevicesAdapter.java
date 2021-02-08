@@ -22,10 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh.ble.adapter;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,23 +31,20 @@ import android.widget.TextView;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.adapter.ExtendedBluetoothDevice;
+import no.nordicsemi.android.nrfmesh.databinding.DeviceItemBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.ScannerLiveData;
 
 public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHolder> {
-    private Context mContext;
     private final List<ExtendedBluetoothDevice> mDevices;
     private OnItemClickListener mOnItemClickListener;
 
-    public DevicesAdapter(final FragmentActivity fragmentActivity, final ScannerLiveData scannerLiveData) {
-        mContext = fragmentActivity;
+    public DevicesAdapter(@NonNull final LifecycleOwner owner, @NonNull final ScannerLiveData scannerLiveData) {
         mDevices = scannerLiveData.getDevices();
-        scannerLiveData.observe(fragmentActivity, devices -> {
+        scannerLiveData.observe(owner, devices -> {
             final Integer i = devices.getUpdatedDeviceIndex();
             if (i != null)
                 notifyItemChanged(i);
@@ -65,8 +60,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.device_item, parent, false);
-        return new ViewHolder(layoutView);
+        return new ViewHolder(DeviceItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -103,18 +97,17 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.ViewHold
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.device_address)
         TextView deviceAddress;
-        @BindView(R.id.device_name)
         TextView deviceName;
-        @BindView(R.id.rssi)
         ImageView rssi;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(final @NonNull DeviceItemBinding binding) {
+            super(binding.getRoot());
+            deviceAddress = binding.deviceAddress;
+            deviceName = binding.deviceName;
+            rssi = binding.rssi;
 
-            view.findViewById(R.id.device_container).setOnClickListener(v -> {
+            binding.deviceContainer.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     if(getAdapterPosition() > -1 && mDevices.size() > 0) {
                         mOnItemClickListener.onItemClick(mDevices.get(getAdapterPosition()));

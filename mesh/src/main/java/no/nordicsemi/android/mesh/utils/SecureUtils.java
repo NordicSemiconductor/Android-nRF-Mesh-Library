@@ -26,8 +26,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.google.gson.annotations.Expose;
 
 import org.spongycastle.crypto.BlockCipher;
@@ -45,6 +43,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.SecureNetworkBeacon;
 
 @SuppressWarnings({"WeakerAccess", "CharsetObjectCanBeUsed"})
@@ -235,6 +234,9 @@ public class SecureUtils {
      * @param p    master input
      */
     public static K2Output calculateK2(final byte[] data, final byte[] p) {
+        if (data == null || p == null)
+            return null;
+
         final byte[] salt = calculateSalt(SMK2);
         final byte[] t = calculateCMAC(data, salt);
 
@@ -267,6 +269,8 @@ public class SecureUtils {
      * @param n network key
      */
     public static byte[] calculateK3(final byte[] n) {
+        if (n == null)
+            return null;
 
         final byte[] salt = calculateSalt(SMK3);
 
@@ -290,9 +294,11 @@ public class SecureUtils {
     /**
      * Calculate k4
      *
-     * @param n network key
+     * @param n key
      */
     public static byte calculateK4(final byte[] n) {
+        if (n == null || n.length != 16)
+            throw new IllegalArgumentException("Key cannot be empty and must be 16-bytes long.");
 
         byte[] salt = calculateSalt(SMK4);
 
@@ -316,6 +322,8 @@ public class SecureUtils {
      * @return hash value
      */
     public static byte[] calculateIdentityKey(final byte[] n) {
+        if (n == null)
+            return null;
         final byte[] salt = calculateSalt(NKIK);
         ByteBuffer buffer = ByteBuffer.allocate(ID128.length + 1);
         buffer.put(ID128);

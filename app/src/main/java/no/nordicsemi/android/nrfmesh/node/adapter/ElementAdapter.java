@@ -39,14 +39,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.CompositionDataParser;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.ElementItemBinding;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
 
@@ -73,8 +72,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.element_item, parent, false);
-        return new ViewHolder(layoutView);
+        return new ViewHolder(ElementItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
@@ -134,24 +132,23 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.element_item_container)
         ConstraintLayout mElementContainer;
-        @BindView(R.id.icon)
         ImageView mIcon;
-        @BindView(R.id.element_title)
         TextView mElementTitle;
-        @BindView(R.id.element_subtitle)
         TextView mElementSubtitle;
-        @BindView(R.id.element_expand)
         ImageButton mElementExpand;
-        @BindView(R.id.edit)
         ImageButton mEdit;
-        @BindView(R.id.model_container)
         LinearLayout mModelContainer;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        private ViewHolder(@NonNull final ElementItemBinding binding) {
+            super(binding.getRoot());
+            mElementContainer = binding.elementItemContainer;
+            mIcon = binding.icon;
+            mElementTitle = binding.elementTitle;
+            mElementSubtitle = binding.elementSubtitle;
+            mElementExpand = binding.elementExpand;
+            mEdit = binding.edit;
+            mModelContainer = binding.modelContainer;
             mElementExpand.setOnClickListener(this);
             mEdit.setOnClickListener(this);
         }

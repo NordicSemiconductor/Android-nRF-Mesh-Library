@@ -262,7 +262,7 @@ public class ConfigMessageOpCodes {
     /**
      * Opcode for the "Config Low Power UnprovisionedMeshNode PollTimeout Status" message.
      */
-    public static final int CONFIG_LOW_POWER_NODE_POLLTIMEOUT_SET = 0x802E;
+    public static final int CONFIG_LOW_POWER_NODE_POLLTIMEOUT_STATUS = 0x802E;
 
     /**
      * Opcode for the "Heartbeat Publication Get" message.

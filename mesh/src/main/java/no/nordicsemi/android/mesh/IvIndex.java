@@ -3,9 +3,9 @@ package no.nordicsemi.android.mesh;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
 import java.util.Calendar;
+
+import androidx.annotation.NonNull;
 
 /**
  * Class containing the current IV Index State of the network.
@@ -15,8 +15,8 @@ import java.util.Calendar;
 @SuppressWarnings("WeakerAccess")
 public class IvIndex implements Parcelable {
 
-    private int ivIndex;
-    private boolean isIvUpdateActive; // False: Normal Operation, True: IV Update in progress
+    private final int ivIndex;
+    private final boolean isIvUpdateActive; // False: Normal Operation, True: IV Update in progress
     private boolean ivRecoveryFlag = false;
     private Calendar transitionDate;
 

@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -25,12 +26,16 @@ import no.nordicsemi.android.mesh.NodeKey;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.utils.CompositionDataParser;
+import no.nordicsemi.android.mesh.utils.Heartbeat;
 import no.nordicsemi.android.mesh.utils.HeartbeatPublication;
 import no.nordicsemi.android.mesh.utils.HeartbeatSubscription;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
+
+import static no.nordicsemi.android.mesh.utils.MeshAddress.UNASSIGNED_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.addressIntToBytes;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMeshNode>>, JsonDeserializer<List<ProvisionedMeshNode>> {
@@ -47,10 +52,14 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 throw new IllegalArgumentException("Invalid Mesh Provisioning/Configuration " +
                         "Database, invalid node UUID.");
             node.uuid = uuid;
-            node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            if (jsonObject.has("deviceKey") && jsonObject.get("deviceKey") != null) {
+                node.deviceKey = MeshParserUtils.toByteArray(jsonObject.get("deviceKey").getAsString());
+            }
             final int unicastAddress = Integer.parseInt(jsonObject.get("unicastAddress").getAsString(), 16);
             node.unicastAddress = unicastAddress;
-            final boolean security = jsonObject.get("security").getAsString().equals("high");
+            final String jsonSecurity = jsonObject.get("security").getAsString();
+            final boolean security = jsonSecurity.equalsIgnoreCase("secure") ||
+                    /*Maintaining backwards compatibility */jsonSecurity.equalsIgnoreCase("high");
             node.security = security ? 1 : 0;
             node.mAddedNetKeys = deserializeAddedIndexes(jsonObject.get("netKeys").getAsJsonArray());
             node.isConfigured = jsonObject.get("configComplete").getAsBoolean();
@@ -84,16 +93,51 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (jsonObject.has("networkTransmit")) {
                 final JsonObject jsonNetTransmit = jsonObject.getAsJsonObject("networkTransmit");
-                final NetworkTransmitSettings networkTransmitSettings =
-                        new NetworkTransmitSettings(jsonNetTransmit.get("count").getAsInt(), jsonNetTransmit.get("interval").getAsInt());
-                node.setNetworkTransmitSettings(networkTransmitSettings);
+                int count = jsonNetTransmit.get("count").getAsInt();
+                int interval = jsonNetTransmit.get("interval").getAsInt();
+                if (count < 1 || count > 8)
+                    throw new IllegalArgumentException("Error while deserializing Network Transmit on : " +
+                            formatAddress(unicastAddress, true) + ", Network Transmit count must be in range 1-8.");
+
+                if (count != 0 && interval != 0) {
+                    final NetworkTransmitSettings networkTransmitSettings;
+                    // Some versions of nRF Mesh lib for Android were exporting interval
+                    // as number of steps, not the interval, therefore we can try to fix that.
+                    if (interval % 10 != 0 && interval <= 32) {
+                        // Interval that was exported as intervalSteps are imported as it is.
+                        networkTransmitSettings = new NetworkTransmitSettings(count, interval);
+                        node.setNetworkTransmitSettings(networkTransmitSettings);
+                    } else if (interval % 10 == 0) {
+                        // Interval that was exported as intervalSteps are decoded to intervalSteps.
+                        final int steps = NetworkTransmitSettings.decodeNetworkTransmissionInterval(interval);
+                        networkTransmitSettings = new NetworkTransmitSettings(count, steps);
+                        node.setNetworkTransmitSettings(networkTransmitSettings);
+                    }
+                }
             }
 
             if (jsonObject.has("relayRetransmit")) {
                 final JsonObject jsonRelay = jsonObject.getAsJsonObject("relayRetransmit");
-                final RelaySettings relaySettings =
-                        new RelaySettings(jsonRelay.get("count").getAsInt(), jsonRelay.get("interval").getAsInt());
-                node.setRelaySettings(relaySettings);
+                int count = jsonRelay.get("count").getAsInt();
+                int interval = jsonRelay.get("interval").getAsInt();
+                if (count != 0 && interval != 0) {
+                    if (count < 1 || count > 8)
+                        throw new IllegalArgumentException("Error while deserializing Relay Retransmit on : " +
+                                formatAddress(unicastAddress, true) + " Relay Retransmit count must be in range 1-8.");
+                    final RelaySettings relaySettings;
+                    // Some versions of nRF Mesh lib for Android were exporting interval
+                    // as number of steps, not the interval, therefore we can try to fix that.
+                    if (interval % 10 != 0 && interval <= 32) {
+                        // Interval that was exported as intervalSteps are imported as it is.
+                        relaySettings = new RelaySettings(count, interval);
+                        node.setRelaySettings(relaySettings);
+                    } else if (interval % 10 == 0) {
+                        // Interval that was exported as intervalSteps are imported as it is.
+                        final int steps = RelaySettings.decodeRelayRetransmitInterval(interval);
+                        relaySettings = new RelaySettings(count, steps);
+                        node.setRelaySettings(relaySettings);
+                    }
+                }
             }
 
             if (jsonObject.has("appKeys"))
@@ -107,12 +151,14 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             }
 
             if (jsonObject.has("blacklisted")) {
-                node.setBlackListed(jsonObject.get("blacklisted").getAsBoolean());
+                node.setExcluded(jsonObject.get("blacklisted").getAsBoolean());
+            } else if (jsonObject.has("excluded")) {
+                node.setExcluded(jsonObject.get("excluded").getAsBoolean());
             }
 
             if (jsonObject.has("name"))
                 node.nodeName = jsonObject.get("name").getAsString();
-            deserializeHeartbeat(context, jsonObject, node);
+            deserializeHeartbeat(jsonObject, node);
             nodes.add(node);
         }
 
@@ -120,15 +166,16 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     }
 
     @Override
-    public JsonElement serialize(final List<ProvisionedMeshNode> nodes, final Type typeOfSrc, final JsonSerializationContext context) {
+    public JsonElement serialize(final List<ProvisionedMeshNode> nodes, final Type typeOfSrc,
+                                 final JsonSerializationContext context) {
         final JsonArray jsonArray = new JsonArray();
         for (ProvisionedMeshNode node : nodes) {
             final JsonObject nodeJson = new JsonObject();
-            nodeJson.addProperty("UUID", MeshParserUtils.uuidToHex(node.getUuid()));
+            nodeJson.addProperty("UUID", node.getUuid().toUpperCase(Locale.US)/*MeshParserUtils.uuidToHex(node.getUuid())*/);
             nodeJson.addProperty("name", node.getNodeName());
             nodeJson.addProperty("deviceKey", MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
-            nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
-            nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "high" : "low");
+            nodeJson.addProperty("unicastAddress", MeshParserUtils.bytesToHex(addressIntToBytes(node.getUnicastAddress()), false));
+            nodeJson.addProperty("security", (node.getSecurity() == ProvisionedBaseMeshNode.HIGH) ? "secure" : "insecure");
             nodeJson.addProperty("configComplete", node.isConfigured());
 
             if (node.getCompanyIdentifier() != null)
@@ -158,21 +205,21 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
             if (node.getNetworkTransmitSettings() != null) {
                 final JsonObject json = new JsonObject();
                 json.addProperty("count", node.getNetworkTransmitSettings().getNetworkTransmitCount());
-                json.addProperty("interval", node.getNetworkTransmitSettings().getNetworkIntervalSteps());
+                json.addProperty("interval", node.getNetworkTransmitSettings().getNetworkTransmissionInterval());
                 nodeJson.add("networkTransmit", json);
             }
             if (node.getRelaySettings() != null) {
                 final JsonObject json = new JsonObject();
                 json.addProperty("count", node.getRelaySettings().getRelayTransmitCount());
-                json.addProperty("interval", node.getRelaySettings().getRelayIntervalSteps());
+                json.addProperty("interval", node.getRelaySettings().getRetransmissionIntervals());
                 nodeJson.add("relayRetransmit", json);
             }
 
             nodeJson.add("netKeys", serializeAddedIndexes(node.getAddedNetKeys()));
             nodeJson.add("appKeys", serializeAddedIndexes(node.getAddedAppKeys()));
             nodeJson.add("elements", serializeElements(context, node.getElements()));
-            nodeJson.addProperty("blacklisted", node.isBlackListed());
-            serializeHeartbeat(context, nodeJson, node);
+            nodeJson.addProperty("excluded", node.isExcluded());
+            serializeHeartbeat(nodeJson, node);
             jsonArray.add(nodeJson);
         }
         return jsonArray;
@@ -216,7 +263,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * @param elementsMap elements map
      * @return JsonElement
      */
-    private JsonElement serializeElements(final JsonSerializationContext context, final Map<Integer, Element> elementsMap) {
+    private JsonElement serializeElements(final JsonSerializationContext context,
+                                          final Map<Integer, Element> elementsMap) {
         final Type elementsList = new TypeToken<List<Element>>() {
         }.getType();
         return context.serialize(populateElements(elementsMap), elementsList);
@@ -228,7 +276,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * @param context Deserializer context
      * @param json    Elements json object
      */
-    private List<Element> deserializeElements(final JsonDeserializationContext context, final JsonObject json) {
+    private List<Element> deserializeElements(final JsonDeserializationContext context,
+                                              final JsonObject json) {
         Type elementList = new TypeToken<List<Element>>() {
         }.getType();
         return context.deserialize(json.getAsJsonArray("elements"), elementList);
@@ -241,7 +290,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      * @param elementsList   List of MeshModels
      * @return Map of mesh models
      */
-    private Map<Integer, Element> populateElements(final int unicastAddress, final List<Element> elementsList) {
+    private Map<Integer, Element> populateElements(final int unicastAddress,
+                                                   final List<Element> elementsList) {
         final Map<Integer, Element> elements = new LinkedHashMap<>();
         int address = 0;
         for (int i = 0; i < elementsList.size(); i++) {
@@ -254,7 +304,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 element.elementAddress = address;
             }
             if (TextUtils.isEmpty(element.name)) {
-                element.name = "Element: " + MeshAddress.formatAddress(element.elementAddress, true);
+                element.name = "Element: " + formatAddress(element.elementAddress, true);
             }
             elements.put(element.elementAddress, element);
         }
@@ -277,20 +327,53 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Deserialize Heartbeat settings
      *
-     * @param context    Deserialization context
      * @param jsonObject JsonObject to deserialize from
      * @param node       MeshNode
      */
-    private void deserializeHeartbeat(@NonNull final JsonDeserializationContext context,
-                                      @NonNull final JsonObject jsonObject,
+    private void deserializeHeartbeat(@NonNull final JsonObject jsonObject,
                                       @NonNull final ProvisionedMeshNode node) {
         final ConfigurationServerModel model = getConfigurationServerModel(node);
         if (model != null) {
             if (jsonObject.has("heartbeatPub")) {
-                model.setHeartbeatPublication(context.deserialize(jsonObject.get("heartbeatPub"), HeartbeatPublication.class));
+                final JsonObject jsonHeartbeatPub = jsonObject.get("heartbeatPub").getAsJsonObject();
+                final int dst;
+                if (jsonHeartbeatPub.has("address")) {
+                    dst = Integer.parseInt(jsonHeartbeatPub.get("address").getAsString(), 16);
+                } else {
+                    dst = Integer.parseInt(jsonHeartbeatPub.get("destination").getAsString(), 16);
+                }
+                if (dst != UNASSIGNED_ADDRESS) {
+                    final JsonArray jsonFeatures = jsonHeartbeatPub.get("features").getAsJsonArray();
+                    int relay = 0;
+                    int proxy = 0;
+                    int friend = 0;
+                    int lowPower = 0;
+                    for (JsonElement element : jsonFeatures) {
+                        if (element.getAsString().equalsIgnoreCase("relay")) {
+                            relay = Features.ENABLED;
+                        } else if (element.getAsString().equalsIgnoreCase("proxy")) {
+                            proxy = Features.ENABLED;
+                        } else if (element.getAsString().equalsIgnoreCase("friend")) {
+                            friend = Features.ENABLED;
+                        } else if (element.getAsString().equalsIgnoreCase("lowPower")) {
+                            lowPower = Features.ENABLED;
+                        }
+                    }
+
+                    final Features features = new Features(friend, lowPower, proxy, relay);
+                    final int index = jsonHeartbeatPub.get("index").getAsInt();
+                    final byte period = Heartbeat.decodeHeartbeatPeriod(jsonHeartbeatPub.get("period").getAsInt());
+
+                    final int ttl = jsonHeartbeatPub.get("ttl").getAsInt();
+                    model.setHeartbeatPublication(new HeartbeatPublication(dst, (byte) 0, period, ttl, features, index));
+                }
             }
             if (jsonObject.has("heartbeatSub")) {
-                model.setHeartbeatSubscription(context.deserialize(jsonObject.get("heartbeatSub"), HeartbeatSubscription.class));
+                final JsonObject jsonHeartbeatSub = jsonObject.get("heartbeatSub").getAsJsonObject();
+                final int dst = Integer.parseInt(jsonHeartbeatSub.get("destination").getAsString(), 16);
+                final int src = Integer.parseInt(jsonHeartbeatSub.get("source").getAsString(), 16);
+                if (dst != UNASSIGNED_ADDRESS || src != UNASSIGNED_ADDRESS)
+                    model.setHeartbeatSubscription(new HeartbeatSubscription(src, dst, (byte) 0, (byte) 0, 0, 0));
             }
         }
     }
@@ -298,30 +381,39 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
     /**
      * Serialize Heartbeat settings.
      *
-     * @param context    Serialization context
      * @param jsonObject Json object
      * @param node       MeshNode
      */
-    private void serializeHeartbeat(@NonNull final JsonSerializationContext context,
-                                    @NonNull final JsonObject jsonObject,
+    private void serializeHeartbeat(@NonNull final JsonObject jsonObject,
                                     @NonNull final ProvisionedMeshNode node) {
         final ConfigurationServerModel model = getConfigurationServerModel(node);
         if (model != null) {
             if (model.getHeartbeatPublication() != null) {
-                final JsonObject result = context
-                        .serialize(model.getHeartbeatPublication(), HeartbeatPublication.class)
-                        .getAsJsonObject();
-                result.remove("count");
-                jsonObject.add("heartbeatPub", result);
+                final HeartbeatPublication publication = model.getHeartbeatPublication();
+                final JsonObject heartbeatPub = new JsonObject();
+                heartbeatPub.addProperty("address", formatAddress(publication.getDst(), false));
+                heartbeatPub.addProperty("period", publication.getPeriod());
+                heartbeatPub.addProperty("ttl", publication.getTtl());
+                heartbeatPub.addProperty("index", publication.getNetKeyIndex());
+                final JsonArray featuresArray = new JsonArray();
+                if (publication.getFeatures().getRelay() == Features.ENABLED)
+                    featuresArray.add("relay");
+                if (publication.getFeatures().getProxy() == Features.ENABLED)
+                    featuresArray.add("proxy");
+                if (publication.getFeatures().getFriend() == Features.ENABLED)
+                    featuresArray.add("friend");
+                if (publication.getFeatures().getLowPower() == Features.ENABLED)
+                    featuresArray.add("lowPower");
+                heartbeatPub.add("features", featuresArray);
+                jsonObject.add("heartbeatPub", heartbeatPub);
             }
             if (model.getHeartbeatSubscription() != null) {
-                final JsonObject result = context
-                        .serialize(model.getHeartbeatSubscription(), HeartbeatSubscription.class)
-                        .getAsJsonObject();
-                result.remove("count");
-                result.remove("minHops");
-                result.remove("maxHops");
-                jsonObject.add("heartbeatSub", result);
+                final JsonObject subscription = new JsonObject();
+                subscription.addProperty("destination",
+                        formatAddress(model.getHeartbeatSubscription().getDst(), false));
+                subscription.addProperty("source",
+                        formatAddress(model.getHeartbeatSubscription().getSrc(), false));
+                jsonObject.add("heartbeatSub", subscription);
             }
         }
     }
@@ -331,7 +423,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
      *
      * @param node Mesh node
      */
-    private ConfigurationServerModel getConfigurationServerModel(@NonNull final ProvisionedMeshNode node) {
+    private ConfigurationServerModel getConfigurationServerModel(
+            @NonNull final ProvisionedMeshNode node) {
         final Element element = node.getElements().get(node.getUnicastAddress());
         if (element != null) {
             final MeshModel meshModel = element.getMeshModels().get((int) SigModelParser.CONFIGURATION_SERVER);

@@ -5,28 +5,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.slider.Slider;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
@@ -35,10 +24,11 @@ import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
+import no.nordicsemi.android.mesh.utils.Heartbeat;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.GroupCallbacks;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityHeartbeatSubscriptionBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.dialog.DestinationAddressCallbacks;
 import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatDestination;
@@ -46,10 +36,10 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatSource;
 import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPeriod;
-import static no.nordicsemi.android.mesh.utils.PeriodLogStateRange.periodToTime;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 
-public class HeartbeatSubscriptionActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class HeartbeatSubscriptionActivity extends AppCompatActivity implements
         GroupCallbacks,
         DestinationAddressCallbacks,
         DialogFragmentHeartbeatSource.SubscriptionAddressCallbacks {
@@ -58,27 +48,8 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
     private static final String DESTINATION = "DESTINATION";
     private static final String PERIOD = "PERIOD";
 
+    private ActivityHeartbeatSubscriptionBinding binding;
     private HeartbeatViewModel mViewModel;
-    private ConfigurationServerModel mMeshModel;
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    @BindView(R.id.container)
-    CoordinatorLayout mContainer;
-    @BindView(R.id.fab_apply)
-    ExtendedFloatingActionButton fabApply;
-    @BindView(R.id.source_address)
-    TextView sourceAddress;
-    @BindView(R.id.destination_address)
-    TextView destinationAddress;
-    @BindView(R.id.period_slider)
-    Slider periodSlider;
-    @BindView(R.id.subscription_period_container)
-    ConstraintLayout subscriptionPeriodContainer;
-    @BindView(R.id.period)
-    TextView subscriptionPeriod;
-    @BindView(R.id.progress_bar)
-    ProgressBar progressBar;
 
     private boolean mIsConnected;
     private int mSource;
@@ -87,28 +58,24 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_heartbeat_subscription);
-        ButterKnife.bind(this);
+        binding = ActivityHeartbeatSubscriptionBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(HeartbeatViewModel.class);
 
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(HeartbeatViewModel.class);
-
-        final ConfigurationServerModel meshModel = mMeshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
+        final ConfigurationServerModel meshModel = (ConfigurationServerModel) mViewModel.getSelectedModel().getValue();
         if (meshModel == null)
             finish();
 
-        //Setup views
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
         getSupportActionBar().setTitle(R.string.title_heartbeat_subscription);
 
-        final NestedScrollView scrollView = findViewById(R.id.scroll_view);
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            if (scrollView.getScrollY() == 0) {
-                fabApply.extend();
+        binding.scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            if (binding.scrollView.getScrollY() == 0) {
+                binding.fabApply.extend();
             } else {
-                fabApply.shrink();
+                binding.fabApply.shrink();
             }
         });
 
@@ -119,13 +86,13 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
             invalidateOptionsMenu();
         });
 
-        findViewById(R.id.container_src_address).setOnClickListener(v -> {
+        binding.containerSrcAddress.setOnClickListener(v -> {
             final DialogFragmentHeartbeatSource source = DialogFragmentHeartbeatSource.
                     newInstance(meshModel.getHeartbeatSubscription());
             source.show(getSupportFragmentManager(), null);
         });
 
-        findViewById(R.id.container_dst_address).setOnClickListener(v -> {
+        binding.containerDstAddress.setOnClickListener(v -> {
             final ArrayList<Group> groups = new ArrayList<>();
             for (Group group : mViewModel.getNetworkLiveData().getMeshNetwork().getGroups()) {
                 if (MeshAddress.isValidGroupAddress(group.getAddress()))
@@ -136,19 +103,24 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
             destination.show(getSupportFragmentManager(), null);
         });
 
-        periodSlider.setValueFrom(0x01);
-        periodSlider.setValueTo(0x11);
-        periodSlider.setStepSize(1);
-        periodSlider.addOnChangeListener((slider, value, fromUser) -> subscriptionPeriod
-                .setText(periodToTime(calculateHeartbeatPeriod((short) value))));
+        binding.periodSlider.setValueFrom(0x01);
+        binding.periodSlider.setValueTo(0x11);
+        binding.periodSlider.setStepSize(1);
+        binding.periodSlider.addOnChangeListener((slider, value, fromUser) -> binding.period
+                .setText(Heartbeat.periodToTime(calculateHeartbeatPeriod((short) value))));
 
-        fabApply.setOnClickListener(v -> {
+        binding.fabApply.setOnClickListener(v -> {
             if (!checkConnectivity()) return;
             setSubscription();
         });
-        updateSourceAddress(mSource);
-        updateDestinationAddress(mDestination);
-        periodSlider.setValue(1);
+        if (meshModel.getHeartbeatSubscription() != null) {
+            updateSourceAddress(meshModel.getHeartbeatSubscription().getSrc());
+            updateDestinationAddress(meshModel.getHeartbeatSubscription().getDst());
+        } else {
+            updateSourceAddress(mSource);
+            updateDestinationAddress(mDestination);
+        }
+        binding.periodSlider.setValue(1);
     }
 
     @Override
@@ -181,7 +153,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
         super.onSaveInstanceState(outState);
         outState.putInt(SOURCE, mSource);
         outState.putInt(DESTINATION, mDestination);
-        outState.putFloat(PERIOD, periodSlider.getValue());
+        outState.putFloat(PERIOD, binding.periodSlider.getValue());
     }
 
     @Override
@@ -252,35 +224,35 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
     private void updateSourceAddress(final int address) {
         mSource = address;
         if (address == 0)
-            sourceAddress.setText(getString(R.string.not_assigned));
+            binding.sourceAddress.setText(getString(R.string.not_assigned));
         else
-            sourceAddress.setText(MeshAddress.formatAddress(address, true));
+            binding.sourceAddress.setText(MeshAddress.formatAddress(address, true));
     }
 
     private void updateDestinationAddress(final int address) {
         if (address == 0) {
-            destinationAddress.setText(getString(R.string.not_assigned));
+            binding.destinationAddress.setText(getString(R.string.not_assigned));
         } else
-            destinationAddress.setText(MeshAddress.formatAddress(address, true));
+            binding.destinationAddress.setText(MeshAddress.formatAddress(address, true));
     }
 
     private void updatePeriod(final int period) {
-        periodSlider.setValue(period == 0 ? 1 : period);
+        binding.periodSlider.setValue(period == 0 ? 1 : period);
     }
 
     private void setSubscription() {
-        if(mSource == 0) {
-            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_set_src), Snackbar.LENGTH_SHORT);
+        if (mSource == 0) {
+            mViewModel.displaySnackBar(this, binding.container, getString(R.string.error_set_src), Snackbar.LENGTH_SHORT);
         } else if (mDestination == 0) {
-            mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_set_dst), Snackbar.LENGTH_SHORT);
-        }else {
+            mViewModel.displaySnackBar(this, binding.container, getString(R.string.error_set_dst), Snackbar.LENGTH_SHORT);
+        } else {
             final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
             final Element element = mViewModel.getSelectedElement().getValue();
             final MeshModel model = mViewModel.getSelectedModel().getValue();
             final MeshMessage heartbeatSubscription;
             if (node != null && element != null && model != null) {
                 try {
-                    heartbeatSubscription = new ConfigHeartbeatSubscriptionSet(mSource, mDestination, ((byte) periodSlider.getValue()));
+                    heartbeatSubscription = new ConfigHeartbeatSubscriptionSet(mSource, mDestination, ((byte) binding.periodSlider.getValue()));
                     sendMessage(node.getUnicastAddress(), heartbeatSubscription);
                 } catch (IllegalArgumentException ex) {
                     final DialogFragmentError message = DialogFragmentError.
@@ -297,7 +269,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements 
 
     protected final boolean checkConnectivity() {
         if (!mIsConnected) {
-            mViewModel.displayDisconnectedSnackBar(this, mContainer);
+            mViewModel.displayDisconnectedSnackBar(this, binding.container);
             return false;
         }
         return true;

@@ -26,9 +26,6 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import org.spongycastle.crypto.InvalidCipherTextException;
 
 import java.nio.ByteBuffer;
@@ -36,6 +33,8 @@ import java.nio.ByteOrder;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -62,8 +61,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     private final NetworkLayerCallbacks networkLayerCallbacks;
     private final UpperTransportLayerCallbacks upperTransportLayerCallbacks;
     protected MeshStatusCallbacks mStatusCallbacks;
-    private SparseArray<MeshTransport> transportSparseArray = new SparseArray<>();
-    private SparseArray<MeshMessageState> stateSparseArray = new SparseArray<>();
+    private final SparseArray<MeshTransport> transportSparseArray = new SparseArray<>();
+    private final SparseArray<MeshMessageState> stateSparseArray = new SparseArray<>();
 
     /**
      * Constructs BaseMessageHandler
@@ -105,16 +104,22 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
         final int nid = pdu[1] & 0x7F;
         final int acceptedIvIndex = network.getIvIndex().getIvIndex();
         int ivIndex = acceptedIvIndex == 0 ? 0 : acceptedIvIndex - 1;
+        NetworkKey networkKey;
+        SecureUtils.K2Output k2Output;
+        byte[] networkHeader;
+        int ctlTtl;
+        int ctl;
+        int ttl;
         while (ivIndex <= ivIndex + 1) {
             //Here we go through all the network keys and filter out network keys based on the nid.
             for (int i = 0; i < networkKeys.size(); i++) {
-                NetworkKey networkKey = networkKeys.get(i);
-                final SecureUtils.K2Output k2Output = SecureUtils.calculateK2(networkKey.getKey(), SecureUtils.K2_MASTER_INPUT);
-                if (nid == k2Output.getNid()) {
-                    final byte[] networkHeader = deObfuscateNetworkHeader(pdu, MeshParserUtils.intToBytes(ivIndex), k2Output.getPrivacyKey());
-                    final int ctlTtl = networkHeader[0];
-                    final int ctl = (ctlTtl >> 7) & 0x01;
-                    final int ttl = ctlTtl & 0x7F;
+                networkKey = networkKeys.get(i);
+                k2Output = getMatchingK2Output(networkKey, nid);
+                if (k2Output != null) {
+                    networkHeader = deObfuscateNetworkHeader(pdu, MeshParserUtils.intToBytes(ivIndex), k2Output.getPrivacyKey());
+                    ctlTtl = networkHeader[0];
+                    ctl = (ctlTtl >> 7) & 0x01;
+                    ttl = ctlTtl & 0x7F;
                     Log.v(TAG, "TTL for received message: " + ttl);
                     final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
 
@@ -124,7 +129,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     }
 
                     final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
-                    Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.getSequenceNumber(sequenceNumber));
+                    Log.v(TAG, "Sequence number of received access message: " + MeshParserUtils.convert24BitsToInt(sequenceNumber));
                     //TODO validate ivi
                     byte[] nonce;
                     try {
@@ -144,7 +149,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                         }
                         if (state != null) {
                             //TODO look in to proxy filter messages
-                            ((DefaultNoOperationMessageState) state).parseMeshPdu(node, pdu, networkHeader, decryptedPayload, ivIndex, sequenceNumber);
+                            ((DefaultNoOperationMessageState) state).parseMeshPdu(networkKey, node, pdu, networkHeader, decryptedPayload, ivIndex, sequenceNumber);
                             return;
                         }
                     } catch (InvalidCipherTextException ex) {
@@ -156,6 +161,21 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             }
             ivIndex++;
         }
+    }
+
+    /**
+     * Returns the K2output for a given Network Key matching the received NID
+     *
+     * @param networkKey NetworkKey
+     * @param nid        NID
+     * @return {@link SecureUtils.K2Output} or null if the NID doesn't match.
+     */
+    private SecureUtils.K2Output getMatchingK2Output(@NonNull final NetworkKey networkKey, final int nid) {
+        if(nid == networkKey.getDerivatives().getNid())
+            return networkKey.getDerivatives();
+        else if(networkKey.getOldDerivatives() != null && nid == networkKey.getOldDerivatives().getNid())
+            return networkKey.getOldDerivatives();
+        return null;
     }
 
     @Override

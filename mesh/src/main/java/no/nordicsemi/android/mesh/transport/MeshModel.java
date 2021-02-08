@@ -45,7 +45,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
  * and publication settings belonging to a mesh model.
  * </p>
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess"})
 public abstract class MeshModel implements Parcelable {
 
     @Expose
@@ -60,13 +60,16 @@ public abstract class MeshModel implements Parcelable {
     final List<UUID> labelUuids = new ArrayList<>();
     @Expose
     PublicationSettings mPublicationSettings;
+    protected int currentScene;
+    protected int targetScene;
+    @Expose
+    protected List<Integer> sceneNumbers = new ArrayList<>();
 
     public MeshModel(final int modelId) {
         this.mModelId = modelId;
     }
 
     MeshModel() {
-
     }
 
     protected MeshModel(final Parcel in) {
@@ -81,6 +84,7 @@ public abstract class MeshModel implements Parcelable {
         mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
         in.readList(subscriptionAddresses, Integer.class.getClassLoader());
         in.readList(labelUuids, UUID.class.getClassLoader());
+        in.readList(sceneNumbers, Integer.class.getClassLoader());
     }
 
     /**
@@ -90,13 +94,13 @@ public abstract class MeshModel implements Parcelable {
      * @param flags Additional flags about how the object should be written.
      *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
      */
-    @SuppressWarnings("unused")
     protected final void parcelMeshModel(final Parcel dest, final int flags) {
         dest.writeInt(mModelId);
         dest.writeList(mBoundAppKeyIndexes);
         dest.writeValue(mPublicationSettings);
         dest.writeList(subscriptionAddresses);
         dest.writeList(labelUuids);
+        dest.writeList(sceneNumbers);
     }
 
     /**
@@ -171,15 +175,19 @@ public abstract class MeshModel implements Parcelable {
     protected void setPublicationStatus(@NonNull final ConfigModelPublicationStatus status,
                                         @Nullable final UUID labelUUID) {
         if (status.isSuccessful()) {
-            mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
-                    labelUUID,
-                    status.getAppKeyIndex(),
-                    status.getCredentialFlag(),
-                    status.getPublishTtl(),
-                    status.getPublicationSteps(),
-                    status.getPublicationResolution(),
-                    status.getPublishRetransmitCount(),
-                    status.getPublishRetransmitIntervalSteps());
+            if (!MeshAddress.isValidUnassignedAddress(status.getPublishAddress())) {
+                mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
+                        labelUUID,
+                        status.getAppKeyIndex(),
+                        status.getCredentialFlag(),
+                        status.getPublishTtl(),
+                        status.getPublicationSteps(),
+                        status.getPublicationResolution(),
+                        status.getPublishRetransmitCount(),
+                        status.getPublishRetransmitIntervalSteps());
+            } else {
+                mPublicationSettings = null;
+            }
         }
     }
 
@@ -202,16 +210,6 @@ public abstract class MeshModel implements Parcelable {
                 mPublicationSettings.setPublicationResolution(status.getPublicationResolution());
                 mPublicationSettings.setPublishRetransmitCount(status.getPublishRetransmitCount());
                 mPublicationSettings.setPublishRetransmitIntervalSteps(status.getPublishRetransmitIntervalSteps());
-            } else {
-                mPublicationSettings = new PublicationSettings(status.getPublishAddress(),
-                        null,
-                        status.getAppKeyIndex(),
-                        status.getCredentialFlag(),
-                        status.getPublishTtl(),
-                        status.getPublicationSteps(),
-                        status.getPublicationResolution(),
-                        status.getPublishRetransmitCount(),
-                        status.getPublishRetransmitIntervalSteps());
             }
         }
     }
@@ -223,6 +221,10 @@ public abstract class MeshModel implements Parcelable {
      */
     public PublicationSettings getPublicationSettings() {
         return mPublicationSettings;
+    }
+
+    public void setPublicationSettings(final PublicationSettings publicationSettings) {
+        mPublicationSettings = publicationSettings;
     }
 
     /**

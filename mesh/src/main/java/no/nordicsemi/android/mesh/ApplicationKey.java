@@ -5,19 +5,19 @@ import android.os.Parcel;
 import com.google.gson.annotations.Expose;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
+import no.nordicsemi.android.mesh.utils.SecureUtils;
 
 import static androidx.room.ForeignKey.CASCADE;
 
 /**
  * Wrapper class for application key
  */
-@SuppressWarnings({"unused"})
 @Entity(tableName = "application_key",
         foreignKeys = @ForeignKey(entity = MeshNetwork.class,
                 parentColumns = "mesh_uuid",
@@ -30,6 +30,10 @@ public final class ApplicationKey extends MeshKey {
     @ColumnInfo(name = "bound_key_index")
     @Expose
     private int boundNetKeyIndex = 0;
+    @Ignore
+    private int aid;
+    @Ignore
+    private int oldAid;
 
     /**
      * Constructs a ApplicationKey object with a given key index and network key
@@ -41,6 +45,7 @@ public final class ApplicationKey extends MeshKey {
     public ApplicationKey(final int keyIndex, @NonNull final byte[] key) {
         super(keyIndex, key);
         name = "Application Key " + (keyIndex + 1);
+        aid = SecureUtils.calculateK4(key);
     }
 
     protected ApplicationKey(Parcel in) {
@@ -50,7 +55,9 @@ public final class ApplicationKey extends MeshKey {
         name = in.readString();
         boundNetKeyIndex = in.readInt();
         key = in.createByteArray();
+        aid = in.readInt();
         oldKey = in.createByteArray();
+        oldAid = in.readInt();
     }
 
 
@@ -73,7 +80,9 @@ public final class ApplicationKey extends MeshKey {
         dest.writeString(name);
         dest.writeInt(boundNetKeyIndex);
         dest.writeByteArray(key);
+        dest.writeInt(aid);
         dest.writeByteArray(oldKey);
+        dest.writeInt(oldAid);
     }
 
     @Override
@@ -100,12 +109,24 @@ public final class ApplicationKey extends MeshKey {
     }
 
     @Override
-    public final boolean equals(@Nullable final Object obj) {
-        if (super.equals(obj)) {
-            final ApplicationKey appKey = (ApplicationKey) obj;
-            return boundNetKeyIndex == ((ApplicationKey) obj).boundNetKeyIndex;
-        }
-        return false;
+    public void setKey(@NonNull final byte[] key) {
+        super.setKey(key);
+        aid = SecureUtils.calculateK4(key);
+    }
+
+    @Override
+    public void setOldKey(final byte[] oldKey) {
+        super.setOldKey(oldKey);
+        if (oldKey != null)
+            oldAid = SecureUtils.calculateK4(oldKey);
+    }
+
+    public int getAid() {
+        return aid;
+    }
+
+    public int getOldAid() {
+        return oldAid;
     }
 
     @NonNull

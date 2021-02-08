@@ -24,7 +24,6 @@ package no.nordicsemi.android.nrfmesh.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -34,13 +33,12 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
+import no.nordicsemi.android.nrfmesh.databinding.GroupItemBinding;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
@@ -68,8 +66,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     @NonNull
     @Override
     public GroupAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        final View layoutView = LayoutInflater.from(mContext).inflate(R.layout.group_item, parent, false);
-        return new GroupAdapter.ViewHolder(layoutView);
+        final GroupItemBinding binding = GroupItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new GroupAdapter.ViewHolder(binding);
     }
 
     @Override
@@ -120,19 +118,18 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     }
 
     public final class ViewHolder extends RemovableViewHolder {
-        @BindView(R.id.container)
         FrameLayout container;
-        @BindView(R.id.group_name)
         TextView groupName;
-        @BindView(R.id.group_address)
         TextView groupAddress;
-        @BindView(R.id.group_device_count)
         TextView groupDeviceCount;
 
-        private ViewHolder(final View view) {
-            super(view);
-            ButterKnife.bind(this, view);
-            container.setOnClickListener(v -> {
+        private ViewHolder(final GroupItemBinding binding) {
+            super(binding.getRoot());
+            container = binding.container;
+            groupName = binding.groupName;
+            groupAddress = binding.groupAddress;
+            groupDeviceCount = binding.groupDeviceCount;
+            binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getAddress());
                 }

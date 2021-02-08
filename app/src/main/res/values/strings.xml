@@ -214,6 +214,7 @@
     <string name="no_app_key_configured_rationale">No app keys are bound for models in this group. \nClick edit on the options menu to bind an app key to the models.</string>
 
     <string name="title_manage_net_keys">Manage Net Keys</string>
+    <string name="key">Key</string>
     <string name="title_net_key">Net Key</string>
     <string name="title_add_net_key">Add Net Key</string>
     <string name="title_edit_net_key">Edit Net Key</string>
@@ -338,11 +339,11 @@
 
     <string name="title_proxy_filter">Proxy Filter Type</string>
     <string name="title_filter_addresses">Filter Addresses</string>
-    <string name="white_list_filter">Whitelist</string>
-    <string name="black_list_filter">Blacklist</string>
+    <string name="inclusion_list">Inclusion list</string>
+    <string name="exclusion_list">Exclusion list</string>
     <string name="proxy_filter_summary">Proxy filter can be used to monitor mesh messages sent across a mesh network.
-        \n\nWhite list filter blocks all destination addresses except those that have been added to the white list.
-    \n\nThe black list filter accepts all destination addresses except those that have been added to the black list.</string>
+        \n\nInclusion list filter blocks all destination addresses except those that have been added to the inclusion list.
+    \n\nThe exclusion list filter accepts all destination addresses except those that have been added to the exclusion list.</string>
 
     <string name="action_disable">Disable</string>
     <string name="disabled">Disabled</string>
@@ -530,7 +531,9 @@
     <string name="more">more</string>
     <string name="title_delete_node">Delete Node</string>
     <string name="delete_node_rationale">Deleting a node manually will not reset the node and will be removed from the list of nodes.
-        Would you like to continue? /nThis step cannot be undone and you will have to manually reset the node.</string>
+        This would also add the address space used by the node to an exclusion list making the address space unusable. This address space can only be used
+        after the current IV Index is incremented by 2 and the network resumes normal operation once the IV Index update procedure is complete.
+        \n\nThis step cannot be undone and you will have to manually reset the node. \n\nWould you like to continue?</string>
     <string name="node_deleted">Node deleted.</string>
     <string name="interval">Interval</string>
     <string name="adding_net_key">Adding net key…</string>
@@ -548,7 +551,7 @@
     <string name="title_error_network_import">Network Import Error</string>
 
     <string name="title_iv_test_mode">IV Test Mode</string>
-    <string name="iv_test_mode_summary">Note this is setting is not restored upon restart.</string>
+    <string name="iv_test_mode_summary">Note: this setting is not restored upon restart.</string>
     <string name="title_heartbeat_publication">Heartbeat Publication</string>
     <string name="title_publication_count">Publication Count</string>
     <string name="title_publication_period">Publication Period</string>
@@ -595,6 +598,46 @@
     <string name="info">Info</string>
     <string name="iv_test_mode_info">IV Update test mode allows transitioning tot he subsequent IV Index
         without having to wait for at least 96 hours. The transition will happen upon receiving a valid Secure Network Beacon.</string>
+    <string name="title_stored_scenes">Stored Scenes</string>
+    <string name="no_scenes_title">No scenes available</string>
+    <string name="action_add_scene">Add Scene</string>
+    <string name="title_manage_scenes">Manage Scenes</string>
+    <string name="scene_deleted">Scene deleted!</string>
+    <string name="add_scene">Add Scene</string>
+    <string name="store_scene">Store Scene</string>
+    <string name="edit_scene">Edit Scene</string>
+    <string name="number">Number</string>
+    <string name="scene_number_rationale">Valid range 0x0001–0xFFFF</string>
+    <string name="invalid_scene_number">Invalid value, valid range 0x0000–0xFFFF</string>
+    <string name="hint_delete_scene">Hint: Swipe to delete scene.</string>
+    <string name="title_select_scene">Select Scene</string>
+    <string name="no_scenes_stored">No scenes stored.</string>
+    <string name="no_scenes_stored_rationale">No scenes stored, store a scene via the Scene Setup Server.</string>
+    <string name="title_current_Scene">Current Scene</string>
+    <string name="action_get">GET</string>
+    <string name="action_read">READ</string>
+    <string name="title_recall_scene">Recall Scene</string>
+    <string name="hint_current_scene">Hint: Click on a scene to recall.</string>
+    <string name="custom_transition_time_and_delay">Custom Transition Time and Delay</string>
+    <string name="action_recall">Recall</string>
+    <string name="configuration">Configuration</string>
+    <string name="export_everything">Export Everything</string>
+    <string name="export_full_configuration">Full configuration will contain all mesh network data stored on this device.
+        \n\nWhen sharing with a Guest, consider creating a new network key and set of guest application keys,
+        send them to nodes that you want to share with the guest, and bind to required models. Then export only
+        this network key with excluded device keys. \n\nThe underlying library allows also to specify which nodes,
+        groups or scenes are to be shared. This app will only share those, that use the specified network key.
+    </string>
+    <string name="export">Export</string>
+    <string name="hint_select_atleast_provisioner">Hint: Select at least one provisioner.</string>
+    <string name="hint_net_key_export">Hint: At least one network key must be selected. Only nodes that store selected keys and Application Keys
+        bound to them will be exported.</string>
+    <string name="export_device_keys">Export Device Keys</string>
+    <string name="device_keys">Device Keys</string>
+    <string name="hint_device_keys">Hint: Device keys allow nodes to be reconfigured or reset (removed from the network).</string>
+    <string name="add">Add</string>
+    <string name="error_select_one_network_key_at_least">Error, at least one Network Key must be selected!</string>
+    <string name="error_select_one_provisioner_at_least">Error, at least one Provisioner must be selected!</string>
 
     <string name="error_empty_key">Error, key cannot be empty!</string>
 
@@ -607,4 +650,21 @@
     <string name="error_cannot_assign_addresses">The device cannot assign consecutive unicast addresses to all elements!</string>
     <string name="error_rfu">Reserved for Future Use!</string>
     <string name="error_invalid_key_length">Error, key length must be 16-bytes</string>
+    <string name="title_exclude_node">Exclude Node</string>
+    <string name="exclude">Exclude</string>
+    <string name="excluded">Excluded</string>
+    <string name="node_exclusion_summary">If checked the node will be excluded from key exchange process. When the key refresh procedure is complete,
+        this node will
+        no longer be able to receive or send messages to the mesh network.</string>
+    <string name="continue_confirmation">This cannot be undone, do you want to continue?</string>
+    <string name="secure_network_beacon">Secure Network Beacon</string>
+    <string name="secure_network_beacon_state_summary">The Secure Network Beacon state determines if a node is periodically broadcasting Secure
+        Network Beacons.</string>
+    <string name="friend_feature">Friend Feature</string>
+    <string name="friend_feature_summary">The Friend Feature state indicates support for the Friend feature. Disabling this feature will terminate
+        all Friend relationships and clear the associated Friend Queue.</string>
+    <string name="old_key">Old Key</string>
+    <string name="na">N/A</string>
+    <string name="phase">Phase</string>
+    <string name="last_modified">Last Modified</string>
 </resources>

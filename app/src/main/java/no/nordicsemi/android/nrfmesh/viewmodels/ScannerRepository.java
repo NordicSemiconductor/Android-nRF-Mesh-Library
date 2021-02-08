@@ -58,7 +58,6 @@ public class ScannerRepository {
     private static final String TAG = ScannerRepository.class.getSimpleName();
     private final Context mContext;
     private final MeshManagerApi mMeshManagerApi;
-    private String mNetworkId;
 
     /**
      * MutableLiveData containing the scanner state to notify MainActivity.
@@ -83,7 +82,7 @@ public class ScannerRepository {
                     final byte[] serviceData = Utils.getServiceData(result, BleMeshManager.MESH_PROXY_UUID);
                     if (mMeshManagerApi != null) {
                         if (mMeshManagerApi.isAdvertisingWithNetworkIdentity(serviceData)) {
-                            if (mMeshManagerApi.networkIdMatches(mNetworkId, serviceData)) {
+                            if (mMeshManagerApi.networkIdMatches(serviceData)) {
                                 updateScannerLiveData(result);
                             }
                         } else if (mMeshManagerApi.isAdvertisedWithNodeIdentity(serviceData)) {
@@ -204,15 +203,6 @@ public class ScannerRepository {
 
         if (mScannerStateLiveData.isScanning()) {
             return;
-        }
-
-        if (mFilterUuid.equals(BleMeshManager.MESH_PROXY_UUID)) {
-            final MeshNetwork network = mMeshManagerApi.getMeshNetwork();
-            if (network != null) {
-                if (!network.getNetKeys().isEmpty()) {
-                    mNetworkId = mMeshManagerApi.generateNetworkId(network.getNetKeys().get(0).getKey());
-                }
-            }
         }
 
         mScannerStateLiveData.scanningStarted();

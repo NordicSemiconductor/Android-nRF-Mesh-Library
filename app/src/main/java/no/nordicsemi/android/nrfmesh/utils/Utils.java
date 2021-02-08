@@ -32,7 +32,6 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.widget.Toast;
 
 import java.util.Comparator;
 import java.util.UUID;
@@ -43,6 +42,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
+import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
@@ -94,6 +94,8 @@ public class Utils {
     public static final int ADD_APP_KEY = 3;
     public static final int BIND_APP_KEY = 4;
     public static final int PUBLICATION_APP_KEY = 5;
+    public static final int STORE_SCENE = 6;
+    public static final int SELECT_SCENE = 6;
 
     // Heartbeat publication key
     public static final int HEARTBEAT_SETTINGS_SET = 2022;
@@ -103,6 +105,8 @@ public class Utils {
     public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
     public static final Comparator<ApplicationKey> appKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
+
+    public static final Comparator<Scene> sceneComparator = (scene1, scene2) -> Integer.compare(scene1.getNumber(), scene2.getNumber());
 
     /**
      * Checks whether Bluetooth is enabled.
@@ -241,10 +245,6 @@ public class Utils {
 
     public static boolean isKitkatOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-    }
-
-    public static void showToast(final Context context, final String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     public static boolean isValidUint8(final int i) {

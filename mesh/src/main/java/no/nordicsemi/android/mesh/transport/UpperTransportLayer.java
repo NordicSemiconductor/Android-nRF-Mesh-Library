@@ -28,10 +28,12 @@ import org.spongycastle.crypto.InvalidCipherTextException;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.UUID;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.utils.ExtendedInvalidCipherTextException;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -253,38 +255,32 @@ abstract class UpperTransportLayer extends AccessLayer {
      */
     private byte[] decryptUpperTransportPDU(@NonNull final AccessMessage accessMessage) throws InvalidCipherTextException {
         byte[] decryptedUpperTransportPDU;
-        final byte[] key;
+        byte[] key;
+        final int transportMicLength = accessMessage.getAszmic() == SZMIC ? MAXIMUM_TRANSMIC_LENGTH : MINIMUM_TRANSMIC_LENGTH;
         //Check if the key used for encryption is an application key or a device key
         final byte[] nonce;
         if (APPLICATION_KEY_IDENTIFIER == accessMessage.getAkf()) {
             key = mMeshNode.getDeviceKey();
             //If its a device key that was used to encrypt the message we need to create a device nonce to decrypt it
             nonce = createDeviceNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(), accessMessage.getDst(), accessMessage.getIvIndex());
+            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, transportMicLength);
         } else {
-            key = mUpperTransportLayerCallbacks.getApplicationKey(accessMessage.getAid());
-            if (key == null)
+            final List<ApplicationKey> keys = mUpperTransportLayerCallbacks.getApplicationKeys(accessMessage.getNetworkKey().getKeyIndex());
+            if (keys.isEmpty())
                 throw new IllegalArgumentException("Unable to find the app key to decrypt the message");
 
-            final int aid = SecureUtils.calculateK4(key);
-            if (aid != accessMessage.getAid()) {
-                throw new IllegalArgumentException("Unable to decrypt the message, invalid application key identifier");
-            }
-            //If its an application key that was used to encrypt the message we need to create a application nonce to decrypt it
             nonce = createApplicationNonce(accessMessage.getAszmic(), accessMessage.getSequenceNumber(), accessMessage.getSrc(),
                     accessMessage.getDst(), accessMessage.getIvIndex());
-        }
-        final int transportMicLength = accessMessage.getAszmic() == SZMIC ? MAXIMUM_TRANSMIC_LENGTH : MINIMUM_TRANSMIC_LENGTH;
-        if (MeshAddress.isValidVirtualAddress(accessMessage.getDst())) {
-            final UUID label = mUpperTransportLayerCallbacks.getLabel(accessMessage.getDst());
-            if (label != null) {
-                decryptedUpperTransportPDU = SecureUtils
-                        .decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, MeshParserUtils.uuidToBytes(label), transportMicLength);
+
+            if (MeshAddress.isValidVirtualAddress(accessMessage.getDst())) {
+                decryptedUpperTransportPDU = decrypt(accessMessage, mUpperTransportLayerCallbacks.gerVirtualGroups(), keys, nonce, transportMicLength);
             } else {
-                throw new ExtendedInvalidCipherTextException("Label UUID unknown", null, TAG);
+                decryptedUpperTransportPDU = decrypt(accessMessage, keys, nonce, transportMicLength);
             }
-        } else {
-            decryptedUpperTransportPDU = SecureUtils.decryptCCM(accessMessage.getUpperTransportPdu(), key, nonce, transportMicLength);
         }
+
+        if (decryptedUpperTransportPDU == null)
+            throw new IllegalArgumentException("Unable to decrypt the message, invalid application key identifier!");
 
         final byte[] tempBytes = new byte[decryptedUpperTransportPDU.length];
         ByteBuffer decryptedBuffer = ByteBuffer.wrap(tempBytes);
@@ -292,6 +288,56 @@ abstract class UpperTransportLayer extends AccessLayer {
         decryptedBuffer.put(decryptedUpperTransportPDU);
         decryptedUpperTransportPDU = decryptedBuffer.array();
         return decryptedUpperTransportPDU;
+    }
+
+    private byte[] decrypt(@NonNull final AccessMessage accessMessage, @NonNull final List<Group> groups, @NonNull List<ApplicationKey> keys, final byte[] nonce, final int transportMicLength) {
+        for (ApplicationKey key : keys) {
+            for (Group group : groups) {
+                if(group.getAddressLabel() != null) {
+                    if (key.getAid() == accessMessage.getAid()) {
+                        try {
+                            return SecureUtils
+                                    .decryptCCM(accessMessage.getUpperTransportPdu(), key.getKey(), nonce, MeshParserUtils.uuidToBytes(group.getAddressLabel()), transportMicLength);
+                        } catch (Exception ex) {
+                            // Retrying decryption
+                        }
+                    }
+                    if (key.getOldAid() == accessMessage.getAid()) {
+
+                        try {
+                            return SecureUtils
+                                    .decryptCCM(accessMessage.getUpperTransportPdu(), key.getOldKey(), nonce, MeshParserUtils.uuidToBytes(group.getAddressLabel()), transportMicLength);
+                        } catch (Exception ex) {
+                            // Retrying decryption
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private byte[] decrypt(@NonNull final AccessMessage accessMessage, @NonNull List<ApplicationKey> keys, final byte[] nonce, final int transportMicLength) {
+        for (ApplicationKey key : keys) {
+            if (key.getAid() == accessMessage.getAid()) {
+                try {
+                    return SecureUtils
+                            .decryptCCM(accessMessage.getUpperTransportPdu(), key.getKey(), nonce, transportMicLength);
+                } catch (Exception ex) {
+                    // Retrying decryption.
+                }
+
+            }
+            if (key.getOldAid() == accessMessage.getAid()) {
+                try {
+                    return SecureUtils
+                            .decryptCCM(accessMessage.getUpperTransportPdu(), key.getKey(), nonce, transportMicLength);
+                } catch (Exception ex) {
+                    // Retrying decryption.
+                }
+            }
+        }
+        return null;
     }
 
     /**

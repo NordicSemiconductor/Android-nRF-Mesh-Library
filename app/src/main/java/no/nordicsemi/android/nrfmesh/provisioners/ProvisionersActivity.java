@@ -27,118 +27,88 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
-import no.nordicsemi.android.nrfmesh.di.Injectable;
+import no.nordicsemi.android.nrfmesh.databinding.ActivityProvisionersBinding;
 import no.nordicsemi.android.nrfmesh.provisioners.adapter.ProvisionerAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.ProvisionersViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-public class ProvisionersActivity extends AppCompatActivity implements Injectable,
+@AndroidEntryPoint
+public class ProvisionersActivity extends AppCompatActivity implements
         ProvisionerAdapter.OnItemClickListener,
         ItemTouchHelperAdapter {
 
-    @Inject
-    ViewModelProvider.Factory mViewModelFactory;
-
-    //UI Bindings
-    @BindView(R.id.toolbar)
-    Toolbar mToolbar;
-    @BindView(R.id.container)
-    CoordinatorLayout container;
-    @BindView(R.id.scroll_container)
-    ScrollView scrollView;
-    @BindView(R.id.provisioners_card)
-    CardView mProvisionersCard;
-    @BindView(R.id.recycler_view_provisioners)
-    RecyclerView mRecyclerView;
-
+    private ActivityProvisionersBinding binding;
     private ProvisionersViewModel mViewModel;
     private ProvisionerAdapter mAdapter;
+
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_provisioners);
-        mViewModel = new ViewModelProvider(this, mViewModelFactory).get(ProvisionersViewModel.class);
+        binding = ActivityProvisionersBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        mViewModel = new ViewModelProvider(this).get(ProvisionersViewModel.class);
 
-        //Bind ui
-        ButterKnife.bind(this);
-
-        setSupportActionBar(mToolbar);
-        //noinspection ConstantConditions
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(R.string.title_manage_provisioners);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final View containerProvisioner = findViewById(R.id.container_current_provisioner);
-        containerProvisioner.findViewById(R.id.image).
+        binding.containerCurrentProvisioner.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_account_key));
-        final TextView provisionerTitle = containerProvisioner.findViewById(R.id.title);
-        final TextView provisionerView = containerProvisioner.findViewById(R.id.text);
-        provisionerView.setVisibility(View.VISIBLE);
+        binding.containerCurrentProvisioner.text.setVisibility(View.VISIBLE);
 
-        final ExtendedFloatingActionButton fab = findViewById(R.id.fab_add);
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setItemAnimator(null);
+        binding.recyclerViewProvisioners.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewProvisioners.setItemAnimator(null);
 
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+        mItemTouchHelper.attachToRecyclerView(binding.recyclerViewProvisioners);
         mAdapter = new ProvisionerAdapter(this, mViewModel.getNetworkLiveData());
         mAdapter.setOnItemClickListener(this);
-        mRecyclerView.setAdapter(mAdapter);
+        binding.recyclerViewProvisioners.setAdapter(mAdapter);
 
         mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
-                provisionerTitle.setText(provisioner.getProvisionerName());
+                binding.containerCurrentProvisioner.title.setText(provisioner.getProvisionerName());
                 if (provisioner.getProvisionerAddress() == null) {
-                    provisionerView.setText(R.string.unicast_address_unassigned);
+                    binding.containerCurrentProvisioner.text.setText(R.string.unicast_address_unassigned);
                 } else {
                     if (MeshAddress.isValidUnicastAddress(provisioner.getProvisionerAddress())) {
-                        provisionerView.setText(getString(R.string.unicast_address,
+                        binding.containerCurrentProvisioner.text.setText(getString(R.string.unicast_address,
                                 MeshAddress.formatAddress(provisioner.getProvisionerAddress(), true)));
                     } else {
-                        provisionerView.setText(R.string.unicast_address_unassigned);
+                        binding.containerCurrentProvisioner.text.setText(R.string.unicast_address_unassigned);
                     }
                 }
 
                 if (network.getProvisioners().size() > 1) {
-                    mProvisionersCard.setVisibility(View.VISIBLE);
+                    binding.provisionersCard.setVisibility(View.VISIBLE);
                 } else {
-                    mProvisionersCard.setVisibility(View.GONE);
+                    binding.provisionersCard.setVisibility(View.GONE);
                 }
             }
         });
 
-        containerProvisioner.setOnClickListener(v -> {
+        binding.containerCurrentProvisioner.getRoot().setOnClickListener(v -> {
             final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             if (network != null) {
                 final Provisioner provisioner = network.getSelectedProvisioner();
@@ -148,16 +118,16 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             }
         });
 
-        fab.setOnClickListener(v -> {
+        binding.fabAdd.setOnClickListener(v -> {
             final Intent intent = new Intent(this, AddProvisionerActivity.class);
             startActivity(intent);
         });
 
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            if (scrollView.getScrollY() == 0) {
-                fab.extend();
+        binding.scrollContainer.getViewTreeObserver().addOnScrollChangedListener(() -> {
+            if (binding.scrollContainer.getScrollY() == 0) {
+                binding.fabAdd.extend();
             } else {
-                fab.shrink();
+                binding.fabAdd.shrink();
             }
         });
     }
@@ -196,7 +166,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
             }
         } catch (Exception ex) {
             mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -206,7 +176,7 @@ public class ProvisionersActivity extends AppCompatActivity implements Injectabl
     }
 
     private void displaySnackBar(@NonNull final Provisioner provisioner) {
-        Snackbar.make(container, getString(R.string.provisioner_deleted), Snackbar.LENGTH_LONG)
+        Snackbar.make(binding.container, getString(R.string.provisioner_deleted), Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.undo), view -> {
                     final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
                     if (network != null) {

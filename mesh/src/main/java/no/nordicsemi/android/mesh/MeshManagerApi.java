@@ -25,6 +25,7 @@ package no.nordicsemi.android.mesh;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -33,8 +34,10 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
@@ -99,11 +102,12 @@ public class MeshManagerApi implements MeshMngrApi {
     private final static int ADVERTISED_NETWORK_ID_OFFSET = 1; //Offset of the network id contained in the advertisement service data
     private final static int ADVERTISED_NETWORK_ID_LENGTH = 8; //Length of the network id contained in the advertisement service data
 
-    private Context mContext;
+    private final Context mContext;
     private final Handler mHandler;
     private MeshManagerCallbacks mMeshManagerCallbacks;
-    private MeshProvisioningHandler mMeshProvisioningHandler;
-    private MeshMessageHandler mMeshMessageHandler;
+    private final MeshProvisioningHandler mMeshProvisioningHandler;
+    private final MeshMessageHandler mMeshMessageHandler;
+    private final ImportExportUtils mImportExportUtils;
     private byte[] mIncomingBuffer;
     private int mIncomingBufferOffset;
     private byte[] mOutgoingBuffer;
@@ -136,24 +140,18 @@ public class MeshManagerApi implements MeshMngrApi {
 
     /**
      * The mesh manager api constructor.
-     * <p>
-     * After constructing the manager, the meshProvision following callbacks must be set
-     * {@link #setMeshManagerCallbacks(MeshManagerCallbacks)}.
-     * {@link #setProvisioningStatusCallbacks(MeshProvisioningStatusCallbacks)}.
-     * {@link #setMeshStatusCallbacks(MeshStatusCallbacks)}.
-     * <p>
      *
      * @param context context
      */
     public MeshManagerApi(@NonNull final Context context) {
         this.mContext = context;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
         mMeshProvisioningHandler = new MeshProvisioningHandler(context, internalTransportCallbacks, internalMeshMgrCallbacks);
         mMeshMessageHandler = new MeshMessageHandler(context, internalTransportCallbacks, networkLayerCallbacks, upperTransportLayerCallbacks);
+        mImportExportUtils = new ImportExportUtils();
         initBouncyCastle();
         //Init database
         initDb(context);
-
     }
 
     @Override
@@ -305,77 +303,92 @@ public class MeshManagerApi implements MeshMngrApi {
                     break;
                 case PDU_TYPE_MESH_BEACON:
                     //Validate SNBs against all network keys
+                    NetworkKey networkKey;
                     for (int i = 0; i < mMeshNetwork.getNetKeys().size(); i++) {
-                        final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(i);
-                        if (networkKey != null) {
-                            final byte[] receivedBeaconData = new byte[unsegmentedPdu.length - 1];
-                            System.arraycopy(unsegmentedPdu, 1, receivedBeaconData, 0, receivedBeaconData.length);
-                            final SecureNetworkBeacon receivedBeacon = new SecureNetworkBeacon(receivedBeaconData);
+                        networkKey = mMeshNetwork.getNetKeys().get(i);
+                        final byte[] receivedBeaconData = new byte[unsegmentedPdu.length - 1];
+                        System.arraycopy(unsegmentedPdu, 1, receivedBeaconData, 0, receivedBeaconData.length);
+                        final SecureNetworkBeacon receivedBeacon = new SecureNetworkBeacon(receivedBeaconData);
 
-                            final byte[] n = networkKey.getKey();
-                            final int flags = receivedBeacon.getFlags();
-                            final byte[] networkId = SecureUtils.calculateK3(n);
-                            final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
-                            Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
+                        final byte[] n = networkKey.getTxNetworkKey();
+                        final int flags = receivedBeacon.getFlags();
+                        final byte[] networkId = SecureUtils.calculateK3(n);
+                        final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
+                        Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
 
-                            final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
-                            //Check the the beacon received is a valid by matching the authentication values
-                            if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
-                                Log.d(TAG, "Secure Network Beacon beacon authenticated.");
+                        final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
+                        //Check the the beacon received is a valid by matching the authentication values
+                        if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
+                            Log.d(TAG, "Secure Network Beacon beacon authenticated.");
 
-                                //  The library does not retransmit Secure Network Beacon.
-                                //  If this node is a member of a primary subnet and receives a Secure Network
-                                //  beacon on a secondary subnet, it will disregard it.
-                                if (mMeshNetwork.getPrimaryNetworkKey() != null && networkKey.keyIndex != 0) {
-                                    Log.d(TAG, "Discarding beacon for secondary subnet with network key index: " + networkKey.keyIndex);
-                                    return;
-                                }
+                            //  The library does not retransmit Secure Network Beacon.
+                            //  If this node is a member of a primary subnet and receives a Secure Network
+                            //  beacon on a secondary subnet, it will disregard it.
+                            if (mMeshNetwork.getPrimaryNetworkKey() != null && networkKey.keyIndex != 0) {
+                                Log.d(TAG, "Discarding beacon for secondary subnet with network key index: " + networkKey.keyIndex);
+                                return;
+                            }
 
-                                // Get the last IV Index.
-                                /// The last used IV Index for this mesh network.
-                                final IvIndex lastIvIndex = mMeshNetwork.getIvIndex();
-                                Log.d(TAG, "Last IV Index: " + lastIvIndex.getIvIndex());
-                                /// The date of the last change of IV Index or IV Update Flag.
-                                final Calendar lastTransitionDate = lastIvIndex.getTransitionDate();
-                                /// A flag whether the IV has recently been updated using IV Recovery procedure.
-                                /// The at-least-96h requirement for the duration of the current state will not apply.
-                                /// The node shall not execute more than one IV Index Recovery within a period of 192 hours.
-                                final boolean isIvRecoveryActive = lastIvIndex.getIvRecoveryFlag();
-                                /// The test mode disables the 96h rule, leaving all other behavior unchanged.
-                                final boolean isIvTestModeActive = ivUpdateTestModeActive;
+                            // Get the last IV Index.
+                            /// The last used IV Index for this mesh network.
+                            final IvIndex lastIvIndex = mMeshNetwork.getIvIndex();
+                            Log.d(TAG, "Last IV Index: " + lastIvIndex.getIvIndex());
+                            /// The date of the last change of IV Index or IV Update Flag.
+                            final Calendar lastTransitionDate = lastIvIndex.getTransitionDate();
+                            /// A flag whether the IV has recently been updated using IV Recovery procedure.
+                            /// The at-least-96h requirement for the duration of the current state will not apply.
+                            /// The node shall not execute more than one IV Index Recovery within a period of 192 hours.
+                            final boolean isIvRecoveryActive = lastIvIndex.getIvRecoveryFlag();
+                            /// The test mode disables the 96h rule, leaving all other behavior unchanged.
+                            final boolean isIvTestModeActive = ivUpdateTestModeActive;
 
-                                final boolean flag = allowIvIndexRecoveryOver42;
-                                if (!receivedBeacon.canOverwrite(lastIvIndex, lastTransitionDate, isIvRecoveryActive, isIvTestModeActive, flag)) {
-                                    String numberOfHoursSinceDate = ((Calendar.getInstance().getTimeInMillis() -
-                                            lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
-                                    Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
-                                            ", last " + lastIvIndex.getIvIndex() + ", changed: "
-                                            + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
-                                    return;
-                                }
+                            final boolean flag = allowIvIndexRecoveryOver42;
+                            if (!receivedBeacon.canOverwrite(lastIvIndex, lastTransitionDate, isIvRecoveryActive, isIvTestModeActive, flag)) {
+                                String numberOfHoursSinceDate = ((Calendar.getInstance().getTimeInMillis() -
+                                        lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
+                                Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
+                                        ", last " + lastIvIndex.getIvIndex() + ", changed: "
+                                        + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
+                                return;
+                            }
 
-                                final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
-                                mMeshNetwork.ivIndex = new IvIndex(receivedIvIndex.getIvIndex(), receivedIvIndex.isIvUpdateActive(), lastTransitionDate);
+                            final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
+                            mMeshNetwork.ivIndex = new IvIndex(receivedIvIndex.getIvIndex(), receivedIvIndex.isIvUpdateActive(), lastTransitionDate);
 
-                                if (mMeshNetwork.ivIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
-                                    Log.i(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
-                                }
+                            if (mMeshNetwork.ivIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
+                                Log.i(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
+                            }
 
-                                // If the IV Index used for transmitting messages effectively increased,
-                                // the Node shall reset the sequence number to 0x000000.
-                                if (mMeshNetwork.ivIndex.getTransmitIvIndex() > lastIvIndex.getTransmitIvIndex()) {
-                                    Log.i(TAG, "Resetting local sequence numbers to 0");
-                                    final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
-                                    final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
-                                    node.setSequenceNumber(0);
-                                    //provisioner.setSequenceNumber(0);
-                                }
+                            // If the IV Index used for transmitting messages effectively increased,
+                            // the Node shall reset the sequence number to 0x000000.
+                            if (mMeshNetwork.ivIndex.getTransmitIvIndex() > lastIvIndex.getTransmitIvIndex()) {
+                                Log.i(TAG, "Resetting local sequence numbers to 0");
+                                final Provisioner provisioner = mMeshNetwork.getSelectedProvisioner();
+                                final ProvisionedMeshNode node = mMeshNetwork.getNode(provisioner.getProvisionerUuid());
+                                node.setSequenceNumber(0);
+                            }
 
-                                //Updating the iv recovery flag
-                                if (lastIvIndex != mMeshNetwork.ivIndex) {
-                                    final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
-                                            && !receivedBeacon.getIvIndex().isIvUpdateActive();
-                                    mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
+                            //Updating the iv recovery flag
+                            if (lastIvIndex != mMeshNetwork.ivIndex) {
+                                final boolean ivRecovery = mMeshNetwork.getIvIndex().getIvIndex() > lastIvIndex.getIvIndex() + 1
+                                        && !receivedBeacon.getIvIndex().isIvUpdateActive();
+                                mMeshNetwork.getIvIndex().setIvRecoveryFlag(ivRecovery);
+                            }
+
+                            if (!mMeshNetwork.ivIndex.getIvRecoveryFlag()) {
+                                final Iterator<Entry<Integer, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
+                                while (iterator.hasNext()) {
+                                    final Entry<Integer, ArrayList<Integer>> exclusions = iterator.next();
+                                    final int expectedIncrement = exclusions.getKey() + 2;
+                                    if (mMeshNetwork.ivIndex.getIvIndex() >= expectedIncrement) {
+                                        // Clear the last known sequence number of addresses that are to be removed from the exclusion list.
+                                        // Decided to retain the last known sequence number as the IV Indexes increment the sequence number
+                                        // will be greater than the last known anyways
+                                        //for (Integer address : mMeshNetwork.networkExclusions.get(expectedIncrement)) {
+                                        //    mMeshNetwork.sequenceNumbers.removeAt(address);
+                                        //}
+                                        iterator.remove();
+                                    }
                                 }
                             }
                         }
@@ -618,11 +631,10 @@ public class MeshManagerApi implements MeshMngrApi {
         mMeshProvisioningHandler.sendProvisioningConfirmation(authentication);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     @Override
     public UUID getDeviceUuid(@NonNull final byte[] serviceData) throws IllegalArgumentException {
-        if (serviceData == null || serviceData.length < 18)
+        if (serviceData.length < 18)
             throw new IllegalArgumentException("Service data cannot be null");
 
         final ByteBuffer buffer = ByteBuffer.wrap(serviceData);
@@ -632,12 +644,8 @@ public class MeshManagerApi implements MeshMngrApi {
         return new UUID(msb, lsb);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
-        if (advertisementData == null)
-            throw new IllegalArgumentException("Advertisement data cannot be null");
-
         for (int i = 0; i < advertisementData.length; i++) {
             final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
             if (length == 0)
@@ -651,13 +659,9 @@ public class MeshManagerApi implements MeshMngrApi {
         return false;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
     public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
-        if (advertisementData == null)
-            throw new IllegalArgumentException("Advertisement data cannot be null");
-
         if (isMeshBeacon(advertisementData)) {
             for (int i = 0; i < advertisementData.length; i++) {
                 final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
@@ -709,10 +713,10 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         for (NetworkKey key : mMeshNetwork.netKeys) {
-            //if generated hash is null return false
-            final byte[] generatedHash = SecureUtils.
-                    calculateHash(key.getIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()));
-            if (Arrays.equals(advertisedHash, generatedHash))
+            if (Arrays.equals(advertisedHash, SecureUtils.
+                    calculateHash(key.getIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()))) ||
+                    Arrays.equals(advertisedHash, SecureUtils.
+                            calculateHash(key.getOldIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()))))
                 return true;
         }
         return false;
@@ -759,6 +763,18 @@ public class MeshManagerApi implements MeshMngrApi {
         if (advertisedNetworkId != null) {
             final String advertisedNetworkIdString = MeshParserUtils.bytesToHex(advertisedNetworkId, false).toUpperCase(Locale.US);
             return networkId.equals(advertisedNetworkIdString);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean networkIdMatches(@Nullable final byte[] serviceData) {
+        final byte[] advertisedNetworkId = getAdvertisedNetworkId(serviceData);
+        if (advertisedNetworkId != null) {
+            for (NetworkKey key : mMeshNetwork.getNetKeys()) {
+                if (Arrays.equals(key.getNetworkId(), advertisedNetworkId) || Arrays.equals(key.getOldNetworkId(), advertisedNetworkId))
+                    return true;
+            }
         }
         return false;
     }
@@ -855,7 +871,7 @@ public class MeshManagerApi implements MeshMngrApi {
      * @param meshNetwork mesh network to be deleted
      */
     public final void deleteMeshNetworkFromDb(final MeshNetwork meshNetwork) {
-        mMeshNetworkDb.deleteNetwork(mMeshNetworkDao, meshNetwork);
+        mMeshNetworkDb.delete(mMeshNetworkDao, meshNetwork);
     }
 
     @Override
@@ -880,25 +896,52 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Override
     public String exportMeshNetwork() {
-        final MeshNetwork meshNetwork = mMeshNetwork;
-        if (meshNetwork != null) {
-            return NetworkImportExportUtils.export(meshNetwork);
+        try {
+            final MeshNetwork meshNetwork = mMeshNetwork;
+            return mImportExportUtils.export(meshNetwork, false);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public String exportMeshNetwork(@NonNull final NetworkKeysConfig networkKeysConfig,
+                                    @NonNull final ApplicationKeysConfig applicationKeysConfig,
+                                    @NonNull final NodesConfig nodesConfig,
+                                    @NonNull final ProvisionersConfig provisionersConfig,
+                                    @NonNull final GroupsConfig groupsConfig,
+                                    @NonNull final ScenesConfig scenesConfig) {
+        try {
+            final MeshNetwork network = mMeshNetwork;
+            return mImportExportUtils.export(network, networkKeysConfig, applicationKeysConfig,
+                    nodesConfig, provisionersConfig, groupsConfig, scenesConfig);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
         return null;
     }
 
     @Override
     public void importMeshNetwork(@NonNull final Uri uri) {
-        if (uri.getPath() != null) {
-            NetworkImportExportUtils.importMeshNetwork(mContext, uri, networkLoadCallbacks);
-        } else {
-            mMeshManagerCallbacks.onNetworkImportFailed("URI getPath() returned null!");
+        try {
+            importMeshNetworkJson(mImportExportUtils.readJsonStringFromUri(mContext.getContentResolver(), uri));
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
     }
 
     @Override
     public void importMeshNetworkJson(@NonNull String networkJson) {
-        NetworkImportExportUtils.importMeshNetworkFromJson(mContext, networkJson, networkLoadCallbacks);
+        try {
+            final MeshNetwork meshNetwork = mImportExportUtils.importNetwork(networkJson);
+            meshNetwork.setCallbacks(callbacks);
+            insertNetwork(meshNetwork);
+            mMeshNetwork = meshNetwork;
+            mMeshManagerCallbacks.onNetworkImported(meshNetwork);
+        } catch (Exception ex) {
+            mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
+        }
     }
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -954,11 +997,8 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
-                if (mMeshNetwork.deleteResetNode(meshNode)) {
-                    mMeshNetwork.sequenceNumbers.delete(meshNode.getUnicastAddress());
-                    mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
-                    mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
-                    mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
+                if (mMeshNetwork.deleteNode(meshNode)) {
+                    deleteNode(meshNode);
                 }
             }
         }
@@ -966,6 +1006,22 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public MeshNetwork getMeshNetwork() {
             return mMeshNetwork;
+        }
+
+        @Override
+        public void storeScene(final int address, final int currentScene, final List<Integer> scenes) {
+            final Scene scene = mMeshNetwork.getScene(currentScene);
+            if (scene != null && !scene.getAddresses().contains(address)) {
+                scene.addresses.add(address);
+            }
+        }
+
+        @Override
+        public void deleteScene(final int address, final int currentScene, final List<Integer> scenes) {
+            final Scene scene = mMeshNetwork.getScene(currentScene);
+            if (scene != null && scene.getAddresses().contains(address)) {
+                scene.addresses.remove((Integer) address);
+            }
         }
 
         private void updateNetwork(final ProvisionedMeshNode meshNode) {
@@ -978,11 +1034,24 @@ public class MeshManagerApi implements MeshMngrApi {
                 }
             }
             mMeshNetwork.setTimestamp(System.currentTimeMillis());
-            mMeshNetworkDb.updateNetwork1(mMeshNetwork, mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao, mProvisionersDao, mProvisionedNodesDao,
+            mMeshNetworkDb.update(mMeshNetwork, mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao, mProvisionersDao, mProvisionedNodesDao,
                     mGroupsDao, mScenesDao);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };
+
+    /**
+     * Deletes an address from the scenes in the network. This is to be called when resetting or deleting a node from the network.
+     *
+     * @param address Address to be removed.
+     */
+    private void deleteSceneAddress(final int address) {
+        for (Scene scene : mMeshNetwork.getScenes()) {
+            if (scene.addresses.remove((Integer) address)) {
+                Log.d(TAG, "Node removed from " + scene.getName());
+            }
+        }
+    }
 
     @SuppressWarnings("FieldCanBeLocal")
     private final InternalMeshManagerCallbacks internalMeshMgrCallbacks = new InternalMeshManagerCallbacks() {
@@ -993,8 +1062,8 @@ public class MeshManagerApi implements MeshMngrApi {
             mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
-            mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
-            mMeshNetworkDb.updateProvisioner(mProvisionerDao,
+            mMeshNetworkDb.insert(mProvisionedNodeDao, meshNode);
+            mMeshNetworkDb.update(mProvisionerDao,
                     mMeshNetwork.getSelectedProvisioner());
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
@@ -1069,10 +1138,21 @@ public class MeshManagerApi implements MeshMngrApi {
             return null;
         }
 
+        @Override
+        public List<ApplicationKey> getApplicationKeys(final int boundNetKeyIndex) {
+            final List<ApplicationKey> keys = new ArrayList<>();
+            for (ApplicationKey key : mMeshNetwork.getAppKeys()) {
+                if (key.getBoundNetKeyIndex() == boundNetKeyIndex) {
+                    keys.add(key);
+                }
+            }
+            return keys;
+        }
+
         @Nullable
         @Override
-        public UUID getLabel(final int address) {
-            return mMeshNetwork.getLabelUuid(address);
+        public List<Group> gerVirtualGroups() {
+            return mMeshNetwork.getGroups();
         }
     };
 
@@ -1100,20 +1180,18 @@ public class MeshManagerApi implements MeshMngrApi {
         public void onNetworkLoadFailed(final String error) {
             mMeshManagerCallbacks.onNetworkLoadFailed(error);
         }
-
-        @Override
-        public void onNetworkImportedFromJson(final MeshNetwork meshNetwork) {
-            meshNetwork.setCallbacks(callbacks);
-            insertNetwork(meshNetwork);
-            mMeshNetwork = meshNetwork;
-            mMeshManagerCallbacks.onNetworkImported(meshNetwork);
-        }
-
-        @Override
-        public void onNetworkImportFailed(final String error) {
-            mMeshManagerCallbacks.onNetworkImportFailed(error);
-        }
     };
+
+    private void deleteNode(@NonNull final ProvisionedMeshNode meshNode) {
+        deleteSceneAddress(meshNode.getUnicastAddress());
+        // We should not remove the last known sequence number when resetting a node.
+        // This should be kept until the current iv index has incremented by 2 and delete it when
+        // clearing the exclusion lists
+        // mMeshNetwork.sequenceNumbers.delete(meshNode.getUnicastAddress());
+        mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
+        mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+        mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
+    }
 
     /**
      * Callbacks observing user updates on the mesh network object
@@ -1122,127 +1200,126 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onMeshNetworkUpdated() {
             mMeshNetwork.setTimestamp(System.currentTimeMillis());
-            mMeshNetworkDb.updateNetwork(mMeshNetworkDao, mMeshNetwork);
+            mMeshNetworkDb.update(mMeshNetworkDao, mMeshNetwork);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNetworkKeyAdded(@NonNull final NetworkKey networkKey) {
-            mMeshNetworkDb.insertNetKey(mNetworkKeyDao, networkKey);
+            mMeshNetworkDb.insert(mNetworkKeyDao, networkKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNetworkKeyUpdated(@NonNull final NetworkKey networkKey) {
-            mMeshNetworkDb.updateNetKey(mNetworkKeyDao, networkKey);
+            mMeshNetworkDb.update(mNetworkKeyDao, networkKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNetworkKeyDeleted(@NonNull final NetworkKey networkKey) {
-            mMeshNetworkDb.deleteNetKey(mNetworkKeyDao, networkKey);
+            mMeshNetworkDb.delete(mNetworkKeyDao, networkKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onApplicationKeyAdded(@NonNull final ApplicationKey applicationKey) {
-            mMeshNetworkDb.insertAppKey(mApplicationKeyDao, applicationKey);
+            mMeshNetworkDb.insert(mApplicationKeyDao, applicationKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onApplicationKeyUpdated(@NonNull final ApplicationKey applicationKey) {
-            mMeshNetworkDb.updateAppKey(mApplicationKeyDao, applicationKey);
+            mMeshNetworkDb.update(mApplicationKeyDao, applicationKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onApplicationKeyDeleted(@NonNull final ApplicationKey applicationKey) {
-            mMeshNetworkDb.deleteAppKey(mApplicationKeyDao, applicationKey);
+            mMeshNetworkDb.delete(mApplicationKeyDao, applicationKey);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onProvisionerAdded(@NonNull final Provisioner provisioner) {
-            mMeshNetworkDb.insertProvisioner(mProvisionerDao, provisioner);
+            mMeshNetworkDb.insert(mProvisionerDao, provisioner);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onProvisionerUpdated(@NonNull final Provisioner provisioner) {
-            mMeshNetworkDb.updateProvisioner(mProvisionerDao, provisioner);
+            mMeshNetworkDb.update(mProvisionerDao, provisioner);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onProvisionersUpdated(@NonNull final List<Provisioner> provisioners) {
-            mMeshNetworkDb.updateProvisioners(mProvisionerDao, provisioners);
+            mMeshNetworkDb.update(mProvisionerDao, provisioners);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onProvisionerDeleted(@NonNull Provisioner provisioner) {
-            mMeshNetworkDb.deleteProvisioner(mProvisionerDao, provisioner);
+            mMeshNetworkDb.delete(mProvisionerDao, provisioner);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
-            mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
-            mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
+            deleteNode(meshNode);
         }
 
         @Override
         public void onNodeAdded(@NonNull final ProvisionedMeshNode meshNode) {
-            mMeshNetworkDb.insertNode(mProvisionedNodeDao, meshNode);
+            mMeshNetworkDb.insert(mProvisionedNodeDao, meshNode);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNodeUpdated(@NonNull final ProvisionedMeshNode meshNode) {
-            mMeshNetworkDb.updateNode(mProvisionedNodeDao, meshNode);
+            mMeshNetworkDb.update(mProvisionedNodeDao, meshNode);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onNodesUpdated() {
-            mMeshNetworkDb.updateNodes(mProvisionedNodesDao, mMeshNetwork.nodes);
+            mMeshNetworkDb.update(mProvisionedNodesDao, mMeshNetwork.nodes);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onGroupAdded(@NonNull final Group group) {
-            mMeshNetworkDb.insertGroup(mGroupDao, group);
+            mMeshNetworkDb.insert(mGroupDao, group);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onGroupUpdated(@NonNull final Group group) {
-            mMeshNetworkDb.updateGroup(mGroupDao, group);
+            mMeshNetworkDb.update(mGroupDao, group);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onGroupDeleted(@NonNull final Group group) {
-            mMeshNetworkDb.deleteGroup(mGroupDao, group);
+            mMeshNetworkDb.delete(mGroupDao, group);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onSceneAdded(@NonNull final Scene scene) {
-            mMeshNetworkDb.insertScene(mSceneDao, scene);
+            mMeshNetworkDb.insert(mSceneDao, scene);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onSceneUpdated(@NonNull final Scene scene) {
-            mMeshNetworkDb.updateScene(mSceneDao, scene);
+            mMeshNetworkDb.update(mSceneDao, scene);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
 
         @Override
         public void onSceneDeleted(@NonNull final Scene scene) {
-            mMeshNetworkDb.deleteScene(mSceneDao, scene);
+            mMeshNetworkDb.delete(mSceneDao, scene);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
     };

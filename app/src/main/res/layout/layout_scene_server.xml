@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_recall_scene"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/activity_vertical_margin"
+    app:cardElevation="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/recall_scene_tool_bar"
+            android:layout_width="0dp"
+            android:layout_height="?actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:logo="@drawable/ic_round_call_received_24"
+            app:title="@string/title_recall_scene"
+            app:titleMarginStart="@dimen/toolbar_title_margin"
+            app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+        <LinearLayout
+            android:id="@+id/scene_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/no_current_scene_available"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/item_padding_top"
+                android:paddingBottom="@dimen/item_padding_bottom"
+                android:text="@string/no_scenes_stored_rationale"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="14sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@id/div3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_scenes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:scrollbars="none"
+                android:visibility="invisible"
+                app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
+                tools:listitem="@layout/removable_row_item" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/div3"
+            layout="@layout/layout_divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scene_container" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/action_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="@dimen/item_padding_start"
+            android:text="@string/action_read"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/hint"
+            app:layout_constraintTop_toBottomOf="@id/div3" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:text="@string/hint_current_scene"
+            android:textColor="?android:textColorSecondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_read"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/div3"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

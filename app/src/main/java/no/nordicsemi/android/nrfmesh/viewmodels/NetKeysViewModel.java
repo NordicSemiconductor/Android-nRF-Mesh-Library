@@ -1,16 +1,15 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
-import javax.inject.Inject;
-
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 
 /**
  * ViewModel for {@link AppKeysActivity}
  */
-public class NetKeysViewModel extends KeysViewModel {
+public class NetKeysViewModel extends BaseViewModel {
 
-    @Inject
+    @ViewModelInject
     NetKeysViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
