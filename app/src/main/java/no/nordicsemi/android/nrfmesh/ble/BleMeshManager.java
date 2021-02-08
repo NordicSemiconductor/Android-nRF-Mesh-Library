@@ -78,7 +78,8 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
     /**
      * BluetoothGatt callbacks for connection/disconnection, service discovery, receiving notifications, etc.
      */
-    private final BleManagerGattCallback mGattCallback = new BleManagerGattCallback() {
+
+    private class BleMeshGattCallbacks extends BleManagerGattCallback {
 
         @Override
         public boolean isRequiredServiceSupported(@NonNull final BluetoothGatt gatt) {
@@ -149,7 +150,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
     @NonNull
     @Override
     protected BleManagerGattCallback getGattCallback() {
-        return mGattCallback;
+        return new BleMeshGattCallbacks();
     }
 
     @Override
