@@ -420,9 +420,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 groupObj.addProperty("address", MeshParserUtils.uuidToHex(group.getAddressLabel()));
             }
             if (group.getParentAddressLabel() == null) {
-                groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getAddress(), false));
+                groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getParentAddress(), false));
             } else {
-                groupObj.addProperty("parentAddress", MeshParserUtils.uuidToHex(group.getAddressLabel()));
+                groupObj.addProperty("parentAddress", MeshParserUtils.uuidToHex(group.getParentAddressLabel()));
             }
             groupsArray.add(groupObj);
         }

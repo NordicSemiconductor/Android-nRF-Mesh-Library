@@ -181,12 +181,15 @@ abstract class MeshNetworkDb extends RoomDatabase {
         });
     }
 
-    void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork) {
-        databaseWriteExecutor.execute(() -> dao.update(meshNetwork));
+    void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork network) {
+        databaseWriteExecutor.execute(() -> dao.update(network.meshUUID, network.meshName, network.timestamp,
+                network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
+                network.lastSelected,
+                MeshTypeConverters.networkExclusionsToJson(network.networkExclusions)));
     }
 
-    void update(@NonNull final MeshNetwork meshNetwork,
-                @NonNull final MeshNetworkDao meshNetworkDao,
+    void update(@NonNull final MeshNetwork network,
+                @NonNull final MeshNetworkDao networkDao,
                 @NonNull final NetworkKeysDao netKeyDao,
                 @NonNull final ApplicationKeysDao appKeyDao,
                 @NonNull final ProvisionersDao provisionersDao,
@@ -194,13 +197,16 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 @NonNull final GroupsDao groupsDao,
                 @NonNull final ScenesDao sceneDao) {
         databaseWriteExecutor.execute(() -> {
-            meshNetworkDao.update(meshNetwork);
-            netKeyDao.update(meshNetwork.getNetKeys());
-            appKeyDao.update(meshNetwork.getAppKeys());
-            provisionersDao.update(meshNetwork.getProvisioners());
-            nodesDao.update(meshNetwork.getNodes());
-            groupsDao.update(meshNetwork.getGroups());
-            sceneDao.update(meshNetwork.getScenes());
+            networkDao.update(network.meshUUID, network.meshName, network.timestamp,
+                    network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
+                    network.lastSelected,
+                    MeshTypeConverters.networkExclusionsToJson(network.networkExclusions));
+            netKeyDao.update(network.getNetKeys());
+            appKeyDao.update(network.getAppKeys());
+            provisionersDao.update(network.getProvisioners());
+            nodesDao.update(network.getNodes());
+            groupsDao.update(network.getGroups());
+            sceneDao.update(network.getScenes());
         });
     }
 
