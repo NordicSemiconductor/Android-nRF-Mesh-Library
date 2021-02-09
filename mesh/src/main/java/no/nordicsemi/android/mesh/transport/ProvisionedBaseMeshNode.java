@@ -106,13 +106,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] deviceKey;
     @ColumnInfo(name = "seq_number")
     @Expose
-    int sequenceNumber = -1;
-    @Ignore
-    @Expose
-    String bluetoothAddress;
-    @Ignore
-    @Expose(serialize = false, deserialize = false)
-    String nodeIdentifier;
+    int sequenceNumber = 0;
     @ColumnInfo(name = "cid")
     @Nullable
     @Expose

@@ -74,7 +74,7 @@ abstract class BaseMeshNetwork {
     @SerializedName("meshName")
     @Expose
     String meshName = "nRF Mesh Network";
-    @ColumnInfo(name = "timestamp")
+    @ColumnInfo(name = "timestamp", defaultValue = "0")
     @SerializedName("timestamp")
     @Expose
     long timestamp = System.currentTimeMillis();
@@ -115,7 +115,7 @@ abstract class BaseMeshNetwork {
     @SerializedName("networkExclusions")
     @TypeConverters(MeshTypeConverters.class)
     @NonNull
-    @ColumnInfo(name = "networkExclusions", defaultValue = "{}")
+    @ColumnInfo(name = "network_exclusions", defaultValue = "{}")
     @Expose
     protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     //Library related attributes
@@ -126,9 +126,8 @@ abstract class BaseMeshNetwork {
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
-    @NonNull
-    @TypeConverters(MeshTypeConverters.class)
-    @ColumnInfo(name = "sequence_numbers")
+    @Ignore
+    @Expose(serialize = false, deserialize = false)
     protected SparseIntArray sequenceNumbers = new SparseIntArray();
     @Ignore
     @Expose(serialize = false, deserialize = false)
@@ -790,7 +789,6 @@ abstract class BaseMeshNetwork {
      * @return {@link Provisioner}
      * @throws IllegalArgumentException if the name is empty
      */
-    @SuppressWarnings("ConstantConditions")
     public Provisioner createProvisioner(@NonNull final String name,
                                          @NonNull final AllocatedUnicastRange unicastRange,
                                          @NonNull final AllocatedGroupRange groupRange,
