@@ -31,6 +31,7 @@ import no.nordicsemi.android.mesh.transport.ConfigFriendGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitGet;
+import no.nordicsemi.android.mesh.transport.ConfigNodeIdentityGet;
 import no.nordicsemi.android.mesh.transport.ConfigRelayGet;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.SceneGet;
@@ -77,6 +78,7 @@ public class ModelConfigurationViewModel extends BaseViewModel {
                 messageQueue.add(new ConfigNetworkTransmitGet());
                 messageQueue.add(new ConfigBeaconGet());
                 messageQueue.add(new ConfigFriendGet());
+                messageQueue.add(new ConfigNodeIdentityGet());
                 break;
             case SigModelParser.SCENE_SERVER:
                 messageQueue.add(new SceneGet(getDefaultApplicationKey()));

@@ -312,6 +312,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NODE_IDENTITY_STATUS) {
                     final ConfigNodeIdentityStatus status = new ConfigNodeIdentityStatus(message);
+                    if (!isReceivedViaProxyFilter(message)) {
+                        node.nodeIdentityState = status.getNodeIdentityState();
+                    }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS) {

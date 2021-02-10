@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
+import static no.nordicsemi.android.mesh.transport.ProvisionedBaseMeshNode.NodeIdentityState;
+
 /**
  * Creates the ConfigNodeIdentityStatus message.
  */
@@ -18,7 +20,8 @@ public class ConfigNodeIdentityStatus extends ConfigStatusMessage {
     private static final String TAG = ConfigNodeIdentityStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_BEACON_STATUS;
     private int netKeyIndex;
-    private boolean enable;
+    @NodeIdentityState
+    private int nodeIdentityState;
 
     /**
      * Constructs ConfigNodeIdentityStatus message.
@@ -36,8 +39,8 @@ public class ConfigNodeIdentityStatus extends ConfigStatusMessage {
         mStatusCode = mParameters[0];
         final byte[] netKeyIndex = new byte[]{(byte) (mParameters[2] & 0x0F), mParameters[1]};
         this.netKeyIndex = ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
-        enable = MeshParserUtils.unsignedByteToInt(mParameters[3]) == ProvisionedBaseMeshNode.ENABLED;
-        Log.d(TAG, "Node Identity State: " + enable);
+        nodeIdentityState = MeshParserUtils.unsignedByteToInt(mParameters[3]);
+        Log.d(TAG, "Node Identity State: " + nodeIdentityState);
     }
 
     @Override
@@ -46,19 +49,20 @@ public class ConfigNodeIdentityStatus extends ConfigStatusMessage {
     }
 
     /**
-     * Returns if the message was successful
+     * Returns if the message was successful.
      *
-     * @return true if the message was successful or false otherwise
+     * @return true if the message was successful or false otherwise.
      */
     public final boolean isSuccessful() {
         return mStatusCode == 0x00;
     }
 
     /**
-     * Returns true if the Node is advertising with Node Identity for a subnet is running or false otherwise.
+     * Returns the {@link NodeIdentityState}.
      */
-    public boolean isEnable() {
-        return enable;
+    @NodeIdentityState
+    public int getNodeIdentityState() {
+        return nodeIdentityState;
     }
 
     /**
