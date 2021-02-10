@@ -118,19 +118,19 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     private boolean mIsProvisioningComplete = false; // Flag to determine if provisioning was completed
 
     // Holds the selected MeshNode to configure
-    private MutableLiveData<ProvisionedMeshNode> mExtendedMeshNode = new MutableLiveData<>();
+    private final MutableLiveData<ProvisionedMeshNode> mExtendedMeshNode = new MutableLiveData<>();
 
     // Holds the selected Element to configure
-    private MutableLiveData<Element> mSelectedElement = new MutableLiveData<>();
+    private final MutableLiveData<Element> mSelectedElement = new MutableLiveData<>();
 
     // Holds the selected mesh model to configure
-    private MutableLiveData<MeshModel> mSelectedModel = new MutableLiveData<>();
+    private final MutableLiveData<MeshModel> mSelectedModel = new MutableLiveData<>();
     // Holds the selected app key to configure
-    private MutableLiveData<NetworkKey> mSelectedNetKey = new MutableLiveData<>();
+    private final MutableLiveData<NetworkKey> mSelectedNetKey = new MutableLiveData<>();
     // Holds the selected app key to configure
-    private MutableLiveData<ApplicationKey> mSelectedAppKey = new MutableLiveData<>();
+    private final MutableLiveData<ApplicationKey> mSelectedAppKey = new MutableLiveData<>();
     // Holds the selected provisioner when adding/editing
-    private MutableLiveData<Provisioner> mSelectedProvisioner = new MutableLiveData<>();
+    private final MutableLiveData<Provisioner> mSelectedProvisioner = new MutableLiveData<>();
 
     private final MutableLiveData<Group> mSelectedGroupLiveData = new MutableLiveData<>();
 
@@ -141,9 +141,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     final SingleLiveEvent<ConfigAppKeyStatus> mAppKeyStatus = new SingleLiveEvent<>();
 
     //Contains the MeshNetwork
-    private MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
-    private SingleLiveEvent<String> mNetworkImportState = new SingleLiveEvent<>();
-    private SingleLiveEvent<MeshMessage> mMeshMessageLiveData = new SingleLiveEvent<>();
+    private final MeshNetworkLiveData mMeshNetworkLiveData = new MeshNetworkLiveData();
+    private final SingleLiveEvent<String> mNetworkImportState = new SingleLiveEvent<>();
+    private final SingleLiveEvent<MeshMessage> mMeshMessageLiveData = new SingleLiveEvent<>();
 
     // Contains the provisioned nodes
     private final MutableLiveData<List<ProvisionedMeshNode>> mProvisionedNodes = new MutableLiveData<>();
@@ -152,9 +152,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     private final MutableLiveData<TransactionStatus> mTransactionStatus = new SingleLiveEvent<>();
 
-    private MeshManagerApi mMeshManagerApi;
+    private final MeshManagerApi mMeshManagerApi;
     private BleMeshManager mBleMeshManager;
-    private Handler mHandler;
+    private final Handler mHandler;
     private UnprovisionedMeshNode mUnprovisionedMeshNode;
     private ProvisionedMeshNode mProvisionedMeshNode;
     private boolean mIsReconnectingFlag;
@@ -623,12 +623,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
 
     @Override
     public void onNetworkImported(final MeshNetwork meshNetwork) {
-        //We can delete the old network after the import has been successful!
-        //But let's make sure we don't delete the same network in case someone imports the same network ;)
-        final MeshNetwork oldNet = mMeshNetwork;
-        if (!oldNet.getMeshUUID().equals(meshNetwork.getMeshUUID())) {
-            mMeshManagerApi.deleteMeshNetworkFromDb(oldNet);
-        }
         loadNetwork(meshNetwork);
         mNetworkImportState.postValue(meshNetwork.getMeshName() + " has been successfully imported.\n" +
                 "In order to start sending messages to this network, please change the provisioner address. " +

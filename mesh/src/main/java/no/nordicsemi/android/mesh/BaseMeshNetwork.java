@@ -74,7 +74,7 @@ abstract class BaseMeshNetwork {
     @SerializedName("meshName")
     @Expose
     String meshName = "nRF Mesh Network";
-    @ColumnInfo(name = "timestamp")
+    @ColumnInfo(name = "timestamp", defaultValue = "0")
     @SerializedName("timestamp")
     @Expose
     long timestamp = System.currentTimeMillis();
@@ -112,6 +112,12 @@ abstract class BaseMeshNetwork {
     @SerializedName("scenes")
     @Expose
     List<Scene> scenes = new ArrayList<>();
+    @SerializedName("networkExclusions")
+    @TypeConverters(MeshTypeConverters.class)
+    @NonNull
+    @ColumnInfo(name = "network_exclusions", defaultValue = "{}")
+    @Expose
+    protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     //Library related attributes
     @Ignore
     @ColumnInfo(name = "unicast_address")
@@ -120,16 +126,9 @@ abstract class BaseMeshNetwork {
     @ColumnInfo(name = "last_selected")
     @Expose
     boolean lastSelected;
-    @NonNull
-    @TypeConverters(MeshTypeConverters.class)
-    @ColumnInfo(name = "sequence_numbers")
+    @Ignore
+    @Expose(serialize = false, deserialize = false)
     protected SparseIntArray sequenceNumbers = new SparseIntArray();
-    @SerializedName("networkExclusions")
-    @TypeConverters(MeshTypeConverters.class)
-    @NonNull
-    @ColumnInfo(name = "networkExclusions", defaultValue = "{}")
-    @Expose
-    protected Map<Integer, ArrayList<Integer>> networkExclusions = new HashMap<>();
     @Ignore
     @Expose(serialize = false, deserialize = false)
     private ProxyFilter proxyFilter;
@@ -1154,9 +1153,9 @@ abstract class BaseMeshNetwork {
         boolean nodeDeleted = false;
         for (ProvisionedMeshNode node : nodes) {
             if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
-                nodes.remove(node);
                 excludeNode(node);
-                notifyNodeDeleted(meshNode);
+                nodes.remove(node);
+                notifyNodeDeleted(node);
                 nodeDeleted = true;
                 break;
             }
@@ -1167,10 +1166,11 @@ abstract class BaseMeshNetwork {
                 if (provisioner.getProvisionerUuid().equalsIgnoreCase(meshNode.getUuid())) {
                     provisioners.remove(provisioner);
                     notifyProvisionerDeleted(provisioner);
-                    return true;
+                    break;
                 }
             }
         }
+
         return nodeDeleted;
     }
 
@@ -1295,14 +1295,20 @@ abstract class BaseMeshNetwork {
     private void excludeNode(@NonNull final ProvisionedMeshNode node) {
         //Exclude node
         node.setExcluded(true);
-        ArrayList<Integer> nodes = networkExclusions.get(ivIndex.getIvIndex());
-        if (nodes == null) {
-            nodes = new ArrayList<>();
+        notifyNodeUpdated(node);
+        ArrayList<Integer> addresses = networkExclusions.get(ivIndex.getIvIndex());
+        if (addresses == null) {
+            addresses = new ArrayList<>();
         }
 
-        nodes.addAll(node.getElements().keySet());
-        networkExclusions.put(ivIndex.getIvIndex(), nodes);
-        notifyNodeUpdated(node);
+        for (Integer address : node.getElements().keySet()) {
+            if (!addresses.contains(address)) {
+                addresses.add(address);
+            }
+        }
+
+        networkExclusions.put(ivIndex.getIvIndex(), addresses);
+        notifyNetworkUpdated();
     }
 
     private boolean validateKey(@NonNull final byte[] key) {

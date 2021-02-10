@@ -934,11 +934,25 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void importMeshNetworkJson(@NonNull String networkJson) {
         try {
-            final MeshNetwork meshNetwork = mImportExportUtils.importNetwork(networkJson);
-            meshNetwork.setCallbacks(callbacks);
-            insertNetwork(meshNetwork);
-            mMeshNetwork = meshNetwork;
-            mMeshManagerCallbacks.onNetworkImported(meshNetwork);
+            final MeshNetwork importedNetwork = mImportExportUtils.importNetwork(networkJson);
+            importedNetwork.setCallbacks(callbacks);
+            final MeshNetwork network = mMeshNetworkDb.getMeshNetwork(mMeshNetworkDao, importedNetwork.getMeshUUID());
+            if (network != null) {
+                final List<ProvisionedMeshNode> nodes = mMeshNetworkDb.getNodes(mProvisionedNodesDao, importedNetwork.getMeshUUID());
+                importedNetwork.unicastAddress = network.unicastAddress;
+                for (ProvisionedMeshNode meshNode : importedNetwork.nodes) {
+                    for (ProvisionedMeshNode node : nodes) {
+                        if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
+                            meshNode.setSequenceNumber(node.getSequenceNumber());
+                        }
+                    }
+                }
+                importedNetwork.loadSequenceNumbers();
+            }
+            mMeshNetworkDb.update(mMeshNetworkDao, importedNetwork, false);
+            insertNetwork(importedNetwork);
+            mMeshNetwork = importedNetwork;
+            mMeshManagerCallbacks.onNetworkImported(importedNetwork);
         } catch (Exception ex) {
             mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
