@@ -85,7 +85,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     private static volatile MeshNetworkDb INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     private static final ExecutorService databaseWriteExecutor =
-            Executors.newFixedThreadPool(4);
+            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     /**
      * Returns the mesh database
