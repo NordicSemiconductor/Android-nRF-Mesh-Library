@@ -28,8 +28,8 @@ import no.nordicsemi.android.nrfmesh.utils.NetworkExportUtils;
  */
 public class ExportNetworkViewModel extends BaseViewModel implements NetworkExportUtils.NetworkExportCallbacks {
 
-    private SingleLiveEvent<String> networkExportState = new SingleLiveEvent<>();
-    private MutableLiveData<Void> exportStatus = new MutableLiveData<>();
+    private final SingleLiveEvent<String> networkExportState = new SingleLiveEvent<>();
+    private final MutableLiveData<Void> exportStatus = new MutableLiveData<>();
     private boolean exportEverything = true;
     private boolean exportDeviceKeys = true;
     private final List<Provisioner> provisioners = new ArrayList<>();
