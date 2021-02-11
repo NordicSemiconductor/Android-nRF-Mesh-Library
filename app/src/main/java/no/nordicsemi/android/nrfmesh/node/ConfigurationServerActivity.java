@@ -27,6 +27,8 @@ import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
+import no.nordicsemi.android.mesh.transport.ConfigNodeIdentitySet;
+import no.nordicsemi.android.mesh.transport.ConfigNodeIdentityStatus;
 import no.nordicsemi.android.mesh.transport.ConfigRelaySet;
 import no.nordicsemi.android.mesh.transport.ConfigRelayStatus;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -46,6 +48,9 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static no.nordicsemi.android.mesh.transport.ProvisionedMeshNode.DISABLED;
+import static no.nordicsemi.android.mesh.transport.ProvisionedMeshNode.ENABLED;
+import static no.nordicsemi.android.mesh.transport.ProvisionedMeshNode.UNSUPPORTED;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.formatAddress;
 
 @AndroidEntryPoint
@@ -89,6 +94,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
     private SwitchMaterial switchSnb;
     private SwitchMaterial switchFriend;
+    private SwitchMaterial switchNodeIdentity;
 
     private int mRelayRetransmitCount = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
     private int mRelayRetransmitIntervalSteps = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
@@ -190,26 +196,44 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             });
 
             switchSnb = nodeControlsContainerBinding.switchSnb;
-            switchSnb.setOnClickListener(v -> {
-                if (!checkConnectivity(mContainer)) {
-                    switchSnb.toggle();
-                    return;
+            switchSnb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if(buttonView.isPressed()){
+                    if (!checkConnectivity(mContainer)) {
+                        switchSnb.toggle();
+                        return;
+                    }
+                    sendMessage(new ConfigBeaconSet(switchSnb.isChecked()));
                 }
-                sendMessage(new ConfigBeaconSet(switchSnb.isChecked()));
             });
 
             switchFriend = nodeControlsContainerBinding.switchFriend;
-            switchFriend.setOnClickListener(v -> {
-                if (!checkConnectivity(mContainer)) {
-                    switchFriend.toggle();
-                    return;
+            switchFriend.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (buttonView.isPressed()) {
+                    if (!checkConnectivity(mContainer)) {
+                        buttonView.toggle();
+                        return;
+                    }
+                    sendMessage(new ConfigFriendSet(isChecked));
                 }
-                sendMessage(new ConfigFriendSet(switchFriend.isChecked()));
+            });
+
+            switchNodeIdentity = nodeControlsContainerBinding.switchNodeIdentity;
+            switchNodeIdentity.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (buttonView.isPressed()) {
+                    if (!checkConnectivity(mContainer)) {
+                        buttonView.toggle();
+                        return;
+                    }
+                    final NetworkKey networkKey = mViewModel.getNetworkLiveData().
+                            getMeshNetwork().getNetKey(meshNode.getAddedNetKeys().get(0).getIndex());
+                    sendMessage(new ConfigNodeIdentitySet(networkKey, switchNodeIdentity.isChecked() ? ENABLED : DISABLED));
+                }
             });
 
             mViewModel.getSelectedMeshNode().observe(this, node -> {
                 updateSecureNetworkBeaconStateUi(node);
                 updateFriendStateUi(node);
+                updateNodeIdentityStateUi(node);
                 updateNetworkTransmitUi(node);
                 updateRelayUi(node);
                 updateHeartbeatPublication();
@@ -274,6 +298,15 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mViewModel.removeMessage();
             handleStatuses();
             updateFriendStateUi(meshNode);
+        } else if (meshMessage instanceof ConfigNodeIdentityStatus) {
+            final ConfigNodeIdentityStatus status = (ConfigNodeIdentityStatus) meshMessage;
+            final ProvisionedMeshNode meshNode = mViewModel.getNetworkLiveData()
+                    .getMeshNetwork().getNode(status.getSrc());
+            mViewModel.removeMessage();
+            if (!status.isSuccessful())
+                displayStatusDialogFragment(getString(R.string.node_identity_state), status.getStatusCodeName());
+            handleStatuses();
+            updateNodeIdentityStateUi(meshNode);
         } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
             final ConfigHeartbeatPublicationStatus status = (ConfigHeartbeatPublicationStatus) meshMessage;
             mViewModel.removeMessage();
@@ -310,6 +343,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         mActionSetRelayState.setEnabled(true);
         mSetNetworkTransmitStateButton.setEnabled(true);
         switchSnb.setEnabled(true);
+        switchFriend.setEnabled(true);
+        switchNodeIdentity.setEnabled(true);
     }
 
     @Override
@@ -324,6 +359,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         mActionSetRelayState.setEnabled(false);
         mSetNetworkTransmitStateButton.setEnabled(false);
         switchSnb.setEnabled(false);
+        switchFriend.setEnabled(false);
+        switchNodeIdentity.setEnabled(false);
     }
 
     @Override
@@ -370,6 +407,11 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
     private void updateFriendStateUi(@NonNull final ProvisionedMeshNode meshNode) {
         switchFriend.setEnabled(meshNode.getNodeFeatures().isFriendFeatureSupported());
         switchFriend.setChecked(meshNode.getNodeFeatures().getFriend() == Features.ENABLED);
+    }
+
+    private void updateNodeIdentityStateUi(@NonNull final ProvisionedMeshNode meshNode) {
+        switchNodeIdentity.setEnabled(meshNode.getNodeIdentityState() != UNSUPPORTED);
+        switchNodeIdentity.setChecked(meshNode.getNodeIdentityState() == ENABLED);
     }
 
     private void updateNetworkTransmitUi(@NonNull final ProvisionedMeshNode meshNode) {
