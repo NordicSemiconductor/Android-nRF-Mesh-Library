@@ -299,13 +299,13 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
     private void createAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
-        final GenericMessageState currentState;
+        final ApplicationMessageState currentState;
         if (genericMessage instanceof VendorModelMessageAcked) {
             currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
         } else if (genericMessage instanceof VendorModelMessageUnacked) {
             currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
         } else {
-            currentState = new GenericMessageState(src, dst, genericMessage, getTransport(dst), this);
+            currentState = new ApplicationMessageState(src, dst, genericMessage, getTransport(dst), this);
         }
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
@@ -329,13 +329,13 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param genericMessage Mesh message containing the message opcode and message parameters.
      */
     private void createAppMeshMessage(final int src, final int dst, @NonNull UUID label, @NonNull final GenericMessage genericMessage) {
-        final GenericMessageState currentState;
+        final ApplicationMessageState currentState;
         if (genericMessage instanceof VendorModelMessageAcked) {
             currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
         } else if (genericMessage instanceof VendorModelMessageUnacked) {
             currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
         } else {
-            currentState = new GenericMessageState(src, dst, label, genericMessage, getTransport(dst), this);
+            currentState = new ApplicationMessageState(src, dst, label, genericMessage, getTransport(dst), this);
         }
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);

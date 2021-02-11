@@ -8,8 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.ApplicationKey;
 
-@SuppressWarnings({"unused"})
-class VendorModelMessageUnackedState extends GenericMessageState {
+class VendorModelMessageUnackedState extends ApplicationMessageState {
 
     private static final String TAG = VendorModelMessageUnackedState.class.getSimpleName();
 
