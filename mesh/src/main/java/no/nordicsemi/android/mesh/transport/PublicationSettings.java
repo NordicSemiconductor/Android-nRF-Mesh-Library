@@ -306,19 +306,37 @@ public class PublicationSettings implements Parcelable {
     }
 
     /**
-     * Encodes the publication period as an interval based on the resolution and the steps
+     * Encodes the publication period as an interval based on the resolution.
      */
-    int encodePublicationPeriod() {
+    int serializePublicationResolution() {
         switch (publicationResolution) {
             default:
             case RESOLUTION_100_MS:
-                return publicationSteps * 100;
+                return 100;
             case RESOLUTION_1_S:
-                return publicationSteps * 1000;
+                return 1000;
             case RESOLUTION_10_S:
-                return publicationSteps * 10 * 1000;
+                return 10 * 1000;
             case RESOLUTION_10_M:
-                return publicationSteps * 10 * 1000 * 60;
+                return 10 * 1000 * 60;
+        }
+    }
+
+    /**
+     * Decodes the publication period resolution.
+     * @param resolution
+     */
+    public static int deserializePublicationResolution(final int resolution) {
+        switch (resolution) {
+            default:
+            case 100:
+                return RESOLUTION_100_MS;
+            case 1000:
+                return RESOLUTION_1_S;
+            case 10000:
+                return RESOLUTION_10_S;
+            case 600000:
+                return RESOLUTION_10_M;
         }
     }
 
