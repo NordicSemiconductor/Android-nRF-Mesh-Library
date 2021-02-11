@@ -19,7 +19,6 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_1_S;
 /**
  * Contains the publication settings of a mesh model
  */
-@SuppressWarnings({"unused"})
 public class PublicationSettings implements Parcelable {
 
     private static final int DEFAULT_PUBLISH_TTL = 0x7F;
@@ -324,7 +323,8 @@ public class PublicationSettings implements Parcelable {
 
     /**
      * Decodes the publication period resolution.
-     * @param resolution
+     *
+     * @param resolution publication period resolution
      */
     public static int deserializePublicationResolution(final int resolution) {
         switch (resolution) {
