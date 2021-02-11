@@ -1,12 +1,12 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
@@ -15,7 +15,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a GenericOnOffSetUnacknowledged message.
  */
 @SuppressWarnings("unused")
-public class GenericOnOffSetUnacknowledged extends GenericMessage {
+public class GenericOnOffSetUnacknowledged extends ApplicationMessage {
 
     private static final String TAG = GenericOnOffSetUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_SET_UNACKNOWLEDGED;

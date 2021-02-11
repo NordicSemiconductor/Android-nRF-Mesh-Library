@@ -1,12 +1,12 @@
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
@@ -15,7 +15,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a SceneStore message.
  */
 @SuppressWarnings("unused")
-public class SceneRecallUnacknowledged extends GenericMessage {
+public class SceneRecallUnacknowledged extends ApplicationMessage {
 
     private static final String TAG = SceneRecallUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_RECALL_UNACKNOWLEDGED;

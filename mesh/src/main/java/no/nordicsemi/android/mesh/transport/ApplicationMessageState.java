@@ -66,16 +66,16 @@ class ApplicationMessageState extends MeshMessageState {
      * Creates the access message to be sent
      */
     protected void createAccessMessage() {
-        final GenericMessage genericMessage = (GenericMessage) mMeshMessage;
-        final ApplicationKey key = genericMessage.getAppKey();
-        final int akf = genericMessage.getAkf();
-        final int aid = genericMessage.getAid();
-        final int aszmic = genericMessage.getAszmic();
-        final int opCode = genericMessage.getOpCode();
-        final byte[] parameters = genericMessage.getParameters();
-        message = mMeshTransport.createMeshMessage(mSrc, mDst, mLabel, genericMessage.messageTtl,
+        final ApplicationMessage applicationMessage = (ApplicationMessage) mMeshMessage;
+        final ApplicationKey key = applicationMessage.getAppKey();
+        final int akf = applicationMessage.getAkf();
+        final int aid = applicationMessage.getAid();
+        final int aszmic = applicationMessage.getAszmic();
+        final int opCode = applicationMessage.getOpCode();
+        final byte[] parameters = applicationMessage.getParameters();
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mLabel, applicationMessage.messageTtl,
                 key, akf, aid, aszmic, opCode, parameters);
-        genericMessage.setMessage(message);
+        applicationMessage.setMessage(message);
     }
 
     @Override

@@ -15,7 +15,7 @@ import static no.nordicsemi.android.mesh.Scene.isValidSceneNumber;
 /**
  * To be used as a wrapper class when creating a SceneStoreUnacknowledged message.
  */
-public class SceneStoreUnacknowledged extends GenericMessage {
+public class SceneStoreUnacknowledged extends ApplicationMessage {
 
     private static final String TAG = SceneStoreUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_STORE_UNACKNOWLEDGED;
