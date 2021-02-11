@@ -196,32 +196,38 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             });
 
             switchSnb = nodeControlsContainerBinding.switchSnb;
-            switchSnb.setOnClickListener(v -> {
-                if (!checkConnectivity(mContainer)) {
-                    switchSnb.toggle();
-                    return;
+            switchSnb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if(buttonView.isPressed()){
+                    if (!checkConnectivity(mContainer)) {
+                        switchSnb.toggle();
+                        return;
+                    }
+                    sendMessage(new ConfigBeaconSet(switchSnb.isChecked()));
                 }
-                sendMessage(new ConfigBeaconSet(switchSnb.isChecked()));
             });
 
             switchFriend = nodeControlsContainerBinding.switchFriend;
-            switchFriend.setOnClickListener(v -> {
-                if (!checkConnectivity(mContainer)) {
-                    switchFriend.toggle();
-                    return;
+            switchFriend.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (buttonView.isPressed()) {
+                    if (!checkConnectivity(mContainer)) {
+                        buttonView.toggle();
+                        return;
+                    }
+                    sendMessage(new ConfigFriendSet(isChecked));
                 }
-                sendMessage(new ConfigFriendSet(switchFriend.isChecked()));
             });
 
             switchNodeIdentity = nodeControlsContainerBinding.switchNodeIdentity;
-            switchNodeIdentity.setOnClickListener(v -> {
-                if (!checkConnectivity(mContainer)) {
-                    switchNodeIdentity.toggle();
-                    return;
+            switchNodeIdentity.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (buttonView.isPressed()) {
+                    if (!checkConnectivity(mContainer)) {
+                        buttonView.toggle();
+                        return;
+                    }
+                    final NetworkKey networkKey = mViewModel.getNetworkLiveData().
+                            getMeshNetwork().getNetKey(meshNode.getAddedNetKeys().get(0).getIndex());
+                    sendMessage(new ConfigNodeIdentitySet(networkKey, switchNodeIdentity.isChecked() ? ENABLED : DISABLED));
                 }
-                final NetworkKey networkKey = mViewModel.getNetworkLiveData().
-                        getMeshNetwork().getNetKey(meshNode.getAddedNetKeys().get(0).getIndex());
-                sendMessage(new ConfigNodeIdentitySet(networkKey, switchNodeIdentity.isChecked() ? ENABLED : DISABLED));
             });
 
             mViewModel.getSelectedMeshNode().observe(this, node -> {
@@ -297,6 +303,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             final ProvisionedMeshNode meshNode = mViewModel.getNetworkLiveData()
                     .getMeshNetwork().getNode(status.getSrc());
             mViewModel.removeMessage();
+            if (!status.isSuccessful())
+                displayStatusDialogFragment(getString(R.string.node_identity_state), status.getStatusCodeName());
             handleStatuses();
             updateNodeIdentityStateUi(meshNode);
         } else if (meshMessage instanceof ConfigHeartbeatPublicationStatus) {
@@ -403,7 +411,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
     private void updateNodeIdentityStateUi(@NonNull final ProvisionedMeshNode meshNode) {
         switchNodeIdentity.setEnabled(meshNode.getNodeIdentityState() != UNSUPPORTED);
-        switchNodeIdentity.setChecked(meshNode.getNodeIdentityState() != ENABLED);
+        switchNodeIdentity.setChecked(meshNode.getNodeIdentityState() == ENABLED);
     }
 
     private void updateNetworkTransmitUi(@NonNull final ProvisionedMeshNode meshNode) {

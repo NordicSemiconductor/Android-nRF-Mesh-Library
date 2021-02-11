@@ -40,6 +40,7 @@ public class ConfigNodeIdentityStatus extends ConfigStatusMessage {
         final byte[] netKeyIndex = new byte[]{(byte) (mParameters[2] & 0x0F), mParameters[1]};
         this.netKeyIndex = ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
         nodeIdentityState = MeshParserUtils.unsignedByteToInt(mParameters[3]);
+        Log.d(TAG, "Status: " + mStatusCode);
         Log.d(TAG, "Node Identity State: " + nodeIdentityState);
     }
 
