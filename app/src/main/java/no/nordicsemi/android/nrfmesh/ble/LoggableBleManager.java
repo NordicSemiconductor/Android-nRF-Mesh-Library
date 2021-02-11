@@ -5,8 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import no.nordicsemi.android.ble.BleManager;
 import no.nordicsemi.android.ble.BleManagerCallbacks;
+import no.nordicsemi.android.ble.LegacyBleManager;
 import no.nordicsemi.android.log.ILogSession;
 import no.nordicsemi.android.log.LogContract;
 import no.nordicsemi.android.log.Logger;
@@ -16,7 +16,7 @@ import no.nordicsemi.android.log.Logger;
  *
  * @param <T> the callbacks class.
  */
-public abstract class LoggableBleManager<T extends BleManagerCallbacks> extends BleManager<T> {
+public abstract class LoggableBleManager<T extends BleManagerCallbacks> extends LegacyBleManager<T> {
 	private ILogSession mLogSession;
 
 	/**

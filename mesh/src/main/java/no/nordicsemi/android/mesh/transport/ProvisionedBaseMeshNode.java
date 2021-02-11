@@ -56,8 +56,9 @@ import no.nordicsemi.android.mesh.utils.SparseIntArrayParcelable;
 @SuppressWarnings({"WeakerAccess"})
 abstract class ProvisionedBaseMeshNode implements Parcelable {
 
-    public static final int DISABLED = 0; //The node is not broadcasting a Secure Network beacon
-    public static final int ENABLED = 1; //The node is broadcasting a Secure Network beacon
+    public static final int DISABLED = 0;
+    public static final int ENABLED = 1;
+    public static final int UNSUPPORTED = 2;
     public static final int LOW = 0; //Low security
     public static final int HIGH = 1; //High security
     protected static final String TAG = ProvisionedBaseMeshNode.class.getSimpleName();
@@ -106,13 +107,7 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     byte[] deviceKey;
     @ColumnInfo(name = "seq_number")
     @Expose
-    int sequenceNumber = -1;
-    @Ignore
-    @Expose
-    String bluetoothAddress;
-    @Ignore
-    @Expose(serialize = false, deserialize = false)
-    String nodeIdentifier;
+    int sequenceNumber = 0;
     @ColumnInfo(name = "cid")
     @Nullable
     @Expose
@@ -154,6 +149,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     Map<Integer, Element> mElements = new LinkedHashMap<>();
     @ColumnInfo(name = "excluded")
     boolean excluded = false;
+    @Ignore
+    @Expose(serialize = false, deserialize = false)
+    @NodeIdentityState
+    int nodeIdentityState;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisionedBaseMeshNode() {
@@ -330,16 +329,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         this.relaySettings = relaySettings;
     }
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({LOW, HIGH})
-    public @interface SecurityState {
-    }
-
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({DISABLED, ENABLED})
-    public @interface SecureNetworkBeaconState {
-    }
-
     /**
      * Returns true if the node is marked as excluded.
      *
@@ -350,6 +339,14 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     }
 
     /**
+     * Returns the node {@link NodeIdentityState}.
+     */
+    @NodeIdentityState
+    public int getNodeIdentityState() {
+        return nodeIdentityState;
+    }
+
+    /**
      * Marks a node as excluded. Note that to exclude a node from a network, users must call
      * {@link MeshNetwork#excludeNode(ProvisionedMeshNode)}
      *
@@ -357,5 +354,27 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
      */
     public void setExcluded(final boolean excluded) {
         this.excluded = excluded;
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({LOW, HIGH})
+    public @interface SecurityState {
+    }
+
+    /**
+     * Secure Network Beacon state determines if a node is periodically broadcasting Secure Network Beacons.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({DISABLED, ENABLED})
+    public @interface SecureNetworkBeaconState {
+    }
+
+    /**
+     * The Node Identity state determines if a node is advertising with Node Identity messages on a subnet.
+     * If the Mesh Proxy Service is exposed, the node can be configured to advertise with Node Identity on a subnet.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({DISABLED, ENABLED, UNSUPPORTED})
+    public @interface NodeIdentityState {
     }
 }

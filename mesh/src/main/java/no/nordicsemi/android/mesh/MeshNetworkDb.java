@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,7 +51,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
         ProvisionedMeshNode.class,
         Group.class,
         Scene.class},
-        version = 11)
+        version = 12)
 abstract class MeshNetworkDb extends RoomDatabase {
 
     private static final String TAG = MeshNetworkDb.class.getSimpleName();
@@ -84,7 +85,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     private static volatile MeshNetworkDb INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     private static final ExecutorService databaseWriteExecutor =
-            Executors.newFixedThreadPool(4);
+            Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     /**
      * Returns the mesh database
@@ -107,6 +108,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                             .addMigrations(MIGRATION_8_9)
                             .addMigrations(MIGRATION_9_10)
                             .addMigrations(MIGRATION_10_11)
+                            .addMigrations(MIGRATION_11_12)
                             .build();
                 }
 
@@ -181,11 +183,27 @@ abstract class MeshNetworkDb extends RoomDatabase {
         });
     }
 
+    MeshNetwork getMeshNetwork(@NonNull final MeshNetworkDao meshNetworkDao, @NonNull final String meshUuid) throws ExecutionException, InterruptedException {
+        return databaseWriteExecutor.submit(() -> meshNetworkDao.getMeshNetwork(meshUuid)).get();
+    }
+
+    List<MeshNetwork> getMeshNetworks(@NonNull final MeshNetworkDao meshNetworkDao) throws ExecutionException, InterruptedException {
+        return databaseWriteExecutor.submit(meshNetworkDao::getMeshNetworks).get();
+    }
+
     void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork network) {
         databaseWriteExecutor.execute(() -> dao.update(network.meshUUID, network.meshName, network.timestamp,
                 network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                 network.lastSelected,
                 MeshTypeConverters.networkExclusionsToJson(network.networkExclusions)));
+    }
+
+    void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork, final boolean lastSelected) throws ExecutionException, InterruptedException {
+        databaseWriteExecutor.submit(() -> dao.update(meshNetwork.meshUUID, lastSelected)).get();
+    }
+
+    void update(@NonNull final MeshNetworkDao dao, @NonNull final List<MeshNetwork> meshNetworks) {
+        databaseWriteExecutor.execute(() -> dao.update(meshNetworks));
     }
 
     void update(@NonNull final MeshNetwork network,
@@ -252,6 +270,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
 
     void delete(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
         databaseWriteExecutor.execute(() -> dao.delete(provisioner));
+    }
+
+    List<ProvisionedMeshNode> getNodes(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final String meshUuid) throws ExecutionException, InterruptedException {
+        return databaseWriteExecutor.submit(() -> dao.getNodes(meshUuid)).get();
     }
 
     void insert(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
@@ -368,6 +390,13 @@ abstract class MeshNetworkDb extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             migrateNodes10_11(database);
+        }
+    };
+
+    private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            migrateMeshNetwork11_12(database);
         }
     };
 
@@ -975,5 +1004,39 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("DROP TABLE nodes");
         database.execSQL("ALTER TABLE nodes_temp RENAME TO nodes");
         database.execSQL("CREATE INDEX index_nodes_mesh_uuid ON `nodes` (mesh_uuid)");
+    }
+
+    private static void migrateMeshNetwork11_12(@NonNull final SupportSQLiteDatabase database) {
+        database.execSQL("CREATE TABLE `mesh_network_temp` " +
+                "(`mesh_uuid` TEXT NOT NULL, " +
+                " `mesh_name` TEXT, " +
+                " `timestamp` INTEGER NOT NULL DEFAULT 0, " +
+                " `partial` INTEGER NOT NULL DEFAULT 0," +
+                " `iv_index` TEXT NOT NULL, " +
+                " `network_exclusions` TEXT NOT NULL DEFAULT '{}', " +
+                " `last_selected` INTEGER NOT NULL, " +
+                "PRIMARY KEY(`mesh_uuid`))");
+        final Cursor cursor = database.query("SELECT * FROM mesh_network");
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
+                final String meshName = cursor.getString(cursor.getColumnIndex("mesh_name"));
+                final long timestamp = cursor.getLong(cursor.getColumnIndex("timestamp"));
+                final String ivIndex = cursor.getString(cursor.getColumnIndex("iv_index"));
+                final String networkExclusions = cursor.getString(cursor.getColumnIndex("networkExclusions"));
+                final int lastSelected = cursor.getInt(cursor.getColumnIndex("last_selected"));
+                final ContentValues values = new ContentValues();
+                values.put("mesh_uuid", uuid);
+                values.put("mesh_name", meshName);
+                values.put("timestamp", timestamp);
+                values.put("iv_index", ivIndex);
+                values.put("network_exclusions", networkExclusions);
+                values.put("last_selected", lastSelected);
+                database.insert("mesh_network_temp", SQLiteDatabase.CONFLICT_REPLACE, values);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        database.execSQL("DROP TABLE mesh_network");
+        database.execSQL("ALTER TABLE mesh_network_temp RENAME TO mesh_network");
     }
 }

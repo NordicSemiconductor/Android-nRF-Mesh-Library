@@ -31,7 +31,7 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 72
+        versionCode 73
         versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -69,7 +69,7 @@ dependencies {
     implementation 'androidx.test:runner:1.3.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.3.0-rc01'
+    implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -79,7 +79,7 @@ dependencies {
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
     // Android BLE Library
-    implementation 'no.nordicsemi.android:ble:2.1.1'
+    implementation 'no.nordicsemi.android:ble:2.2.4'
 
     implementation "com.google.dagger:hilt-android:$hilt_version"
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
@@ -87,7 +87,7 @@ dependencies {
     annotationProcessor "com.google.dagger:hilt-android-compiler:$hilt_version"
     annotationProcessor 'androidx.hilt:hilt-compiler:1.0.0-alpha03'
 
-    implementation 'no.nordicsemi.android:mesh:3.0.1'
+    implementation 'no.nordicsemi.android:mesh:3.0.2'
     //implementation project(':mesh')
 }
 repositories {

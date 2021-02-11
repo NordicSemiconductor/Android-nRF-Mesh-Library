@@ -667,4 +667,7 @@
     <string name="na">N/A</string>
     <string name="phase">Phase</string>
     <string name="last_modified">Last Modified</string>
+    <string name="node_identity_state">Node Identity State</string>
+    <string name="node_identity_summary">The Node Identity state determines if a node is advertising with Node Identity messages on a subnet.
+        If the Mesh Proxy Service is exposed, the node can be configured to advertise with Node Identity on a subnet.</string>
 </resources>

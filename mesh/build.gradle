@@ -29,7 +29,7 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 72
+        versionCode 73
         versionName VERSION_NAME
 
         javaCompileOptions {
@@ -77,4 +77,4 @@ repositories {
     mavenCentral()
 }
 
-apply from: rootProject.file('gradle/gradle-bintray-push.gradle')
+//apply from: rootProject.file('gradle/gradle-bintray-push.gradle')

@@ -125,7 +125,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
         } else {
             final JsonObject periodJson = publish.get("period").getAsJsonObject();
             publicationSteps = periodJson.get("numberOfSteps").getAsInt();
-            publicationResolution = periodJson.get("resolution").getAsInt();
+            publicationResolution = PublicationSettings.deserializePublicationResolution(periodJson.get("resolution").getAsInt());
         }
 
 
@@ -227,7 +227,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
 
         final JsonObject periodJson = new JsonObject();
         periodJson.addProperty("numberOfSteps", settings.getPublicationSteps());
-        periodJson.addProperty("resolution", settings.encodePublicationPeriod());
+        periodJson.addProperty("resolution", settings.serializePublicationResolution());
         publicationJson.add("period", periodJson);
 
         final JsonObject retransmitJson = new JsonObject();
