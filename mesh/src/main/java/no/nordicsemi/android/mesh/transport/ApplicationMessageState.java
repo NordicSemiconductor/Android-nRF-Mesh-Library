@@ -8,14 +8,14 @@ import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 /**
- * Abstract state class that handles Generic Message States
+ * Abstract state class that handles Application Message States
  */
-class GenericMessageState extends MeshMessageState {
+class ApplicationMessageState extends MeshMessageState {
 
     UUID mLabel;
 
     /**
-     * Constructs the generic message state
+     * Constructs the application message state
      *
      * @param src           Source address
      * @param dst           Destination address
@@ -24,16 +24,16 @@ class GenericMessageState extends MeshMessageState {
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
      * @throws IllegalArgumentException if src or dst address is invalid
      */
-    GenericMessageState(final int src,
-                        final int dst,
-                        @NonNull final MeshMessage meshMessage,
-                        @NonNull final MeshTransport meshTransport,
-                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+    ApplicationMessageState(final int src,
+                            final int dst,
+                            @NonNull final MeshMessage meshMessage,
+                            @NonNull final MeshTransport meshTransport,
+                            @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         this(src, dst, null, meshMessage, meshTransport, callbacks);
     }
 
     /**
-     * Constructs the generic message state
+     * Constructs the application message state
      *
      * @param src           Source address
      * @param dst           Destination address
@@ -43,12 +43,12 @@ class GenericMessageState extends MeshMessageState {
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
      * @throws IllegalArgumentException if src or dst address is invalid
      */
-    GenericMessageState(final int src,
-                        final int dst,
-                        @Nullable final UUID label,
-                        @NonNull final MeshMessage meshMessage,
-                        @NonNull final MeshTransport meshTransport,
-                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+    ApplicationMessageState(final int src,
+                            final int dst,
+                            @Nullable final UUID label,
+                            @NonNull final MeshMessage meshMessage,
+                            @NonNull final MeshTransport meshTransport,
+                            @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(meshMessage, meshTransport, callbacks);
         this.mSrc = src;
         if (!MeshAddress.isAddressInRange(src)) {
@@ -80,6 +80,6 @@ class GenericMessageState extends MeshMessageState {
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_MESSAGE_STATE;
+        return MessageState.APPLICATION_MESSAGE_STATE;
     }
 }
