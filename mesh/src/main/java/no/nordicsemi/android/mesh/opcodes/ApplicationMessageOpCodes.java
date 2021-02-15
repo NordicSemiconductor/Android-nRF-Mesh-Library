@@ -174,4 +174,24 @@ public class ApplicationMessageOpCodes {
      */
     public static final int SCENE_DELETE_UNACKNOWLEDGED = 0x829F;
 
+    /**
+     * Opcode for the "Sensor Descriptor Get" message
+     */
+    public static final int SENSOR_DESCRIPTOR_GET = 0x8230;
+
+    /**
+     * Opcode for the "Sensor Descriptor Status" message
+     */
+    public static final int SENSOR_DESCRIPTOR_STATUS = 0x51;
+
+    /**
+     * Opcode for the "Sensor Get" message
+     */
+    public static final int SENSOR_GET = 0x8231;
+
+    /**
+     * Opcode for the "Sensor Status" message
+     */
+    public static final int SENSOR_STATUS = 0x52;
+
 }
