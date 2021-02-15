@@ -45,7 +45,7 @@ import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSO
 public final class SensorStatus extends ApplicationStatusMessage implements Parcelable, SceneStatuses {
     private static final String TAG = SensorStatus.class.getSimpleName();
     private static final int OP_CODE = SENSOR_STATUS;
-    private final ArrayList<MarshalledSensorData> marshalledSensorDataList = new ArrayList();
+    private final ArrayList<MarshalledSensorData> marshalledSensorDataList = new ArrayList<>();
 
     private static final Creator<SensorStatus> CREATOR = new Creator<SensorStatus>() {
         @Override
