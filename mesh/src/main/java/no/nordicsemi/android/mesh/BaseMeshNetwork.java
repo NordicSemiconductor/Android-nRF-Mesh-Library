@@ -1182,7 +1182,7 @@ abstract class BaseMeshNetwork {
      */
     public boolean isProvisioner(@NonNull final ProvisionedMeshNode node) {
         for (Provisioner provisioner : provisioners) {
-            if (provisioner.getMeshUuid().equalsIgnoreCase(node.getMeshUuid())) {
+            if (provisioner.getProvisionerUuid().equalsIgnoreCase(node.getUuid())) {
                 return true;
             }
         }
