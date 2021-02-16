@@ -79,7 +79,7 @@ public enum SensorSamplingFunction {
     /**
      * Returns the Sampling Function
      */
-    public byte getStaticOobType() {
+    public byte getSensorSamplingFunction() {
         return samplingFunction;
     }
 }

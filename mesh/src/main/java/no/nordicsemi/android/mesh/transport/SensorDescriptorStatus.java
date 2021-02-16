@@ -24,6 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,7 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
             SensorSamplingFunction samplingFunction;
             byte measurementPeriod;
             byte updateInterval;
-            while (mParameters.length < offset) {
+            while (offset < mParameters.length) {
                 property = DeviceProperty.fromValue((short) unsignedBytesToInt(mParameters[offset], mParameters[offset + 1]));
                 positiveTolerance = (short) bytesToInt(new byte[]{(byte) (mParameters[offset + 3] & 0x0F), mParameters[offset + 2]});
                 //encode(new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]});
@@ -95,9 +96,11 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
                 measurementPeriod = mParameters[offset + 6];
                 updateInterval = mParameters[offset + 7];
                 sensorDescriptors.add(new SensorDescriptor(property, positiveTolerance, negativeTolerance, samplingFunction, measurementPeriod, updateInterval));
+                offset += 8;
             }
             result = new SensorDescriptors(sensorDescriptors);
         }
+        Log.d(TAG, "Result: " + result.toString());
     }
 
     protected DescriptorStatusResult getResult() {

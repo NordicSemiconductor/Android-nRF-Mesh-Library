@@ -81,4 +81,16 @@ public class SensorDescriptor {
     public byte getUpdateInterval() {
         return updateInterval;
     }
+
+    @Override
+    public String toString() {
+        return "SensorDescriptor{" +
+                "property=" + Integer.toString(property.getPropertyId(), 16) +
+                ", positiveTolerance=" + Integer.toHexString(positiveTolerance) +
+                ", negativeTolerance=" + Integer.toHexString(negativeTolerance) +
+                ", sensorSamplingFunction=" + sensorSamplingFunction.getSensorSamplingFunction() +
+                ", measurementPeriod=" + Integer.toHexString(measurementPeriod) +
+                ", updateInterval=" + Integer.toHexString(updateInterval) +
+                '}';
+    }
 }

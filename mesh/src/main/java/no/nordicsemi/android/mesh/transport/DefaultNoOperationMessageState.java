@@ -113,13 +113,21 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final ConfigHeartbeatPublicationStatus status = new ConfigHeartbeatPublicationStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
                         if (status.isSuccessful()) {
-                            final MeshModel model = getMeshModel(node, status.getSrc(), CONFIGURATION_SERVER);
+                            final ConfigurationServerModel model = (ConfigurationServerModel) getMeshModel(node, status.getSrc(), CONFIGURATION_SERVER);
                             if (model != null) {
-                                ((ConfigurationServerModel) model).
-                                        setHeartbeatPublication(!isValidUnassignedAddress(status.getHeartbeatPublication().getDst()) ? status.getHeartbeatPublication() : null);
+                                model.setHeartbeatPublication(!isValidUnassignedAddress(status.getHeartbeatPublication().getDst()) ?
+                                        status.getHeartbeatPublication() : null);
                             }
                         }
                     }
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SENSOR_DESCRIPTOR_STATUS) {
+                    final SensorDescriptorStatus status = new SensorDescriptorStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SENSOR_STATUS) {
+                    final SensorStatus status = new SensorStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else {
@@ -402,7 +410,6 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         mInternalTransportCallbacks.updateMeshNetwork(status);
                         mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                     }
-
                 } else {
                     handleUnknownPdu(message);
                 }
