@@ -4,6 +4,7 @@ package no.nordicsemi.android.mesh.utils;
  * Device Property
  */
 public enum DeviceProperty {
+
     AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY((short) 0x0001),
     AVERAGE_INPUT_CURRENT((short) 0x0002),
     AVERAGE_INPUT_VOLTAGE((short) 0x0003),
@@ -189,7 +190,6 @@ public enum DeviceProperty {
     OUTPUT_CURRENT_PERCENT((short) 0x00B7),
     UNKNOWN((short) 0xFFFF);
 
-    private static final String TAG = DeviceProperty.class.getSimpleName();
     private final short propertyId;
 
     DeviceProperty(final short property) {
@@ -607,7 +607,7 @@ public enum DeviceProperty {
             case CENTER_BEAM_INTENSITY_AT_FULL_POWER:
                 return "Center Beam Intensity At Full Power";
             case CHROMATICITY_TOLERANCE:
-                return "Chromaticity T olerance";
+                return "Chromaticity Tolerance";
             case COLOR_RENDERING_INDEX_R9:
                 return "Color Rendering Index R9";
             case COLOR_RENDERING_INDEX_RA:

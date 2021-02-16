@@ -26,11 +26,16 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.utils.MarshalledSensorData;
+import no.nordicsemi.android.mesh.utils.DeviceProperty;
+import no.nordicsemi.android.mesh.utils.SensorDescriptor;
+import no.nordicsemi.android.mesh.utils.SensorSamplingFunction;
 
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSOR_DESCRIPTOR_STATUS;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToInt;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedBytesToInt;
 
 /**
  * SensorStatus Message.
@@ -39,7 +44,7 @@ import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSO
 public final class SensorDescriptorStatus extends ApplicationStatusMessage implements Parcelable, SceneStatuses {
     private static final String TAG = SensorDescriptorStatus.class.getSimpleName();
     private static final int OP_CODE = SENSOR_DESCRIPTOR_STATUS;
-    private final ArrayList<MarshalledSensorData> marshalledSensorDataList = new ArrayList<>();
+    private DescriptorStatusResult result;
 
     private static final Creator<SensorDescriptorStatus> CREATOR = new Creator<SensorDescriptorStatus>() {
         @Override
@@ -68,9 +73,35 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
 
     @Override
     void parseStatusParameters() {
-        if(mParameters.length < 0){
-            //TODO handle status
+        if (mParameters.length == 2) {
+            result = new PropertyNotFound(DeviceProperty.fromValue((short) unsignedBytesToInt(mParameters[0], mParameters[1])));
+        } else {
+            int offset = 0;
+            final ArrayList<SensorDescriptor> sensorDescriptors = new ArrayList<>();
+            DeviceProperty property;
+            short positiveTolerance;
+            short negativeTolerance;
+            SensorSamplingFunction samplingFunction;
+            byte measurementPeriod;
+            byte updateInterval;
+            while (mParameters.length < offset) {
+                property = DeviceProperty.fromValue((short) unsignedBytesToInt(mParameters[offset], mParameters[offset + 1]));
+                positiveTolerance = (short) bytesToInt(new byte[]{(byte) (mParameters[offset + 3] & 0x0F), mParameters[offset + 2]});
+                //encode(new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]});
+                negativeTolerance = (short) bytesToInt(new byte[]{
+                        (byte) ((mParameters[offset + 4] & 0xF0) >> 4),
+                        (byte) (mParameters[offset + 4] << 4 | ((mParameters[offset + 3] & 0xF0) >> 4))});
+                samplingFunction = SensorSamplingFunction.from(mParameters[offset + 5]);
+                measurementPeriod = mParameters[offset + 6];
+                updateInterval = mParameters[offset + 7];
+                sensorDescriptors.add(new SensorDescriptor(property, positiveTolerance, negativeTolerance, samplingFunction, measurementPeriod, updateInterval));
+            }
+            result = new SensorDescriptors(sensorDescriptors);
         }
+    }
+
+    protected DescriptorStatusResult getResult() {
+        return result;
     }
 
     @Override
@@ -90,7 +121,24 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
         dest.writeParcelable(message, flags);
     }
 
-    public ArrayList<MarshalledSensorData> getMarshalledSensorData() {
-        return marshalledSensorDataList;
+    public class PropertyNotFound implements DescriptorStatusResult {
+
+        public final DeviceProperty property;
+
+        public PropertyNotFound(DeviceProperty property) {
+            this.property = property;
+        }
+    }
+
+    public class SensorDescriptors implements DescriptorStatusResult {
+
+        public final List<SensorDescriptor> descriptors;
+
+        public SensorDescriptors(List<SensorDescriptor> descriptors) {
+            this.descriptors = descriptors;
+        }
+    }
+
+    public interface DescriptorStatusResult {
     }
 }
