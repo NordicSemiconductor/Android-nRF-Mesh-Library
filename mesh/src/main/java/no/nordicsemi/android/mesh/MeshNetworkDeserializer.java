@@ -16,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -115,15 +114,10 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         jsonObject.add("netKeys", serializeNetKeys(context, network.getNetKeys()));
         jsonObject.add("appKeys", serializeAppKeys(context, network.getAppKeys()));
         jsonObject.add("provisioners", serializeProvisioners(context, network.getProvisioners()));
-
         jsonObject.add("nodes", serializeNodes(context, network.getNodes()));
-
         jsonObject.add("groups", serializeGroups(network.getGroups()));
-
         jsonObject.add("scenes", serializeScenes(network.getScenes()));
-
         jsonObject.add("networkExclusions", serializeExclusionList(network.getNetworkExclusions()));
-
         return jsonObject;
     }
 
@@ -476,7 +470,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @return JsonElement
      */
     private JsonElement serializeScenes(@NonNull final List<Scene> scenes) {
-        JsonArray scenesArray = new JsonArray();
+        final JsonArray scenesArray = new JsonArray();
         for (Scene scene : scenes) {
             JsonObject sceneObj = new JsonObject();
             sceneObj.addProperty("name", scene.getName());
@@ -540,16 +534,15 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      */
     private JsonElement serializeExclusionList(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
         final JsonArray exclusionList = new JsonArray();
-        final Iterator<Map.Entry<Integer, ArrayList<Integer>>> iterator = networkExclusions.entrySet().iterator();
         JsonObject exclusion;
         JsonArray array;
-        while (iterator.hasNext()) {
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : networkExclusions.entrySet()) {
             exclusion = new JsonObject();
             array = new JsonArray();
-            for (Integer address : iterator.next().getValue()) {
+            for (Integer address : entry.getValue()) {
                 array.add(MeshAddress.formatAddress(address, false));
             }
-            exclusion.addProperty("ivIndex", iterator.next().getKey());
+            exclusion.addProperty("ivIndex", entry.getKey());
             exclusion.add("addresses", array);
             exclusionList.add(exclusion);
         }
