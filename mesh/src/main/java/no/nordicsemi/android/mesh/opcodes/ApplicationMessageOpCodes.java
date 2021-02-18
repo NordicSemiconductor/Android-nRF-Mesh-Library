@@ -194,4 +194,73 @@ public class ApplicationMessageOpCodes {
      */
     public static final int SENSOR_STATUS = 0x52;
 
+    /**
+     * Opcode for the "Sensor Column Get" message
+     */
+    public static final int SENSOR_COLUMN_GET = 0x8232;
+
+    /**
+     * Opcode for the "Sensor Status" message
+     */
+    public static final int SENSOR_COLUMN_STATUS = 0x53;
+
+    /**
+     * Opcode for the "Sensor Series Get" message
+     */
+    public static final int SENSOR_SERIES_GET = 0x8233;
+
+    /**
+     * Opcode for the "Sensor Series Status" message
+     */
+    public static final int SENSOR_SERIES_STATUS = 0x54;
+
+    /**
+     * Opcode for the "Sensor Cadence Get" message
+     */
+    public static final int SENSOR_CADENCE_GET = 0x8234;
+
+    /**
+     * Opcode for the "Sensor Cadence Set" message
+     */
+    public static final int SENSOR_CADENCE_SET = 0x55;
+
+    /**
+     * Opcode for the "Sensor Cadence Set Unacknowledged" message
+     */
+    public static final int SENSOR_CADENCE_SET_UNACKNOWLEDGED = 0x56;
+    /**
+     * Opcode for the "Sensor Cadence Status" message
+     */
+    public static final int SENSOR_CADENCE_SET_STATUS = 0x57;
+
+    /**
+     * Opcode for the "Sensor Settings Get" message
+     */
+    public static final int SENSOR_SETTINGS_GET = 0x8235;
+
+    /**
+     * Opcode for the "Sensor Settings Status" message
+     */
+    public static final int SENSOR_SETTINGS_STATUS = 0x58;
+
+    /**
+     * Opcode for the "Sensor Setting Get" message
+     */
+    public static final int SENSOR_SETTING_GET = 0x8236;
+
+    /**
+     * Opcode for the "Sensor Setting Set" message
+     */
+    public static final int SENSOR_SETTING_SET = 0x59;
+
+    /**
+     * Opcode for the "Sensor Setting Set" message
+     */
+    public static final int SENSOR_SETTING_SET_UNACKNOWLEDGED = 0x5A;
+
+    /**
+     * Opcode for the "Sensor Settings Status" message
+     */
+    public static final int SENSOR_SETTING_STATUS = 0x5B;
+
 }
