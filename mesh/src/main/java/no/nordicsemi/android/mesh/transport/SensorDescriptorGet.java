@@ -19,7 +19,7 @@ public class SensorDescriptorGet extends ApplicationMessage {
     private static final String TAG = SensorDescriptorGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SENSOR_DESCRIPTOR_GET;
 
-    final DeviceProperty property;
+    private final DeviceProperty property;
 
     /**
      * Constructs SensorGet message.
