@@ -1,4 +1,4 @@
-package no.nordicsemi.android.mesh.utils;
+package no.nordicsemi.android.mesh.sensorutils;
 
 import androidx.annotation.NonNull;
 

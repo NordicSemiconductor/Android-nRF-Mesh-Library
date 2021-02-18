@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.utils.DeviceProperty;
-import no.nordicsemi.android.mesh.utils.SensorDescriptor;
-import no.nordicsemi.android.mesh.utils.SensorSamplingFunction;
+import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.SensorDescriptor;
+import no.nordicsemi.android.mesh.sensorutils.SensorSamplingFunction;
 
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSOR_DESCRIPTOR_STATUS;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToInt;

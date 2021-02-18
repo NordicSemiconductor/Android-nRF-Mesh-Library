@@ -1,6 +1,7 @@
-package no.nordicsemi.android.mesh.utils;
+package no.nordicsemi.android.mesh.sensorutils;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.utils.Format;
 
 /**
  * A Marshalled Property ID (MPID) is a concatenation of a 1-bit Format field,

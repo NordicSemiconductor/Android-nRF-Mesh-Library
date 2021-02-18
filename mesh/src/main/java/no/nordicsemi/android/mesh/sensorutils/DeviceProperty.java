@@ -1,4 +1,6 @@
-package no.nordicsemi.android.mesh.utils;
+package no.nordicsemi.android.mesh.sensorutils;
+
+import no.nordicsemi.android.mesh.utils.Format;
 
 /**
  * Device Property
@@ -577,7 +579,6 @@ public enum DeviceProperty {
                     if ((deviceProperty.propertyId & 0x7FF) == propertyId) {
                         return deviceProperty;
                     }
-
                 }
             case FORMAT_B:
                 return fromValue(propertyId);

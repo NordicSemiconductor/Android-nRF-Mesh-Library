@@ -1,4 +1,4 @@
-package no.nordicsemi.android.mesh.utils;
+package no.nordicsemi.android.mesh.sensorutils;
 
 /**
  * This Sensor Sampling Function field specifies the averaging operation or type of sampling function applied to the measured value.

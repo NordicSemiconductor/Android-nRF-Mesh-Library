@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
-import no.nordicsemi.android.mesh.utils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;

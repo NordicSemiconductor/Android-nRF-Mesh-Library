@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.utils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.MarshalledPropertyId;
+import no.nordicsemi.android.mesh.sensorutils.MarshalledSensorData;
 import no.nordicsemi.android.mesh.utils.Format;
-import no.nordicsemi.android.mesh.utils.MarshalledPropertyId;
-import no.nordicsemi.android.mesh.utils.MarshalledSensorData;
 
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSOR_STATUS;
 
