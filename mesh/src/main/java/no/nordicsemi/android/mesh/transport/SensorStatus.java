@@ -24,7 +24,6 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +33,6 @@ import no.nordicsemi.android.mesh.utils.DeviceProperty;
 import no.nordicsemi.android.mesh.utils.Format;
 import no.nordicsemi.android.mesh.utils.MarshalledPropertyId;
 import no.nordicsemi.android.mesh.utils.MarshalledSensorData;
-import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSOR_STATUS;
 
@@ -74,7 +72,6 @@ public final class SensorStatus extends ApplicationStatusMessage implements Parc
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received sensor status status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         int offset = 0;
         while (offset < mParameters.length) {
             final int octet0 = mParameters[offset++] & 0xFF;
@@ -84,12 +81,12 @@ public final class SensorStatus extends ApplicationStatusMessage implements Parc
             final short propertyId;
             switch (format) {
                 case FORMAT_A:
-                    length = (octet0 & 0x1E) >> 1;
-                    propertyId = (short) ((octet0 & 0x0E) >> 5 | octet1);
+                    length = ((octet0 & 0x1E) >> 1) + 1; // zero based
+                    propertyId = (short) (octet1 | (octet0 & 0xE0) >> 5);
                     break;
                 case FORMAT_B:
                     final int octet2 = mParameters[offset++] & 0xFF;
-                    length = (octet0 & 0x7F) >> 1;
+                    length = ((octet0 & 0xFE) >> 1) + 1;
                     propertyId = (short) (octet2 | octet1);
                     break;
                 default:
