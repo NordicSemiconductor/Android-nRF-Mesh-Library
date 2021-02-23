@@ -42,6 +42,7 @@ public class SensorGet extends ApplicationMessage {
     @Override
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
-        mParameters = ByteBuffer.allocate(2).order(LITTLE_ENDIAN).putShort(property.getPropertyId()).array();
+        if (property != null)
+            mParameters = ByteBuffer.allocate(2).order(LITTLE_ENDIAN).putShort(property.getPropertyId()).array();
     }
 }

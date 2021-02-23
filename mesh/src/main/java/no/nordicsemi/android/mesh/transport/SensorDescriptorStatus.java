@@ -75,7 +75,7 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
     @Override
     void parseStatusParameters() {
         if (mParameters.length == 2) {
-            result = new PropertyNotFound(DeviceProperty.fromValue((short) unsignedBytesToInt(mParameters[0], mParameters[1])));
+            result = new PropertyNotFound(DeviceProperty.from((short) unsignedBytesToInt(mParameters[0], mParameters[1])));
         } else {
             int offset = 0;
             final ArrayList<SensorDescriptor> sensorDescriptors = new ArrayList<>();
@@ -86,7 +86,7 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
             byte measurementPeriod;
             byte updateInterval;
             while (offset < mParameters.length) {
-                property = DeviceProperty.fromValue((short) unsignedBytesToInt(mParameters[offset], mParameters[offset + 1]));
+                property = DeviceProperty.from((short) unsignedBytesToInt(mParameters[offset], mParameters[offset + 1]));
                 positiveTolerance = (short) bytesToInt(new byte[]{(byte) (mParameters[offset + 3] & 0x0F), mParameters[offset + 2]});
                 //encode(new byte[]{(byte) (mParameters[offset + 1] & 0x0F), mParameters[offset]});
                 negativeTolerance = (short) bytesToInt(new byte[]{
@@ -95,12 +95,14 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
                 samplingFunction = SensorSamplingFunction.from(mParameters[offset + 5]);
                 measurementPeriod = mParameters[offset + 6];
                 updateInterval = mParameters[offset + 7];
-                sensorDescriptors.add(new SensorDescriptor(property, positiveTolerance, negativeTolerance, samplingFunction, measurementPeriod, updateInterval));
+                final SensorDescriptor descriptor = new SensorDescriptor(property, positiveTolerance, negativeTolerance,
+                        samplingFunction, measurementPeriod, updateInterval);
+                Log.d(TAG, "Sensor Descriptor: " + descriptor.toString());
+                sensorDescriptors.add(descriptor);
                 offset += 8;
             }
             result = new SensorDescriptors(sensorDescriptors);
         }
-        Log.d(TAG, "Result: " + result.toString());
     }
 
     protected DescriptorStatusResult getResult() {

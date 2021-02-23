@@ -1,6 +1,7 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
-import no.nordicsemi.android.mesh.utils.Format;
+import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.utils.SensorFormat;
 
 /**
  * Device Property
@@ -210,7 +211,7 @@ public enum DeviceProperty {
      *
      * @param propertyId property id
      */
-    public static DeviceProperty fromValue(final short propertyId) {
+    public static DeviceProperty from(final short propertyId) {
         switch (propertyId) {
             case 0x0001:
                 return AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY;
@@ -572,8 +573,8 @@ public enum DeviceProperty {
         }
     }
 
-    public static DeviceProperty fromValue(final Format format, final short propertyId) {
-        switch (format) {
+    public static DeviceProperty from(final SensorFormat sensorFormat, final short propertyId) {
+        switch (sensorFormat) {
             case FORMAT_A:
                 for (DeviceProperty deviceProperty : values()) {
                     if ((deviceProperty.propertyId & 0x7FF) == propertyId) {
@@ -581,19 +582,18 @@ public enum DeviceProperty {
                     }
                 }
             case FORMAT_B:
-                return fromValue(propertyId);
+                return from(propertyId);
             default:
                 return UNKNOWN;
         }
     }
-
 
     /**
      * Returns the property name for a given property.
      *
      * @param deviceProperty Device property
      */
-    public String getPropertyName(final DeviceProperty deviceProperty) {
+    public static String getPropertyName(final DeviceProperty deviceProperty) {
         switch (deviceProperty) {
             case AVERAGE_AMBIENT_TEMPERATURE_IN_A_PERIOD_OF_DAY:
                 return "Average Ambient Temperature In A Period Of Day";
@@ -952,6 +952,25 @@ public enum DeviceProperty {
             case UNKNOWN:
             default:
                 return "Unknown";
+        }
+    }
+
+    public static DevicePropertyCharacteristic<?> getCharacteristic(@NonNull final DeviceProperty deviceProperty,
+                                                                    @NonNull final byte[] data,
+                                                                    int offset,
+                                                                    final int length) {
+        switch (deviceProperty) {
+            case PRESENT_AMBIENT_RELATIVE_HUMIDITY:
+                return new HumidityCharacteristic(data, offset);
+            case MOTION_SENSED:
+                return new Percentage8(data, offset);
+            case DESIRED_AMBIENT_TEMPERATURE:
+            case PRESENT_AMBIENT_TEMPERATURE:
+            case PRESENT_INDOOR_AMBIENT_TEMPERATURE:
+            case PRESENT_OUTDOOR_AMBIENT_TEMPERATURE:
+                return new Temperature8(data, offset);
+            default:
+                return new UnknownCharacteristic(data, offset, length);
         }
     }
 }

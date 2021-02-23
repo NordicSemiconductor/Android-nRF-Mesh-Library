@@ -24,6 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +33,7 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
 import no.nordicsemi.android.mesh.sensorutils.MarshalledPropertyId;
 import no.nordicsemi.android.mesh.sensorutils.MarshalledSensorData;
-import no.nordicsemi.android.mesh.utils.Format;
+import no.nordicsemi.android.mesh.utils.SensorFormat;
 
 import static no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes.SENSOR_STATUS;
 
@@ -73,28 +74,31 @@ public final class SensorStatus extends ApplicationStatusMessage implements Parc
     @Override
     void parseStatusParameters() {
         int offset = 0;
+        SensorFormat sensorFormat;
+        int length;
+        short propertyId;
         while (offset < mParameters.length) {
             final int octet0 = mParameters[offset++] & 0xFF;
             final int octet1 = mParameters[offset++] & 0xFF;
-            final Format format = Format.fromValue((byte) ((octet0) & 0x01));
-            final int length;
-            final short propertyId;
-            switch (format) {
+            sensorFormat = SensorFormat.from((byte) ((octet0) & 0x01));
+            switch (sensorFormat) {
                 case FORMAT_A:
                     length = ((octet0 & 0x1E) >> 1) + 1; // zero based
                     propertyId = (short) (octet1 | (octet0 & 0xE0) >> 5);
                     break;
                 case FORMAT_B:
                     final int octet2 = mParameters[offset++] & 0xFF;
-                    length = ((octet0 & 0xFE) >> 1) + 1;
+                    final int tempLength = ((octet0 & 0xFE) >> 1);
+                    length = tempLength == 0x7F ? 0 : tempLength;
                     propertyId = (short) (octet2 | octet1);
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid data");
             }
-            final MarshalledPropertyId marshalledPropertyId = new MarshalledPropertyId(format, length, DeviceProperty.fromValue(format, propertyId));
-            final byte[] raw = Arrays.copyOfRange(mParameters, offset, length);
+            final MarshalledPropertyId marshalledPropertyId = new MarshalledPropertyId(sensorFormat, length, DeviceProperty.from(sensorFormat, propertyId));
+            final byte[] raw = Arrays.copyOfRange(mParameters, offset, offset + length);
             final MarshalledSensorData marshalledSensorData = new MarshalledSensorData(marshalledPropertyId, raw);
+            Log.d(TAG, "Result: " + marshalledSensorData.toString());
             marshalledSensorDataList.add(marshalledSensorData);
             offset += length;
         }

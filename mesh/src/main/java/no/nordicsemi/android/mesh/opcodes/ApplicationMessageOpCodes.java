@@ -231,7 +231,7 @@ public class ApplicationMessageOpCodes {
     /**
      * Opcode for the "Sensor Cadence Status" message
      */
-    public static final int SENSOR_CADENCE_SET_STATUS = 0x57;
+    public static final int SENSOR_CADENCE_STATUS = 0x57;
 
     /**
      * Opcode for the "Sensor Settings Get" message
