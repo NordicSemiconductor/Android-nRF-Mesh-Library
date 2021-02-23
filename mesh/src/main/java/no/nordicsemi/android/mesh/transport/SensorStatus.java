@@ -84,7 +84,7 @@ public final class SensorStatus extends ApplicationStatusMessage implements Parc
             switch (sensorFormat) {
                 case FORMAT_A:
                     length = ((octet0 & 0x1E) >> 1) + 1; // zero based
-                    propertyId = (short) (octet1 | (octet0 & 0xE0) >> 5);
+                    propertyId = (short) ((octet1 << 3) | ((octet0) >> 5));
                     break;
                 case FORMAT_B:
                     final int octet2 = mParameters[offset++] & 0xFF;
