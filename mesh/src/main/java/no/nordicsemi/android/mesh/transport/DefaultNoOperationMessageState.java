@@ -373,7 +373,15 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericLevelStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericLevelStatus);
-                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.MAGIC_LEVEL_SET_STATUS) {
+                    final MagicLevelSetStatus magicLevelSetStatus = new MagicLevelSetStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(magicLevelSetStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), magicLevelSetStatus);
+                }  else if (message.getOpCode() == ApplicationMessageOpCodes.MAGIC_LEVEL_GET_STATUS) {
+                    final MagicLevelGetStatus magicLevelGetStatus = new MagicLevelGetStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(magicLevelGetStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), magicLevelGetStatus);
+                }  else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
                     final LightLightnessStatus lightLightnessStatus = new LightLightnessStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightLightnessStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightLightnessStatus);

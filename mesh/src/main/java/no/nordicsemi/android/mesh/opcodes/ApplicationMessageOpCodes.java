@@ -25,6 +25,26 @@ package no.nordicsemi.android.mesh.opcodes;
 public class ApplicationMessageOpCodes {
 
     /**
+     * Opcode for the "Magic Level Set" message.
+     */
+    public static final int MAGIC_LEVEL_SET = 0x8223;
+
+    /**
+     * Opcode for the "Magic Level Set" message.
+     */
+    public static final int MAGIC_LEVEL_SET_STATUS = 0x8225;
+
+    /**
+     * Opcode for the "Magic Level Get" message.
+     */
+    public static final int MAGIC_LEVEL_GET = 0x8224;
+
+    /**
+     * Opcode for the "Magic Level Get" message.
+     */
+    public static final int MAGIC_LEVEL_GET_STATUS = 0x8226;
+
+    /**
      * Opcode for the "Generic OnOff Get" message.
      */
     public static final int GENERIC_ON_OFF_GET = 0x8201;
