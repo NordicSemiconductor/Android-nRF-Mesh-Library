@@ -286,6 +286,12 @@ public class MeshParserUtils {
         return (((byteArray[0] & 0xFF) << 16) | ((byteArray[1] & 0xFF) << 8) | (byteArray[2] & 0xFF));
     }
 
+    public static int convert24BitsToInt(@NonNull final byte[] byteArray, final int offset) {
+        if (byteArray.length - offset >= 3)
+            throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");
+        return (((byteArray[offset] & 0xFF) << 16) | ((byteArray[offset + 1] & 0xFF) << 8) | (byteArray[offset + 2] & 0xFF));
+    }
+
     public static int getSequenceNumberFromPDU(final byte[] pdu) {
         return convert24BitsToInt(new byte[]{pdu[3], pdu[4], pdu[5]}); // get sequence number array from pdu
     }

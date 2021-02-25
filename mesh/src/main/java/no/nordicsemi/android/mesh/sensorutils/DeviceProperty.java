@@ -961,7 +961,7 @@ public enum DeviceProperty {
                                                                     final int length) {
         switch (deviceProperty) {
             case PRESENT_AMBIENT_RELATIVE_HUMIDITY:
-                return new HumidityCharacteristic(data, offset);
+                return new Humidity(data, offset);
             case MOTION_SENSED:
                 return new Percentage8(data, offset);
             case DESIRED_AMBIENT_TEMPERATURE:

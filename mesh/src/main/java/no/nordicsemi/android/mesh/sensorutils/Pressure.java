@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 
-public class PressureCharacteristic extends DevicePropertyCharacteristic<Float> {
-    public PressureCharacteristic(@NonNull final byte[] data, final int offset) {
+public class Pressure extends DevicePropertyCharacteristic<Float> {
+    public Pressure(@NonNull final byte[] data, final int offset) {
         super(data, offset);
         this.value = (float) ByteBuffer.wrap(Arrays.copyOfRange(data, offset, offset + getLength())).order(BIG_ENDIAN).getShort();
     }

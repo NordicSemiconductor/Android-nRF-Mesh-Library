@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 
-public class HumidityCharacteristic extends DevicePropertyCharacteristic<Float> {
-    public HumidityCharacteristic(@NonNull final byte[] data, final int offset) {
+public class Humidity extends DevicePropertyCharacteristic<Float> {
+    public Humidity(@NonNull final byte[] data, final int offset) {
         super(data, offset);
         this.value = (float) ByteBuffer.wrap(this.data).order(BIG_ENDIAN).getShort();
     }

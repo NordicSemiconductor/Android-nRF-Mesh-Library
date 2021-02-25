@@ -1,7 +1,5 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
-import java.util.Arrays;
-
 import androidx.annotation.NonNull;
 
 public class UnknownCharacteristic extends DevicePropertyCharacteristic<byte[]> {
@@ -24,10 +22,5 @@ public class UnknownCharacteristic extends DevicePropertyCharacteristic<byte[]> 
     @Override
     public byte[] getValue() {
         return data;
-    }
-
-    public byte[] parse(@NonNull final byte[] data, final int offset, final int length) {
-        this.data = Arrays.copyOfRange(data, offset, offset + getLength());
-        return this.data;
     }
 }
