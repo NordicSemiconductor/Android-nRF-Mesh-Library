@@ -960,15 +960,90 @@ public enum DeviceProperty {
                                                                     int offset,
                                                                     final int length) {
         switch (deviceProperty) {
-            case PRESENT_AMBIENT_RELATIVE_HUMIDITY:
-                return new Humidity(data, offset);
+            case LIGHT_CONTROL_REGULATOR_ACCURACY:
+            case OUTPUT_RIPPLE_VOLTAGE_SPECIFICATION:
+            case INPUT_VOLTAGE_RIPPLE_SPECIFICATION:
+            case OUTPUT_CURRENT_PERCENT:
+            case LUMEN_MAINTENANCE_FACTOR:
             case MOTION_SENSED:
+            case MOTION_THRESHOLD:
+            case PRESENT_DEVICE_OPERATING_EFFICIENCY:
+            case PRESENT_RELATIVE_OUTPUT_RIPPLE_VOLTAGE:
+            case PRESENT_INPUT_RIPPLE_VOLTAGE:
                 return new Percentage8(data, offset);
             case DESIRED_AMBIENT_TEMPERATURE:
             case PRESENT_AMBIENT_TEMPERATURE:
             case PRESENT_INDOOR_AMBIENT_TEMPERATURE:
             case PRESENT_OUTDOOR_AMBIENT_TEMPERATURE:
-                return new Temperature8(data, offset);
+            case PRECISE_PRESENT_AMBIENT_TEMPERATURE:
+            case PRESENT_DEVICE_OPERATING_TEMPERATURE:
+                return new Temperature(data, offset, length);
+            case PEOPLE_COUNT:
+                return new Count(data, offset, 2); //Count16
+            case PRESENT_AMBIENT_RELATIVE_HUMIDITY:
+            case PRESENT_INDOOR_RELATIVE_HUMIDITY:
+            case PRESENT_OUTDOOR_RELATIVE_HUMIDITY:
+                return new Humidity(data, offset);
+            case LIGHT_CONTROL_LIGHTNESS_ON:
+            case LIGHT_CONTROL_LIGHTNESS_PROLONG:
+            case LIGHT_CONTROL_LIGHTNESS_STANDBY:
+                return new PerceivedLightness(data, offset);
+            case TIME_SINCE_MOTION_SENSED:
+            case TIME_SINCE_PRESENCE_DETECTED:
+                return new TimeSecond(data, offset, 2);
+            case LIGHT_SOURCE_START_COUNTER_RESETTABLE:
+            case LIGHT_SOURCE_TOTAL_POWER_ON_CYCLES:
+            case RATED_MEDIAN_USEFUL_LIGHT_SOURCE_STARTS:
+            case TOTAL_DEVICE_OFF_ON_CYCLES:
+            case TOTAL_DEVICE_POWER_ON_CYCLES:
+            case TOTAL_DEVICE_STARTS:
+                return new Count(data, offset, 3);
+            case LIGHT_CONTROL_AMBIENT_LUX_LEVEL_ON:
+            case LIGHT_CONTROL_AMBIENT_LUX_LEVEL_PROLONG:
+            case LIGHT_CONTROL_AMBIENT_LUX_LEVEL_STANDBY:
+            case PRESENT_AMBIENT_LIGHT_LEVEL:
+            case PRESENT_ILLUMINANCE:
+                return new Illuminance(data, offset, 3);
+            case DEVICE_RUN_TIME_SINCE_TURN_ON:
+            case DEVICE_RUNTIME_WARRANTY:
+            case RATED_MEDIAN_USEFUL_LIFE_OF_LUMINAIRE:
+            case TOTAL_DEVICE_POWER_ON_TIME:
+            case TOTAL_DEVICE_RUNTIME:
+            case TOTAL_LIGHT_EXPOSURE_TIME:
+                return new TimeHour24(data, offset);
+            case LIGHT_CONTROL_TIME_FADE:
+            case LIGHT_CONTROL_TIME_FADE_ON:
+            case LIGHT_CONTROL_TIME_FADE_STANDBY_AUTO:
+            case LIGHT_CONTROL_TIME_FADE_STANDBY_MANUAL:
+            case LIGHT_CONTROL_TIME_OCCUPANCY_DELAY:
+            case LIGHT_CONTROL_TIME_PROLONG:
+            case LIGHT_CONTROL_TIME_RUN_ON:
+                return new TimeMillisecond24(data, offset);
+            case DEVICE_DATE_OF_MANUFACTURE:
+            case LUMINAIRE_TIME_OF_MANUFACTURE:
+                return new DateUtc(data, offset);
+            case PRESSURE:
+            case AIR_PRESSURE:
+                return new Pressure(data, offset);
+            case LIGHT_CONTROL_REGULATOR_KID:
+            case LIGHT_CONTROL_REGULATOR_KIU:
+            case LIGHT_CONTROL_REGULATOR_KPD:
+            case LIGHT_CONTROL_REGULATOR_KPU:
+                return new Coefficient(data, offset);
+            case DEVICE_FIRMWARE_REVISION:
+            case DEVICE_SOFTWARE_REVISION:
+                return new FixedString(data, offset, 8);
+            case DEVICE_HARDWARE_REVISION:
+            case DEVICE_SERIAL_NUMBER:
+                return new FixedString(data, offset, 16);
+            case DEVICE_MODEL_NUMBER:
+            case LUMINAIRE_COLOR:
+            case LUMINAIRE_IDENTIFICATION_NUMBER:
+                return new FixedString(data, offset, 24);
+            case DEVICE_MANUFACTURER_NAME:
+                return new FixedString(data, offset, 36);
+            case LUMINAIRE_IDENTIFICATION_STRING:
+                return new FixedString(data, offset, 64);
             default:
                 return new UnknownCharacteristic(data, offset, length);
         }

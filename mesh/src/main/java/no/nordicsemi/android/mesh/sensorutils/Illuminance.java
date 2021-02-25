@@ -13,16 +13,7 @@ public class Illuminance extends DevicePropertyCharacteristic<Float> {
     public Illuminance(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         this.length = length;
-        switch (length) {
-            case 2:
-                value = parse(data, offset, length, 0, 65534, 0xFFFF);
-                break;
-            case 3:
-                value = parse(data, offset, length, 0, 16777214, 0xFFFFFF);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid length");
-        }
+        value = parse(data, offset, length, 0, 16777214, 0xFFFFFF);
     }
 
     @NonNull
