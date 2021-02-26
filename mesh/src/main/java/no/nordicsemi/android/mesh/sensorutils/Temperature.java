@@ -1,8 +1,11 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
+import java.nio.ByteBuffer;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 public class Temperature extends DevicePropertyCharacteristic<Float> {
     private final int length;
@@ -22,6 +25,15 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
         }
     }
 
+    public Temperature(@NonNull final Float temperature) {
+        final int length = Float.floatToIntBits(temperature) / 8;
+        if (length != 1 && length != 2) {
+            throw new IllegalArgumentException("Illegal length");
+        }
+        this.length = length;
+        value = temperature;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -34,7 +46,11 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
     }
 
     @Override
-    public Float getValue() {
-        return value;
+    public byte[] getBytes() {
+        if (getLength() == 1) {
+            return new byte[]{value.byteValue()};
+        }
+        return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
     }
+
 }

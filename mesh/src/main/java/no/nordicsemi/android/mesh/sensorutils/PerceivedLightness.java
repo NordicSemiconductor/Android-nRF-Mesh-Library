@@ -1,12 +1,16 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
+import java.nio.ByteBuffer;
+
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 /**
  * The Perceived Lightness characteristic is used to represent the perceived lightness of a light.
  */
-public class PerceivedLightness extends DevicePropertyCharacteristic<Float> {
+public class PerceivedLightness extends DevicePropertyCharacteristic<Integer> {
 
     public PerceivedLightness(@NonNull final byte[] data, final int offset) {
         super(data, offset);
@@ -14,6 +18,11 @@ public class PerceivedLightness extends DevicePropertyCharacteristic<Float> {
         if (perceivedLightness < 0 && perceivedLightness > 65535) {
             throw new IllegalArgumentException("Value " + perceivedLightness + " is Prohibited!");
         }
+        value = perceivedLightness;
+    }
+
+    public PerceivedLightness(final int perceivedLightness) {
+        value = perceivedLightness;
     }
 
     @NonNull
@@ -24,11 +33,12 @@ public class PerceivedLightness extends DevicePropertyCharacteristic<Float> {
 
     @Override
     public int getLength() {
-        return 16;
+        return 2;
     }
 
     @Override
-    public Float getValue() {
-        return value;
+    public byte[] getBytes() {
+        return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
     }
+
 }

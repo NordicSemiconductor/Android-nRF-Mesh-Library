@@ -6,6 +6,7 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 /**
  * The Coefficient characteristic is used to represent a general coefficient value.
@@ -14,7 +15,11 @@ public class Coefficient extends DevicePropertyCharacteristic<Float> {
 
     public Coefficient(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        this.value = ByteBuffer.wrap(data).order(BIG_ENDIAN).getFloat(offset);
+        value = ByteBuffer.wrap(data).order(BIG_ENDIAN).getFloat(offset);
+    }
+
+    public Coefficient(final float coefficient) {
+        value = coefficient;
     }
 
     @NonNull
@@ -29,7 +34,7 @@ public class Coefficient extends DevicePropertyCharacteristic<Float> {
     }
 
     @Override
-    public Float getValue() {
-        return value;
+    public byte[] getBytes() {
+        return ByteBuffer.allocate(4).order(LITTLE_ENDIAN).putFloat(value).array();
     }
 }

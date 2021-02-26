@@ -6,11 +6,16 @@ import java.util.Arrays;
 import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 public class Pressure extends DevicePropertyCharacteristic<Float> {
     public Pressure(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        this.value = (float) ByteBuffer.wrap(Arrays.copyOfRange(data, offset, offset + getLength())).order(BIG_ENDIAN).getShort();
+        value = (float) ByteBuffer.wrap(Arrays.copyOfRange(data, offset, offset + getLength())).order(BIG_ENDIAN).getShort();
+    }
+
+    public Pressure(final Float pressure){
+        value = pressure;
     }
 
     @NonNull
@@ -25,7 +30,7 @@ public class Pressure extends DevicePropertyCharacteristic<Float> {
     }
 
     @Override
-    public Float getValue() {
-        return value;
+    public byte[] getBytes() {
+        return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putInt(value.intValue()).array();
     }
 }

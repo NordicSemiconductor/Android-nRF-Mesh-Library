@@ -13,7 +13,11 @@ public class Bool extends DevicePropertyCharacteristic<Boolean> {
         if (bool < 0 && bool > 1) {
             throw new IllegalArgumentException("Value " + bool + " is Prohibited!");
         }
-        this.value = bool == 1;
+        value = bool == 1;
+    }
+
+    public Bool(final boolean flag) {
+        value = flag;
     }
 
     @NonNull
@@ -28,7 +32,7 @@ public class Bool extends DevicePropertyCharacteristic<Boolean> {
     }
 
     @Override
-    public Boolean getValue() {
-        return value;
+    public byte[] getBytes() {
+        return new byte[]{(byte) (value ? 0x01 : 0x00)};
     }
 }

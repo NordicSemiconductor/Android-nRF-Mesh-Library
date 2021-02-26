@@ -5,11 +5,16 @@ import java.nio.ByteBuffer;
 import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 public class Humidity extends DevicePropertyCharacteristic<Float> {
     public Humidity(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        this.value = (float) ByteBuffer.wrap(this.data).order(BIG_ENDIAN).getShort();
+        value = (float) ByteBuffer.wrap(data).order(BIG_ENDIAN).getShort();
+    }
+
+    public Humidity(final float humidity) {
+        value = humidity;
     }
 
     @NonNull
@@ -24,7 +29,7 @@ public class Humidity extends DevicePropertyCharacteristic<Float> {
     }
 
     @Override
-    public Float getValue() {
-        return value;
+    public byte[] getBytes() {
+        return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
     }
 }

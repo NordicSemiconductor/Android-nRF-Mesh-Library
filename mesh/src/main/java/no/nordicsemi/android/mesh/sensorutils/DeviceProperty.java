@@ -977,7 +977,7 @@ public enum DeviceProperty {
             case PRESENT_OUTDOOR_AMBIENT_TEMPERATURE:
             case PRECISE_PRESENT_AMBIENT_TEMPERATURE:
             case PRESENT_DEVICE_OPERATING_TEMPERATURE:
-                return new Temperature(data, offset, length);
+                return new Temperature(data, offset, 1);
             case PEOPLE_COUNT:
                 return new Count(data, offset, 2); //Count16
             case PRESENT_AMBIENT_RELATIVE_HUMIDITY:
@@ -1003,7 +1003,7 @@ public enum DeviceProperty {
             case LIGHT_CONTROL_AMBIENT_LUX_LEVEL_STANDBY:
             case PRESENT_AMBIENT_LIGHT_LEVEL:
             case PRESENT_ILLUMINANCE:
-                return new Illuminance(data, offset, 3);
+                return new Illuminance(data, offset);
             case DEVICE_RUN_TIME_SINCE_TURN_ON:
             case DEVICE_RUNTIME_WARRANTY:
             case RATED_MEDIAN_USEFUL_LIFE_OF_LUMINAIRE:

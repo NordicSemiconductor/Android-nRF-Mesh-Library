@@ -11,7 +11,11 @@ public class Percentage8 extends DevicePropertyCharacteristic<Float> {
 
     public Percentage8(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        this.value = parse(data, offset, getLength(), 0,100, 0xFF);
+        value = parse(data, offset, getLength(), 0,100, 0xFF);
+    }
+
+    public Percentage8(final float percentage){
+        value = percentage;
     }
 
     @NonNull
@@ -26,7 +30,7 @@ public class Percentage8 extends DevicePropertyCharacteristic<Float> {
     }
 
     @Override
-    public Float getValue() {
-        return value;
+    public byte[] getBytes() {
+        return new byte[value.byteValue()];
     }
 }

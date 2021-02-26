@@ -13,8 +13,30 @@ public class FixedString extends DevicePropertyCharacteristic<String> {
     public FixedString(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         this.length = length;
-        //noinspection CharsetObjectCanBeUsed
-        this.value = new String(data, offset, length, Charset.forName("UTF-8"));
+        value = new String(data, offset, length, Charset.forName("UTF-8"));
+    }
+
+    public FixedString(@NonNull final String fixedString) {
+        switch (fixedString.getBytes().length) {
+            case 8:
+                length = 8;
+                break;
+            case 16:
+                length = 16;
+                break;
+            case 24:
+                length = 24;
+                break;
+            case 36:
+                length = 36;
+                break;
+            case 64:
+                length = 64;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid length");
+        }
+        value = fixedString;
     }
 
     @NonNull
@@ -29,7 +51,8 @@ public class FixedString extends DevicePropertyCharacteristic<String> {
     }
 
     @Override
-    public String getValue() {
-        return value;
+    public byte[] getBytes() {
+        return value.getBytes();
     }
+
 }

@@ -1,6 +1,5 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
@@ -11,9 +10,12 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convert24BitsToIn
 /**
  * Device Property Characteristic
  */
-public abstract class DevicePropertyCharacteristic<T extends Serializable> {
+public abstract class DevicePropertyCharacteristic<T> {
     protected T value;
-    protected byte[] data; //raw data
+
+    DevicePropertyCharacteristic() {
+
+    }
 
     /**
      * Device Property Characteristic
@@ -21,10 +23,9 @@ public abstract class DevicePropertyCharacteristic<T extends Serializable> {
      * @param data   Byte array
      * @param offset Offset
      */
-    public DevicePropertyCharacteristic(@NonNull final byte[] data, final int offset) {
+    protected DevicePropertyCharacteristic(@NonNull final byte[] data, final int offset) {
         if (data.length - offset < getLength())
             throw new IllegalArgumentException("Invalid data length!");
-        this.data = Arrays.copyOfRange(data, offset, offset + getLength());
     }
 
     /**
@@ -37,7 +38,6 @@ public abstract class DevicePropertyCharacteristic<T extends Serializable> {
     protected DevicePropertyCharacteristic(@NonNull final byte[] data, final int offset, final int length) {
         if (data.length - offset < length)
             throw new IllegalArgumentException("Invalid data length!");
-        this.data = Arrays.copyOfRange(data, offset, offset + length);
     }
 
     /**
@@ -48,7 +48,14 @@ public abstract class DevicePropertyCharacteristic<T extends Serializable> {
     /**
      * Returns the value of the characteristic.
      */
-    public abstract T getValue();
+    public final T getValue() {
+        return value;
+    }
+
+    /**
+     * Returns the byte array.
+     */
+    public abstract byte[] getBytes();
 
     /**
      * Parses the value

@@ -280,6 +280,10 @@ public class MeshParserUtils {
         return null;
     }
 
+    public static byte[] convertIntTo24Bits(int value) {
+        return new byte[]{(byte) ((value >> 16) & 0xFF), (byte) ((value >> 8) & 0xFF), (byte) (value & 0xFF)};
+    }
+
     public static int convert24BitsToInt(@NonNull final byte[] byteArray) {
         if (byteArray.length != 3)
             throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");

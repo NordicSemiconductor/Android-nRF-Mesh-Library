@@ -1,6 +1,10 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
+import java.nio.ByteBuffer;
+
 import androidx.annotation.NonNull;
+
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 /**
  * The Time Second 8, 16, 24 characteristic is used to represent a general count value.
@@ -38,7 +42,15 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
     }
 
     @Override
-    public Integer getValue() {
-        return value;
+    public byte[] getBytes() {
+        switch (length) {
+            case 1:
+                return new byte[]{value.byteValue()};
+            case 2:
+                return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
+            default:
+            case 4:
+                return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putInt(value).array();
+        }
     }
 }
