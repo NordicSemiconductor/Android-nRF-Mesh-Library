@@ -9,10 +9,10 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 /**
  * SensorCadenceSet message.
  */
-public class SensorCadenceSet extends ApplicationMessage {
+public class SensorCadenceSetUnacknowledged extends ApplicationMessage {
 
-    private static final String TAG = SensorCadenceSet.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.SENSOR_CADENCE_SET;
+    private static final String TAG = SensorCadenceSetUnacknowledged.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.SENSOR_CADENCE_SET_UNACKNOWLEDGED;
 
     private final SensorCadence cadence;
 
@@ -23,8 +23,8 @@ public class SensorCadenceSet extends ApplicationMessage {
      * @param cadence {@link SensorCadence} Sensor Cadence.
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public SensorCadenceSet(@NonNull final ApplicationKey appKey,
-                            @NonNull final SensorCadence cadence) {
+    public SensorCadenceSetUnacknowledged(@NonNull final ApplicationKey appKey,
+                                          @NonNull final SensorCadence cadence) {
         super(appKey);
         this.cadence = cadence;
         assembleMessageParameters();

@@ -126,6 +126,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SensorDescriptorStatus status = new SensorDescriptorStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SENSOR_CADENCE_STATUS) {
+                    final SensorStatus status = new SensorStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SENSOR_STATUS) {
                     final SensorStatus status = new SensorStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
