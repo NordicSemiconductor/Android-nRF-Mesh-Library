@@ -18,7 +18,7 @@ public class SensorSettingsGet extends ApplicationMessage {
     private static final String TAG = SensorSettingsGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SENSOR_SETTINGS_GET;
 
-    final DeviceProperty property;
+    private final DeviceProperty propertyId;
 
     /**
      * Constructs SensorSettingsGet message.
@@ -29,7 +29,7 @@ public class SensorSettingsGet extends ApplicationMessage {
      */
     public SensorSettingsGet(@NonNull final ApplicationKey appKey, final DeviceProperty propertyId) {
         super(appKey);
-        this.property = propertyId;
+        this.propertyId = propertyId;
         assembleMessageParameters();
     }
 
@@ -41,6 +41,10 @@ public class SensorSettingsGet extends ApplicationMessage {
     @Override
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
-        mParameters = ByteBuffer.allocate(2).order(LITTLE_ENDIAN).putShort(property.getPropertyId()).array();
+        mParameters = ByteBuffer.allocate(2).order(LITTLE_ENDIAN).putShort(propertyId.getPropertyId()).array();
+    }
+
+    public DeviceProperty getPropertyId() {
+        return propertyId;
     }
 }
