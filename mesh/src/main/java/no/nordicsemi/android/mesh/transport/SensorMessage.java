@@ -82,9 +82,8 @@ public abstract class SensorMessage extends ApplicationStatusMessage {
                         offset += length * 2;
                         break;
                     case UNIT_LESS:
-                        this.delta = new Percent((unsignedBytesToInt(data[offset + 2], data[offset + 3]) / 100),
-                                (unsignedBytesToInt(data[offset], data[offset + 1])) / 100
-                        );
+                        this.delta = new Percent((float)unsignedBytesToInt(data[offset + 2], data[offset + 3]) / 100,
+                                (float)unsignedBytesToInt(data[offset], data[offset + 1]) / 100f);
                         offset += 4;
                         break;
                 }

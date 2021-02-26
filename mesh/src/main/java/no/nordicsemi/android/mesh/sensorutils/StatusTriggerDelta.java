@@ -33,7 +33,7 @@ public abstract class StatusTriggerDelta<T> {
     public static class Characteristic<T> extends StatusTriggerDelta<DevicePropertyCharacteristic<T>> {
 
         /**
-         * Status Trigger Delta
+         * Status Trigger Delta as characteristic
          *
          * @param down Status Trigger Delta Down field shall control the negative change of a measured
          *             quantity that triggers publication of a Sensor Status message.
@@ -44,42 +44,22 @@ public abstract class StatusTriggerDelta<T> {
         }
 
         @Override
-        public DevicePropertyCharacteristic<T> getUp() {
-            return super.getUp();
-        }
-
-        @Override
-        public DevicePropertyCharacteristic<T> getDown() {
-            return super.getDown();
-        }
-
-        @Override
         public int getLength() {
             return getDown().getLength() + getUp().getLength();
         }
     }
 
-    public static class Percent extends StatusTriggerDelta<Integer> {
+    public static class Percent extends StatusTriggerDelta<Float> {
 
         /**
-         * Status Trigger Delta
+         * Status Trigger Delta as percent
          *
          * @param down Status Trigger Delta Down field shall control the negative change of a measured
          *             quantity that triggers publication of a Sensor Status message.
          * @param up   Status Trigger Delta Up field shall control the positive change of a measured
          */
-        public Percent(final Integer down, final Integer up) {
+        public Percent(final float down, final float up) {
             super(down, up);
-        }
-
-        @Override
-        public Integer getUp() {
-            return super.getUp();
-        }
-
-        @Override
-        public Integer getDown() {
-            return super.getDown();
         }
 
         @Override
