@@ -951,7 +951,7 @@ public enum DeviceProperty {
                 return "Output Current Percent";
             case UNKNOWN:
             default:
-                return "Unknown";
+                return "Unknown Device Property";
         }
     }
 
@@ -975,9 +975,10 @@ public enum DeviceProperty {
             case PRESENT_AMBIENT_TEMPERATURE:
             case PRESENT_INDOOR_AMBIENT_TEMPERATURE:
             case PRESENT_OUTDOOR_AMBIENT_TEMPERATURE:
+                return new Temperature(data, offset, 1);
             case PRECISE_PRESENT_AMBIENT_TEMPERATURE:
             case PRESENT_DEVICE_OPERATING_TEMPERATURE:
-                return new Temperature(data, offset, 1);
+                return new Temperature(data, offset, 2);
             case PEOPLE_COUNT:
                 return new Count(data, offset, 2); //Count16
             case PRESENT_AMBIENT_RELATIVE_HUMIDITY:
