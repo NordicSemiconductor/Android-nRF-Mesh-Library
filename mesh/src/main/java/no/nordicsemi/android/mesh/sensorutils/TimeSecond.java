@@ -33,7 +33,7 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
     @NonNull
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return value + " seconds";
     }
 
     @Override

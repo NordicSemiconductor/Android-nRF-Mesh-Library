@@ -120,9 +120,6 @@
             android:name=".scenes.ScenesActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".scenes.StoredScenesActivity"
-            android:launchMode="singleTop" />
-        <activity
             android:name=".node.PublicationSettingsActivity"
             android:launchMode="singleTop" />
         <activity
@@ -139,6 +136,9 @@
             android:launchMode="singleTop" />
         <activity
             android:name=".node.SceneSetupServerModelActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.SensorServerActivity"
             android:launchMode="singleTop" />
         <activity
             android:name=".node.VendorModelActivity"

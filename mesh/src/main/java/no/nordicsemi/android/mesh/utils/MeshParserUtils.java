@@ -570,6 +570,10 @@ public class MeshParserUtils {
         return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
     }
 
+    public static int bytesToInt(@NonNull byte[] b, final ByteOrder byteOrder) {
+        return b.length == 4 ? ByteBuffer.wrap(b).order(byteOrder).getInt() : ByteBuffer.wrap(b).order(byteOrder).getShort();
+    }
+
     public static int bytesToInt(@NonNull byte[] b) {
         return b.length == 4 ? ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getInt() : ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getShort();
     }
