@@ -385,6 +385,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final LightHslStatus lightHslStatus = new LightHslStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightHslStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_MODE_STATUS) {
+                    final LightLCModeStatus lightLcModeStatus = new LightLCModeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightLcModeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightLcModeStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_STATUS) {
                     final LightLCLightOnOffStatus lightLcLightOnOffStatus = new LightLCLightOnOffStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightLcLightOnOffStatus);

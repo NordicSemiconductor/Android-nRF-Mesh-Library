@@ -125,6 +125,26 @@ public class ApplicationMessageOpCodes {
     public static final int LIGHT_HSL_STATUS = 0x8278;
 
     /**
+     * Opcode for the "Light LC Mode Get" message
+     */
+    public static final int LIGHT_LC_MODE_GET = 0x8291;
+
+    /**
+     * Opcode for the "Light LC Mode Set" message
+     */
+    public static final int LIGHT_LC_MODE_SET = 0x8292;
+
+    /**
+     * Opcode for the "Light LC Mode Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_MODE_SET_UNACKNOWLEDGED = 0x8293;
+
+    /**
+     * Opcode for the "Light LC Mode Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_MODE_STATUS = 0x8294;
+
+    /**
      * Opcode for the "Light LC Light On Off Get" message
      */
     public static final int LIGHT_LC_LIGHT_ON_OFF_GET = 0x8299;
@@ -148,7 +168,6 @@ public class ApplicationMessageOpCodes {
      * Opcode for the "Light LC Property Get" message
      */
     public static final int LIGHT_LC_PROPERTY_SET = 0x829D;
-
 
     /**
      * Opcode for the "Scene Status" message
