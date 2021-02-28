@@ -85,4 +85,8 @@ public final class LightLCModeStatus extends GenericStatusMessage implements Par
         final AccessMessage message = (AccessMessage) mMessage;
         dest.writeParcelable(message, flags);
     }
+
+    public boolean getStatus() {
+        return status;
+    }
 }
