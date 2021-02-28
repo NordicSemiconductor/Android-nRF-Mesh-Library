@@ -413,6 +413,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final LightHslStatus lightHslStatus = new LightHslStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightHslStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_STATUS) {
+                    final LightLCLightOnOffStatus lightLcLightOnOffStatus = new LightLCLightOnOffStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightLcLightOnOffStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightLcLightOnOffStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
                     if (mMeshMessage instanceof SceneStore) {
                         final SceneRegisterStatus status = new SceneRegisterStatus(message);
