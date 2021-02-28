@@ -187,7 +187,22 @@ public class ApplicationMessageOpCodes {
     /**
      * Opcode for the "Light LC Property Get" message
      */
-    public static final int LIGHT_LC_PROPERTY_SET = 0x829D;
+    public static final int LIGHT_LC_PROPERTY_GET = 0x829D;
+
+    /**
+     * Opcode for the "Light LC Property Set" message
+     */
+    public static final int LIGHT_LC_PROPERTY_SET = 0x62;
+
+    /**
+     * Opcode for the "Light LC Property Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED = 0x63;
+
+    /**
+     * Opcode for the "Light LC Property Status" message
+     */
+    public static final int LIGHT_LC_PROPERTY_STATUS = 0x64;
 
     /**
      * Opcode for the "Scene Status" message
