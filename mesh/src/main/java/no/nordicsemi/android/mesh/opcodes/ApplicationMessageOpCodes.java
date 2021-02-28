@@ -140,9 +140,29 @@ public class ApplicationMessageOpCodes {
     public static final int LIGHT_LC_MODE_SET_UNACKNOWLEDGED = 0x8293;
 
     /**
-     * Opcode for the "Light LC Mode Set Unacknowledged" message
+     * Opcode for the "Light LC Mode Status" message
      */
     public static final int LIGHT_LC_MODE_STATUS = 0x8294;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Get" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_GET = 0x8295;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Set" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_SET = 0x8296;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_SET_UNACKNOWLEDGED = 0x8297;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Status" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_STATUS = 0x8298;
 
     /**
      * Opcode for the "Light LC Light On Off Get" message
