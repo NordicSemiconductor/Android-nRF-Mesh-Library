@@ -12,7 +12,7 @@ import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 public class LightLCLightOnOffGet extends GenericMessage {
 
     private static final String TAG = LightLCLightOnOffGet.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_PROPERTY_SET;
+    private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_GET;
 
 
     /**
