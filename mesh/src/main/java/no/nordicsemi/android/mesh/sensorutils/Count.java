@@ -3,23 +3,31 @@ package no.nordicsemi.android.mesh.sensorutils;
 import java.nio.ByteBuffer;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convert24BitsToInt;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convertIntTo24Bits;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedBytesToInt;
 
 /**
  * The Count 16,24 characteristic is used to represent a general count value.
  */
 public class Count extends DevicePropertyCharacteristic<Integer> {
 
+    private static final String TAG = Count.class.getSimpleName();
+
     public Count(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         switch (length) {
             case 2:
-                value = (int) parse(data, offset, length, 0, 65534, 0xFFFF);
+                value = unsignedBytesToInt(data[offset], data[offset + 1]);
+                if (isNotValid(65534, 0xFFFF))
+                    value = null;
                 break;
             case 3:
-                value = (int) parse(data, offset, length, 0, 16777214, 0xFFFFFF);
+                value = convert24BitsToInt(data, offset);
+                if (isNotValid(16777214, 0xFFFFFF))
+                    value = null;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid length");
@@ -43,10 +51,14 @@ public class Count extends DevicePropertyCharacteristic<Integer> {
 
     @Override
     public byte[] getBytes() {
-        if(getLength() == 2){
+        if (getLength() == 2) {
             return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
         } else {
-            return MeshParserUtils.convertIntTo24Bits(value);
+            return convertIntTo24Bits(value);
         }
+    }
+
+    private boolean isNotValid(final int max, final int unknownValue) {
+        return value == unknownValue || value < 0 || value > max;
     }
 }
