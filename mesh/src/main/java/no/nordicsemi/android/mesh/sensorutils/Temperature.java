@@ -19,7 +19,7 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
         int tempValue;
         switch (length) {
             case 1:
-                tempValue = unsignedToSigned(data[0] & 0xFF, 8);
+                tempValue = unsignedToSigned(data[offset] & 0xFF, 8);
                 if (tempValue == 0x8000) {
                     value = null;
                 }
