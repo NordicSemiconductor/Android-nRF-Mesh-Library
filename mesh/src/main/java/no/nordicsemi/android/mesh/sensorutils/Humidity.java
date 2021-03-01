@@ -4,13 +4,15 @@ import java.nio.ByteBuffer;
 
 import androidx.annotation.NonNull;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedBytesToInt;
 
 public class Humidity extends DevicePropertyCharacteristic<Float> {
     public Humidity(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        value = (float) ByteBuffer.wrap(data).order(BIG_ENDIAN).getShort();
+        value = unsignedBytesToInt(data[offset], data[offset + 1]) / 100f;
+        if (value == 0xFFFF || value < 0.0f || value > 100.0f)
+            value = null;
     }
 
     public Humidity(final float humidity) {
@@ -20,7 +22,7 @@ public class Humidity extends DevicePropertyCharacteristic<Float> {
     @NonNull
     @Override
     public String toString() {
-        return super.toString();
+        return String.valueOf(value);
     }
 
     @Override
