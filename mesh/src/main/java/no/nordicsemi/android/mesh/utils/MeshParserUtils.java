@@ -589,7 +589,7 @@ public class MeshParserUtils {
     /**
      * Convert an unsigned integer value to a two's-complement encoded signed value.
      */
-    private static int unsignedToSigned(int unsigned, int size) {
+    public static int unsignedToSigned(int unsigned, int size) {
         if ((unsigned & (1 << size - 1)) != 0) {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }

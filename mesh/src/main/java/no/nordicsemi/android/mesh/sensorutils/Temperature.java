@@ -1,24 +1,44 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedToSigned;
 
 public class Temperature extends DevicePropertyCharacteristic<Float> {
+    private static final String TAG = Temperature.class.getSimpleName();
     private final int length;
 
     public Temperature(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         this.length = length;
+        int tempValue;
         switch (length) {
             case 1:
-                this.value = parse(data, offset, length, -64.0, 63.5, 0xFF);
+                tempValue = unsignedToSigned(data[0] & 0xFF, 8);
+                if (tempValue == 0x8000) {
+                    value = null;
+                }
+                value = tempValue / 2.0f;
+                if (value < -64.0f || value > 63.5f) {
+                    this.value = null;
+                    Log.e(TAG, "Value " + tempValue + " is Prohibited!");
+                }
                 break;
             case 2:
-                this.value = parse(data, offset, length, -273.15, 327.67, 0x8000);
+                tempValue = unsignedToSigned(data[offset] & 0xFF | (data[offset + 1] & 0xFF) << 8, 16);
+                if (tempValue == 0x8000) {
+                    value = null;
+                }
+                value = (tempValue / 100.0f);
+                if (value < -273.15f || value > 327.67f) {
+                    this.value = null;
+                    Log.e(TAG, "Value " + tempValue + " is Prohibited!");
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Invalid length");
@@ -37,7 +57,7 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
     @NonNull
     @Override
     public String toString() {
-        return length == 1 ? String.format(Locale.US, "%.1f", value) : String.format(Locale.US, "%.2f", value);
+        return String.valueOf(value);
     }
 
     @Override
@@ -47,10 +67,13 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
 
     @Override
     public byte[] getBytes() {
+        final float val;
         if (getLength() == 1) {
-            return new byte[]{value.byteValue()};
+            val = value * 10;
+            return new byte[]{(byte) val};
         }
-        return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
+        val = value * 100;
+        return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort((short) val).array();
     }
 
 }
