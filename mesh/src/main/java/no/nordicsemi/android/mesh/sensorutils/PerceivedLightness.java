@@ -14,7 +14,7 @@ public class PerceivedLightness extends DevicePropertyCharacteristic<Integer> {
 
     public PerceivedLightness(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        final int perceivedLightness = (short) MeshParserUtils.unsignedBytesToInt(data[offset], data[offset + 1]);
+        final int perceivedLightness = MeshParserUtils.unsignedBytesToInt(data[offset], data[offset + 1]);
         if (perceivedLightness < 0 && perceivedLightness > 65535) {
             throw new IllegalArgumentException("Value " + perceivedLightness + " is Prohibited!");
         }
