@@ -413,6 +413,22 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final LightHslStatus lightHslStatus = new LightHslStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightHslStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_MODE_STATUS) {
+                    final LightLCModeStatus lightLcModeStatus = new LightLCModeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightLcModeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightLcModeStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_OCCUPANCY_MODE_STATUS) {
+                    final LightLCOccupancyModeStatus lightLcOccupancyModeStatus = new LightLCOccupancyModeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightLcOccupancyModeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightLcOccupancyModeStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_STATUS) {
+                    final LightLCLightOnOffStatus lightLcLightOnOffStatus = new LightLCLightOnOffStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightLcLightOnOffStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightLcLightOnOffStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LC_PROPERTY_STATUS) {
+                    final LightLCPropertyStatus status = new LightLCPropertyStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
                     if (mMeshMessage instanceof SceneStore) {
                         final SceneRegisterStatus status = new SceneRegisterStatus(message);

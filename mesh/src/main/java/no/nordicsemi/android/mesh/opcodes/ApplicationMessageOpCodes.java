@@ -125,6 +125,86 @@ public class ApplicationMessageOpCodes {
     public static final int LIGHT_HSL_STATUS = 0x8278;
 
     /**
+     * Opcode for the "Light LC Mode Get" message
+     */
+    public static final int LIGHT_LC_MODE_GET = 0x8291;
+
+    /**
+     * Opcode for the "Light LC Mode Set" message
+     */
+    public static final int LIGHT_LC_MODE_SET = 0x8292;
+
+    /**
+     * Opcode for the "Light LC Mode Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_MODE_SET_UNACKNOWLEDGED = 0x8293;
+
+    /**
+     * Opcode for the "Light LC Mode Status" message
+     */
+    public static final int LIGHT_LC_MODE_STATUS = 0x8294;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Get" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_GET = 0x8295;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Set" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_SET = 0x8296;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_SET_UNACKNOWLEDGED = 0x8297;
+
+    /**
+     * Opcode for the "Light LC Occupancy Mode Status" message
+     */
+    public static final int LIGHT_LC_OCCUPANCY_MODE_STATUS = 0x8298;
+
+    /**
+     * Opcode for the "Light LC Light On Off Get" message
+     */
+    public static final int LIGHT_LC_LIGHT_ON_OFF_GET = 0x8299;
+
+    /**
+     * Opcode for the "Light LC Light On Off Set" message
+     */
+    public static final int LIGHT_LC_LIGHT_ON_OFF_SET = 0x829A;
+
+    /**
+     * Opcode for the "Light LC Light On Off Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_LIGHT_ON_OFF_SET_UNACKNOWLEDGED = 0x829B;
+
+    /**
+     * Opcode for the "Light LC Light On Off Status" message
+     */
+    public static final int LIGHT_LC_LIGHT_ON_OFF_STATUS = 0x829C;
+
+    /**
+     * Opcode for the "Light LC Property Get" message
+     */
+    public static final int LIGHT_LC_PROPERTY_GET = 0x829D;
+
+    /**
+     * Opcode for the "Light LC Property Set" message
+     */
+    public static final int LIGHT_LC_PROPERTY_SET = 0x62;
+
+    /**
+     * Opcode for the "Light LC Property Set Unacknowledged" message
+     */
+    public static final int LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED = 0x63;
+
+    /**
+     * Opcode for the "Light LC Property Status" message
+     */
+    public static final int LIGHT_LC_PROPERTY_STATUS = 0x64;
+
+    /**
      * Opcode for the "Scene Status" message
      */
     public static final int SCENE_STATUS = 0x5E;
