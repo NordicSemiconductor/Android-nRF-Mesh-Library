@@ -2,10 +2,10 @@ package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
 
-public abstract class GenericStatusMessage extends MeshMessage {
+public abstract class ApplicationStatusMessage extends MeshMessage {
 
 
-    GenericStatusMessage(@NonNull final AccessMessage message) {
+    ApplicationStatusMessage(@NonNull final AccessMessage message) {
         mMessage = message;
     }
 

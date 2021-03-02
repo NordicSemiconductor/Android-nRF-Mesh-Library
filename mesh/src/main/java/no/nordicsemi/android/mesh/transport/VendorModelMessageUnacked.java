@@ -2,7 +2,6 @@ package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
@@ -10,7 +9,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a unacknowledged VendorModel message.
  */
 @SuppressWarnings("unused")
-public class VendorModelMessageUnacked extends GenericMessage {
+public class VendorModelMessageUnacked extends ApplicationMessage {
 
     private static final String TAG = VendorModelMessageUnacked.class.getSimpleName();
 

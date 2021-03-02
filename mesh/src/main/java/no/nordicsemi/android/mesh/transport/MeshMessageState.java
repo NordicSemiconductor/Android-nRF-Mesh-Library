@@ -14,7 +14,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
  * This generic class handles the mesh messages received or sent.
  * <p>
  * This class handles sending, resending and parsing mesh messages. Each message sent by the library has its own state.
- * {@link ConfigMessageState} and {@link GenericMessageState} extends this class based on the type of the message.
+ * {@link ConfigMessageState} and {@link ApplicationMessageState} extends this class based on the type of the message.
  * Currently the library supports basic Configuration and Generic Messages.
  * </p>
  */
@@ -151,12 +151,10 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
         //Proxy configuration message
         PROXY_CONFIG_MESSAGE_STATE(500),
-
         //Configuration message States
         CONFIG_MESSAGE_STATE(501),
-
         //Application message States
-        GENERIC_MESSAGE_STATE(502),
+        APPLICATION_MESSAGE_STATE(502),
         VENDOR_MODEL_ACKNOWLEDGED_STATE(1000),
         VENDOR_MODEL_UNACKNOWLEDGED_STATE(1001);
 

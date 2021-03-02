@@ -33,7 +33,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the VendorModelMessageStatus Message.
  */
 @SuppressWarnings({"WeakerAccess"})
-public final class VendorModelMessageStatus extends GenericStatusMessage implements Parcelable {
+public final class VendorModelMessageStatus extends ApplicationStatusMessage implements Parcelable {
 
     private static final String TAG = VendorModelMessageStatus.class.getSimpleName();
     private final int mModelIdentifier;
