@@ -1,7 +1,5 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
@@ -12,7 +10,9 @@ public class Illuminance extends DevicePropertyCharacteristic<Float> {
 
     public Illuminance(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        value = parse(data, offset, 3, 0, 16777214, 0xFFFFFF);
+        value = ((((data[offset + 2] & 0xFF) << 16) | ((data[offset + 1] & 0xFF) << 8) | data[offset] & 0xFF)) / 100f;
+        if (value == 0xFFFFFF || value < 0.0f || value > 167772.14f)
+            value = null;
     }
 
     public Illuminance(final float illuminance) {
@@ -22,7 +22,7 @@ public class Illuminance extends DevicePropertyCharacteristic<Float> {
     @NonNull
     @Override
     public String toString() {
-        return String.format(Locale.US, "%.2f", value);
+        return String.valueOf(value);
     }
 
     @Override
