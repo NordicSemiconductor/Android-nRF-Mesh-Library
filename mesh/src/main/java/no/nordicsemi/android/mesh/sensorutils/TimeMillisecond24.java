@@ -6,21 +6,27 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 /**
  * The Time Hour 24 characteristic is used to represent a period of time in hours.
  */
-public class TimeMillisecond24 extends DevicePropertyCharacteristic<Integer> {
+public class TimeMillisecond24 extends DevicePropertyCharacteristic<Float> {
 
     public TimeMillisecond24(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        value = (int) parse(data, offset, getLength(), 0, 16777214, 0xFFFFFF);
+        final int tempValue = (data[offset + 2] & 0xFF) << 16 | (data[offset + 1] & 0xFF) << 8 | data[offset] & 0xFF;
+        if (tempValue == 0xFFFF)
+            value = null;
+        value = tempValue / 1000f;
+        if (value < 0 || value > 16777.214)
+            value = null;
+
     }
 
-    public TimeMillisecond24(final int timeMilliseconds24){
-        value = timeMilliseconds24;
+    public TimeMillisecond24(final float seconds) {
+        value = seconds;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return value == null ? null : value + " seconds";
     }
 
     @Override
@@ -30,7 +36,7 @@ public class TimeMillisecond24 extends DevicePropertyCharacteristic<Integer> {
 
     @Override
     public byte[] getBytes() {
-        return MeshParserUtils.convertIntTo24Bits(value);
+        return MeshParserUtils.convertIntTo24Bits((int) (value * 1000));
     }
 
 }
