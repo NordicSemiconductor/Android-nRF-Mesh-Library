@@ -2,7 +2,6 @@ package no.nordicsemi.android.mesh.transport;
 
 
 import androidx.annotation.NonNull;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
@@ -10,8 +9,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 /**
  * To be used as a wrapper class when creating a GenericOnOffGet message.
  */
-@SuppressWarnings("unused")
-public class GenericOnOffGet extends GenericMessage {
+public class GenericOnOffGet extends ApplicationMessage {
 
     private static final String TAG = GenericOnOffGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_GET;

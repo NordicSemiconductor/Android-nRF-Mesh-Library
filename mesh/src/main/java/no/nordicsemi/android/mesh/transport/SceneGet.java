@@ -1,7 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
@@ -9,8 +8,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 /**
  * To be used as a wrapper class when creating a SceneGet message.
  */
-@SuppressWarnings("unused")
-public class SceneGet extends GenericMessage {
+public class SceneGet extends ApplicationMessage {
 
     private static final String TAG = SceneGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_GET;

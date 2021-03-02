@@ -11,8 +11,7 @@ import no.nordicsemi.android.mesh.ApplicationKey;
 /**
  * State class for handling VendorModelMessageAckedState messages.
  */
-@SuppressWarnings({"unused"})
-class VendorModelMessageAckedState extends GenericMessageState {
+class VendorModelMessageAckedState extends ApplicationMessageState {
 
     private static final String TAG = VendorModelMessageAckedState.class.getSimpleName();
 

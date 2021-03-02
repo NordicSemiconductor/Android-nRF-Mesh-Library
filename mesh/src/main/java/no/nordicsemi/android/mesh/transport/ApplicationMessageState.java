@@ -8,14 +8,14 @@ import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 /**
- * Abstract state class that handles Generic Message States
+ * Abstract state class that handles Application Message States
  */
-class GenericMessageState extends MeshMessageState {
+class ApplicationMessageState extends MeshMessageState {
 
     UUID mLabel;
 
     /**
-     * Constructs the generic message state
+     * Constructs the application message state
      *
      * @param src           Source address
      * @param dst           Destination address
@@ -24,16 +24,16 @@ class GenericMessageState extends MeshMessageState {
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
      * @throws IllegalArgumentException if src or dst address is invalid
      */
-    GenericMessageState(final int src,
-                        final int dst,
-                        @NonNull final MeshMessage meshMessage,
-                        @NonNull final MeshTransport meshTransport,
-                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+    ApplicationMessageState(final int src,
+                            final int dst,
+                            @NonNull final MeshMessage meshMessage,
+                            @NonNull final MeshTransport meshTransport,
+                            @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         this(src, dst, null, meshMessage, meshTransport, callbacks);
     }
 
     /**
-     * Constructs the generic message state
+     * Constructs the application message state
      *
      * @param src           Source address
      * @param dst           Destination address
@@ -43,12 +43,12 @@ class GenericMessageState extends MeshMessageState {
      * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
      * @throws IllegalArgumentException if src or dst address is invalid
      */
-    GenericMessageState(final int src,
-                        final int dst,
-                        @Nullable final UUID label,
-                        @NonNull final MeshMessage meshMessage,
-                        @NonNull final MeshTransport meshTransport,
-                        @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
+    ApplicationMessageState(final int src,
+                            final int dst,
+                            @Nullable final UUID label,
+                            @NonNull final MeshMessage meshMessage,
+                            @NonNull final MeshTransport meshTransport,
+                            @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
         super(meshMessage, meshTransport, callbacks);
         this.mSrc = src;
         if (!MeshAddress.isAddressInRange(src)) {
@@ -66,20 +66,20 @@ class GenericMessageState extends MeshMessageState {
      * Creates the access message to be sent
      */
     protected void createAccessMessage() {
-        final GenericMessage genericMessage = (GenericMessage) mMeshMessage;
-        final ApplicationKey key = genericMessage.getAppKey();
-        final int akf = genericMessage.getAkf();
-        final int aid = genericMessage.getAid();
-        final int aszmic = genericMessage.getAszmic();
-        final int opCode = genericMessage.getOpCode();
-        final byte[] parameters = genericMessage.getParameters();
-        message = mMeshTransport.createMeshMessage(mSrc, mDst, mLabel, genericMessage.messageTtl,
+        final ApplicationMessage applicationMessage = (ApplicationMessage) mMeshMessage;
+        final ApplicationKey key = applicationMessage.getAppKey();
+        final int akf = applicationMessage.getAkf();
+        final int aid = applicationMessage.getAid();
+        final int aszmic = applicationMessage.getAszmic();
+        final int opCode = applicationMessage.getOpCode();
+        final byte[] parameters = applicationMessage.getParameters();
+        message = mMeshTransport.createMeshMessage(mSrc, mDst, mLabel, applicationMessage.messageTtl,
                 key, akf, aid, aszmic, opCode, parameters);
-        genericMessage.setMessage(message);
+        applicationMessage.setMessage(message);
     }
 
     @Override
     public MessageState getState() {
-        return MessageState.GENERIC_MESSAGE_STATE;
+        return MessageState.APPLICATION_MESSAGE_STATE;
     }
 }

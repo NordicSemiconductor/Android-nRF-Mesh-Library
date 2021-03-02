@@ -1,15 +1,13 @@
 package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
 /**
  * To be used as a wrapper class when creating an acknowledged VendorMode message.
  */
-@SuppressWarnings("unused")
-public class VendorModelMessageAcked extends GenericMessage {
+public class VendorModelMessageAcked extends ApplicationMessage {
 
     private static final String TAG = VendorModelMessageAcked.class.getSimpleName();
     private static final int VENDOR_MODEL_OPCODE_LENGTH = 4;

@@ -38,7 +38,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
  * To be used as a wrapper class to create generic level status message.
  */
 @SuppressWarnings({"WeakerAccess"})
-public final class GenericLevelStatus extends GenericStatusMessage implements Parcelable {
+public final class GenericLevelStatus extends ApplicationStatusMessage implements Parcelable {
 
     private static final String TAG = GenericLevelStatus.class.getSimpleName();
     private static final int GENERIC_LEVEL_STATUS_MANDATORY_LENGTH = 2;

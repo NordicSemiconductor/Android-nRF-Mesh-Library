@@ -16,7 +16,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a GenericLevelSet message.
  */
 @SuppressWarnings("unused")
-public class GenericLevelSet extends GenericMessage {
+public class GenericLevelSet extends ApplicationMessage {
 
     private static final String TAG = GenericLevelSet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_SET;

@@ -245,11 +245,11 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             createProxyConfigMeshMessage(src, dst, (ProxyConfigMessage) meshMessage);
         } else if (meshMessage instanceof ConfigMessage) {
             createConfigMeshMessage(src, dst, (ConfigMessage) meshMessage);
-        } else if (meshMessage instanceof GenericMessage) {
+        } else if (meshMessage instanceof ApplicationMessage) {
             if (label == null) {
-                createAppMeshMessage(src, dst, (GenericMessage) meshMessage);
+                createAppMeshMessage(src, dst, (ApplicationMessage) meshMessage);
             } else {
-                createAppMeshMessage(src, dst, label, (GenericMessage) meshMessage);
+                createAppMeshMessage(src, dst, label, (ApplicationMessage) meshMessage);
             }
         }
     }
@@ -288,7 +288,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     }
 
     /**
-     * Sends a mesh message specified within the {@link GenericMessage} object
+     * Sends a mesh message specified within the {@link ApplicationMessage} object
      * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
      * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
      * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
@@ -296,28 +296,28 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      *
      * @param src            source address where the message is originating from
      * @param dst            Destination to which the message must be sent to, this could be a unicast address or a group address.
-     * @param genericMessage Mesh message containing the message opcode and message parameters.
+     * @param applicationMessage Mesh message containing the message opcode and message parameters.
      */
-    private void createAppMeshMessage(final int src, final int dst, @NonNull final GenericMessage genericMessage) {
-        final GenericMessageState currentState;
-        if (genericMessage instanceof VendorModelMessageAcked) {
-            currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
-        } else if (genericMessage instanceof VendorModelMessageUnacked) {
-            currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
+    private void createAppMeshMessage(final int src, final int dst, @NonNull final ApplicationMessage applicationMessage) {
+        final ApplicationMessageState currentState;
+        if (applicationMessage instanceof VendorModelMessageAcked) {
+            currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) applicationMessage, getTransport(dst), this);
+        } else if (applicationMessage instanceof VendorModelMessageUnacked) {
+            currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) applicationMessage, getTransport(dst), this);
         } else {
-            currentState = new GenericMessageState(src, dst, genericMessage, getTransport(dst), this);
+            currentState = new ApplicationMessageState(src, dst, applicationMessage, getTransport(dst), this);
         }
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
-            stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
+            stateSparseArray.put(dst, toggleState(getTransport(dst), applicationMessage));
         }
         currentState.executeSend();
     }
 
 
     /**
-     * Sends a mesh message specified within the {@link GenericMessage} object
+     * Sends a mesh message specified within the {@link ApplicationMessage} object
      * <p> This method can be used specifically when sending an application message with a unicast address or a group address.
      * Application messages currently supported in the library are {@link GenericOnOffGet},{@link GenericOnOffSet}, {@link GenericOnOffSetUnacknowledged},
      * {@link GenericLevelGet},  {@link GenericLevelSet},  {@link GenericLevelSetUnacknowledged},
@@ -326,21 +326,21 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param src            source address where the message is originating from
      * @param dst            Destination to which the message must be sent to, this could be a unicast address or a group address.
      * @param label          Label UUID of destination address
-     * @param genericMessage Mesh message containing the message opcode and message parameters.
+     * @param applicationMessage Mesh message containing the message opcode and message parameters.
      */
-    private void createAppMeshMessage(final int src, final int dst, @NonNull UUID label, @NonNull final GenericMessage genericMessage) {
-        final GenericMessageState currentState;
-        if (genericMessage instanceof VendorModelMessageAcked) {
-            currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) genericMessage, getTransport(dst), this);
-        } else if (genericMessage instanceof VendorModelMessageUnacked) {
-            currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) genericMessage, getTransport(dst), this);
+    private void createAppMeshMessage(final int src, final int dst, @NonNull UUID label, @NonNull final ApplicationMessage applicationMessage) {
+        final ApplicationMessageState currentState;
+        if (applicationMessage instanceof VendorModelMessageAcked) {
+            currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) applicationMessage, getTransport(dst), this);
+        } else if (applicationMessage instanceof VendorModelMessageUnacked) {
+            currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) applicationMessage, getTransport(dst), this);
         } else {
-            currentState = new GenericMessageState(src, dst, label, genericMessage, getTransport(dst), this);
+            currentState = new ApplicationMessageState(src, dst, label, applicationMessage, getTransport(dst), this);
         }
         currentState.setTransportCallbacks(mInternalTransportCallbacks);
         currentState.setStatusCallbacks(mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
-            stateSparseArray.put(dst, toggleState(getTransport(dst), genericMessage));
+            stateSparseArray.put(dst, toggleState(getTransport(dst), applicationMessage));
         }
         currentState.executeSend();
     }
