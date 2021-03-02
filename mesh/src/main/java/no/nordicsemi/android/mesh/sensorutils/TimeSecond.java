@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedBytesToInt;
 
 /**
  * The Time Second 8, 16, 24 characteristic is used to represent a general count value.
@@ -17,16 +18,16 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
         this.length = length;
         switch (length) {
             case 1:
-                value = (int) parse(data, offset, length, 0, 254, 0xFF);
+                value = data[offset] & 0xFF;
                 break;
             case 2:
-                value = (int) parse(data, offset, length, 0, 65534, 0xFFFF);
+                value = unsignedBytesToInt(data[offset], data[offset + 1]);
                 break;
             case 4:
-                value = (int) parse(data, offset, length, 0, 4294967294F, 0xFFFFFFFF);
+                value = ((((data[offset + 2] & 0xFF) << 16) | ((data[offset + 1] & 0xFF) << 8) | data[offset] & 0xFF));
                 break;
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Invalid length");
         }
     }
 
