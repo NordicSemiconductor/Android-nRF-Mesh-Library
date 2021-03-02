@@ -1,10 +1,12 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import androidx.annotation.NonNull;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToInt;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedBytesToInt;
 
 /**
@@ -19,12 +21,18 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
         switch (length) {
             case 1:
                 value = data[offset] & 0xFF;
+                if (isNotValid(254, 0xFF))
+                    value = null;
                 break;
             case 2:
                 value = unsignedBytesToInt(data[offset], data[offset + 1]);
+                if (isNotValid(65534, 0xFFFF))
+                    value = null;
                 break;
             case 4:
-                value = ((((data[offset + 2] & 0xFF) << 16) | ((data[offset + 1] & 0xFF) << 8) | data[offset] & 0xFF));
+                value = bytesToInt(Arrays.copyOfRange(data, offset, offset + length), LITTLE_ENDIAN);
+                if (isNotValid(4294967294L, 0xFFFFFFFF))
+                    value = null;
                 break;
             default:
                 throw new IllegalArgumentException("Invalid length");
@@ -53,5 +61,9 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
             case 4:
                 return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putInt(value).array();
         }
+    }
+
+    private boolean isNotValid(final long max, final int unknownValue) {
+        return value == unknownValue || value < 0 || value > max;
     }
 }
