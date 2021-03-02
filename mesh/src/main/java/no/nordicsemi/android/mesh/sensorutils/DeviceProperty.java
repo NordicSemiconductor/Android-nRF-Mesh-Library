@@ -960,6 +960,8 @@ public enum DeviceProperty {
                                                                     int offset,
                                                                     final int length) {
         switch (deviceProperty) {
+            case PRESENCE_DETECTED:
+                return data.length == 0 ? new Bool(false) : new Bool(data[offset] == 0x01);
             case LIGHT_CONTROL_REGULATOR_ACCURACY:
             case OUTPUT_RIPPLE_VOLTAGE_SPECIFICATION:
             case INPUT_VOLTAGE_RIPPLE_SPECIFICATION:

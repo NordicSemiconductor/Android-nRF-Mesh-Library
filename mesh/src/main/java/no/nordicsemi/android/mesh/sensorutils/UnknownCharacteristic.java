@@ -26,7 +26,7 @@ public class UnknownCharacteristic extends DevicePropertyCharacteristic<byte[]> 
     @NonNull
     @Override
     public String toString() {
-        return MeshParserUtils.bytesToHex(value, true);
+        return value.length == 0 ? "Empty" : MeshParserUtils.bytesToHex(value, true);
     }
 
     @Override
