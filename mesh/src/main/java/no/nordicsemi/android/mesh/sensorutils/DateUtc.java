@@ -15,7 +15,7 @@ public class DateUtc extends DevicePropertyCharacteristic<Date> {
     public DateUtc(@NonNull final byte[] data, final int offset) {
         super(data, offset);
         final int tempDate = ((((data[offset + 2] & 0xFF) << 16) | ((data[offset + 1] & 0xFF) << 8) | data[offset] & 0xFF));
-        if (tempDate < 1 || tempDate > 16777214){
+        if (tempDate < 1 || tempDate > 16777214) {
             value = null;
         } else {
             value = new Date((long) (tempDate * 86400000L));
@@ -29,7 +29,7 @@ public class DateUtc extends DevicePropertyCharacteristic<Date> {
     @NonNull
     @Override
     public String toString() {
-        return DateFormat.getDateInstance().format(value);
+        return value == null ? null : DateFormat.getDateInstance().format(value);
     }
 
     @Override

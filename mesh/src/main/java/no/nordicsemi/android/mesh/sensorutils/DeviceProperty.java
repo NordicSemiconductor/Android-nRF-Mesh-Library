@@ -1030,6 +1030,7 @@ public enum DeviceProperty {
             case LIGHT_CONTROL_REGULATOR_KIU:
             case LIGHT_CONTROL_REGULATOR_KPD:
             case LIGHT_CONTROL_REGULATOR_KPU:
+            case SENSOR_GAIN:
                 return new Coefficient(data, offset);
             case DEVICE_FIRMWARE_REVISION:
             case DEVICE_SOFTWARE_REVISION:

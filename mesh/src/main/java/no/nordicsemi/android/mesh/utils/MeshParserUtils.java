@@ -291,7 +291,7 @@ public class MeshParserUtils {
     }
 
     public static int convert24BitsToInt(@NonNull final byte[] byteArray, final int offset) {
-        if (byteArray.length - offset >= 3)
+        if (byteArray.length - offset < 3)
             throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");
         return (((byteArray[offset] & 0xFF) << 16) | ((byteArray[offset + 1] & 0xFF) << 8) | (byteArray[offset + 2] & 0xFF));
     }
