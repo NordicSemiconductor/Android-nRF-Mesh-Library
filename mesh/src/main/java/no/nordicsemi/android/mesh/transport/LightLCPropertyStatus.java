@@ -31,18 +31,20 @@ import java.nio.ByteOrder;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.DevicePropertyCharacteristic;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 /**
  * LightLCPropertyStatus
  */
 @SuppressWarnings({"WeakerAccess"})
-public final class LightLCPropertyStatus extends GenericStatusMessage implements Parcelable {
+public final class LightLCPropertyStatus extends ApplicationStatusMessage implements Parcelable {
 
     private static final String TAG = LightLCPropertyStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_PROPERTY_STATUS;
-    private short property;
-    private byte[] value;
+    private DeviceProperty property;
+    private DevicePropertyCharacteristic<?> characteristic;
 
     private static final Creator<LightLCPropertyStatus> CREATOR = new Creator<LightLCPropertyStatus>() {
         @Override
@@ -72,8 +74,10 @@ public final class LightLCPropertyStatus extends GenericStatusMessage implements
     void parseStatusParameters() {
         Log.v(TAG, "Received light lc mode status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        property = buffer.getShort();
-        value = buffer.array();
+        property = DeviceProperty.from(buffer.getShort());
+        final byte[] value = new byte[mParameters.length - 2];
+        buffer.get(value, 2, value.length);
+        characteristic = DeviceProperty.getCharacteristic(property, value, 0, value.length);
     }
 
     @Override
@@ -92,11 +96,17 @@ public final class LightLCPropertyStatus extends GenericStatusMessage implements
         dest.writeParcelable(message, flags);
     }
 
-    public short getProperty() {
+    /**
+     * Returns the device property.
+     */
+    public DeviceProperty getProperty() {
         return property;
     }
 
-    public byte[] getValue() {
-        return value;
+    /**
+     * Returns the device property characteristic for a given device property
+     */
+    public DevicePropertyCharacteristic<?> getValue() {
+        return characteristic;
     }
 }

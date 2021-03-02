@@ -7,28 +7,32 @@ import java.nio.ByteOrder;
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.DevicePropertyCharacteristic;
 
 /**
  * LightLCPropertySetUnacknowledged
  */
 @SuppressWarnings("unused")
-public class LightLCPropertySetUnacknowledged extends GenericMessage {
+public class LightLCPropertySetUnacknowledged extends ApplicationMessage {
 
     private static final String TAG = LightLCPropertySetUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_PROPERTY_SET_UNACKNOWLEDGED;
-    private final short property;
-    private final byte[] value;
+    private final DeviceProperty property;
+    private final DevicePropertyCharacteristic<?> characteristic;
 
     /**
-     * Constructs LightLCPropertySetUnacknowledged message.
+     * Constructs LightLCPropertySet message.
      *
-     * @param appKey {@link ApplicationKey} key for this message
+     * @param appKey         {@link ApplicationKey} key for this message
+     * @param property       Sensor Property
+     * @param characteristic Characteristic for device property
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLCPropertySetUnacknowledged(@NonNull final ApplicationKey appKey, final short property, @NonNull final byte[] value) throws IllegalArgumentException {
+    public LightLCPropertySetUnacknowledged(@NonNull final ApplicationKey appKey, @NonNull final DeviceProperty property, @NonNull final DevicePropertyCharacteristic<?> characteristic) throws IllegalArgumentException {
         super(appKey);
         this.property = property;
-        this.value = value;
+        this.characteristic = characteristic;
         assembleMessageParameters();
     }
 
@@ -40,6 +44,6 @@ public class LightLCPropertySetUnacknowledged extends GenericMessage {
     @Override
     void assembleMessageParameters() {
         mAid = (byte) mAppKey.getAid();
-        mParameters = ByteBuffer.allocate(2 + value.length).order(ByteOrder.LITTLE_ENDIAN).putShort(property).put(value).array();
+        mParameters = ByteBuffer.allocate(2 + characteristic.getLength()).order(ByteOrder.LITTLE_ENDIAN).putShort(property.getPropertyId()).put(characteristic.getBytes()).array();
     }
 }

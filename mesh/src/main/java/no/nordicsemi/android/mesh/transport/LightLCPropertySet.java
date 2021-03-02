@@ -7,17 +7,19 @@ import java.nio.ByteOrder;
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
+import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
+import no.nordicsemi.android.mesh.sensorutils.DevicePropertyCharacteristic;
 
 /**
  * LightLCPropertySet
  */
 @SuppressWarnings("unused")
-public class LightLCPropertySet extends GenericMessage {
+public class LightLCPropertySet extends ApplicationMessage {
 
     private static final String TAG = LightLCPropertySet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_PROPERTY_SET;
-    private final short property;
-    private final byte[] value;
+    private final DeviceProperty property;
+    private final DevicePropertyCharacteristic<?> characteristic;
 
     /**
      * Constructs LightLCPropertySet message.
@@ -25,10 +27,10 @@ public class LightLCPropertySet extends GenericMessage {
      * @param appKey {@link ApplicationKey} key for this message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public LightLCPropertySet(@NonNull final ApplicationKey appKey, final short property, @NonNull final byte[] value) throws IllegalArgumentException {
+    public LightLCPropertySet(@NonNull final ApplicationKey appKey, @NonNull final DeviceProperty property, @NonNull final DevicePropertyCharacteristic<?> characteristic) throws IllegalArgumentException {
         super(appKey);
         this.property = property;
-        this.value = value;
+        this.characteristic = characteristic;
         assembleMessageParameters();
     }
 
@@ -40,6 +42,6 @@ public class LightLCPropertySet extends GenericMessage {
     @Override
     void assembleMessageParameters() {
         mAid = (byte) mAppKey.getAid();
-        mParameters = ByteBuffer.allocate(2 + value.length).order(ByteOrder.LITTLE_ENDIAN).putShort(property).put(value).array();
+        mParameters = ByteBuffer.allocate(2 + characteristic.getLength()).order(ByteOrder.LITTLE_ENDIAN).putShort(property.getPropertyId()).put(characteristic.getBytes()).array();
     }
 }
