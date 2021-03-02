@@ -34,7 +34,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
  * LightLCModeStatus
  */
 @SuppressWarnings({"WeakerAccess"})
-public final class LightLCModeStatus extends GenericStatusMessage implements Parcelable {
+public final class LightLCModeStatus extends ApplicationStatusMessage implements Parcelable {
 
     private static final String TAG = LightLCModeStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_MODE_STATUS;

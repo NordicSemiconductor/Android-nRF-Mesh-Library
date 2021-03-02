@@ -9,7 +9,7 @@ import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
  * LightLCOccupancyModeSetUnacknowledged
  */
 @SuppressWarnings("unused")
-public class LightLCOccupancyModeSetUnacknowledged extends GenericMessage {
+public class LightLCOccupancyModeSetUnacknowledged extends ApplicationMessage {
 
     private static final String TAG = LightLCOccupancyModeSetUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_OCCUPANCY_MODE_SET_UNACKNOWLEDGED;

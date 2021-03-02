@@ -38,7 +38,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
  * To be used as a wrapper class for when creating the GenericOnOffStatus Message.
  */
 @SuppressWarnings({"WeakerAccess"})
-public final class LightLCLightOnOffStatus extends GenericStatusMessage implements Parcelable {
+public final class LightLCLightOnOffStatus extends ApplicationStatusMessage implements Parcelable {
 
     private static final String TAG = LightLCLightOnOffStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_STATUS;

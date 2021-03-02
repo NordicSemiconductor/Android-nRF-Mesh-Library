@@ -9,7 +9,7 @@ import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
  * To be used as a wrapper class to create light ctl get message.
  */
 @SuppressWarnings("unused")
-public class LightLCLightOnOffGet extends GenericMessage {
+public class LightLCLightOnOffGet extends ApplicationMessage {
 
     private static final String TAG = LightLCLightOnOffGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_GET;

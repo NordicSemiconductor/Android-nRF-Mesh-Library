@@ -15,7 +15,7 @@ import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
  * LightLCLightOnOffSet
  */
 @SuppressWarnings("unused")
-public class LightLCLightOnOffSet extends GenericMessage {
+public class LightLCLightOnOffSet extends ApplicationMessage {
 
     private static final String TAG = LightLCLightOnOffSet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_LC_LIGHT_ON_OFF_SET;
