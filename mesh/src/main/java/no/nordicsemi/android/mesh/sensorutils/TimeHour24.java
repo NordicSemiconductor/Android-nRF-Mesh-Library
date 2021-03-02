@@ -1,6 +1,7 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convertIntTo24Bits;
 
@@ -9,6 +10,7 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convertIntTo24Bit
  */
 public class TimeHour24 extends DevicePropertyCharacteristic<Integer> {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TimeHour24(@NonNull final byte[] data, final int offset) {
         super(data, offset);
         value = (data[offset + 2] & 0xFF) << 16 | (data[offset + 1] & 0xFF) << 8 | data[offset] & 0xFF;
@@ -16,6 +18,10 @@ public class TimeHour24 extends DevicePropertyCharacteristic<Integer> {
             value = null;
     }
 
+    /**
+     * TimeHour 24 characteristic
+     * @param timeHour24 time in hours
+     */
     public TimeHour24(final int timeHour24) {
         value = timeHour24;
     }

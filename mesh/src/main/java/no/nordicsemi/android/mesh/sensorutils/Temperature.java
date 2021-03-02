@@ -5,6 +5,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedToSigned;
@@ -13,6 +14,7 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
     private static final String TAG = Temperature.class.getSimpleName();
     private final int length;
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Temperature(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         this.length = length;
@@ -45,7 +47,11 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
         }
     }
 
-    public Temperature(@NonNull final Float temperature) {
+    /**
+     * Temperature characteristic for Temperature and Temperature 8
+     * @param temperature temperature
+     */
+    public Temperature(final float temperature) {
         final int length = Float.floatToIntBits(temperature) / 8;
         if (length != 1 && length != 2) {
             throw new IllegalArgumentException("Illegal length");

@@ -1,12 +1,14 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * The Boolean characteristic defines the predefined Boolean values as an enumeration.
  */
 public class Bool extends DevicePropertyCharacteristic<Boolean> {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Bool(@NonNull final byte[] data, final int offset) {
         super(data, offset);
         final int bool = data[offset] & 0xFF;
@@ -16,6 +18,11 @@ public class Bool extends DevicePropertyCharacteristic<Boolean> {
         value = bool == 1;
     }
 
+    /**
+     * Boolean characteristic
+     *
+     * @param flag true of false
+     */
     public Bool(final boolean flag) {
         value = flag;
     }

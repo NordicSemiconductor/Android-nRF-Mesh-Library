@@ -3,6 +3,7 @@ package no.nordicsemi.android.mesh.sensorutils;
 import java.nio.ByteBuffer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convert24BitsToInt;
@@ -16,6 +17,7 @@ public class Count extends DevicePropertyCharacteristic<Integer> {
 
     private static final String TAG = Count.class.getSimpleName();
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Count(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         switch (length) {
@@ -34,6 +36,11 @@ public class Count extends DevicePropertyCharacteristic<Integer> {
         }
     }
 
+    /**
+     * Count16 and 24 characteristic
+     *
+     * @param count Count
+     */
     public Count(final int count) {
         value = count;
     }

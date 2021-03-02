@@ -3,15 +3,22 @@ package no.nordicsemi.android.mesh.sensorutils;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 public class UnknownCharacteristic extends DevicePropertyCharacteristic<byte[]> {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public UnknownCharacteristic(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         value = Arrays.copyOfRange(data, offset, offset + length);
     }
 
+    /**
+     * UnknownCharacteristic for unsupported characteristics
+     *
+     * @param data byte array
+     */
     public UnknownCharacteristic(@NonNull final byte[] data) {
         value = data;
     }

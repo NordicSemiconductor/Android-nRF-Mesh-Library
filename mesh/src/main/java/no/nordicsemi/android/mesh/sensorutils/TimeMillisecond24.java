@@ -1,6 +1,7 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
@@ -8,6 +9,7 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
  */
 public class TimeMillisecond24 extends DevicePropertyCharacteristic<Float> {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TimeMillisecond24(@NonNull final byte[] data, final int offset) {
         super(data, offset);
         final int tempValue = (data[offset + 2] & 0xFF) << 16 | (data[offset + 1] & 0xFF) << 8 | data[offset] & 0xFF;
@@ -19,6 +21,11 @@ public class TimeMillisecond24 extends DevicePropertyCharacteristic<Float> {
 
     }
 
+    /**
+     * Time Milliseconds 24 characteristic
+     *
+     * @param seconds time in seconds
+     */
     public TimeMillisecond24(final float seconds) {
         value = seconds;
     }

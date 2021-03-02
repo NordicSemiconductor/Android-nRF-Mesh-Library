@@ -15,6 +15,11 @@ public class Illuminance extends DevicePropertyCharacteristic<Float> {
             value = null;
     }
 
+    /**
+     * Illuminance characteristic.
+     *
+     * @param illuminance Illuminance
+     */
     public Illuminance(final float illuminance) {
         value = illuminance;
     }

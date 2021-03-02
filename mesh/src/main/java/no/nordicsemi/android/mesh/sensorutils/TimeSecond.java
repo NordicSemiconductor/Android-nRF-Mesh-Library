@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToInt;
@@ -15,6 +16,7 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedBytesToIn
 public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
     private final int length;
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TimeSecond(@NonNull final byte[] data, final int offset, final int length) {
         super(data, offset, length);
         this.length = length;
@@ -39,6 +41,16 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
         }
     }
 
+    /**
+     * TimeSecond 8, 16, 32 characteristic
+     *
+     * @param timeSecond time in seconds
+     */
+    public TimeSecond(final int timeSecond) {
+        value = timeSecond;
+        length = Integer.bitCount(timeSecond) / 8;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -57,9 +69,10 @@ public class TimeSecond extends DevicePropertyCharacteristic<Integer> {
                 return new byte[]{value.byteValue()};
             case 2:
                 return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putShort(value.shortValue()).array();
-            default:
             case 4:
                 return ByteBuffer.allocate(getLength()).order(LITTLE_ENDIAN).putInt(value).array();
+            default:
+                throw new IllegalArgumentException("Invalid length");
         }
     }
 

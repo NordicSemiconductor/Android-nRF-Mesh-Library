@@ -22,6 +22,11 @@ public class DateUtc extends DevicePropertyCharacteristic<Date> {
         }
     }
 
+    /**
+     * DateUtc characteristic.
+     *
+     * @param date Date
+     */
     public DateUtc(final Date date) {
         value = date;
     }
