@@ -4,7 +4,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.convertIntTo24Bits;
 
 /**
  * Date as days elapsed since the Epoch (Jan 1, 1970) in the Coordinated Universal Time (UTC) time zone.
@@ -13,7 +14,12 @@ public class DateUtc extends DevicePropertyCharacteristic<Date> {
 
     public DateUtc(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        value = new Date((long) parse(data, offset, getLength(), 0, 16777214, 0x000000) * 86400000L);
+        final int tempDate = ((((data[offset + 2] & 0xFF) << 16) | ((data[offset + 1] & 0xFF) << 8) | data[offset] & 0xFF));
+        if (tempDate == 0x000000 || tempDate < 1 || tempDate > 16777214){
+            value = null;
+        } else {
+            value = new Date((long) (tempDate * 86400000L));
+        }
     }
 
     public DateUtc(final Date date) {
@@ -33,6 +39,6 @@ public class DateUtc extends DevicePropertyCharacteristic<Date> {
 
     @Override
     public byte[] getBytes() {
-        return MeshParserUtils.convertIntTo24Bits((int) (value.getTime() / 86400000L));
+        return convertIntTo24Bits((int) (value.getTime() / 86400000L));
     }
 }
