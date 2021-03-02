@@ -5,7 +5,6 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 /**
@@ -15,7 +14,7 @@ public class Coefficient extends DevicePropertyCharacteristic<Float> {
 
     public Coefficient(@NonNull final byte[] data, final int offset) {
         super(data, offset);
-        value = ByteBuffer.wrap(data).order(BIG_ENDIAN).getFloat(offset);
+        value = ByteBuffer.wrap(data).order(LITTLE_ENDIAN).getFloat(offset);
     }
 
     public Coefficient(final float coefficient) {
