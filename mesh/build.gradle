@@ -29,7 +29,7 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 75
+        versionCode 76
         versionName VERSION_NAME
 
         javaCompileOptions {
@@ -58,7 +58,7 @@ android {
 
 dependencies {
     // Required -- JUnit 4 framework
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.7.7'
     androidTestImplementation 'org.mockito:mockito-android:3.7.7'
     implementation 'androidx.annotation:annotation:1.1.0'
@@ -77,4 +77,4 @@ repositories {
     mavenCentral()
 }
 
-apply from: rootProject.file('gradle/gradle-bintray-push.gradle')
+//apply from: rootProject.file('gradle/gradle-bintray-push.gradle')

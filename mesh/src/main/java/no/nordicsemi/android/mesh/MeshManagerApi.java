@@ -715,8 +715,9 @@ public class MeshManagerApi implements MeshMngrApi {
         for (NetworkKey key : mMeshNetwork.netKeys) {
             if (Arrays.equals(advertisedHash, SecureUtils.
                     calculateHash(key.getIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()))) ||
-                    Arrays.equals(advertisedHash, SecureUtils.
-                            calculateHash(key.getOldIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress()))))
+                    (key.getOldIdentityKey() != null &&
+                            Arrays.equals(advertisedHash, SecureUtils.
+                                    calculateHash(key.getOldIdentityKey(), random, MeshAddress.addressIntToBytes(meshNode.getUnicastAddress())))))
                 return true;
         }
         return false;
