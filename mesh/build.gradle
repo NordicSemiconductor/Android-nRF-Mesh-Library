@@ -77,4 +77,4 @@ repositories {
     mavenCentral()
 }
 
-apply from: rootProject.file('gradle/gradle-bintray-push.gradle')
+//apply from: rootProject.file('gradle/gradle-bintray-push.gradle')
