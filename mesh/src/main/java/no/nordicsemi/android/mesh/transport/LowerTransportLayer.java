@@ -498,12 +498,12 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                     //Add +1 to segN since its zero based
                     if (receivedSegmentedMessageCount != (segN + 1)) {
                         restartIncompleteTimer();
+                        mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                         Log.v(TAG, "Restarting incomplete timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
 
                         //Start acknowledgement calculation and timer only for messages directed to a unicast address.
                         //We also have to make sure we restart the acknowledgement timer only if the acknowledgement timer is not active and the incomplete timer is active
                         if (MeshAddress.isValidUnicastAddress(dst) && !mSegmentedAccessAcknowledgementTimerStarted) {
-                            mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                             Log.v(TAG, "Restarting block acknowledgement timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
                             //Start the block acknowledgement timer irrespective of which segment was received first
                             initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
