@@ -3,6 +3,7 @@ package no.nordicsemi.android.nrfmesh.node;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 
 import androidx.core.content.ContextCompat;
@@ -22,6 +23,8 @@ import no.nordicsemi.android.nrfmesh.databinding.LayoutSensorsBinding;
 
 @AndroidEntryPoint
 public class SensorServerActivity extends ModelConfigurationActivity {
+
+    private static final String TAG = SensorServerActivity.class.getSimpleName();
 
     private LayoutSensorsBinding sensorsBinding;
 
@@ -55,18 +58,23 @@ public class SensorServerActivity extends ModelConfigurationActivity {
             DeviceProperty deviceProperty;
             DevicePropertyCharacteristic<?> characteristic;
             for (MarshalledSensorData sensorData : status.getMarshalledSensorData()) {
-                deviceProperty = sensorData.getMarshalledPropertyId().getPropertyId();
-                characteristic = DeviceProperty.
-                        getCharacteristic(deviceProperty, sensorData.getRawValues(), 0, sensorData.getRawValues().length);
-                final LayoutContainerBinding binding = LayoutContainerBinding.inflate(getLayoutInflater(), sensorsBinding.sensorInfoContainer, false);
-                binding.getRoot().setClickable(false);
-                binding.image.setImageDrawable(drawable);
-                binding.title.setText(DeviceProperty.getPropertyName(deviceProperty));
-                binding.title.setEllipsize(TextUtils.TruncateAt.END);
-                binding.title.setMaxLines(1);
-                binding.text.setText(characteristic.toString());
-                binding.text.setVisibility(View.VISIBLE);
-                sensorsBinding.sensorInfoContainer.addView(binding.getRoot());
+                try {
+                    deviceProperty = sensorData.getMarshalledPropertyId().getPropertyId();
+                    characteristic = DeviceProperty.
+                            getCharacteristic(deviceProperty, sensorData.getRawValues(), 0, sensorData.getRawValues().length);
+                    final LayoutContainerBinding binding = LayoutContainerBinding.inflate(getLayoutInflater(), sensorsBinding.sensorInfoContainer, false);
+                    binding.getRoot().setClickable(false);
+                    binding.image.setImageDrawable(drawable);
+                    binding.title.setText(DeviceProperty.getPropertyName(deviceProperty));
+                    binding.title.setEllipsize(TextUtils.TruncateAt.END);
+                    binding.title.setMaxLines(1);
+                    binding.text.setText(characteristic.toString());
+                    binding.text.setVisibility(View.VISIBLE);
+                    sensorsBinding.sensorInfoContainer.addView(binding.getRoot());
+                } catch (Exception ex) {
+                    Log.e(TAG, "Error while parsing sensor data: " + ex.toString());
+                }
+
             }
             mViewModel.removeMessage();
             handleStatuses();

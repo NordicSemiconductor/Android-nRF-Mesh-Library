@@ -69,7 +69,7 @@ public abstract class AddKeysActivity extends BaseActivity implements SwipeRefre
         binding = ActivityAddKeysBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(AddKeysViewModel.class);
-        init();
+        initialize();
         mHandler = new Handler(Looper.getMainLooper());
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

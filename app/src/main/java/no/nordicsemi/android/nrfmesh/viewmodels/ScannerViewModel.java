@@ -22,18 +22,21 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
 
 /**
  * ViewModel for {@link ScannerActivity}
  */
+@HiltViewModel
 public class ScannerViewModel extends BaseViewModel {
 
     private final ScannerRepository mScannerRepository;
 
-    @ViewModelInject
+    @Inject
     ScannerViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
         super(nrfMeshRepository);
         this.mScannerRepository = scannerRepository;

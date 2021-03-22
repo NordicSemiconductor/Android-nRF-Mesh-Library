@@ -13,6 +13,7 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
+
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected BaseViewModel mViewModel;
@@ -80,7 +81,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         return false;
     }
 
-    protected final void init() {
+    protected final void initialize() {
         mHandler = new Handler(Looper.getMainLooper());
         mViewModel.isConnectedToProxy().observe(this, isConnected -> {
             if (isConnected != null) {

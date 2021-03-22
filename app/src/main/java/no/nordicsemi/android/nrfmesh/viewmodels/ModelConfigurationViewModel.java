@@ -22,8 +22,10 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.models.SigModelParser;
 import no.nordicsemi.android.mesh.transport.ConfigBeaconGet;
@@ -47,9 +49,10 @@ import no.nordicsemi.android.nrfmesh.node.VendorModelActivity;
  * {@link GenericOnOffServerActivity}, {@link GenericLevelServerActivity}, {@link VendorModelActivity},
  * {@link GenericModelConfigurationActivity}
  */
+@HiltViewModel
 public class ModelConfigurationViewModel extends BaseViewModel {
 
-    @ViewModelInject
+    @Inject
     ModelConfigurationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

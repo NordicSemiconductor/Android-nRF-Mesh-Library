@@ -1,7 +1,9 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
@@ -10,9 +12,10 @@ import no.nordicsemi.android.nrfmesh.keys.NetKeysActivity;
 /**
  * ViewModel for {@link NetKeysActivity}, {@link AppKeysActivity}
  */
+@HiltViewModel
 public class AddKeysViewModel extends BaseViewModel {
 
-    @ViewModelInject
+    @Inject
     AddKeysViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

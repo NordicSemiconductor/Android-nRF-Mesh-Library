@@ -1,16 +1,19 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 
 /**
  * ViewModel for {@link AppKeysActivity}
  */
+@HiltViewModel
 public class ProvisionersViewModel extends BaseViewModel {
 
-    @ViewModelInject
+    @Inject
     ProvisionersViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

@@ -56,7 +56,7 @@ public class PublicationSettingsActivity extends BaseActivity implements
         setContentView(binding.getRoot());
         final PublicationViewModel viewModel = new ViewModelProvider(this).get(PublicationViewModel.class);
         mViewModel = viewModel;
-        init();
+        initialize();
 
         final MeshModel meshModel = viewModel.getSelectedModel().getValue();
         if (meshModel == null)
