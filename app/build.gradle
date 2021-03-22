@@ -31,7 +31,7 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 76
+        versionCode 77
         versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -85,7 +85,7 @@ dependencies {
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
 
     annotationProcessor "com.google.dagger:hilt-android-compiler:$hilt_version"
-    annotationProcessor 'androidx.hilt:hilt-compiler:1.0.0-alpha03'
+    annotationProcessor 'androidx.hilt:hilt-compiler:1.0.0-beta01'
 
     //implementation 'no.nordicsemi.android:mesh:3.1.1'
     implementation project(':mesh')
