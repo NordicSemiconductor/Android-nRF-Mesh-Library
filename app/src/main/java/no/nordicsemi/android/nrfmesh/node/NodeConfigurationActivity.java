@@ -92,7 +92,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
         binding = ActivityNodeConfigurationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(NodeConfigurationViewModel.class);
-        init();
+        initialize();
 
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(PROGRESS_BAR_STATE)) {

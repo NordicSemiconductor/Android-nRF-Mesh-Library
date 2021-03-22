@@ -25,9 +25,11 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 import java.util.List;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationSet;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationVirtualAddressSet;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -49,12 +51,11 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.RESOLUTION_1_S;
 /**
  * View Model class for {@link PublicationSettingsActivity}
  */
+@HiltViewModel
 public class PublicationViewModel extends BaseViewModel {
     private static final int DEFAULT_PUB_RETRANSMIT_COUNT = 1;
     private static final int DEFAULT_PUB_RETRANSMIT_INTERVAL_STEPS = 1;
     private static final int DEFAULT_PUBLICATION_STEPS = 0;
-    @SuppressWarnings("unused")
-    private static final int DEFAULT_PUBLICATION_RESOLUTION = MeshParserUtils.RESOLUTION_100_MS;
 
     private UUID labelUUID;
     private int publishAddress;
@@ -69,7 +70,7 @@ public class PublicationViewModel extends BaseViewModel {
 
     private int lastValue = 0;
 
-    @ViewModelInject
+    @Inject
     PublicationViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

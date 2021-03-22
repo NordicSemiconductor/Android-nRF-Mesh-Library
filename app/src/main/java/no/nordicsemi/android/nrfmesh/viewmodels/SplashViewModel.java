@@ -22,16 +22,19 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.nrfmesh.SplashScreenActivity;
 
 /**
  * ViewModel for {@link SplashScreenActivity}
  */
+@HiltViewModel
 public class SplashViewModel extends BaseViewModel {
 
-    @ViewModelInject
+    @Inject
     SplashViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

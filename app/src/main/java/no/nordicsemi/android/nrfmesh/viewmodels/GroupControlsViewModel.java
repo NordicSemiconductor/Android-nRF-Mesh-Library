@@ -22,20 +22,23 @@
 
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.nrfmesh.GroupControlsActivity;
 
 /**
  * ViewModel for {@link GroupControlsActivity}
  */
+@HiltViewModel
 public class GroupControlsViewModel extends BaseViewModel {
 
     private final ScannerRepository mScannerRepository;
 
-    @ViewModelInject
+    @Inject
     GroupControlsViewModel(@NonNull final NrfMeshRepository nrfMeshRepository, @NonNull final ScannerRepository scannerRepository) {
         super(nrfMeshRepository);
         this.mScannerRepository = scannerRepository;

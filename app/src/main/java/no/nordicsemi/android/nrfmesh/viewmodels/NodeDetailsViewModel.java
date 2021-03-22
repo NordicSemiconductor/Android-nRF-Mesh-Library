@@ -23,7 +23,6 @@
 package no.nordicsemi.android.nrfmesh.viewmodels;
 
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
 
 /**
@@ -31,7 +30,6 @@ import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
  */
 public class NodeDetailsViewModel extends BaseViewModel {
 
-    @ViewModelInject
     NodeDetailsViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }
