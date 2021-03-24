@@ -130,6 +130,7 @@ public class MeshManagerApi implements MeshMngrApi {
     private GroupsDao mGroupsDao;
     private SceneDao mSceneDao;
     private ScenesDao mScenesDao;
+    private boolean isNetworkImportInProgress = false;
 
     private final Runnable mProxyProtocolTimeoutRunnable = new Runnable() {
         @Override
@@ -926,8 +927,11 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void importMeshNetwork(@NonNull final Uri uri) {
         try {
+            isNetworkImportInProgress = true;
             importMeshNetworkJson(mImportExportUtils.readJsonStringFromUri(mContext.getContentResolver(), uri));
+            isNetworkImportInProgress = false;
         } catch (Exception ex) {
+            isNetworkImportInProgress = false;
             mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
     }
@@ -935,6 +939,7 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public void importMeshNetworkJson(@NonNull String networkJson) {
         try {
+            isNetworkImportInProgress = true;
             final MeshNetwork importedNetwork = mImportExportUtils.importNetwork(networkJson);
             importedNetwork.setCallbacks(callbacks);
             final MeshNetwork network = mMeshNetworkDb.getMeshNetwork(mMeshNetworkDao, importedNetwork.getMeshUUID());
@@ -954,7 +959,9 @@ public class MeshManagerApi implements MeshMngrApi {
             insertNetwork(importedNetwork);
             mMeshNetwork = importedNetwork;
             mMeshManagerCallbacks.onNetworkImported(importedNetwork);
+            isNetworkImportInProgress = false;
         } catch (Exception ex) {
+            isNetworkImportInProgress = false;
             mMeshManagerCallbacks.onNetworkImportFailed(ex.getMessage());
         }
     }
@@ -1048,7 +1055,6 @@ public class MeshManagerApi implements MeshMngrApi {
                     }
                 }
             }
-            mMeshNetwork.setTimestamp(System.currentTimeMillis());
             mMeshNetworkDb.update(mMeshNetwork, mMeshNetworkDao, mNetworkKeysDao, mApplicationKeysDao, mProvisionersDao, mProvisionedNodesDao,
                     mGroupsDao, mScenesDao);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
@@ -1205,6 +1211,9 @@ public class MeshManagerApi implements MeshMngrApi {
         // mMeshNetwork.sequenceNumbers.delete(meshNode.getUnicastAddress());
         mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
         mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+        mMeshNetwork.setTimestamp(System.currentTimeMillis());
+        mMeshNetworkDb.update(mMeshNetworkDao, mMeshNetwork);
+        mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
     }
 
     /**
@@ -1213,7 +1222,8 @@ public class MeshManagerApi implements MeshMngrApi {
     private final MeshNetworkCallbacks callbacks = new MeshNetworkCallbacks() {
         @Override
         public void onMeshNetworkUpdated() {
-            mMeshNetwork.setTimestamp(System.currentTimeMillis());
+            if (!isNetworkImportInProgress)
+                mMeshNetwork.setTimestamp(System.currentTimeMillis());
             mMeshNetworkDb.update(mMeshNetworkDao, mMeshNetwork);
             mMeshManagerCallbacks.onNetworkUpdated(mMeshNetwork);
         }
@@ -1281,7 +1291,6 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
             deleteNode(meshNode);
-            onMeshNetworkUpdated();
         }
 
         @Override
