@@ -55,14 +55,9 @@ public class DialogFragmentCreateScene extends DialogFragmentScene {
         final AlertDialog alertDialog = (AlertDialog) super.onCreateDialog(savedInstanceState);
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String name = binding.nameInput.getEditableText().toString().trim();
-            final String number = binding.numberInput.getEditableText().toString().trim();
             try {
-                if (validateInput(name, number)) {
+                if (validateInput(name)) {
                     mScene.setName(name);
-                    final int val = Integer.parseInt(number, 16);
-                    if (mScene.getNumber() != val) {
-                        mScene.setNumber(val);
-                    }
                     if (((SceneCallbacks) requireActivity()).onSceneAdded(mScene)) {
                         dismiss();
                     }

@@ -28,6 +28,7 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,7 @@ import no.nordicsemi.android.mesh.R;
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
 
@@ -740,6 +741,20 @@ public class MeshParserUtils {
      */
     public static String formatTimeStamp(final long timestamp) {
         return SDF.format(new Date(timestamp));
+    }
+
+    /**
+     * Formats the timestamp
+     *
+     * @param timestamp timestamp
+     */
+    public static long parseTimeStamp(final String timestamp) {
+        try {
+            final Date date = SDF.parse(timestamp);
+            return date != null ? date.getTime() : 0L;
+        } catch (ParseException e) {
+            return 0L;
+        }
     }
 
     public static boolean isNodeKeyExists(@NonNull final List<NodeKey> keys, final int index) {
