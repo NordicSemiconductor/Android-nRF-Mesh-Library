@@ -138,7 +138,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             binding.groupAddressLayout.setEnabled(isChecked);
             binding.groupAddressLayout.setError(null);
             binding.groupContainer.groups.setEnabled(!isChecked);
-            binding.groupContainer.radioCreateGroup.setChecked(!isChecked);
+            binding.groupContainer.radioSelectGroup.setChecked(!isChecked);
         });
 
         final GroupAdapterSpinner adapter = new GroupAdapterSpinner(mGroups);
