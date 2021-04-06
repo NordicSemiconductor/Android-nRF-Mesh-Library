@@ -26,7 +26,6 @@ import no.nordicsemi.android.nrfmesh.scenes.dialog.BottomSheetSceneRecallDialogF
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 @AndroidEntryPoint
@@ -48,9 +47,11 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         if (model != null) {
             final SceneServer sceneServer = (SceneServer) model;
             if (!sceneServer.getScenesNumbers().isEmpty()) {
-                layoutSceneServerBinding.noCurrentSceneAvailable.setVisibility(INVISIBLE);
+                layoutSceneServerBinding.noCurrentSceneAvailable.setVisibility(GONE);
+                layoutSceneServerBinding.recyclerViewScenes.setVisibility(VISIBLE);
             } else {
                 layoutSceneServerBinding.noCurrentSceneAvailable.setVisibility(VISIBLE);
+                layoutSceneServerBinding.recyclerViewScenes.setVisibility(GONE);
             }
         }
     }

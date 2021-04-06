@@ -44,7 +44,7 @@
                 android:text="@string/no_scenes_stored_rationale"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="14sp"
-                android:visibility="invisible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@id/div3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:scrollbars="none"
-                android:visibility="invisible"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/recall_scene_tool_bar"
                 tools:listitem="@layout/removable_row_item" />
         </LinearLayout>
