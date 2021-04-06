@@ -78,14 +78,14 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
     @Override
     protected void enableClickableViews() {
         super.enableClickableViews();
-        if (layoutSceneServerBinding != null && layoutSceneServerBinding.actionRead != null)
+        if (layoutSceneServerBinding != null)
             layoutSceneServerBinding.actionRead.setEnabled(true);
     }
 
     @Override
     protected void disableClickableViews() {
         super.disableClickableViews();
-        if (layoutSceneServerBinding != null && layoutSceneServerBinding.actionRead != null)
+        if (layoutSceneServerBinding != null)
             layoutSceneServerBinding.actionRead.setEnabled(false);
     }
 
