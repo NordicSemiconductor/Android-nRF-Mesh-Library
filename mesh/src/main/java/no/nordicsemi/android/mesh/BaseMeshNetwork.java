@@ -69,7 +69,7 @@ abstract class BaseMeshNetwork {
     @Ignore
     @SerializedName("version")
     @Expose
-    String version = "1.0";
+    String version = "1.0.0";
     @ColumnInfo(name = "mesh_name")
     @SerializedName("meshName")
     @Expose
@@ -604,7 +604,7 @@ abstract class BaseMeshNetwork {
             final int keyIndex = applicationKey.getKeyIndex();
             final ApplicationKey appKey = getAppKey(keyIndex);
             if (appKey.equals(applicationKey)) {
-                if(appKey.distributeKey(newAppKey)){
+                if (appKey.distributeKey(newAppKey)) {
                     updateNodeKeyStatus(appKey);
                     if (updateMeshKey(appKey)) {
                         return appKey;
@@ -796,12 +796,12 @@ abstract class BaseMeshNetwork {
         if (TextUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Name cannot be empty.");
         }
-        final List<AllocatedUnicastRange> unicastRanges = new ArrayList();
-        final List<AllocatedGroupRange> groupRanges = new ArrayList();
-        final List<AllocatedSceneRange> sceneRanges = new ArrayList();
-        unicastRanges.add(unicastRange != null ? unicastRange : new AllocatedUnicastRange(0x0001, 0x7FFF));
-        groupRanges.add(groupRange != null ? groupRange : new AllocatedGroupRange(0xC000, 0xFEFF));
-        sceneRanges.add(sceneRange != null ? sceneRange : new AllocatedSceneRange(0x0001, 0xFFFF));
+        final List<AllocatedUnicastRange> unicastRanges = new ArrayList<>();
+        final List<AllocatedGroupRange> groupRanges = new ArrayList<>();
+        final List<AllocatedSceneRange> sceneRanges = new ArrayList<>();
+        unicastRanges.add(unicastRange);
+        groupRanges.add(groupRange);
+        sceneRanges.add(sceneRange);
         final Provisioner provisioner = new Provisioner(UUID.randomUUID().toString(), unicastRanges, groupRanges, sceneRanges, meshUUID);
         provisioner.setProvisionerName(name);
         return provisioner;
@@ -1182,7 +1182,7 @@ abstract class BaseMeshNetwork {
      */
     public boolean isProvisioner(@NonNull final ProvisionedMeshNode node) {
         for (Provisioner provisioner : provisioners) {
-            if (provisioner.getMeshUuid().equalsIgnoreCase(node.getMeshUuid())) {
+            if (provisioner.getProvisionerUuid().equalsIgnoreCase(node.getUuid())) {
                 return true;
             }
         }

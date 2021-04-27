@@ -38,6 +38,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -143,7 +144,7 @@ public class ScannerRepository {
     };
 
     @Inject
-    public ScannerRepository(final Context context, final MeshManagerApi meshManagerApi) {
+    public ScannerRepository(@NonNull @ApplicationContext final Context context, @NonNull final MeshManagerApi meshManagerApi) {
         this.mContext = context;
         this.mMeshManagerApi = meshManagerApi;
         mScannerStateLiveData = new ScannerStateLiveData(Utils.isBleEnabled(), Utils.isLocationEnabled(context));

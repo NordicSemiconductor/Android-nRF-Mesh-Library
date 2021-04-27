@@ -153,7 +153,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         mSwipe = binding.swipeRefresh;
 
         mViewModel = new ViewModelProvider(this).get(ModelConfigurationViewModel.class);
-        init();
+        initialize();
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
         final String modelName = meshModel.getModelName();
 

@@ -56,9 +56,9 @@ public class SigModelParser {
     private static final short GENERIC_PROPERTY_CLIENT = 0x1015;
 
     // SIG Sensors, Mesh Model Spec
-    private static final short SENSOR_SERVER = 0x1100;
-    private static final short SENSOR_SETUP_SERVER = 0x1101;
-    private static final short SENSOR_CLIENT = 0x1102;
+    public static final short SENSOR_SERVER = 0x1100;
+    public static final short SENSOR_SETUP_SERVER = 0x1101;
+    public static final short SENSOR_CLIENT = 0x1102;
 
     //SIG Time and Scene, Mesh Model Spec;
     private static final short TIME_SERVER = 0x1200;

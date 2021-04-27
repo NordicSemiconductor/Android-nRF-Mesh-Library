@@ -2,7 +2,6 @@ package no.nordicsemi.android.mesh.transport;
 
 
 import androidx.annotation.NonNull;
-
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
@@ -10,8 +9,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 /**
  * To be used as a wrapper class to create light ctl get message.
  */
-@SuppressWarnings("unused")
-public class LightCtlGet extends GenericMessage {
+public class LightCtlGet extends ApplicationMessage {
 
     private static final String TAG = LightCtlGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_CTL_GET;

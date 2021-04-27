@@ -723,8 +723,11 @@ public final class MeshNetwork extends BaseMeshNetwork {
      * Removes a scene from the mesh network.
      *
      * @param scene scene to be deleted
+     * @throws IllegalArgumentException if the scene is already in use.
      */
-    public boolean removeScene(@NonNull final Scene scene) {
+    public boolean removeScene(@NonNull final Scene scene) throws IllegalArgumentException {
+        if (!scene.addresses.isEmpty())
+            throw new IllegalArgumentException("Scene is already in use!");
         if (scenes.remove(scene)) {
             notifySceneDeleted(scene);
             return true;

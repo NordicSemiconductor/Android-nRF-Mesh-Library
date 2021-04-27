@@ -24,9 +24,11 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 
 import android.content.Context;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningCapabilities;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.AlgorithmType;
@@ -38,9 +40,10 @@ import no.nordicsemi.android.nrfmesh.R;
 /**
  * ViewModel for {@link ProvisioningActivity}
  */
+@HiltViewModel
 public class ProvisioningViewModel extends BaseViewModel {
 
-    @ViewModelInject
+    @Inject
     ProvisioningViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

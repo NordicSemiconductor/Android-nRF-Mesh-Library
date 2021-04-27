@@ -15,7 +15,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a GenericOnOffSet message.
  */
 @SuppressWarnings("unused")
-public class GenericOnOffSet extends GenericMessage {
+public class GenericOnOffSet extends ApplicationMessage {
 
     private static final String TAG = GenericOnOffSet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_ON_OFF_SET;

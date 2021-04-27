@@ -30,11 +30,13 @@ import android.content.Context;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import androidx.annotation.NonNull;
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 import no.nordicsemi.android.ble.callback.DataSentCallback;
-
+@Singleton
 public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> {
     private static final int MTU_SIZE_DEFAULT = 23;
     private static final int MTU_SIZE_MAX = 517;
@@ -140,10 +142,10 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
             mIsDeviceReady = true;
             super.onDeviceReady();
         }
-    };
+    }
 
     @Inject
-    public BleMeshManager(@NonNull final Context context) {
+    public BleMeshManager(@ApplicationContext final Context context) {
         super(context);
     }
 

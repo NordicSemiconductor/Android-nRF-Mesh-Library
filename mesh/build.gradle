@@ -29,7 +29,7 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 74
+        versionCode 80
         versionName VERSION_NAME
 
         javaCompileOptions {
@@ -58,19 +58,19 @@ android {
 
 dependencies {
     // Required -- JUnit 4 framework
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.7.7'
     androidTestImplementation 'org.mockito:mockito-android:3.7.7'
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
     api 'no.nordicsemi.android:log:2.3.0'
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'
 
-    implementation 'androidx.room:room-runtime:2.3.0-beta01'
-    annotationProcessor 'androidx.room:room-compiler:2.3.0-beta01'
-    androidTestImplementation 'androidx.room:room-testing:2.3.0-beta01'
+    implementation 'androidx.room:room-runtime:2.3.0-rc01'
+    annotationProcessor 'androidx.room:room-compiler:2.3.0-rc01'
+    androidTestImplementation 'androidx.room:room-testing:2.3.0-rc01'
 
 }
 repositories {

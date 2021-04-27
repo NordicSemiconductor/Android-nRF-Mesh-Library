@@ -263,28 +263,6 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
     }
 
     /**
-     * Returns true if the node is blacklisted or false otherwise
-     *
-     * @deprecated Use {@link #isExcluded()} instead
-     */
-    @Deprecated
-    public boolean isBlackListed() {
-        return isExcluded();
-    }
-
-    /**
-     * Blacklist a node.
-     *
-     * @param blackListed true if blacklisted
-     * @deprecated Use {@link #setExcluded(boolean)} instead
-     */
-    @Deprecated
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void setBlackListed(final boolean blackListed) {
-        setExcluded(blackListed);
-    }
-
-    /**
      * Returns the {@link SecureNetworkBeacon} beacon of this node
      */
     public Boolean isSecureNetworkBeaconSupported() {

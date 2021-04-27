@@ -25,19 +25,22 @@ package no.nordicsemi.android.nrfmesh.viewmodels;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.inject.Inject;
+
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.node.HeartbeatPublicationActivity;
 
 /**
  * View Model class for {@link HeartbeatPublicationActivity}
  */
+@HiltViewModel
 public class HeartbeatViewModel extends BaseViewModel {
 
-    private Queue<MeshMessage> messageQueue = new LinkedList<>();
+    private final Queue<MeshMessage> messageQueue = new LinkedList<>();
 
-    @ViewModelInject
+    @Inject
     HeartbeatViewModel(@NonNull final NrfMeshRepository nrfMeshRepository) {
         super(nrfMeshRepository);
     }

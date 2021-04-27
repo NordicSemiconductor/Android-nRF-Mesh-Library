@@ -15,7 +15,7 @@ import static no.nordicsemi.android.mesh.Scene.isValidSceneNumber;
 /**
  * To be used as a wrapper class when creating a SceneDeleteUnacknowledged message.
  */
-public class SceneDeleteUnacknowledged extends GenericMessage {
+public class SceneDeleteUnacknowledged extends ApplicationMessage {
 
     private static final String TAG = SceneDeleteUnacknowledged.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.SCENE_DELETE_UNACKNOWLEDGED;

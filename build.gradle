@@ -24,13 +24,14 @@
 
 buildscript {
 
-    ext.hilt_version = '2.31.2-alpha'
+    ext.hilt_version = '2.33-beta'
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:4.1.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
 
@@ -43,6 +44,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
 }
 

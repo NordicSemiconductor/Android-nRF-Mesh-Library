@@ -28,6 +28,7 @@ import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,7 @@ import no.nordicsemi.android.mesh.R;
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US);
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
 
@@ -280,10 +281,20 @@ public class MeshParserUtils {
         return null;
     }
 
+    public static byte[] convertIntTo24Bits(int value) {
+        return new byte[]{(byte) ((value >> 16) & 0xFF), (byte) ((value >> 8) & 0xFF), (byte) (value & 0xFF)};
+    }
+
     public static int convert24BitsToInt(@NonNull final byte[] byteArray) {
         if (byteArray.length != 3)
             throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");
         return (((byteArray[0] & 0xFF) << 16) | ((byteArray[1] & 0xFF) << 8) | (byteArray[2] & 0xFF));
+    }
+
+    public static int convert24BitsToInt(@NonNull final byte[] byteArray, final int offset) {
+        if (byteArray.length - offset < 3)
+            throw new IllegalArgumentException("Invalid length, byte array must be 3-bytes long.");
+        return (((byteArray[offset] & 0xFF) << 16) | ((byteArray[offset + 1] & 0xFF) << 8) | (byteArray[offset + 2] & 0xFF));
     }
 
     public static int getSequenceNumberFromPDU(final byte[] pdu) {
@@ -560,6 +571,10 @@ public class MeshParserUtils {
         return (unsignedByteToInt(b0) + (unsignedByteToInt(b1) << 8));
     }
 
+    public static int bytesToInt(@NonNull byte[] b, final ByteOrder byteOrder) {
+        return b.length == 4 ? ByteBuffer.wrap(b).order(byteOrder).getInt() : ByteBuffer.wrap(b).order(byteOrder).getShort();
+    }
+
     public static int bytesToInt(@NonNull byte[] b) {
         return b.length == 4 ? ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getInt() : ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getShort();
     }
@@ -575,7 +590,7 @@ public class MeshParserUtils {
     /**
      * Convert an unsigned integer value to a two's-complement encoded signed value.
      */
-    private static int unsignedToSigned(int unsigned, int size) {
+    public static int unsignedToSigned(int unsigned, int size) {
         if ((unsigned & (1 << size - 1)) != 0) {
             unsigned = -1 * ((1 << size - 1) - (unsigned & ((1 << size - 1) - 1)));
         }
@@ -726,6 +741,20 @@ public class MeshParserUtils {
      */
     public static String formatTimeStamp(final long timestamp) {
         return SDF.format(new Date(timestamp));
+    }
+
+    /**
+     * Formats the timestamp
+     *
+     * @param timestamp timestamp
+     */
+    public static long parseTimeStamp(final String timestamp) {
+        try {
+            final Date date = SDF.parse(timestamp);
+            return date != null ? date.getTime() : 0L;
+        } catch (ParseException e) {
+            return 0L;
+        }
     }
 
     public static boolean isNodeKeyExists(@NonNull final List<NodeKey> keys, final int index) {

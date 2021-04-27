@@ -29,23 +29,18 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.components.SingletonComponent;
 import no.nordicsemi.android.mesh.MeshManagerApi;
-import no.nordicsemi.android.nrfmesh.ble.BleMeshManager;
 
 
-@InstallIn(ApplicationComponent.class)
+@InstallIn(SingletonComponent.class)
 @Module
 public class BleMeshManagerModule {
 
     @Provides
-    public BleMeshManager provideBleMeshManager(final Context context) {
-        return new BleMeshManager(context);
-    }
-
-    @Provides
     @Singleton
-    public MeshManagerApi provideMeshManagerApi(final Context context) {
+    public MeshManagerApi provideMeshManagerApi(@ApplicationContext final Context context) {
         return new MeshManagerApi(context);
     }
 }

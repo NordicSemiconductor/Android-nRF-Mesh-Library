@@ -25,11 +25,12 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.formatTimeStamp;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.formatUuid;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.isUuidPattern;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.parseTimeStamp;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.uuidToHex;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
@@ -67,7 +68,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         network.meshName = jsonObject.get("meshName").getAsString();
 
         try {
-            network.timestamp = 0;//MeshParserUtils.parseTimeStamp(jsonObject.get("timestamp").getAsString());
+            network.timestamp = parseTimeStamp(jsonObject.get("timestamp").getAsString());
         } catch (Exception ex) {
             throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, " +
                     "mesh network timestamp must follow the Mesh Provisioning/Configuration Database format.");
@@ -411,12 +412,12 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
             if (group.getAddressLabel() == null) {
                 groupObj.addProperty("address", MeshAddress.formatAddress(group.getAddress(), false));
             } else {
-                groupObj.addProperty("address", MeshParserUtils.uuidToHex(group.getAddressLabel()));
+                groupObj.addProperty("address", uuidToHex(group.getAddressLabel()));
             }
             if (group.getParentAddressLabel() == null) {
                 groupObj.addProperty("parentAddress", MeshAddress.formatAddress(group.getParentAddress(), false));
             } else {
-                groupObj.addProperty("parentAddress", MeshParserUtils.uuidToHex(group.getParentAddressLabel()));
+                groupObj.addProperty("parentAddress", uuidToHex(group.getParentAddressLabel()));
             }
             groupsArray.add(groupObj);
         }
@@ -512,9 +513,9 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 }
                 final int number;
                 if (jsonScene.has("scene")) {
-                    number = jsonScene.get("scene").getAsInt();
+                    number = Integer.parseInt(jsonScene.get("scene").getAsString(), 16);
                 } else {
-                    number = jsonScene.get("number").getAsInt();
+                    number = Integer.parseInt(jsonScene.get("number").getAsString(), 16);
                 }
                 final Scene scene = new Scene(number, addresses, meshUuid);
                 scene.setName(name);
