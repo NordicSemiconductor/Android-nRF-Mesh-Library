@@ -37,7 +37,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
  * To be used as a wrapper class to create magic level set status message.
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public final class MagicLevelSetStatus extends GenericStatusMessage implements Parcelable {
+public final class MagicLevelSetStatus extends ApplicationStatusMessage implements Parcelable {
 
     private static final String TAG = MagicLevelSetStatus.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.MAGIC_LEVEL_SET_STATUS;

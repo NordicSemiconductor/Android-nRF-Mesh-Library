@@ -13,7 +13,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a MagicLevelGet message.
  */
 @SuppressWarnings("unused")
-public class MagicLevelGet extends GenericMessage {
+public class MagicLevelGet extends ApplicationMessage {
 
     private static final String TAG = MagicLevelGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.MAGIC_LEVEL_GET;
