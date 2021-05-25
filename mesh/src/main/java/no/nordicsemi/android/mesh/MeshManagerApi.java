@@ -259,7 +259,7 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public final void handleNotifications(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
-        if (!shouldWaitForMoreData(data)) {
+        if (!isGattSegmented(data)) {
             unsegmentedPdu = data;
         } else {
             final byte[] combinedPdu = appendPdu(mtuSize, data);
@@ -416,7 +416,7 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public final void handleWriteCallbacks(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
-        if (!shouldWaitForMoreData(data)) {
+        if (!isGattSegmented(data)) {
             unsegmentedPdu = data;
         } else {
             final byte[] combinedPdu = appendWritePdu(mtuSize, data);
@@ -453,7 +453,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean shouldWaitForMoreData(final byte[] pdu) {
+    private boolean isGattSegmented(final byte[] pdu) {
         final int gattSar = (pdu[0] & GATT_SAR_MASK) >> SAR_BIT_OFFSET;
         switch (gattSar) {
             case GATT_SAR_START:
@@ -473,19 +473,19 @@ public class MeshManagerApi implements MeshMngrApi {
      * @return the combine pdu or returns null if not complete.
      */
     private byte[] appendPdu(final int mtuSize, final byte[] pdu) {
+        final int length = Math.min(pdu.length, mtuSize);
         if (mIncomingBuffer == null) {
-            final int length = Math.min(pdu.length, mtuSize);
             mIncomingBufferOffset = 0;
             mIncomingBufferOffset += length;
             mIncomingBuffer = pdu;
         } else {
-            final int length = Math.min(pdu.length, mtuSize);
             final byte[] buffer = new byte[mIncomingBuffer.length + length];
             System.arraycopy(mIncomingBuffer, 0, buffer, 0, mIncomingBufferOffset);
             System.arraycopy(pdu, 0, buffer, mIncomingBufferOffset, length);
             mIncomingBufferOffset += length;
             mIncomingBuffer = buffer;
-            if (length < mtuSize) {
+            final int sar = MeshParserUtils.unsignedByteToInt(pdu[0]) >> SAR_BIT_OFFSET;
+            if (sar == GATT_SAR_END) {
                 final byte[] packet = mIncomingBuffer;
                 mIncomingBuffer = null;
                 return packet;
