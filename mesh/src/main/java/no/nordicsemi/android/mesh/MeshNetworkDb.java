@@ -1016,7 +1016,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 " `network_exclusions` TEXT NOT NULL DEFAULT '{}', " +
                 " `last_selected` INTEGER NOT NULL, " +
                 "PRIMARY KEY(`mesh_uuid`))");
-        final Cursor cursor = database.query("SELECT * FROM mesh_network");
+        final Cursor cursor = database.query("select * from mesh_network");
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));
