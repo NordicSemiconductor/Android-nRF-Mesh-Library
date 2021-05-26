@@ -22,7 +22,7 @@ public class NetworkExportUtils {
     }
 
     /**
-     * Creates an AsyncTask to exoirt the
+     * Creates an AsyncTask to export the network
      *
      * @param meshManagerApi Mesh manager api
      * @param outputStream   OutputStream obtained from the content resolver
@@ -36,7 +36,7 @@ public class NetworkExportUtils {
     }
 
     /**
-     * Creates an AsyncTask to import the a m
+     * Creates an AsyncTask to import the a mesh network
      *
      * @param meshManagerApi Mesh manager api
      * @param path           OutputStream obtained from the content resolver
@@ -59,7 +59,7 @@ public class NetworkExportUtils {
         private String error;
 
         /**
-         * Creates an AsyncTask to import the a m
+         * Creates an AsyncTask to import the a mesh network
          *
          * @param meshManagerApi Mesh manager api
          */
@@ -113,7 +113,7 @@ public class NetworkExportUtils {
         private String error;
 
         /**
-         * Creates an AsyncTask to import the a m
+         * Creates an AsyncTask to import the a mesh network
          *
          * @param meshManagerApi Mesh manager api
          */
