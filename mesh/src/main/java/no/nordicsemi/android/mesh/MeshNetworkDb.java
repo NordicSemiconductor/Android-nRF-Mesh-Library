@@ -966,7 +966,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("CREATE TABLE `nodes_temp` " +
                 "(timestamp INTEGER NOT NULL, " +
                 "netKeys TEXT, " +
-                "name TEXT, ttl INTEGER, " +
+                "name TEXT, " +
+                "ttl INTEGER DEFAULT 5, " +
                 "excluded INTEGER NOT NULL, " +
                 "secureNetworkBeacon INTEGER, " +
                 "mesh_uuid TEXT, uuid TEXT NOT NULL, " +
