@@ -150,7 +150,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
         int elementAddress = 0;
         while (tempOffset < accessPayload.length) {
             final Map<Integer, MeshModel> models = new LinkedHashMap<>();
-            final int locationDescriptor = accessPayload[tempOffset + 1] << 8 | accessPayload[tempOffset];
+            final int locationDescriptor = MeshParserUtils.unsignedBytesToInt(accessPayload[tempOffset], accessPayload[tempOffset + 1]);
             Log.v(TAG, "Location identifier: " + String.format(Locale.US, "%04X", locationDescriptor));
 
             tempOffset = tempOffset + 2;
