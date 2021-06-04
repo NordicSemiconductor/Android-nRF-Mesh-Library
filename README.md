@@ -1,5 +1,5 @@
 # Android-nRF-Mesh-Library
-[ ![Download](https://api.bintray.com/packages/nordic/android/no.nordicsemi.android%3Amesh/images/download.svg) ](https://bintray.com/nordic/android/no.nordicsemi.android%3Amesh/_latestVersion)
+[ ![Download](https://maven-badges.herokuapp.com/maven-central/no.nordicsemi.android/mesh/badge.svg?style=plastic) ](https://search.maven.org/artifact/no.nordicsemi.android/mesh)
 
 ## About
 The Android-nRF-Mesh-Library allows provisioning and sending messages to Bluetooth Mesh devices. 
