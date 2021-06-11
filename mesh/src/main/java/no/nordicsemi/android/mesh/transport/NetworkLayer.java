@@ -435,7 +435,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses an unsegmented control message
      *
-     * @param key                     Network Key used to decrypt
+     * @param key               Network Key used to decrypt
      * @param data              Received pdu data
      * @param decryptedProxyPdu Decrypted proxy pdu
      * @param ttl               TTL of the pdu
@@ -470,7 +470,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses a unsegmented control message
      *
-     * @param key                     Network Key used to decrypt
+     * @param key               Network Key used to decrypt
      * @param data              Received pdu data
      * @param decryptedProxyPdu Decrypted proxy pdu
      * @param ttl               TTL of the pdu
