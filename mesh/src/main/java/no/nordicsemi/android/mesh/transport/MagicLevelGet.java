@@ -17,7 +17,7 @@ public class MagicLevelGet extends ApplicationMessage {
 
     private static final String TAG = MagicLevelGet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.MAGIC_LEVEL_GET;
-    private static final int MAGIC_LEVEL_GET_PARAMS_LENGTH = 4;
+    private static final int MAGIC_LEVEL_GET_PARAMS_LENGTH = 8;
 
     private final int mIO;
     private final int mIndex;
@@ -37,7 +37,7 @@ public class MagicLevelGet extends ApplicationMessage {
     public MagicLevelGet(final ApplicationKey appKey,
                          final int io,
                          final int index,
-                         final Integer correlation,
+                         final int correlation,
                          final int tId) throws IllegalArgumentException {
         super(appKey);
         this.mIO = io;
@@ -59,7 +59,7 @@ public class MagicLevelGet extends ApplicationMessage {
         paramsBuffer = ByteBuffer.allocate(MAGIC_LEVEL_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.put((byte) mIO);
         paramsBuffer.putShort((short) (mIndex));
-        paramsBuffer.putLong((long) mCorrelation);
+        paramsBuffer.putInt(mCorrelation);
         paramsBuffer.put((byte) tId);
         mParameters = paramsBuffer.array();
     }

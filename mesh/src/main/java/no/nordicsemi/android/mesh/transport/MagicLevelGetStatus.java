@@ -74,13 +74,13 @@ public final class MagicLevelGetStatus extends ApplicationStatusMessage implemen
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received magic level set status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        Log.v(TAG, "Received magic level get status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
 
         mIO = (int) (buffer.get());
         mIndex = (int) (buffer.getShort());
-        mValue = (int) (buffer.getLong());
-        mCorrelation = (int) (buffer.getLong());
+        mValue = buffer.getInt();
+        mCorrelation = buffer.getInt();
         tId = (int) (buffer.get());
     }
 
@@ -90,36 +90,36 @@ public final class MagicLevelGetStatus extends ApplicationStatusMessage implemen
     }
 
     /**
-     * Returns the targeted io of the magic level server model
+     * Returns the target io of the magic level server model.
      *
-     * @return targeted io
+     * @return target io
      */
     public final int getIO() {
         return mIO;
     }
 
     /**
-     * Returns the target level of the magic level server model
+     * Returns the target LUT index of the magic level server model.
      *
-     * @return target level
+     * @return target LUT index
      */
     public final int getIndex() {
         return mIndex;
     }
 
     /**
-     * Returns the transition steps.
+     * Returns the value stored in the LUT.
      *
-     * @return transition steps
+     * @return value
      */
     public Integer getValue() {
         return mValue;
     }
 
     /**
-     * Returns the transition resolution.
+     * Returns the correlation value.
      *
-     * @return transition resolution
+     * @return correlation
      */
     public Integer getCorrelation() {
         return mCorrelation;

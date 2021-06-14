@@ -19,7 +19,7 @@ public class MagicLevelSet extends ApplicationMessage {
 
     private static final String TAG = MagicLevelSet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.MAGIC_LEVEL_SET;
-    private static final int MAGIC_LEVEL_SET_PARAMS_LENGTH = 5;
+    private static final int MAGIC_LEVEL_SET_PARAMS_LENGTH = 12;
 
     private final int mIO;
     private final int mIndex;
@@ -49,8 +49,6 @@ public class MagicLevelSet extends ApplicationMessage {
         this.mIndex = index;
         this.mValue = value;
         this.tId = tId;
-//        if (level < Short.MIN_VALUE || level > Short.MAX_VALUE)
-//            throw new IllegalArgumentException("Generic level value must be between -32768 to 32767");
         this.mCorrelation = correlation;
         assembleMessageParameters();
     }
@@ -64,7 +62,7 @@ public class MagicLevelSet extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
-        paramsBuffer = ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN);
+        paramsBuffer = ByteBuffer.allocate(MAGIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.put((byte) mIO);
         paramsBuffer.putShort((short) (mIndex));
         paramsBuffer.putInt(mValue);
