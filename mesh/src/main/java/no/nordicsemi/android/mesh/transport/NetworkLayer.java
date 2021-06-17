@@ -214,7 +214,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
             Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
         }
 
-        final SparseArray<byte[]> pduArray = new SparseArray<>();
         if (encryptedNetworkPayload == null)
             return null;
 
@@ -229,8 +228,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                 .put(header)
                 .put(encryptedNetworkPayload)
                 .array();
-        pduArray.put(segment, pdu);
-        message.setNetworkLayerPdu(pduArray);
+        message.getNetworkLayerPdu().put(segment, pdu);
         return message;
     }
 
@@ -435,7 +433,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses an unsegmented control message
      *
-     * @param key                     Network Key used to decrypt
+     * @param key               Network Key used to decrypt
      * @param data              Received pdu data
      * @param decryptedProxyPdu Decrypted proxy pdu
      * @param ttl               TTL of the pdu
@@ -470,7 +468,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
     /**
      * Parses a unsegmented control message
      *
-     * @param key                     Network Key used to decrypt
+     * @param key               Network Key used to decrypt
      * @param data              Received pdu data
      * @param decryptedProxyPdu Decrypted proxy pdu
      * @param ttl               TTL of the pdu
