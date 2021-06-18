@@ -646,7 +646,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
+    public boolean isMeshBeacon(@NonNull final byte[] advertisementData) {
         for (int i = 0; i < advertisementData.length; i++) {
             final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
             if (length == 0)
@@ -662,7 +662,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Nullable
     @Override
-    public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
+    public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) {
         if (isMeshBeacon(advertisementData)) {
             for (int i = 0; i < advertisementData.length; i++) {
                 final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);

@@ -141,7 +141,7 @@ interface MeshMngrApi {
      * @param advertisementData data advertised by the mesh beacon
      * @return true if its a mesh beacon packet or false otherwise
      */
-    boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException;
+    boolean isMeshBeacon(@NonNull final byte[] advertisementData);
 
     /**
      * Returns the beacon information advertised by a mesh beaco packet
@@ -150,7 +150,7 @@ interface MeshMngrApi {
      * @return the data advertised by a beacon packet or null otherwise
      */
     @Nullable
-    byte[] getMeshBeaconData(final byte[] advertisementData) throws IllegalArgumentException;
+    byte[] getMeshBeaconData(final byte[] advertisementData);
 
     /**
      * Returns a {@link UnprovisionedBeacon}, {@link SecureNetworkBeacon} based on the advertised service data
