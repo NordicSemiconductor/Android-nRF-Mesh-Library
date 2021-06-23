@@ -29,7 +29,7 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 30
-        versionCode 80
+        versionCode 81
         versionName VERSION_NAME
 
         javaCompileOptions {
@@ -62,7 +62,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.7.7'
     androidTestImplementation 'org.mockito:mockito-android:3.7.7'
     implementation 'androidx.annotation:annotation:1.2.0'
-    api 'no.nordicsemi.android:log:2.3.0'
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
@@ -73,8 +72,14 @@ dependencies {
     androidTestImplementation 'androidx.room:room-testing:2.4.0-alpha03'
 
 }
-repositories {
-    mavenCentral()
+// === Maven Central configuration ===
+// The following file exists only when Android BLE Library project is opened, but not
+// when the module is loaded to a different project.
+if (rootProject.file('gradle/publish-module.gradle').exists()) {
+    ext {
+        POM_ARTIFACT_ID="mesh"
+        POM_NAME="A Bluetooth Mesh library for Android"
+        POM_PACKAGING="aar"
+    }
+    apply from: rootProject.file('gradle/publish-module.gradle')
 }
-
-//apply from: rootProject.file('gradle/gradle-bintray-push.gradle')
