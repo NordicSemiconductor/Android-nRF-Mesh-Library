@@ -966,7 +966,8 @@ abstract class MeshNetworkDb extends RoomDatabase {
         database.execSQL("CREATE TABLE `nodes_temp` " +
                 "(timestamp INTEGER NOT NULL, " +
                 "netKeys TEXT, " +
-                "name TEXT, ttl INTEGER, " +
+                "name TEXT, " +
+                "ttl INTEGER DEFAULT 5, " +
                 "excluded INTEGER NOT NULL, " +
                 "secureNetworkBeacon INTEGER, " +
                 "mesh_uuid TEXT, uuid TEXT NOT NULL, " +
@@ -1016,7 +1017,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 " `network_exclusions` TEXT NOT NULL DEFAULT '{}', " +
                 " `last_selected` INTEGER NOT NULL, " +
                 "PRIMARY KEY(`mesh_uuid`))");
-        final Cursor cursor = database.query("SELECT * FROM mesh_network");
+        final Cursor cursor = database.query("select * from mesh_network");
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 final String uuid = cursor.getString(cursor.getColumnIndex("mesh_uuid"));

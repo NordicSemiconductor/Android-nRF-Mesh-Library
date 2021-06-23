@@ -44,7 +44,7 @@ import no.nordicsemi.android.mesh.R;
 public class MeshParserUtils {
 
     private static final String TAG = MeshParserUtils.class.getSimpleName();
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.US);
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
 
@@ -748,8 +748,11 @@ public class MeshParserUtils {
      *
      * @param timestamp timestamp
      */
-    public static long parseTimeStamp(final String timestamp) {
+    public static long parseTimeStamp(String timestamp) {
         try {
+            if(timestamp.contains("Z")) {
+                timestamp = timestamp.replace("Z", "+00:00");
+            }
             final Date date = SDF.parse(timestamp);
             return date != null ? date.getTime() : 0L;
         } catch (ParseException e) {

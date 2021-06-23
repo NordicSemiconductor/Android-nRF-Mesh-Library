@@ -181,47 +181,23 @@ public class MeshManagerApi implements MeshMngrApi {
         return mMeshNetwork;
     }
 
-    private void initBouncyCastle() {
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-    }
-
-    /**
-     * Returns the current IV Test mode.
-     * IV Update Test Mode enables efficient testing of the IV Update procedure.
-     * The IV Update test mode removes the 96-hour limit; all other behavior of the device are unchanged.
-     * - seeAlso: Bluetooth Mesh Profile 1.0.1, section 3.10.5.1.
-     */
+    @Override
     public boolean isIvUpdateTestModeActive() {
         return ivUpdateTestModeActive;
     }
 
-    /**
-     * Set IV Update test mode.
-     * IV Update Test Mode enables efficient testing of the IV Update procedure.
-     * * The IV Update test mode removes the 96-hour limit; all other behavior of the device are unchanged.
-     * * - seeAlso: Bluetooth Mesh Profile 1.0.1, section 3.10.5.1.
-     *
-     * @param ivUpdateTestMode True if the test mode is active or false otherwise.
-     */
+    @Override
     public void setIvUpdateTestModeActive(final boolean ivUpdateTestMode) {
         ivUpdateTestModeActive = ivUpdateTestMode;
     }
 
-    /**
-     * Allow Iv Index recovery over 42.
-     * According to Bluetooth Mesh Profile 1.0.1, section 3.10.5, if the IV Index of the mesh
-     * network increased by more than 42 since the last connection (which can take at least
-     * 48 weeks), the Node should be re-provisioned. However, as this library can be used to
-     * provision other Nodes, it should not be blocked from sending messages to the network
-     * only because the phone wasn't connected to the network for that time. This flag can
-     * disable this check, effectively allowing such connection.
-     * The same can be achieved by clearing the app data (uninstalling and reinstalling the
-     * app) and importing the mesh network. With no "previous" IV Index, the library will
-     * accept any IV Index received in the Secure Network beacon upon connection to the
-     * GATT Proxy Node.
-     */
+    @Override
     public void allowIvIndexRecoveryOver42(final boolean allowIvIndexRecoveryOver42) {
         this.allowIvIndexRecoveryOver42 = allowIvIndexRecoveryOver42;
+    }
+
+    private void initBouncyCastle() {
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
     private void initDb(final Context context) {
@@ -259,7 +235,7 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public final void handleNotifications(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
-        if (!shouldWaitForMoreData(data)) {
+        if (!isGattSegmented(data)) {
             unsegmentedPdu = data;
         } else {
             final byte[] combinedPdu = appendPdu(mtuSize, data);
@@ -320,7 +296,7 @@ public class MeshManagerApi implements MeshMngrApi {
                         final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
                         //Check the the beacon received is a valid by matching the authentication values
                         if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
-                            Log.d(TAG, "Secure Network Beacon beacon authenticated.");
+                            Log.d(TAG, "Secure Network Beacon authenticated.");
 
                             //  The library does not retransmit Secure Network Beacon.
                             //  If this node is a member of a primary subnet and receives a Secure Network
@@ -349,7 +325,7 @@ public class MeshManagerApi implements MeshMngrApi {
                                         lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
                                 Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
                                         ", last " + lastIvIndex.getIvIndex() + ", changed: "
-                                        + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
+                                        + numberOfHoursSinceDate + " ago, test mode: " + ivUpdateTestModeActive);
                                 return;
                             }
 
@@ -416,7 +392,7 @@ public class MeshManagerApi implements MeshMngrApi {
     @Override
     public final void handleWriteCallbacks(final int mtuSize, @NonNull final byte[] data) {
         byte[] unsegmentedPdu;
-        if (!shouldWaitForMoreData(data)) {
+        if (!isGattSegmented(data)) {
             unsegmentedPdu = data;
         } else {
             final byte[] combinedPdu = appendWritePdu(mtuSize, data);
@@ -453,7 +429,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean shouldWaitForMoreData(final byte[] pdu) {
+    private boolean isGattSegmented(final byte[] pdu) {
         final int gattSar = (pdu[0] & GATT_SAR_MASK) >> SAR_BIT_OFFSET;
         switch (gattSar) {
             case GATT_SAR_START:
@@ -473,19 +449,19 @@ public class MeshManagerApi implements MeshMngrApi {
      * @return the combine pdu or returns null if not complete.
      */
     private byte[] appendPdu(final int mtuSize, final byte[] pdu) {
+        final int length = Math.min(pdu.length, mtuSize);
         if (mIncomingBuffer == null) {
-            final int length = Math.min(pdu.length, mtuSize);
             mIncomingBufferOffset = 0;
             mIncomingBufferOffset += length;
             mIncomingBuffer = pdu;
         } else {
-            final int length = Math.min(pdu.length, mtuSize);
             final byte[] buffer = new byte[mIncomingBuffer.length + length];
             System.arraycopy(mIncomingBuffer, 0, buffer, 0, mIncomingBufferOffset);
             System.arraycopy(pdu, 0, buffer, mIncomingBufferOffset, length);
             mIncomingBufferOffset += length;
             mIncomingBuffer = buffer;
-            if (length < mtuSize) {
+            final int sar = MeshParserUtils.unsignedByteToInt(pdu[0]) >> SAR_BIT_OFFSET;
+            if (sar == GATT_SAR_END) {
                 final byte[] packet = mIncomingBuffer;
                 mIncomingBuffer = null;
                 return packet;
@@ -646,7 +622,7 @@ public class MeshManagerApi implements MeshMngrApi {
     }
 
     @Override
-    public boolean isMeshBeacon(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
+    public boolean isMeshBeacon(@NonNull final byte[] advertisementData) {
         for (int i = 0; i < advertisementData.length; i++) {
             final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);
             if (length == 0)
@@ -662,7 +638,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
     @Nullable
     @Override
-    public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) throws IllegalArgumentException {
+    public byte[] getMeshBeaconData(@NonNull final byte[] advertisementData) {
         if (isMeshBeacon(advertisementData)) {
             for (int i = 0; i < advertisementData.length; i++) {
                 final int length = MeshParserUtils.unsignedByteToInt(advertisementData[i]);

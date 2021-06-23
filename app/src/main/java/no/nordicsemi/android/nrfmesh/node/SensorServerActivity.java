@@ -13,6 +13,7 @@ import no.nordicsemi.android.mesh.models.SensorServer;
 import no.nordicsemi.android.mesh.sensorutils.DeviceProperty;
 import no.nordicsemi.android.mesh.sensorutils.DevicePropertyCharacteristic;
 import no.nordicsemi.android.mesh.sensorutils.MarshalledSensorData;
+import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.SensorGet;
@@ -108,12 +109,15 @@ public class SensorServerActivity extends ModelConfigurationActivity {
     }
 
     private void sendSensorGet() {
-        if (mViewModel.getSelectedModel().getValue().getBoundAppKeyIndexes().size() > 0) {
-            final Integer keyIndex = mViewModel.getSelectedModel().getValue().getBoundAppKeyIndexes().get(0);
-            if (keyIndex != null) {
-                clearViews();
-                final ApplicationKey key = mViewModel.getNetworkLiveData().getAppKeys().get(keyIndex);
-                sendMessage(new SensorGet(key, null));
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            if (mViewModel.getSelectedModel().getValue().getBoundAppKeyIndexes().size() > 0) {
+                final Integer keyIndex = mViewModel.getSelectedModel().getValue().getBoundAppKeyIndexes().get(0);
+                if (keyIndex != null) {
+                    clearViews();
+                    final ApplicationKey key = mViewModel.getNetworkLiveData().getAppKeys().get(keyIndex);
+                    sendMessage(element.getElementAddress(), new SensorGet(key, null));
+                }
             }
         }
     }
