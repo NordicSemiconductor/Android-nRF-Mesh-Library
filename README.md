@@ -61,7 +61,6 @@ Clone this project and add *ble* module as a dependency to your project:
 1. In *settings.gradle* file add the following lines:
 ```groovy
 include ':mesh'
-project(':mesh').projectDir = file('../Android-Mesh-Library/mesh')
 ```
 
 2. In *app/build.gradle* file add `implementation project(':mesh')` inside dependencies.
