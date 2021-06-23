@@ -296,7 +296,7 @@ public class MeshManagerApi implements MeshMngrApi {
                         final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
                         //Check the the beacon received is a valid by matching the authentication values
                         if (Arrays.equals(receivedBeacon.getAuthenticationValue(), localSecureNetworkBeacon.getAuthenticationValue())) {
-                            Log.d(TAG, "Secure Network Beacon beacon authenticated.");
+                            Log.d(TAG, "Secure Network Beacon authenticated.");
 
                             //  The library does not retransmit Secure Network Beacon.
                             //  If this node is a member of a primary subnet and receives a Secure Network
@@ -325,7 +325,7 @@ public class MeshManagerApi implements MeshMngrApi {
                                         lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
                                 Log.w(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
                                         ", last " + lastIvIndex.getIvIndex() + ", changed: "
-                                        + numberOfHoursSinceDate + "ago, test mode: " + ivUpdateTestModeActive);
+                                        + numberOfHoursSinceDate + " ago, test mode: " + ivUpdateTestModeActive);
                                 return;
                             }
 
