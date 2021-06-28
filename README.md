@@ -38,7 +38,7 @@ nRF Mesh for Android is supported on Android devices running Android 4.3 and onw
 
 ## Installation
 
-* Open 'Example/nRf Mesh Provisioner'
+* Open 'Android-nRF-Mesh-Library' project using Android Studio.
 * Connect an Android device.
 * Build and run project.
 * To be able to quickly start testing, use the bundled firmwares directory named `ExampleFirmwares` that includes a light server (Light source) and a light client (Switch) firmwares. those firmwares will work on a `nrf52832` DevKit.
