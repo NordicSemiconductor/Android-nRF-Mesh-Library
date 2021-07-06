@@ -1,5 +1,5 @@
 # Android-nRF-Mesh-Library
-[ ![Download](https://api.bintray.com/packages/nordic/android/no.nordicsemi.android%3Amesh/images/download.svg) ](https://bintray.com/nordic/android/no.nordicsemi.android%3Amesh/_latestVersion)
+[ ![Download](https://maven-badges.herokuapp.com/maven-central/no.nordicsemi.android/mesh/badge.svg?style=plastic) ](https://search.maven.org/artifact/no.nordicsemi.android/mesh)
 
 ## About
 The Android-nRF-Mesh-Library allows provisioning and sending messages to Bluetooth Mesh devices. 
@@ -38,7 +38,7 @@ nRF Mesh for Android is supported on Android devices running Android 4.3 and onw
 
 ## Installation
 
-* Open 'Example/nRf Mesh Provisioner'
+* Open 'Android-nRF-Mesh-Library' project using Android Studio.
 * Connect an Android device.
 * Build and run project.
 * To be able to quickly start testing, use the bundled firmwares directory named `ExampleFirmwares` that includes a light server (Light source) and a light client (Switch) firmwares. those firmwares will work on a `nrf52832` DevKit.
@@ -61,7 +61,6 @@ Clone this project and add *ble* module as a dependency to your project:
 1. In *settings.gradle* file add the following lines:
 ```groovy
 include ':mesh'
-project(':mesh').projectDir = file('../Android-Mesh-Library/mesh')
 ```
 
 2. In *app/build.gradle* file add `implementation project(':mesh')` inside dependencies.

@@ -31,7 +31,7 @@ public final class ElementDbMigrator implements JsonDeserializer<Element>, Type 
             }
         } else {
             address = jsonElement.get("elementAddress").getAsInt();
-            final int location = Integer.parseInt(jsonElement.get("locationDescriptor").getAsString(), 16);
+            final int location = jsonElement.get("locationDescriptor").getAsInt();
             final String name;
             if (jsonElement.has("name")) {
                 name = jsonElement.get("name").getAsString();
