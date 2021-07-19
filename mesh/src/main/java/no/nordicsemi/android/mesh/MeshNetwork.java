@@ -233,12 +233,12 @@ public final class MeshNetwork extends BaseMeshNetwork {
             for (int usedAddress : usedAddresses) {
 
                 // Skip nodes with addresses below the range or below specified min address.
-                if (address > usedAddress || address <= minAddress) {
+                if (address > usedAddress) {
                     continue;
                 }
 
                 // If we found a space before the current node, return the address.
-                if (usedAddress > (address + (elementCount - 1))) {
+                if (usedAddress > (address + (elementCount - 1)) && address > minAddress) {
                     return address;
                 }
 
