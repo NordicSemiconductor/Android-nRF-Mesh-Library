@@ -167,6 +167,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_POWER_UP_STATUS) {
+                    final GenericOnPowerUpStatus genericOnPowerUpStatus = new GenericOnPowerUpStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericOnPowerUpStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericOnPowerUpStatus);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NETKEY_STATUS) {
                     final ConfigNetKeyStatus status = new ConfigNetKeyStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
