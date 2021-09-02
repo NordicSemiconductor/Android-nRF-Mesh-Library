@@ -428,4 +428,18 @@ public class ApplicationMessageOpCodes {
      */
     public static final int GENERIC_MANUFACTURER_PROPERTY_SET = 0x44;
 
+    /**
+     * Opcode for the "Time Get" message
+     */
+    public static final int TIME_GET = 0x8237;
+
+    /**
+     * Opcode for the "Time Set" message
+     */
+    public static final int TIME_SET = 0x5C;
+
+    /**
+     * Opcode for the "Time Status" message
+     */
+    public static final int TIME_STATUS = 0x5D;
 }

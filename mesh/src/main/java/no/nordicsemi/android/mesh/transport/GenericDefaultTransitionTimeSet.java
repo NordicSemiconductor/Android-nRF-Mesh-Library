@@ -9,7 +9,7 @@ import no.nordicsemi.android.mesh.utils.ArrayUtils;
 import no.nordicsemi.android.mesh.utils.BitWriter;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
-public class GenericDefaultTransitionTimeSet extends GenericMessage {
+public class GenericDefaultTransitionTimeSet extends ApplicationMessage {
 
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_DEFAULT_TRANSITION_TIME_SET;
     private static final int GENERIC_DEFAULT_TRANSITION_TIME_SET_PARAMS_LENGTH = GenericTransitionTime.TRANSITION_TIME_BITS_LENGTH;

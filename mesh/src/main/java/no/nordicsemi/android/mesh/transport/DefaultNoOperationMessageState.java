@@ -161,6 +161,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericPropertyStatus status = new GenericPropertyStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.TIME_STATUS) {
+                    final TimeStatus timeStatus = new TimeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(timeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), timeStatus);
                 } else {
                     handleUnknownPdu(message);
                 }

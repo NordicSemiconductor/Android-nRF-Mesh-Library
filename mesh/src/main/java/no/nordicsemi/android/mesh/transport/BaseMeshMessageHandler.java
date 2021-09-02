@@ -120,7 +120,6 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
                     ctlTtl = networkHeader[0];
                     ctl = (ctlTtl >> 7) & 0x01;
                     ttl = ctlTtl & 0x7F;
-                    Log.v(TAG, "TTL for received message: " + ttl);
                     final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
 
                     final ProvisionedMeshNode node = network.getNode(src);
