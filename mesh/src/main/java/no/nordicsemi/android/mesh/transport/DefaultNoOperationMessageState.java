@@ -155,6 +155,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SchedulerActionStatus schedulerActionStatus = new SchedulerActionStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(schedulerActionStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerActionStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ADMIN_PROPERTY_STATUS ||
+                        message.getOpCode() == ApplicationMessageOpCodes.GENERIC_MANUFACTURER_PROPERTY_STATUS ||
+                        message.getOpCode() == ApplicationMessageOpCodes.GENERIC_USER_PROPERTY_STATUS){
+                    final GenericPropertyStatus status = new GenericPropertyStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else {
                     handleUnknownPdu(message);
                 }
