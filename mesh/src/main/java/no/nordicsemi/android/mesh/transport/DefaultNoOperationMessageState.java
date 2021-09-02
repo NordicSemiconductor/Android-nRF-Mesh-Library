@@ -150,6 +150,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SensorSeriesStatus status = new SensorSeriesStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCHEDULER_ACTION_STATUS) {
+                    final SchedulerActionStatus schedulerActionStatus = new SchedulerActionStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(schedulerActionStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerActionStatus);
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -446,7 +450,11 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         mInternalTransportCallbacks.updateMeshNetwork(status);
                         mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                     }
-                } else {
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCHEDULER_STATUS) {
+                final SchedulerStatus schedulerStatus = new SchedulerStatus(message);
+                mInternalTransportCallbacks.updateMeshNetwork(schedulerStatus);
+                mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerStatus);
+            }  else {
                     handleUnknownPdu(message);
                 }
                 break;
