@@ -9,6 +9,8 @@ import java.util.Objects;
 import no.nordicsemi.android.mesh.utils.BitReader;
 import no.nordicsemi.android.mesh.utils.BitWriter;
 
+import static no.nordicsemi.android.mesh.data.GenericTransitionTime.TRANSITION_TIME_BITS_LENGTH;
+
 /**
  * Represents an entry inside the schedule register.
  * <p>
@@ -28,7 +30,7 @@ public class ScheduleEntry {
     public DayOfWeek dayOfWeek = DayOfWeek.Any(Collections.emptyList());
     public Action action = Action.NoAction;
     public Scene scene = Scene.NoScene;
-    public TransitionTime transitionTime = new TransitionTime(0, 1);
+    public GenericTransitionTime transitionTime = new GenericTransitionTime(GenericTransitionTime.TransitionResolution.SECOND, GenericTransitionTime.TransitionStep.Immediate);
 
     //region Setter
     public ScheduleEntry setYear(Year year) {
@@ -76,8 +78,8 @@ public class ScheduleEntry {
         return this;
     }
 
-    public ScheduleEntry setTransitionTime(TransitionTime transitionTime) {
-        this.transitionTime = transitionTime;
+    public ScheduleEntry setGenericTransitionTime(GenericTransitionTime genericTransitionTime) {
+        this.transitionTime = genericTransitionTime;
         return this;
     }
     //endregion
@@ -349,28 +351,12 @@ public class ScheduleEntry {
         }
     }
 
-    /**
-     * Transition time for this action (see Section 3.1.3 inside the specification)
-     */
-    public static final class TransitionTime extends EntryType {
-
-        public TransitionTime(int transitionResolution, int transitionSteps) {
-            super((transitionResolution << 6 | transitionSteps));
-        }
-
-        @Override
-        public String toString() {
-            return "TransitionTime{" +
-                    "value=" + value +
-                    '}';
-        }
-    }
     //endregion
 
     //region Read & Write data
     public void assembleMessageParameters(BitWriter bitWriter) {
         bitWriter.write(scene.value, 16);
-        bitWriter.write(transitionTime.value, 8);
+        bitWriter.write(transitionTime.getValue(), 8);
         bitWriter.write(action.value, 4);
         bitWriter.write(dayOfWeek.value, 7);
         bitWriter.write(second.value, 6);
@@ -386,7 +372,7 @@ public class ScheduleEntry {
             throw new InvalidParameterException("Bitreader has not enough bits");
         }
         scene = new Scene(bitReader.getBits(16));
-        transitionTime = new TransitionTime(bitReader.getBits(2), bitReader.getBits(6));
+        transitionTime = new GenericTransitionTime(bitReader.getBits(TRANSITION_TIME_BITS_LENGTH));
         action = new Action(bitReader.getBits(4));
         dayOfWeek = new DayOfWeek(bitReader.getBits(7));
         second = new Second(bitReader.getBits(6));

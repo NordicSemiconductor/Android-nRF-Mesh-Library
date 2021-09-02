@@ -368,4 +368,19 @@ public class ApplicationMessageOpCodes {
      */
     public static final int SCHEDULER_ACTION_STATUS = 0x5F;
 
+    /**
+     * Opcode for the "Generic Default Transition Time Get" message
+     */
+    public static final int GENERIC_DEFAULT_TRANSITION_TIME_GET = 0x820D;
+
+    /**
+     * Opcode for the "Generic Default Transition Time Set" message
+     */
+    public static final int GENERIC_DEFAULT_TRANSITION_TIME_SET = 0x820E;
+
+    /**
+     * Opcode for the "Generic Default Transition Time Status" message
+     */
+    public static final int GENERIC_DEFAULT_TRANSITION_TIME_STATUS = 0x8210;
+
 }
