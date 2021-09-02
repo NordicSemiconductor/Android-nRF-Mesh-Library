@@ -2,12 +2,13 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
@@ -451,10 +452,14 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                     }
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCHEDULER_STATUS) {
-                final SchedulerStatus schedulerStatus = new SchedulerStatus(message);
-                mInternalTransportCallbacks.updateMeshNetwork(schedulerStatus);
-                mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerStatus);
-            }  else {
+                    final SchedulerStatus schedulerStatus = new SchedulerStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(schedulerStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_DEFAULT_TRANSITION_TIME_STATUS) {
+                    final GenericDefaultTransitionTimeStatus genericDefaultTransitionTimeStatus = new GenericDefaultTransitionTimeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericDefaultTransitionTimeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericDefaultTransitionTimeStatus);
+                } else {
                     handleUnknownPdu(message);
                 }
                 break;

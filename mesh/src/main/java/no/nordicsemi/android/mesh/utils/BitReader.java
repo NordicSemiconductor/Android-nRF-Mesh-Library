@@ -1,5 +1,7 @@
 package no.nordicsemi.android.mesh.utils;
 
+import java.util.Arrays;
+
 /**
  * Inspired by https://github.com/ome/ome-codecs/blob/master/src/main/java/ome/codecs/BitBuffer.java
  * <p>
@@ -79,6 +81,13 @@ public class BitReader {
 
     public int bitsLeft() {
         return (byteBuffer.length * 8) - currentBit;
+    }
+
+    /**
+     * Return the remaining bytes as array.
+     */
+    public byte[] getRemainingBytes() {
+        return Arrays.copyOfRange(byteBuffer, currentByte, byteBuffer.length);
     }
 
     /**
