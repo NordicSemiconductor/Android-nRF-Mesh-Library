@@ -343,4 +343,29 @@ public class ApplicationMessageOpCodes {
      */
     public static final int SENSOR_SETTING_STATUS = 0x5B;
 
+    /**
+     * Opcode for the "Scheduler Get" message
+     */
+    public static final int SCHEDULER_GET = 0x8249;
+
+    /**
+     * Opcode for the "Scheduler Status" message
+     */
+    public static final int SCHEDULER_STATUS = 0x824A;
+
+    /**
+     * Opcode for the "Scheduler Action Get" message
+     */
+    public static final int SCHEDULER_ACTION_GET = 0x8248;
+
+    /**
+     * Opcode for the "Scheduler Action Set" message
+     */
+    public static final int SCHEDULER_ACTION_SET = 0x60;
+
+    /**
+     * Opcode for the "Scheduler Action Status" message
+     */
+    public static final int SCHEDULER_ACTION_STATUS = 0x5F;
+
 }
