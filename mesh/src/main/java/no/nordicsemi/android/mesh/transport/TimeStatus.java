@@ -49,12 +49,12 @@ public class TimeStatus extends ApplicationStatusMessage implements Parcelable {
     void parseStatusParameters() {
         BitReader bitReader = new BitReader(ArrayUtils.reverseArray(mParameters));
         if (bitReader.bitsLeft() == TIME_BIT_SIZE) {
-            taiSeconds = bitReader.getBits(TAI_SECONDS_BIT_SIZE);
-            subSecond = (byte) bitReader.getBits(SUB_SECOND_BIT_SIZE);
-            uncertainty = (byte) bitReader.getBits(UNCERTAINTY_BIT_SIZE);
+            timeZoneOffset = (byte) (bitReader.getBits(TIME_ZONE_OFFSET_BIT_SIZE) - TIME_ZONE_START_RANGE);
+            utcDelta = (short) (bitReader.getBits(UTC_DELTA_BIT_SIZE) - UTC_DELTA_START_RANGE);
             timeAuthority = bitReader.getBits(TIME_AUTHORITY_BIT_SIZE) == 1;
-            utcDelta = (short) bitReader.getBits(UTC_DELTA_BIT_SIZE);
-            timeZoneOffset = (byte) bitReader.getBits(TIME_ZONE_OFFSET_BIT_SIZE);
+            uncertainty = (byte) bitReader.getBits(UNCERTAINTY_BIT_SIZE);
+            subSecond = (byte) bitReader.getBits(SUB_SECOND_BIT_SIZE);
+            taiSeconds = bitReader.getBits(TAI_SECONDS_BIT_SIZE);
             Log.v(TAG, "Time status has taiSeconds: "+taiSeconds);
             Log.v(TAG, "Time status has subSecond: "+subSecond);
             Log.v(TAG, "Time status has uncertainty: "+uncertainty);
@@ -120,4 +120,6 @@ public class TimeStatus extends ApplicationStatusMessage implements Parcelable {
     static final int TIME_ZONE_OFFSET_BIT_SIZE = 8;
     static final int TIME_BIT_SIZE = TAI_SECONDS_BIT_SIZE + SUB_SECOND_BIT_SIZE + UNCERTAINTY_BIT_SIZE + TIME_AUTHORITY_BIT_SIZE
             + UTC_DELTA_BIT_SIZE + TIME_ZONE_OFFSET_BIT_SIZE;
+    static final int TIME_ZONE_START_RANGE = 0x40;
+    static final int UTC_DELTA_START_RANGE = 0xFF;
 }
