@@ -29,7 +29,8 @@ interface InternalMeshManagerCallbacks {
     /**
      * Internal callback to notify the {@link MeshManagerApi} of provisioned nodes
      *
-     * @param meshNode node that was provisioned
+     * @param meshNode          Node that was provisioned
+     * @param numberOfElements  Number of expected elements that is available in the node based on the capabilities.
      */
-    void onNodeProvisioned(final ProvisionedMeshNode meshNode);
+    void onNodeProvisioned(final ProvisionedMeshNode meshNode, final int numberOfElements);
 }
