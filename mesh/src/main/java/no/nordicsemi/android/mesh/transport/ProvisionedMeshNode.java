@@ -98,7 +98,6 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         unicastAddress = node.getUnicastAddress();
         deviceKey = node.getDeviceKey();
         ttl = node.getTtl();
-        final NetworkKey networkKey = new NetworkKey(node.getKeyIndex(), node.getNetworkKey());
         mTimeStampInMillis = node.getTimeStamp();
     }
 
