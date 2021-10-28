@@ -146,7 +146,11 @@ public final class MeshNetwork extends BaseMeshNetwork {
         // Populate all addresses that are currently in use
         final ArrayList<Integer> usedAddresses = new ArrayList<>();
         for (ProvisionedMeshNode node : nodes) {
-            usedAddresses.addAll(node.getElements().keySet());
+            //There could be devices that are provisioned but does not have the number of elements yet so let's check for that.
+            if (node.getElements().size() > 0)
+                usedAddresses.addAll(node.getElements().keySet());
+            else
+                usedAddresses.add(node.getUnicastAddress());
         }
         // Excluded addresses with the current IvIndex and current IvIndex - 1 must be considered as addresses in use.
         final ArrayList<Integer> addressesWithCurrentIvIndex = networkExclusions.get(ivIndex.getIvIndex());
