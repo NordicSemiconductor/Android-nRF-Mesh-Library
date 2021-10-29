@@ -1053,10 +1053,10 @@ public class MeshManagerApi implements MeshMngrApi {
     @SuppressWarnings("FieldCanBeLocal")
     private final InternalMeshManagerCallbacks internalMeshMgrCallbacks = new InternalMeshManagerCallbacks() {
         @Override
-        public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
+        public void onNodeProvisioned(final ProvisionedMeshNode meshNode, final int numberOfElements) {
             updateProvisionedNodeList(meshNode);
             mMeshNetwork.sequenceNumbers.put(meshNode.getUnicastAddress(), meshNode.getSequenceNumber());
-            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
+            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(numberOfElements, mMeshNetwork.getSelectedProvisioner());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insert(mProvisionedNodeDao, meshNode);
