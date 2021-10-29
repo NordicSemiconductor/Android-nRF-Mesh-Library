@@ -2,13 +2,13 @@ package no.nordicsemi.android.mesh.provisionerstates;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.AlgorithmType;
 import no.nordicsemi.android.mesh.utils.AuthenticationOOBMethods;
 import no.nordicsemi.android.mesh.utils.InputOOBAction;
@@ -26,17 +26,17 @@ public final class ProvisioningCapabilities implements Parcelable {
     private static final String TAG = ProvisioningCapabilities.class.getSimpleName();
     private byte numberOfElements;
     private short rawAlgorithm;
-    private List<AlgorithmType> supportedAlgorithmTypes;
+    private final List<AlgorithmType> supportedAlgorithmTypes;
     private byte rawPublicKeyType;
-    private boolean publicKeyInformationAvailable;
+    private final boolean publicKeyInformationAvailable;
     private byte rawStaticOOBType;
-    private boolean staticOOBInformationAvailable;
+    private final boolean staticOOBInformationAvailable;
     private byte outputOOBSize;
     private short rawOutputOOBAction;
-    private List<OutputOOBAction> supportedOutputOOBActions;
+    private final List<OutputOOBAction> supportedOutputOOBActions;
     private byte inputOOBSize;
     private short rawInputOOBAction;
-    private List<InputOOBAction> supportedInputOOBActions;
+    private final List<InputOOBAction> supportedInputOOBActions;
     private AuthenticationOOBMethods supportedOOBMethods;
     private final List<AuthenticationOOBMethods> availableOOBTypes = new ArrayList<>();
 
@@ -120,15 +120,15 @@ public final class ProvisioningCapabilities implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(numberOfElements);
-        dest.writeInt((int) rawAlgorithm);
+        dest.writeInt(rawAlgorithm);
         dest.writeByte(rawPublicKeyType);
         dest.writeByte((byte) (publicKeyInformationAvailable ? 1 : 0));
         dest.writeByte(rawStaticOOBType);
         dest.writeByte((byte) (staticOOBInformationAvailable ? 1 : 0));
         dest.writeByte(outputOOBSize);
-        dest.writeInt((int) rawOutputOOBAction);
+        dest.writeInt(rawOutputOOBAction);
         dest.writeByte(inputOOBSize);
-        dest.writeInt((int) rawInputOOBAction);
+        dest.writeInt(rawInputOOBAction);
     }
 
     @Override

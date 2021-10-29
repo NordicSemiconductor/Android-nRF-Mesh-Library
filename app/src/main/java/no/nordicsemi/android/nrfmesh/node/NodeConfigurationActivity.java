@@ -161,16 +161,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
             nodeNameView.setText(meshNode.getNodeName());
 
             updateClickableViews();
-
-            if (!meshNode.getElements().isEmpty()) {
-                binding.compositionActionContainer.setVisibility(View.GONE);
-                binding.noElements.setVisibility(View.INVISIBLE);
-                binding.recyclerViewElements.setVisibility(View.VISIBLE);
-            } else {
-                binding.noElements.setVisibility(View.VISIBLE);
-                binding.compositionActionContainer.setVisibility(View.VISIBLE);
-                binding.recyclerViewElements.setVisibility(View.INVISIBLE);
-            }
+            updateCompositionDataUi(meshNode);
 
             if (!meshNode.getAddedNetKeys().isEmpty()) {
                 netKeySummary.setText(String.valueOf(meshNode.getAddedNetKeys().size()));
@@ -381,6 +372,21 @@ public class NodeConfigurationActivity extends BaseActivity implements
         if (meshNode != null && meshNode.isConfigured() &&
                 !mViewModel.isModelExists(SigModelParser.CONFIGURATION_SERVER))
             disableClickableViews();
+    }
+
+    private void updateCompositionDataUi(final ProvisionedMeshNode meshNode) {
+        for (Element e : meshNode.getElements().values()) {
+            if (!e.getMeshModels().isEmpty()) {
+                binding.compositionActionContainer.setVisibility(View.GONE);
+                binding.noElements.setVisibility(View.INVISIBLE);
+                binding.recyclerViewElements.setVisibility(View.VISIBLE);
+            } else {
+                binding.noElements.setVisibility(View.VISIBLE);
+                binding.compositionActionContainer.setVisibility(View.VISIBLE);
+                binding.recyclerViewElements.setVisibility(View.INVISIBLE);
+            }
+            break;
+        }
     }
 
     private void sendMessage(final MeshMessage meshMessage) {

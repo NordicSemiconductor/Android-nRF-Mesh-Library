@@ -145,6 +145,8 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
      * @param src           source address
      */
     private void parseElements(final byte[] accessPayload, final int src) {
+        //Let's clear t he dummy elements we had added during provisioning to occupy the addresses in use.
+        mElements.clear();
         int tempOffset = ELEMENTS_OFFSET;
         int counter = 0;
         int elementAddress = 0;
