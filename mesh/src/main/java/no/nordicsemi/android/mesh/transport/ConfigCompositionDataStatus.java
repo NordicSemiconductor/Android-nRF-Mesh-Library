@@ -57,7 +57,7 @@ public class ConfigCompositionDataStatus extends ConfigStatusMessage implements 
     private boolean proxyFeatureSupported;
     private boolean friendFeatureSupported;
     private boolean lowPowerFeatureSupported;
-    private Map<Integer, Element> mElements = new LinkedHashMap<>();
+    private final Map<Integer, Element> mElements = new LinkedHashMap<>();
 
     private static final Creator<ConfigCompositionDataStatus> CREATOR = new Creator<ConfigCompositionDataStatus>() {
         @Override
