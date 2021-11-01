@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import no.nordicsemi.android.mesh.ApplicationKey;
@@ -69,6 +70,7 @@ public class Utils {
     public static final String EXTRA_DATA = "EXTRA_DATA";
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
+    private static final String PREFS_BLUETOOTH_PERMISSION_REQUESTED = "PREFS_BLUETOOTH_PERMISSION_REQUESTED";
     private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
     public static final int PROVISIONING_SUCCESS = 2112;
@@ -123,7 +125,51 @@ public class Utils {
      *
      * @return true if permissions are already granted, false otherwise.
      */
+    public static boolean isBluetoothScanAndConnectPermissionsGranted(final Context context) {
+        if(!isSorAbove())
+            return true;
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * Returns true if location permission has been requested at least twice and
+     * user denied it, and checked 'Don't ask again'.
+     *
+     * @param activity the activity
+     * @return true if permission has been denied and the popup will not come up any more, false otherwise
+     */
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    public static boolean isBluetoothPermissionDeniedForever(final Activity activity) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        return !isBluetoothScanAndConnectPermissionsGranted(activity) // Location permission must be denied
+                && preferences.getBoolean(PREFS_BLUETOOTH_PERMISSION_REQUESTED, false) // Permission must have been requested before
+                && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.BLUETOOTH_SCAN) // This method should return false
+                && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.BLUETOOTH_CONNECT); // This method should return false
+    }
+
+    /**
+     * The first time an app requests a permission there is no 'Don't ask again' checkbox and
+     * {@link ActivityCompat#shouldShowRequestPermissionRationale(Activity, String)} returns false.
+     * This situation is similar to a permission being denied forever, so to distinguish both cases
+     * a flag needs to be saved.
+     *
+     * @param context the context
+     */
+    public static void markBluetoothPermissionsRequested(final Context context) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(PREFS_BLUETOOTH_PERMISSION_REQUESTED, true).apply();
+    }
+
+    /**
+     * Checks for required permissions.
+     *
+     * @return true if permissions are already granted, false otherwise.
+     */
     public static boolean isLocationPermissionsGranted(final Context context) {
+        if(isSorAbove())
+            return true;
         return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
@@ -143,13 +189,26 @@ public class Utils {
     }
 
     /**
+     * The first time an app requests a permission there is no 'Don't ask again' checkbox and
+     * {@link ActivityCompat#shouldShowRequestPermissionRationale(Activity, String)} returns false.
+     * This situation is similar to a permission being denied forever, so to distinguish both cases
+     * a flag needs to be saved.
+     *
+     * @param context the context
+     */
+    public static void markLocationPermissionRequested(final Context context) {
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(PREFS_PERMISSION_REQUESTED, true).apply();
+    }
+
+    /**
      * On some devices running Android Marshmallow or newer location services must be enabled in order to scan for Bluetooth LE devices.
      * This method returns whether the Location has been enabled or not.
      *
      * @return true on Android 6.0+ if location mode is different than LOCATION_MODE_OFF. It always returns true on Android versions prior to Marshmallow.
      */
     public static boolean isLocationEnabled(final Context context) {
-        if (isMarshmallowOrAbove()) {
+        if (isWithinMarshmallowAndR()) {
             int locationMode = Settings.Secure.LOCATION_MODE_OFF;
             try {
                 locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
@@ -169,7 +228,7 @@ public class Utils {
      */
     public static boolean isLocationRequired(final Context context) {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(PREFS_LOCATION_NOT_REQUIRED, isMarshmallowOrAbove());
+        return preferences.getBoolean(PREFS_LOCATION_NOT_REQUIRED, isWithinMarshmallowAndR());
     }
 
     /**
@@ -182,19 +241,6 @@ public class Utils {
     public static void markLocationNotRequired(final Context context) {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         preferences.edit().putBoolean(PREFS_LOCATION_NOT_REQUIRED, false).apply();
-    }
-
-    /**
-     * The first time an app requests a permission there is no 'Don't ask again' checkbox and
-     * {@link ActivityCompat#shouldShowRequestPermissionRationale(Activity, String)} returns false.
-     * This situation is similar to a permission being denied forever, so to distinguish both cases
-     * a flag needs to be saved.
-     *
-     * @param context the context
-     */
-    public static void markLocationPermissionRequested(final Context context) {
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit().putBoolean(PREFS_PERMISSION_REQUESTED, true).apply();
     }
 
     /**
@@ -235,12 +281,12 @@ public class Utils {
                 && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE); // This method should return false
     }
 
-    public static boolean isMarshmallowOrAbove() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+    public static boolean isSorAbove() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
     }
 
-    public static boolean isLollipopOrAbove() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    public static boolean isWithinMarshmallowAndR() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT <= Build.VERSION_CODES.R;
     }
 
     public static boolean isKitkatOrAbove() {

@@ -24,7 +24,7 @@
 
 buildscript {
 
-    ext.hilt_version = '2.39.1'
+    ext.hilt_version = '2.40'
     repositories {
         google()
         mavenCentral()

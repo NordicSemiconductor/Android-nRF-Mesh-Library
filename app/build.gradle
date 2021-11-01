@@ -24,13 +24,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 81
         versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -63,7 +63,7 @@ android {
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03'
+
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.test:runner:1.4.0'

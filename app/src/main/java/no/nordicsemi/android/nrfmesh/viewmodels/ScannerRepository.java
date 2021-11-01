@@ -179,7 +179,7 @@ public class ScannerRepository {
      */
     void registerBroadcastReceivers() {
         mContext.registerReceiver(mBluetoothStateBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-        if (Utils.isMarshmallowOrAbove()) {
+        if (Utils.isWithinMarshmallowAndR()) {
             mContext.registerReceiver(mLocationProviderChangedReceiver, new IntentFilter(LocationManager.MODE_CHANGED_ACTION));
         }
     }
@@ -189,7 +189,7 @@ public class ScannerRepository {
      */
     void unregisterBroadcastReceivers() {
         mContext.unregisterReceiver(mBluetoothStateBroadcastReceiver);
-        if (Utils.isMarshmallowOrAbove()) {
+        if (Utils.isWithinMarshmallowAndR()) {
             mContext.unregisterReceiver(mLocationProviderChangedReceiver);
         }
     }
