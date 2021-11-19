@@ -9,8 +9,19 @@ The Android-nRF-Mesh-Library allows provisioning and sending messages to Bluetoo
 The library is compatible with version 1.0.1 of the Bluetooth Mesh Profile Specification.
 
 nRF Mesh for Android is supported on Android devices running Android 4.3 and onwards.
+## Features
 
-### Features
+The library is compatible with 
+- **Mesh Profile 1.0.1**, 
+- **Mesh Model 1.0.1**, 
+- **Mesh Device Properties 2**.
+
+The mesh network configuration (JSON schema) is compatible with 
+- **Mesh Configuration Database Profile 1.0**.
+
+Bluetooth mesh specifications are available at [Bluetooth.com](https://www.bluetooth.com/specifications/specs/?status=active&show_latest_version=1&keyword=mesh).
+
+### Supported features
 1. Provisionig with all features that available in Bluetooth Mesh Profile 1.0.1, including OOB Public Key and all types of OOB.
 2. Managing Provisioners, Network Keys, Application Keys, resetting network, etc.
 3. All network layers are working.
