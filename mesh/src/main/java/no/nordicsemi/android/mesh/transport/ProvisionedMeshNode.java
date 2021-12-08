@@ -597,6 +597,4 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     public int incrementSequenceNumber() {
         return sequenceNumber = sequenceNumber + 1;
     }
-
-
 }

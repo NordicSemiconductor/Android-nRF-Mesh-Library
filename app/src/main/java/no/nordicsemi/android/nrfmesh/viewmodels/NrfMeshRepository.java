@@ -399,9 +399,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     private void clearExtendedMeshNode() {
-        if (mExtendedMeshNode != null) {
-            mExtendedMeshNode.postValue(null);
-        }
+        mExtendedMeshNode.postValue(null);
     }
 
     LiveData<UnprovisionedMeshNode> getUnprovisionedMeshNode() {
@@ -954,7 +952,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     }
                 }
             } else if (meshMessage instanceof VendorModelMessageStatus) {
-
                 if (updateNode(node)) {
                     final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
                     if (node.getElements().containsKey(status.getSrcAddress())) {
