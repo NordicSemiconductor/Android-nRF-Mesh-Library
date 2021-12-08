@@ -111,7 +111,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final List<byte[]> sequenceNumbers = new ArrayList<>();
 
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(message.getSrc());
-
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
             case MeshManagerApi.PDU_TYPE_NETWORK:
