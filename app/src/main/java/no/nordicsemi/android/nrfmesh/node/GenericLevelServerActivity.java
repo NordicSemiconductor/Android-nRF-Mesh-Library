@@ -211,7 +211,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
                     final int address = element.getElementAddress();
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
                     final GenericLevelGet genericLevelGet = new GenericLevelGet(appKey);
-                    sendMessage(address, genericLevelGet);
+                    sendAcknowledgedMessage(address, genericLevelGet);
                 } else {
                     mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                 }
@@ -239,7 +239,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
                         final int address = element.getElementAddress();
                         final GenericLevelSet genericLevelSet = new GenericLevelSet(appKey, mTransitionSteps, mTransitionStepResolution, delay, level,
                                 new Random().nextInt());
-                        sendMessage(address, genericLevelSet);
+                        sendAcknowledgedMessage(address, genericLevelSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                     }

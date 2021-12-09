@@ -262,7 +262,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mViewModel.displaySnackBar(this, mContainer,
                     getString(R.string.listing_model_configuration), Snackbar.LENGTH_LONG);
             ((ModelConfigurationViewModel) mViewModel).prepareMessageQueue();
-            sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+            sendAcknowledgedMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
         } else {
             mSwipe.setRefreshing(false);
         }
@@ -378,7 +378,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigRelaySet message = new ConfigRelaySet(relay, relayRetransmit, relayRetransmitIntervalSteps);
-                sendMessage(node.getUnicastAddress(), message);
+                sendAcknowledgedMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
             hideProgressBar();
@@ -391,7 +391,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         try {
             if (node != null) {
                 final ConfigNetworkTransmitSet message = new ConfigNetworkTransmitSet(networkTransmitCount, networkTransmitIntervalSteps);
-                sendMessage(node.getUnicastAddress(), message);
+                sendAcknowledgedMessage(node.getUnicastAddress(), message);
             }
         } catch (Exception e) {
             hideProgressBar();

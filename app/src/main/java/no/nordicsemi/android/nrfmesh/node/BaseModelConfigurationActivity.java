@@ -315,7 +315,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                     } else {
                         configModelSubscriptionAdd = new ConfigModelSubscriptionVirtualAddressAdd(elementAddress, group.getAddressLabel(), modelIdentifier);
                     }
-                    sendMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
+                    sendAcknowledgedMessage(meshNode.getUnicastAddress(), configModelSubscriptionAdd);
                 }
             }
         }
@@ -357,7 +357,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                         mViewModel.getMessageQueue().add(new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId()));
                         queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
                     }
-                    sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                    sendAcknowledgedMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
                 } else {
                     mSwipe.setRefreshing(false);
                 }
@@ -369,7 +369,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                 mViewModel.getMessageQueue().add(appGet);
                 mViewModel.getMessageQueue().add(subscriptionGet);
                 queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
-                sendMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                sendAcknowledgedMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
             }
         }
     }
@@ -392,7 +392,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
                     final ConfigModelAppBind configModelAppUnbind = new ConfigModelAppBind(element.getElementAddress(), model.getModelId(), appKeyIndex);
-                    sendMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                    sendAcknowledgedMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
                 }
             }
         }
@@ -413,7 +413,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                     final MeshModel model = mViewModel.getSelectedModel().getValue();
                     if (model != null) {
                         final ConfigModelAppUnbind configModelAppUnbind = new ConfigModelAppUnbind(element.getElementAddress(), model.getModelId(), keyIndex);
-                        sendMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
+                        sendAcknowledgedMessage(meshNode.getUnicastAddress(), configModelAppUnbind);
                     }
                 }
             }
@@ -427,7 +427,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
             if (element != null) {
                 final MeshModel model = mViewModel.getSelectedModel().getValue();
                 if (model != null) {
-                    sendMessage(meshNode.getUnicastAddress(), new ConfigModelPublicationSet(element.getElementAddress(), model.getModelId()));
+                    sendAcknowledgedMessage(meshNode.getUnicastAddress(), new ConfigModelPublicationSet(element.getElementAddress(), model.getModelId()));
                 }
             }
         }
@@ -456,7 +456,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                         }
 
                         if (subscriptionDelete != null) {
-                            sendMessage(meshNode.getUnicastAddress(), subscriptionDelete);
+                            sendAcknowledgedMessage(meshNode.getUnicastAddress(), subscriptionDelete);
                         }
                     }
                 }
@@ -589,7 +589,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         return false;
     }
 
-    protected void sendMessage(final int address, @NonNull final MeshMessage meshMessage) {
+    protected void sendAcknowledgedMessage(final int address, @NonNull final MeshMessage meshMessage) {
         try {
             if (!checkConnectivity(mContainer))
                 return;
@@ -597,6 +597,19 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
             showProgressBar();
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
+            DialogFragmentError
+                    .newInstance(getString(R.string.title_error), ex.getMessage())
+                    .show(getSupportFragmentManager(), null);
+        }
+    }
+
+
+    protected void sendUnacknowledgedMessage(final int address, @NonNull final MeshMessage meshMessage) {
+        try {
+            if (!checkConnectivity(mContainer))
+                return;
+            mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
+        } catch (IllegalArgumentException ex) {
             DialogFragmentError
                     .newInstance(getString(R.string.title_error), ex.getMessage())
                     .show(getSupportFragmentManager(), null);
