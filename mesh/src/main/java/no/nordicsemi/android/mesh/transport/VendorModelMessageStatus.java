@@ -75,6 +75,10 @@ public final class VendorModelMessageStatus extends ApplicationStatusMessage imp
         return mMessage.getOpCode();
     }
 
+    public int getCompanyIdentifier() {
+        return mMessage.getCompanyIdentifier();
+    }
+
     @Override
     public int describeContents() {
         return 0;

@@ -340,13 +340,12 @@ public class MeshParserUtils {
     public static int getOpCode(final byte[] accessPayload, final int opCodeCount) {
         switch (opCodeCount) {
             case 1:
-                return accessPayload[0];
+                return unsignedByteToInt(accessPayload[0]);
             case 2:
                 return unsignedBytesToInt(accessPayload[1], accessPayload[0]);
             default:
-                return unsignedByteToInt(accessPayload[1]) << 8
-                        | unsignedByteToInt(accessPayload[0]) << 16
-                        | unsignedByteToInt(accessPayload[2]);
+                // Returns the 6 bit opcode from a 3-octet opcode of a vendor model message
+                return unsignedByteToInt(accessPayload[0]) & 0x3F;
         }
     }
 
