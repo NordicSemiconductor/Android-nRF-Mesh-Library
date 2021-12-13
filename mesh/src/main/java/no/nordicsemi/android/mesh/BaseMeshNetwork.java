@@ -1152,16 +1152,28 @@ abstract class BaseMeshNetwork {
         if (sameAddressNode != null) {
             throw new IllegalStateException("cant add node with conflicting unicast address");
         }
-        boolean hasMatchingKey = false;
-        for (NodeKey key: meshNode.getAddedNetKeys()){
-            for (NetworkKey key2: this.netKeys){
-                hasMatchingKey = key.getIndex() == key2.getKeyIndex();
-                if (hasMatchingKey) break;
+        boolean hasMatchingNetKey = false;
+        for (NodeKey nodeKey: meshNode.getAddedNetKeys()){
+            for (NetworkKey networkKey: netKeys){
+                hasMatchingNetKey = nodeKey.getIndex() == networkKey.getKeyIndex();
+                if (hasMatchingNetKey) break;
             }
-            if (hasMatchingKey) break;
+            if (hasMatchingNetKey) break;
         }
-        if (!hasMatchingKey) {
-            throw new IllegalStateException("can't add node with no overlapping network keys");
+        if (!hasMatchingNetKey) {
+            throw new IllegalStateException("Network key added to the node is not a part of the mesh network");
+        }
+
+        boolean hasMatchingAppKey = false;
+        for (NodeKey nodeKey: meshNode.getAddedAppKeys()){
+            for (ApplicationKey appKey: appKeys){
+                hasMatchingAppKey = nodeKey.getIndex() == appKey.getKeyIndex();
+                if (hasMatchingAppKey) break;
+            }
+            if (hasMatchingAppKey) break;
+        }
+        if (!hasMatchingAppKey) {
+            throw new IllegalStateException("Application key added to the node is not a part of the mesh network");
         }
 
         int index = 0;
