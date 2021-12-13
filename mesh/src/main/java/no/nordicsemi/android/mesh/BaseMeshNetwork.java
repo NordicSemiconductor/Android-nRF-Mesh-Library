@@ -40,7 +40,7 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhase;
 import static no.nordicsemi.android.mesh.NetworkKey.KeyRefreshPhaseTransition;
 
-@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue", "ComparatorCombinators", "unused"})
 abstract class BaseMeshNetwork {
     private static final String TAG = "BaseMeshNetwork";
     // Key refresh phases
