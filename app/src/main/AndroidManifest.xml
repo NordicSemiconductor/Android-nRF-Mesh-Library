@@ -77,6 +77,8 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="s" />
 
+    <uses-sdk tools:overrideLibrary="androidx.core.splashscreen"/>
+
     <application
         android:name=".di.MeshApplication"
         android:allowBackup="true"
@@ -86,29 +88,37 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity
-            android:name=".SplashScreenActivity"
-            android:launchMode="singleTop"
-            android:noHistory="true"
+            android:name=".MainActivity"
             android:theme="@style/AppTheme.SplashScreen"
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".MainActivity"
+
+        <!--
+         This activity alias is used to allow opening nRF Blinky from nRF Toolbox.
+         This is not required if this feature is not desired.
+         nRF Toolbox is displaying a different name and an icon, which are taken from this alias.
+        -->
+        <activity-alias
+            android:name="SplashScreenActivity"
+            android:targetActivity=".MainActivity"
             android:icon="@drawable/ic_mesh_feature"
             android:label="@string/feature_name"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
+
         <activity
             android:name=".ble.ScannerActivity"
             android:launchMode="singleTop" />

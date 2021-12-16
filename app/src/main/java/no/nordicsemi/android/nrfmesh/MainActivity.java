@@ -23,6 +23,7 @@
 package no.nordicsemi.android.nrfmesh;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -44,6 +46,11 @@ import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 public class MainActivity extends AppCompatActivity implements
         BottomNavigationView.OnNavigationItemSelectedListener,
         BottomNavigationView.OnNavigationItemReselectedListener {
+    // This flag is false when the app is first started (cold start).
+    // In this case, the animation will be fully shown (1 sec).
+    // Subsequent launches will display it only briefly.
+    // It is only used on API 31+
+    private static boolean coldStart = true;
 
     private static final String CURRENT_FRAGMENT = "CURRENT_FRAGMENT";
 
@@ -56,7 +63,44 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        // Set the proper theme for the Activity. This could have been set in "v23/styles..xml"
+        // as "postSplashScreenTheme", but as this app works on pre-API-23 devices, it needs to be
+        // set for them as well, and that code would not apply in such case.
+        // As "postSplashScreenTheme" is optional, and setting the theme can be done using
+        // setTheme, this is preferred in our case, as this also work for older platforms.
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+
+        // Set up the splash screen.
+        // The app is using SplashScreen compat library, which is supported on Android 5+, but the
+        // icon is only supported on API 23+.
+        //
+        // See: https://android.googlesource.com/platform/frameworks/support/+/androidx-main/core/core-splashscreen/src/main/java/androidx/core/splashscreen/package-info.java
+        //
+        // On Android 12+ the splash screen will be animated, while on 6 - 11 will present a still
+        // image. See more: https://developer.android.com/guide/topics/ui/splash-screen/
+        //
+        // As nRF Blinky supports Android 4.3+, on older platforms a 9-patch image is presented
+        // without the use of SplashScreen compat library.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            final SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+
+            // Animated Vector Drawable is only supported on API 31+.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (coldStart) {
+                    coldStart = false;
+                    // Keep the splash screen on-screen for longer periods.
+                    // Handle the splash screen transition.
+                    final long then = System.currentTimeMillis();
+                    splashScreen.setKeepVisibleCondition(() -> {
+                        final long now = System.currentTimeMillis();
+                        return now < then + 900;
+                    });
+                }
+            }
+        }
+
+
         final ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);

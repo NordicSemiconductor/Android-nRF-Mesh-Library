@@ -22,8 +22,20 @@
   -->
 
 <resources>
-	<style name="AppTheme.SplashScreen">
-		<item name="colorPrimaryDark">@android:color/transparent</item>
-		<item name="android:windowTranslucentStatus">true</item>
+
+	<!--
+	    Splash screen configuration.
+	    On API 18-22 the splash screen is using a normal activity, which displays windowBackground.
+
+	    From API 23 it is using androidx.core.core-splashscreen implementation and the theme is
+	    overwritten in styles-v23.
+	    As of version alpha02 of this library, the splash screen icon is supported on API 23+.
+	-->
+	<style name="AppTheme.SplashScreenBase">
+		<!-- Draw splash screen an window background. -->
+		<item name="android:windowBackground">@drawable/ic_splash_screen</item>
 	</style>
+
+	<!-- Splash screen customization per API. -->
+	<style name="AppTheme.SplashScreen" parent="AppTheme.SplashScreenBase"/>
 </resources>
