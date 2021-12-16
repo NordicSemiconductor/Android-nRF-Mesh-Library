@@ -23,11 +23,33 @@
 
 <resources>
 
-	<!-- Main theme customization per API. -->
-	<style name="AppTheme" parent="AppTheme.Base">
-		<!-- Black navigation bar. -->
-		<item name="android:navigationBarColor">@android:color/black</item>
-		<!-- Use white status bar text on any theme. -->
-		<item name="android:windowLightStatusBar">false</item>
+	<!-- Configuration for compat splashscreen, from androidx.core.core-splashscreen. -->
+	<style name="AppTheme.SplashScreenBase" parent="Theme.SplashScreen">
+		<!--
+		Set the splash screen background.
+		The window background will be white in light mode, and black in dark mode.
+		-->
+		<item name="windowSplashScreenBackground">@color/colorBackground</item>
+
+		<!--
+		Use windowSplashScreenAnimatedIcon to add either a drawable or an
+		animated drawable. One of these is required.
+		-->
+		<item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_screen</item>
+		<!-- Required for animated icons-->
+		<item name="windowSplashScreenAnimationDuration">900</item>
+
+		<!--
+		Set the theme of the Activity that directly follows your splash screen.
+		This is no longer required since alpha02:
+		https://developer.android.com/jetpack/androidx/releases/core#core-splashscreen-1.0.0-alpha02
+
+		<item name="postSplashScreenTheme">@style/AppTheme</item>
+		-->
+	</style>
+
+	<style name="AppTheme.SplashScreen" parent="AppTheme.SplashScreenBase">
+		<!-- Use white status bar text on light theme. -->
+		<item name="android:windowLightStatusBar">true</item>
 	</style>
 </resources>

@@ -24,13 +24,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
+
     compileSdkVersion 31
-    buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 81
         versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -75,6 +75,9 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
+
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
 
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android:log:2.3.0'
