@@ -50,7 +50,6 @@ import static no.nordicsemi.android.mesh.utils.Heartbeat.PERIOD_LOG_MIN;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatCount;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPeriod;
 import static no.nordicsemi.android.mesh.utils.Heartbeat.periodToTime;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.HEARTBEAT_PUBLICATION_NET_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
@@ -211,7 +210,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             onBackPressed();
             return true;
         } else if (id == R.id.action_connect) {
-            mViewModel.navigateToScannerActivity(this, false, CONNECT_TO_NETWORK, false);
+            mViewModel.navigateToScannerActivity(this, false);
             return true;
         } else if (id == R.id.action_disconnect) {
             mViewModel.disconnect();

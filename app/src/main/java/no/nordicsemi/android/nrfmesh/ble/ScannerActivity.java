@@ -142,13 +142,13 @@ public class ScannerActivity extends AppCompatActivity implements
             if (resultCode == RESULT_OK) {
                 setResultIntent(data);
             }
-        } else if (requestCode == Utils.CONNECT_TO_NETWORK) {
-            if (resultCode == RESULT_OK) {
-                finish();
-            }
         } else if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == RESULT_OK) {
                 startScan(mViewModel.getScannerRepository().getScannerState());
+            }
+        } else {
+            if (resultCode == RESULT_OK) {
+                finish();
             }
         }
     }

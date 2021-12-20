@@ -36,7 +36,6 @@ import no.nordicsemi.android.nrfmesh.node.dialog.DialogFragmentHeartbeatSource;
 import no.nordicsemi.android.nrfmesh.viewmodels.HeartbeatViewModel;
 
 import static no.nordicsemi.android.mesh.utils.Heartbeat.calculateHeartbeatPeriod;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.CONNECT_TO_NETWORK;
 
 @AndroidEntryPoint
 public class HeartbeatSubscriptionActivity extends AppCompatActivity implements
@@ -140,7 +139,7 @@ public class HeartbeatSubscriptionActivity extends AppCompatActivity implements
             onBackPressed();
             return true;
         } else if (itemId == R.id.action_connect) {
-            mViewModel.navigateToScannerActivity(this, false, CONNECT_TO_NETWORK, false);
+            mViewModel.navigateToScannerActivity(this, false);
             return true;
         } else if (itemId == R.id.action_disconnect) {
             mViewModel.disconnect();

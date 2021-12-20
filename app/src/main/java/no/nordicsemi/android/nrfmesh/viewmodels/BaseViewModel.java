@@ -94,18 +94,12 @@ public abstract class BaseViewModel extends ViewModel {
      * Navigate to scanner activity
      *
      * @param context                 Activity context
-     * @param withResult              Start activity with result
-     * @param requestCode             Request code when using with result
      * @param withProvisioningService Scan with provisioning service
      */
-    public void navigateToScannerActivity(@NonNull final Activity context, final boolean withResult, final int requestCode, final boolean withProvisioningService) {
+    public void navigateToScannerActivity(@NonNull final Context context, final boolean withProvisioningService) {
         final Intent intent = new Intent(context, ScannerActivity.class);
         intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, withProvisioningService);
-        if (withResult) {
-            context.startActivityForResult(intent, requestCode);
-        } else {
-            context.startActivity(intent);
-        }
+        context.startActivity(intent);
     }
 
     /**
@@ -300,7 +294,7 @@ public abstract class BaseViewModel extends ViewModel {
         Snackbar.make(container, context.getString(R.string.disconnected_network_rationale), Snackbar.LENGTH_LONG)
                 .setActionTextColor(context.getResources().getColor(R.color.colorSecondary))
                 .setAction(context.getString(R.string.action_connect), v ->
-                        navigateToScannerActivity(context, false, Utils.CONNECT_TO_NETWORK, false))
+                        navigateToScannerActivity(context, false))
                 .show();
     }
 
