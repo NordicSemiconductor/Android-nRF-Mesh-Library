@@ -43,10 +43,6 @@ public class MeshNetworkLiveData extends LiveData<MeshNetworkLiveData> {
     private ApplicationKey selectedAppKey;
     private String nodeName;
 
-    MeshNetworkLiveData() {
-
-    }
-
     /**
      * Loads the mesh network information in to live data
      *
