@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements
         // setTheme, this is preferred in our case, as this also work for older platforms.
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // Set up the splash screen.
         // The app is using SplashScreen compat library, which is supported on Android 5+, but the
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements
         // On Android 12+ the splash screen will be animated, while on 6 - 11 will present a still
         // image. See more: https://developer.android.com/guide/topics/ui/splash-screen/
         //
-        // As nRF Blinky supports Android 4.3+, on older platforms a 9-patch image is presented
+        // As nRF Mesh supports Android 4.3+, on older platforms a 9-patch image is presented
         // without the use of SplashScreen compat library.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             final SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
@@ -92,18 +93,13 @@ public class MainActivity extends AppCompatActivity implements
                     // Keep the splash screen on-screen for longer periods.
                     // Handle the splash screen transition.
                     final long then = System.currentTimeMillis();
-                    splashScreen.setKeepVisibleCondition(() -> {
-                        final long now = System.currentTimeMillis();
-                        return now < then + 900;
-                    });
+                    splashScreen.setKeepVisibleCondition(() -> mViewModel.getNetworkLiveData().getMeshNetwork() == null);
                 }
             }
         }
 
-
         final ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
