@@ -12,6 +12,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,7 +55,6 @@ import static no.nordicsemi.android.mesh.utils.Heartbeat.periodToTime;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.HEARTBEAT_PUBLICATION_NET_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 
 @AndroidEntryPoint
 public class HeartbeatPublicationActivity extends AppCompatActivity implements
@@ -77,6 +78,15 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
     private boolean mIsConnected;
     private int mDestination;
     private NetworkKey mNetKey;
+
+    private final ActivityResultLauncher<Intent> networkKeySelector = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            final NetworkKey netKey = result.getData().getParcelableExtra(RESULT_KEY);
+            if (netKey != null) {
+                updateNetKeyIndex(mNetKey = netKey);
+            }
+        }
+    });
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -157,7 +167,7 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
         binding.containerNetKeyIndex.setOnClickListener(v -> {
             final Intent netKeysIntent = new Intent(this, NetKeysActivity.class);
             netKeysIntent.putExtra(EXTRA_DATA, HEARTBEAT_PUBLICATION_NET_KEY);
-            startActivityForResult(netKeysIntent, SELECT_KEY);
+            networkKeySelector.launch(netKeysIntent);
         });
 
         binding.fabApply.setOnClickListener(v -> {
@@ -217,19 +227,6 @@ public class HeartbeatPublicationActivity extends AppCompatActivity implements
             return true;
         }
         return false;
-    }
-
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SELECT_KEY) {
-            if (resultCode == RESULT_OK) {
-                final NetworkKey netKey = data.getParcelableExtra(RESULT_KEY);
-                if (netKey != null) {
-                    updateNetKeyIndex(mNetKey = netKey);
-                }
-            }
-        }
     }
 
     @Override
