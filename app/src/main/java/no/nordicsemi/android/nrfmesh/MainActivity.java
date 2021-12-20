@@ -40,7 +40,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityMainBinding;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
 @AndroidEntryPoint
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int id = item.getItemId();
         if (id == R.id.action_connect) {
-            mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
+            mViewModel.navigateToScannerActivity(this, false);
             return true;
         } else if (id == R.id.action_disconnect) {
             mViewModel.disconnect();

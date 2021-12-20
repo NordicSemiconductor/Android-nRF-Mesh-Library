@@ -11,7 +11,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -72,7 +71,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             onBackPressed();
             return true;
         } else if (id == R.id.action_connect) {
-            mViewModel.navigateToScannerActivity(this, false, Utils.CONNECT_TO_NETWORK, false);
+            mViewModel.navigateToScannerActivity(this, false);
             return true;
         } else if (id == R.id.action_disconnect) {
             mViewModel.disconnect();
