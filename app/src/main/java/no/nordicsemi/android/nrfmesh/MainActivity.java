@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,8 +45,8 @@ import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements
-        BottomNavigationView.OnNavigationItemSelectedListener,
-        BottomNavigationView.OnNavigationItemReselectedListener {
+        NavigationBarView.OnItemSelectedListener,
+        NavigationBarView.OnItemReselectedListener {
     // This flag is false when the app is first started (cold start).
     // In this case, the animation will be fully shown (1 sec).
     // Subsequent launches will display it only briefly.
@@ -110,8 +111,8 @@ public class MainActivity extends AppCompatActivity implements
         mSettingsFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_settings);
         final BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(this);
-        bottomNavigationView.setOnNavigationItemReselectedListener(this);
+        bottomNavigationView.setOnItemSelectedListener(this);
+        bottomNavigationView.setOnItemReselectedListener(this);
 
         if (savedInstanceState == null) {
             onNavigationItemSelected(bottomNavigationView.getMenu().findItem(R.id.action_network));
