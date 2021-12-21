@@ -335,19 +335,7 @@ public class ProvisioningActivity extends AppCompatActivity implements
                             }
                             break;
                         case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
-                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
-                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                            }
-                            break;
                         case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
-                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
-                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                            }
-                            break;
                         case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                                 DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
