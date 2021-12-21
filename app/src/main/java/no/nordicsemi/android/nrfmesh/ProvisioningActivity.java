@@ -32,6 +32,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -81,6 +83,16 @@ public class ProvisioningActivity extends AppCompatActivity implements
 
     private ActivityMeshProvisionerBinding binding;
     private ProvisioningViewModel mViewModel;
+
+
+    private final ActivityResultLauncher<Intent> appKeySelector = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+            if (appKey != null) {
+                mViewModel.getNetworkLiveData().setSelectedAppKey(appKey);
+            }
+        }
+    });
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -132,7 +144,7 @@ public class ProvisioningActivity extends AppCompatActivity implements
         binding.containerAppKeys.getRoot().setOnClickListener(v -> {
             final Intent manageAppKeys = new Intent(ProvisioningActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
-            startActivityForResult(manageAppKeys, Utils.SELECT_KEY);
+            appKeySelector.launch(manageAppKeys);
         });
 
         mViewModel.getConnectionState().observe(this, binding.connectionState::setText);
