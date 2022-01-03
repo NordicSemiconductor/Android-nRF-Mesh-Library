@@ -2,13 +2,12 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshManagerApi;
@@ -569,7 +568,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isReceivedViaProxyFilter(@NonNull final Message message) {
         final ProxyFilter filter = mInternalTransportCallbacks.getProxyFilter();
-        if (filter != null) {
+        if (filter != null && !filter.getAddresses().isEmpty()) {
             if (filter.getFilterType().getType() == ProxyFilterType.INCLUSION_LIST_FILTER) {
                 return filterAddressMatches(filter, message.getDst());
             } else {
