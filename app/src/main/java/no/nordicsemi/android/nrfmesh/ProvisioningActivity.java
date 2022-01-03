@@ -267,19 +267,6 @@ public class ProvisioningActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Utils.SELECT_KEY) {
-            if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
-                if (appKey != null) {
-                    mViewModel.getNetworkLiveData().setSelectedAppKey(appKey);
-                }
-            }
-        }
-    }
-
-    @Override
     public void onPinInputComplete(final String pin) {
         mViewModel.getMeshManagerApi().setProvisioningAuthentication(pin);
     }

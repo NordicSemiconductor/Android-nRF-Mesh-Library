@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -102,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(R.string.app_name);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.app_name);
 
         mNetworkFragment = (NetworkFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_network);
         mGroupsFragment = (GroupsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_groups);
@@ -147,11 +147,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-    }
-
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
