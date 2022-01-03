@@ -26,6 +26,7 @@ import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationGet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionGet;
+import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionSet;
 import no.nordicsemi.android.mesh.transport.ConfigHeartbeatSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
@@ -176,7 +177,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mRefreshSubscription.setOnClickListener(v -> sendMessage(new ConfigHeartbeatSubscriptionGet()));
 
             mClearSubscription = nodeControlsContainerBinding.actionClearHeartbeatSubscription;
-            mClearSubscription.setOnClickListener(v -> sendMessage(new ConfigHeartbeatPublicationSet()));
+            mClearSubscription.setOnClickListener(v -> sendMessage(new ConfigHeartbeatSubscriptionSet()));
 
             mSetSubscription = nodeControlsContainerBinding.actionSetHeartbeatSubscription;
             mSetSubscription.setOnClickListener(v -> heartbeatConfigurationLauncher.launch(new Intent(this, HeartbeatSubscriptionActivity.class)));
