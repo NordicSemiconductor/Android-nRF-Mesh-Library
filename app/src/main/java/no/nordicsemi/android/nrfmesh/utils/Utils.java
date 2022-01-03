@@ -100,7 +100,6 @@ public class Utils {
     public static final int SELECT_SCENE = 6;
 
     // Heartbeat publication key
-    public static final int HEARTBEAT_SETTINGS_SET = 2022;
     public static final int HEARTBEAT_PUBLICATION_NET_KEY = 6;
     public static final int SELECT_KEY = 2011; //Random number
 

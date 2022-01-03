@@ -3,6 +3,8 @@ package no.nordicsemi.android.nrfmesh.node;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -28,13 +30,19 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_SCENE;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.STORE_SCENE;
 
 @AndroidEntryPoint
 public class SceneSetupServerModelActivity extends SceneServerModelActivity
         implements ItemTouchHelperAdapter {
 
     private LayoutSceneSetupServerBinding layoutSceneSetupServerBinding;
+
+    private final ActivityResultLauncher<Intent> sceneSelector = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    sendSceneStore(result.getData().getParcelableExtra(EXTRA_DATA));
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +59,11 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
             final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
             final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
             itemTouchHelper.attachToRecyclerView(layoutSceneSetupServerBinding.recyclerViewScenes);
-            layoutSceneSetupServerBinding.recyclerViewScenes.setAdapter(mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
+            layoutSceneSetupServerBinding.recyclerViewScenes.setAdapter(
+                    mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
 
-            layoutSceneSetupServerBinding.actionStore.setOnClickListener(v -> startActivityForResult(new Intent(this, ScenesActivity.class).putExtra(EXTRA_DATA, SELECT_SCENE), STORE_SCENE));
+            layoutSceneSetupServerBinding.actionStore.setOnClickListener(v ->
+                    sceneSelector.launch(new Intent(this, ScenesActivity.class).putExtra(EXTRA_DATA, SELECT_SCENE)));
             mViewModel.getSelectedModel().observe(this, meshModel -> {
                 if (meshModel != null) {
                     updateUi(meshModel);
@@ -91,22 +101,10 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity
         super.onItemDismiss(viewHolder);
         final Scene scene = (Scene) viewHolder.getSwipeableView().getTag();
         if (!checkConnectivity(mContainer)) {
-            mScenesAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            mScenesAdapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
             return;
         }
         sendSceneDelete(scene);
-    }
-
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == STORE_SCENE) {
-            if (resultCode == RESULT_OK) {
-                if (data != null) {
-                    sendSceneStore(data.getParcelableExtra(EXTRA_DATA));
-                }
-            }
-        }
     }
 
     private void sendSceneStore(final Scene scene) {
