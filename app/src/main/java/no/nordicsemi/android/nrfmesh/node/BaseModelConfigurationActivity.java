@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
@@ -79,7 +81,6 @@ import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentGroupSubscription;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentTransactionStatus;
 import no.nordicsemi.android.nrfmesh.keys.AppKeysActivity;
 import no.nordicsemi.android.nrfmesh.keys.adapter.BoundAppKeysAdapter;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.BaseActivity;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.ItemTouchHelperAdapter;
@@ -93,7 +94,6 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.MESSAGE_TIME_OUT;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.SELECT_KEY;
 
 public abstract class BaseModelConfigurationActivity extends BaseActivity implements
         GroupCallbacks,
@@ -131,6 +131,26 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
 
     private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
 
+    private final ActivityResultLauncher<Intent> appKeySelector = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+            if (appKey != null) {
+                bindAppKey(appKey.getKeyIndex());
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> publicationSettings = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+            if (appKey != null) {
+                bindAppKey(appKey.getKeyIndex());
+            }
+        }
+    });
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,8 +178,11 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         final String modelName = meshModel.getModelName();
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(modelName);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(modelName);
+        }
+
         final int modelId = meshModel.getModelId();
         getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, true)));
 
@@ -187,7 +210,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
             if (!checkConnectivity(mContainer)) return;
             final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(EXTRA_DATA, BIND_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, SELECT_KEY);
+            appKeySelector.launch(bindAppKeysIntent);
         });
 
         mPublishAddressView.setText(R.string.none);
@@ -233,27 +256,6 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         } else {
             mProgressbar.setVisibility(View.INVISIBLE);
             enableClickableViews();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case SELECT_KEY:
-                if (resultCode == RESULT_OK) {
-                    final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
-                    if (appKey != null) {
-                        bindAppKey(appKey.getKeyIndex());
-                    }
-                }
-                break;
-            case Utils.HEARTBEAT_SETTINGS_SET:
-            case PublicationSettingsActivity.SET_PUBLICATION_SETTINGS:
-                if (resultCode == RESULT_OK) {
-                    showProgressBar();
-                }
-                break;
         }
     }
 
@@ -377,8 +379,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
     protected void navigateToPublication() {
         final MeshModel model = mViewModel.getSelectedModel().getValue();
         if (model != null && !model.getBoundAppKeyIndexes().isEmpty()) {
-            final Intent publicationSettings = new Intent(this, PublicationSettingsActivity.class);
-            startActivityForResult(publicationSettings, PublicationSettingsActivity.SET_PUBLICATION_SETTINGS);
+            publicationSettings.launch(new Intent(this, PublicationSettingsActivity.class));
         } else {
             mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
         }

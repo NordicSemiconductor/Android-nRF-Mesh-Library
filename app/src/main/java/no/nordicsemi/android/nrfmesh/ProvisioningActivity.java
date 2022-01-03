@@ -84,7 +84,6 @@ public class ProvisioningActivity extends AppCompatActivity implements
     private ActivityMeshProvisionerBinding binding;
     private ProvisioningViewModel mViewModel;
 
-
     private final ActivityResultLauncher<Intent> appKeySelector = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
             final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
@@ -107,9 +106,11 @@ public class ProvisioningActivity extends AppCompatActivity implements
         final String deviceAddress = device.getAddress();
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(deviceName);
-        getSupportActionBar().setSubtitle(deviceAddress);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setTitle(deviceName);
+            getSupportActionBar().setSubtitle(deviceAddress);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
