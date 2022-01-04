@@ -226,7 +226,7 @@ public class DialogFragmentHeartbeatDestination extends DialogFragment {
     }
 
     private void setAddressType(final int address) {
-        mAddressTypeAdapter = new AddressTypeAdapter(requireContext(), ADDRESS_TYPES);
+        mAddressTypeAdapter = new AddressTypeAdapter(ADDRESS_TYPES);
         binding.addressTypes.setAdapter(mAddressTypeAdapter);
         final AddressType type = MeshAddress.getAddressType(address);
         if (type != null) {

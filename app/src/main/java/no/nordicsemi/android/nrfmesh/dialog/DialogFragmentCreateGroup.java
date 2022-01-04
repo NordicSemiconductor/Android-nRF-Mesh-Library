@@ -87,7 +87,7 @@ public class DialogFragmentCreateGroup extends DialogFragment {
         }
         updateGroup();
 
-        mAdapterSpinner = new AddressTypeAdapter(requireContext(), ADDRESS_TYPES);
+        mAdapterSpinner = new AddressTypeAdapter(ADDRESS_TYPES);
         binding.addressTypes.setAdapter(mAdapterSpinner);
 
         binding.groupContainer.getRoot().setVisibility(View.GONE);

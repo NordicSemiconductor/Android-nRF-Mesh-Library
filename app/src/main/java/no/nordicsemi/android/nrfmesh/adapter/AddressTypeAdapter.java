@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,11 +37,8 @@ import no.nordicsemi.android.nrfmesh.databinding.NoGroupsLayoutBinding;
 public class AddressTypeAdapter extends BaseAdapter {
 
     private final AddressType[] mAddressTypes;
-    private final Context mContext;
 
-    public AddressTypeAdapter(@NonNull final Context context,
-                              @NonNull final AddressType[] addressTypes) {
-        this.mContext = context;
+    public AddressTypeAdapter(@NonNull final AddressType[] addressTypes) {
         mAddressTypes = addressTypes;
         notifyDataSetChanged();
     }
