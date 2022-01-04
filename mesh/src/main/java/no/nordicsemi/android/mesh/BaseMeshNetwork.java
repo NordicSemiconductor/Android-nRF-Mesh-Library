@@ -678,6 +678,16 @@ abstract class BaseMeshNetwork {
      * @param meshKey {@link MeshKey}
      */
     public boolean isKeyInUse(@NonNull final MeshKey meshKey) {
+        // We should not allow deleting a network key that is bound to an application key.
+        // This would require deleting the application key that's bound to this network key before deleting network key.
+        if (meshKey instanceof NetworkKey) {
+            for (ApplicationKey applicationKey : appKeys) {
+                if (meshKey.getKeyIndex() == applicationKey.getBoundNetKeyIndex()) {
+                    throw new IllegalArgumentException("Please unbind "+ meshKey.name + " from the " + applicationKey.name + " or delete the bound " + applicationKey.name + " first.");
+                }
+            }
+        }
+
         for (ProvisionedMeshNode node : nodes) {
             if (!node.getUuid().equalsIgnoreCase(getSelectedProvisioner().getProvisionerUuid())) {
                 final int index = meshKey.getKeyIndex();
@@ -1153,8 +1163,8 @@ abstract class BaseMeshNetwork {
             throw new IllegalStateException("cant add node with conflicting unicast address");
         }
         boolean hasMatchingNetKey = false;
-        for (NodeKey nodeKey: meshNode.getAddedNetKeys()){
-            for (NetworkKey networkKey: netKeys){
+        for (NodeKey nodeKey : meshNode.getAddedNetKeys()) {
+            for (NetworkKey networkKey : netKeys) {
                 hasMatchingNetKey = nodeKey.getIndex() == networkKey.getKeyIndex();
                 if (hasMatchingNetKey) break;
             }
@@ -1165,8 +1175,8 @@ abstract class BaseMeshNetwork {
         }
 
         boolean hasMatchingAppKey = false;
-        for (NodeKey nodeKey: meshNode.getAddedAppKeys()){
-            for (ApplicationKey appKey: appKeys){
+        for (NodeKey nodeKey : meshNode.getAddedAppKeys()) {
+            for (ApplicationKey appKey : appKeys) {
                 hasMatchingAppKey = nodeKey.getIndex() == appKey.getKeyIndex();
                 if (hasMatchingAppKey) break;
             }
