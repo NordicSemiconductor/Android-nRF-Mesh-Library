@@ -52,7 +52,8 @@ public class AddAppKeysActivity extends AddKeysActivity implements
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle(R.string.title_added_app_keys);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.title_added_app_keys);
         adapter = new AddedAppKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys(), mViewModel.getSelectedMeshNode());
         binding.recyclerViewKeys.setAdapter(adapter);

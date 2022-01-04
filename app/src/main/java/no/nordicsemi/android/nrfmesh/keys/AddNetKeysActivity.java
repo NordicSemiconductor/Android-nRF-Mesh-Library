@@ -46,7 +46,8 @@ public class AddNetKeysActivity extends AddKeysActivity implements
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle(R.string.title_added_net_keys);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.title_added_net_keys);
         adapter = new AddedNetKeyAdapter(this,
                 mViewModel.getNetworkLiveData().getMeshNetwork().getNetKeys(), mViewModel.getSelectedMeshNode());
         binding.recyclerViewKeys.setAdapter(adapter);
