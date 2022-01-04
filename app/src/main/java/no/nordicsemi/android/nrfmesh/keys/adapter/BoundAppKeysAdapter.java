@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -47,23 +48,23 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapter.ViewHolder> {
 
-    private final ArrayList<ApplicationKey> appKeys = new ArrayList<>();
+    private final AsyncListDiffer<ApplicationKey> differ = new AsyncListDiffer<>(this, new ApplicationKeyDiffCallback());
 
     public BoundAppKeysAdapter(@NonNull final LifecycleOwner owner,
                                @NonNull final List<ApplicationKey> appKeys,
                                @NonNull final LiveData<MeshModel> meshModelLiveData) {
         meshModelLiveData.observe(owner, meshModel -> {
             if (meshModel != null) {
-                this.appKeys.clear();
+                final ArrayList<ApplicationKey> applicationKeys = new ArrayList<>();
                 for (Integer index : meshModel.getBoundAppKeyIndexes()) {
                     for (ApplicationKey applicationKey : appKeys) {
                         if (index == applicationKey.getKeyIndex()) {
-                            this.appKeys.add(applicationKey);
+                            applicationKeys.add(applicationKey);
                         }
                     }
                 }
-                Collections.sort(this.appKeys, Utils.appKeyComparator);
-                notifyDataSetChanged();
+                Collections.sort(applicationKeys, Utils.appKeyComparator);
+                differ.submitList(applicationKeys);
             }
         });
     }
@@ -76,8 +77,8 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final BoundAppKeysAdapter.ViewHolder holder, final int position) {
-        if (appKeys.size() > 0) {
-            final ApplicationKey applicationKey = appKeys.get(position);
+        if (getItemCount() > 0) {
+            final ApplicationKey applicationKey = differ.getCurrentList().get(position);
             final String appKey = MeshParserUtils.bytesToHex(applicationKey.getKey(), false);
             holder.appKeyName.setText(applicationKey.getName());
             holder.appKey.setText(appKey.toUpperCase());
@@ -91,7 +92,7 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
 
     @Override
     public int getItemCount() {
-        return appKeys.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -99,8 +100,8 @@ public class BoundAppKeysAdapter extends RecyclerView.Adapter<BoundAppKeysAdapte
     }
 
     public ApplicationKey getAppKey(final int position) {
-        if (!appKeys.isEmpty()) {
-            return appKeys.get(position);
+        if (getItemCount() > 0) {
+            return differ.getCurrentList().get(position);
         }
         return null;
     }

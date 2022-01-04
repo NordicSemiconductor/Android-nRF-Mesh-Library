@@ -47,20 +47,16 @@ import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
+@SuppressWarnings("ComparatorCombinators")
 public class Utils {
 
     public static final String EXTRA_DATA_PROVISIONING_SERVICE = "EXTRA_DATA_PROVISIONING_SERVICE";
     public static final String HEX_PATTERN = "^[0-9a-fA-F]+$";
-    public static final String EXTRA_MODEL_ID = "EXTRA_MODEL_ID";
-    public static final String EXTRA_ELEMENT_ADDRESS = "EXTRA_ELEMENT_ADDRESS";
-    public static final String EXTRA_DATA_MODEL_NAME = "EXTRA_DATA_MODEL_NAME";
 
     public static final String RESULT_KEY_INDEX = "RESULT_KEY_INDEX";
-    public static final String RESULT_KEY_LIST_SIZE = "RESULT_KEY_LIST_SIZE";
     public static final String EDIT_KEY = "EDIT_KEY";
 
     public static final String EXTRA_DEVICE = "EXTRA_DEVICE";
-    public static final String ACTIVITY_RESULT = "RESULT_KEY";
     public static final String PROVISIONING_COMPLETED = "PROVISIONING_COMPLETED";
     public static final String PROVISIONER_UNASSIGNED = "PROVISIONER_UNASSIGNED";
     public static final String COMPOSITION_DATA_COMPLETED = "COMPOSITION_DATA_COMPLETED";
@@ -71,12 +67,8 @@ public class Utils {
     private static final String PREFS_LOCATION_NOT_REQUIRED = "location_not_required";
     private static final String PREFS_PERMISSION_REQUESTED = "permission_requested";
     private static final String PREFS_BLUETOOTH_PERMISSION_REQUESTED = "PREFS_BLUETOOTH_PERMISSION_REQUESTED";
-    private static final String PREFS_READ_STORAGE_PERMISSION_REQUESTED = "read_storage_permission_requested";
     private static final String PREFS_WRITE_STORAGE_PERMISSION_REQUESTED = "write_storage_permission_requested";
-    public static final int PROVISIONING_SUCCESS = 2112;
-    public static final int CONNECT_TO_NETWORK = 2113;
     public static final String RESULT_KEY = "RESULT_KEY";
-    private static final String APPLICATION_KEYS = "APPLICATION_KEYS";
     public static final String RANGE_TYPE = "RANGE_TYPE";
     public static final String DIALOG_FRAGMENT_KEY_STATUS = "DIALOG_FRAGMENT_KEY_STATUS";
 
@@ -92,16 +84,13 @@ public class Utils {
     public static final int ADD_NET_KEY = 1;
 
     //Manage app keys
-    public static final int MANAGE_APP_KEY = 2;
     public static final int ADD_APP_KEY = 3;
     public static final int BIND_APP_KEY = 4;
     public static final int PUBLICATION_APP_KEY = 5;
-    public static final int STORE_SCENE = 6;
     public static final int SELECT_SCENE = 6;
 
     // Heartbeat publication key
     public static final int HEARTBEAT_PUBLICATION_NET_KEY = 6;
-    public static final int SELECT_KEY = 2011; //Random number
 
     public static final Comparator<NetworkKey> netKeyComparator = (key1, key2) -> Integer.compare(key1.getKeyIndex(), key2.getKeyIndex());
 
@@ -290,14 +279,6 @@ public class Utils {
 
     public static boolean isKitkatOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-    }
-
-    public static boolean isValidUint8(final int i) {
-        return ((i & 0xFFFFFF00) == 0 || (i & 0xFFFFFF00) == 0xFFFFFF00);
-    }
-
-    public static boolean checkIfVersionIsOreoOrAbove() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
     @Nullable

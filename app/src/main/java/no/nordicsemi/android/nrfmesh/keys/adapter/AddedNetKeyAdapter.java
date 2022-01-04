@@ -47,7 +47,7 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.ViewHolder> {
     private final AsyncListDiffer<NetworkKey> differ = new AsyncListDiffer<>(this, new NetworkKeyDiffCallback());
-    private final List<NetworkKey> networkKeys = new ArrayList<>();
+
     private final List<NetworkKey> addedNetKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
     private boolean enableSelection = true;
@@ -56,8 +56,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
                               @NonNull final List<NetworkKey> netKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         meshNodeLiveData.observe(owner, meshNode -> {
-            networkKeys.clear();
-            networkKeys.addAll(netKeys);
+            final List<NetworkKey> networkKeys = new ArrayList<>(netKeys);
             Collections.sort(networkKeys, Utils.netKeyComparator);
             differ.submitList(networkKeys);
 

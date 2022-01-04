@@ -48,7 +48,6 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
     private final AsyncListDiffer<ApplicationKey> differ = new AsyncListDiffer<>(this, new ApplicationKeyDiffCallback());
     private final List<ApplicationKey> addedAppKeys = new ArrayList<>();
-    private final List<ApplicationKey> applicationKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
     private boolean enableSelection = true;
 
@@ -56,8 +55,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
                               @NonNull final List<ApplicationKey> appKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
         meshNodeLiveData.observe((LifecycleOwner) owner, meshNode -> {
-            applicationKeys.clear();
-            applicationKeys.addAll(appKeys);
+            final List<ApplicationKey> applicationKeys = new ArrayList<>(appKeys);
             Collections.sort(applicationKeys, Utils.appKeyComparator);
             differ.submitList(applicationKeys);
 

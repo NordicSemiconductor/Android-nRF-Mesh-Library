@@ -34,7 +34,6 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -104,14 +103,16 @@ public class NetKeysActivity extends AppCompatActivity implements
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_vpn_key_24dp));
         binding.containerPrimaryNetKey.text.setVisibility(View.VISIBLE);
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(R.string.title_manage_net_keys);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.title_manage_net_keys);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         binding.containerPrimaryNetKey.getRoot().setOnClickListener(v -> {
             final Intent intent = new Intent(this, EditNetKeyActivity.class);
             intent.putExtra(EDIT_KEY, 0);
             startActivity(intent);
         });
-        final CardView mSubNetKeyCard = binding.subNetKeyCard;
+
         mViewModel.getNetworkLiveData().observe(this, meshNetworkLiveData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
             if (network != null) {
@@ -144,9 +145,8 @@ public class NetKeysActivity extends AppCompatActivity implements
 
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        mAdapter = new ManageNetKeyAdapter(this, mViewModel.getNetworkLiveData());
+        binding.recyclerViewKeys.setAdapter(mAdapter = new ManageNetKeyAdapter(this, mViewModel.getNetworkLiveData()));
         mAdapter.setOnItemClickListener(this);
-        binding.recyclerViewKeys.setAdapter(mAdapter);
         itemTouchHelper.attachToRecyclerView(binding.recyclerViewKeys);
     }
 
@@ -157,13 +157,13 @@ public class NetKeysActivity extends AppCompatActivity implements
         binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewKeys.setItemAnimator(new DefaultItemAnimator());
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(R.string.title_manage_net_keys);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_select_net_key);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.title_select_net_key);
+        }
         binding.fabAdd.hide();
-        mAdapter = new ManageNetKeyAdapter(this, mViewModel.getSelectedMeshNode(), mViewModel.getNetworkLiveData().getNetworkKeys());
+        binding.recyclerViewKeys.setAdapter(mAdapter = new ManageNetKeyAdapter(this, mViewModel.getSelectedMeshNode(), mViewModel.getNetworkLiveData().getNetworkKeys()));
         mAdapter.setOnItemClickListener(this);
-        binding.recyclerViewKeys.setAdapter(mAdapter);
     }
 
 
@@ -206,8 +206,8 @@ public class NetKeysActivity extends AppCompatActivity implements
                 displaySnackBar(key);
             }
         } catch (Exception ex) {
-            mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mAdapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+            mViewModel.displaySnackBar(this, container, ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
