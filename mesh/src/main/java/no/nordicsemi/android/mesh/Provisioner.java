@@ -4,6 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -14,15 +22,6 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -111,6 +110,7 @@ public class Provisioner implements Parcelable {
         this.meshUuid = meshUuid;
     }
 
+    @SuppressWarnings("ConstantConditions")
     protected Provisioner(Parcel in) {
         meshUuid = in.readString();
         provisionerUuid = in.readString();
@@ -444,5 +444,41 @@ public class Provisioner implements Parcelable {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Provisioner that = (Provisioner) o;
+
+        if (globalTtl != that.globalTtl) return false;
+        if (lastSelected != that.lastSelected) return false;
+        if (!meshUuid.equals(that.meshUuid)) return false;
+        if (!provisionerUuid.equals(that.provisionerUuid)) return false;
+        if (!provisionerName.equals(that.provisionerName)) return false;
+        if (!allocatedUnicastRanges.equals(that.allocatedUnicastRanges)) return false;
+        if (!allocatedGroupRanges.equals(that.allocatedGroupRanges)) return false;
+        if (!allocatedSceneRanges.equals(that.allocatedSceneRanges)) return false;
+        if (!provisionerAddress.equals(that.provisionerAddress)) return false;
+        if (!addressRangeComparator.equals(that.addressRangeComparator)) return false;
+        return sceneRangeComparator.equals(that.sceneRangeComparator);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = meshUuid.hashCode();
+        result = 31 * result + provisionerUuid.hashCode();
+        result = 31 * result + provisionerName.hashCode();
+        result = 31 * result + allocatedUnicastRanges.hashCode();
+        result = 31 * result + allocatedGroupRanges.hashCode();
+        result = 31 * result + allocatedSceneRanges.hashCode();
+        result = 31 * result + provisionerAddress.hashCode();
+        result = 31 * result + globalTtl;
+        result = 31 * result + (lastSelected ? 1 : 0);
+        result = 31 * result + addressRangeComparator.hashCode();
+        result = 31 * result + sceneRangeComparator.hashCode();
+        return result;
     }
 }
