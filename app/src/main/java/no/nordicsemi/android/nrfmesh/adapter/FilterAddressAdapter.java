@@ -32,6 +32,7 @@ import com.google.android.material.elevation.ElevationOverlayProvider;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -39,27 +40,27 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.AddressItemBinding;
+import no.nordicsemi.android.nrfmesh.utils.AddressArrayDiffCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
 
-    private final ArrayList<AddressArray> mAddresses = new ArrayList<>();
+    private final AsyncListDiffer<AddressArray> differ = new AsyncListDiffer<>(this, new AddressArrayDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
     public void updateData(@NonNull final ProxyFilter filter) {
-        mAddresses.clear();
-        mAddresses.addAll(filter.getAddresses());
-        notifyDataSetChanged();
+        final ArrayList<AddressArray> addresses = new ArrayList<>(filter.getAddresses());
+        differ.submitList(addresses);
     }
 
     public void clearData() {
-        mAddresses.clear();
-        notifyDataSetChanged();
+        differ.submitList(new ArrayList<>());
     }
 
-    public void clearRow(final int position) {
-        mAddresses.remove(position);
-        notifyDataSetChanged();
+    public void clearRow(@NonNull final ProxyFilter filter, final int position) {
+        final ArrayList<AddressArray> addresses = new ArrayList<>(filter.getAddresses());
+        addresses.remove(position);
+        differ.submitList(addresses);
     }
 
     public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
@@ -75,7 +76,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
 
     @Override
     public void onBindViewHolder(@NonNull final FilterAddressAdapter.ViewHolder holder, int position) {
-        final byte[] address = mAddresses.get(position).getAddress();
+        final byte[] address = differ.getCurrentList().get(position).getAddress();
         holder.address.setText(MeshParserUtils.bytesToHex(address, true));
         if (MeshAddress.isValidGroupAddress(address)) {
             holder.addressTitle.setText(R.string.title_group_address);
@@ -93,7 +94,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -120,7 +121,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
             getSwipeableView().setBackgroundColor(color);
             container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()).getAddress());
+                    mOnItemClickListener.onItemClick(getAbsoluteAdapterPosition(), differ.getCurrentList().get(getAbsoluteAdapterPosition()).getAddress());
                 }
             });
         }
