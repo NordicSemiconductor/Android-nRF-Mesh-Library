@@ -35,29 +35,29 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemProvisionerBinding;
+import no.nordicsemi.android.nrfmesh.utils.ProvisionerDiffCallback;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.ViewHolder> {
 
-    private final List<Provisioner> mProvisioners = new ArrayList<>();
+    private final AsyncListDiffer<Provisioner> differ = new AsyncListDiffer<>(this, new ProvisionerDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
     public ProvisionerAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         meshNetworkLiveData.observe(owner, networkData -> {
             final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
-            final List<Provisioner> provisioners = network.getProvisioners();
-            mProvisioners.clear();
-            mProvisioners.addAll(provisioners);
+            final List<Provisioner> provisioners = new ArrayList<>(network.getProvisioners());
             final Provisioner provisioner = network.getSelectedProvisioner();
-            mProvisioners.remove(provisioner);
-            notifyDataSetChanged();
+            provisioners.remove(provisioner);
+            differ.submitList(provisioners);
         });
     }
 
@@ -73,7 +73,7 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final ProvisionerAdapter.ViewHolder holder, final int position) {
-        final Provisioner provisioner = mProvisioners.get(position);
+        final Provisioner provisioner = differ.getCurrentList().get(position);
         holder.provisionerName.setText(provisioner.getProvisionerName());
         final Context context = holder.provisionerName.getContext();
         if (provisioner.getProvisionerAddress() == null) {
@@ -92,15 +92,11 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
 
     @Override
     public int getItemCount() {
-        return mProvisioners.size();
-    }
-
-    public boolean isEmpty() {
-        return getItemCount() == 0;
+        return differ.getCurrentList().size();
     }
 
     public Provisioner getItem(final int position) {
-        return mProvisioners.get(position);
+        return differ.getCurrentList().get(position);
     }
 
     @FunctionalInterface
@@ -122,8 +118,8 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
             binding.icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_account_key));
             binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final Provisioner provisioner = mProvisioners.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), provisioner);
+                    final Provisioner provisioner = differ.getCurrentList().get(getAbsoluteAdapterPosition());
+                    mOnItemClickListener.onItemClick(getAbsoluteAdapterPosition(), provisioner);
                 }
             });
         }
