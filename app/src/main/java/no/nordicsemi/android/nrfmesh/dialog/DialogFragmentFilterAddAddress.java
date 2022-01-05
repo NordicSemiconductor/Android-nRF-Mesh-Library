@@ -48,13 +48,14 @@ import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentFilterAddressBind
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
-public class DialogFragmentFilterAddAddress extends DialogFragment {
+public class DialogFragmentFilterAddAddress extends DialogFragment implements FilterAddressAdapter1.OnItemClickListener {
 
     private static final String PROXY_FILTER_KEY = "PROXY_FILTER";
     private DialogFragmentFilterAddressBinding binding;
 
     private ArrayList<AddressArray> addresses = new ArrayList<>();
     private ProxyFilterType filterType;
+    final FilterAddressAdapter1 adapter = new FilterAddressAdapter1();
 
     public interface DialogFragmentFilterAddressListener {
         void addAddresses(final List<AddressArray> addresses);
@@ -85,12 +86,11 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
             filterType = savedInstanceState.getParcelable(PROXY_FILTER_KEY);
             addresses = savedInstanceState.getParcelableArrayList("AddressList");
         }
-
-        final FilterAddressAdapter1 adapter = new FilterAddressAdapter1(requireContext(), addresses);
+        adapter.setOnItemClickListener(this);
         binding.recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.recyclerViewAddresses.setItemAnimator(new DefaultItemAnimator());
         binding.recyclerViewAddresses.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        adapter.update(addresses);
 
         binding.actionAdd.setOnClickListener(v -> {
             final String addressVal = binding.textInput.getEditableText().toString().trim();
@@ -98,7 +98,7 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
                 binding.textInput.getEditableText().clear();
                 final byte[] address = MeshParserUtils.toByteArray(addressVal);
                 addresses.add(new AddressArray(address[0], address[1]));
-                adapter.notifyDataSetChanged();
+                adapter.update(addresses);
             }
         });
 
@@ -142,6 +142,12 @@ public class DialogFragmentFilterAddAddress extends DialogFragment {
         super.onSaveInstanceState(outState);
         outState.putParcelable(PROXY_FILTER_KEY, filterType);
         outState.putParcelableArrayList("AddressList", addresses);
+    }
+
+    @Override
+    public void onItemClick(final int position) {
+        addresses.remove(position);
+        adapter.update(addresses);
     }
 
     private boolean validateInput(final String input) {

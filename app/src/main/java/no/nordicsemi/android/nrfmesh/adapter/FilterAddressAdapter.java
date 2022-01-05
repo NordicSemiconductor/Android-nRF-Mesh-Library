@@ -46,7 +46,6 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
 
     private final AsyncListDiffer<AddressArray> differ = new AsyncListDiffer<>(this, new AddressArrayDiffCallback());
-    private OnItemClickListener mOnItemClickListener;
 
     public void updateData(@NonNull final ProxyFilter filter) {
         final ArrayList<AddressArray> addresses = new ArrayList<>(filter.getAddresses());
@@ -63,15 +62,11 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         differ.submitList(addresses);
     }
 
-    public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
-    }
-
     @NonNull
     @Override
     public FilterAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final AddressItemBinding binding = AddressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new FilterAddressAdapter.ViewHolder(binding);
+        return new ViewHolder(binding);
     }
 
     @Override
@@ -101,12 +96,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
         return getItemCount() == 0;
     }
 
-    @FunctionalInterface
-    public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
-    }
-
-    public final class ViewHolder extends RemovableViewHolder {
+    public static final class ViewHolder extends RemovableViewHolder {
         FrameLayout container;
         TextView addressTitle;
         TextView address;
@@ -119,11 +109,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);
-            container.setOnClickListener(v -> {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAbsoluteAdapterPosition(), differ.getCurrentList().get(getAbsoluteAdapterPosition()).getAddress());
-                }
-            });
+            container.setClickable(false);
         }
     }
 }
