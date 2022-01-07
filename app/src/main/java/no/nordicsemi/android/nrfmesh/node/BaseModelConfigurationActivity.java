@@ -129,27 +129,27 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
     protected Button mActionSetRelayState;
     protected Button mSetNetworkTransmitStateButton;
 
-    private RecyclerView recyclerViewBoundKeys, recyclerViewAddresses;
+    private RecyclerView recyclerViewBoundKeys, recyclerViewSubscriptions;
 
     private final ActivityResultLauncher<Intent> appKeySelector = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
-        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-            final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
-            if (appKey != null) {
-                bindAppKey(appKey.getKeyIndex());
-            }
-        }
-    });
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+                    if (appKey != null) {
+                        bindAppKey(appKey.getKeyIndex());
+                    }
+                }
+            });
 
     private final ActivityResultLauncher<Intent> publicationSettings = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
-        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-            final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
-            if (appKey != null) {
-                bindAppKey(appKey.getKeyIndex());
-            }
-        }
-    });
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+                    if (appKey != null) {
+                        bindAppKey(appKey.getKeyIndex());
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -175,64 +175,65 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         mViewModel = new ViewModelProvider(this).get(ModelConfigurationViewModel.class);
         initialize();
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
-        final String modelName = meshModel.getModelName();
+        if(meshModel != null) {
+            setSupportActionBar(binding.toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setTitle(meshModel.getModelName());
+            }
 
-        setSupportActionBar(binding.toolbar);
-        if(getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(modelName);
+            final int modelId = meshModel.getModelId();
+            getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, true)));
+
+            recyclerViewSubscriptions = findViewById(R.id.recycler_view_subscriptions);
+            recyclerViewSubscriptions.setLayoutManager(new LinearLayoutManager(this));
+            final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
+            final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
+            itemTouchHelper.attachToRecyclerView(recyclerViewSubscriptions);
+            mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getNetworkLiveData().getMeshNetwork(), mViewModel.getSelectedModel());
+            recyclerViewSubscriptions.setAdapter(mSubscriptionAdapter);
+
+            recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
+            recyclerViewBoundKeys.setLayoutManager(new LinearLayoutManager(this));
+            recyclerViewBoundKeys.setItemAnimator(null);
+            final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
+            final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
+            itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
+            mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getNetworkLiveData().getAppKeys(), mViewModel.getSelectedModel());
+            recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
+
+            mActionBindAppKey.setOnClickListener(v -> {
+                final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
+                if (node != null && !node.isExist(SigModelParser.CONFIGURATION_SERVER)) {
+                    return;
+                }
+                if (!checkConnectivity(mContainer)) return;
+                final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
+                bindAppKeysIntent.putExtra(EXTRA_DATA, BIND_APP_KEY);
+                appKeySelector.launch(bindAppKeysIntent);
+            });
+
+            mPublishAddressView.setText(R.string.none);
+            mActionSetPublication.setOnClickListener(v -> navigateToPublication());
+
+            mActionClearPublication.setOnClickListener(v -> clearPublication());
+
+            mActionSubscribe.setOnClickListener(v -> {
+                if (!checkConnectivity(mContainer)) return;
+                final ArrayList<Group> groups = new ArrayList<>(mViewModel.getNetworkLiveData().getMeshNetwork().getGroups());
+                final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
+                fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
+            });
+
+            mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
+                if (transactionStatus != null) {
+                    hideProgressBar();
+                    final String message = getString(R.string.operation_timed_out);
+                    DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
+                    fragmentMessage.show(getSupportFragmentManager(), null);
+                }
+            });
         }
-
-        final int modelId = meshModel.getModelId();
-        getSupportActionBar().setSubtitle(getString(R.string.model_id, CompositionDataParser.formatModelIdentifier(modelId, true)));
-
-        recyclerViewAddresses = findViewById(R.id.recycler_view_addresses);
-        recyclerViewAddresses.setLayoutManager(new LinearLayoutManager(this));
-        final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerViewAddresses);
-        mSubscriptionAdapter = new GroupAddressAdapter(this, mViewModel.getNetworkLiveData().getMeshNetwork(), mViewModel.getSelectedModel());
-        recyclerViewAddresses.setAdapter(mSubscriptionAdapter);
-
-        recyclerViewBoundKeys = findViewById(R.id.recycler_view_bound_keys);
-        recyclerViewBoundKeys.setLayoutManager(new LinearLayoutManager(this));
-        final ItemTouchHelper.Callback itemTouchHelperCallbackKeys = new RemovableItemTouchHelperCallback(this);
-        final ItemTouchHelper itemTouchHelperKeys = new ItemTouchHelper(itemTouchHelperCallbackKeys);
-        itemTouchHelperKeys.attachToRecyclerView(recyclerViewBoundKeys);
-        mBoundAppKeyAdapter = new BoundAppKeysAdapter(this, mViewModel.getNetworkLiveData().getAppKeys(), mViewModel.getSelectedModel());
-        recyclerViewBoundKeys.setAdapter(mBoundAppKeyAdapter);
-
-        mActionBindAppKey.setOnClickListener(v -> {
-            final ProvisionedMeshNode node = mViewModel.getSelectedMeshNode().getValue();
-            if (node != null && !node.isExist(SigModelParser.CONFIGURATION_SERVER)) {
-                return;
-            }
-            if (!checkConnectivity(mContainer)) return;
-            final Intent bindAppKeysIntent = new Intent(BaseModelConfigurationActivity.this, AppKeysActivity.class);
-            bindAppKeysIntent.putExtra(EXTRA_DATA, BIND_APP_KEY);
-            appKeySelector.launch(bindAppKeysIntent);
-        });
-
-        mPublishAddressView.setText(R.string.none);
-        mActionSetPublication.setOnClickListener(v -> navigateToPublication());
-
-        mActionClearPublication.setOnClickListener(v -> clearPublication());
-
-        mActionSubscribe.setOnClickListener(v -> {
-            if (!checkConnectivity(mContainer)) return;
-            final ArrayList<Group> groups = new ArrayList<>(mViewModel.getNetworkLiveData().getMeshNetwork().getGroups());
-            final DialogFragmentGroupSubscription fragmentSubscriptionAddress = DialogFragmentGroupSubscription.newInstance(groups);
-            fragmentSubscriptionAddress.show(getSupportFragmentManager(), null);
-        });
-
-        mViewModel.getTransactionStatus().observe(this, transactionStatus -> {
-            if (transactionStatus != null) {
-                hideProgressBar();
-                final String message = getString(R.string.operation_timed_out);
-                DialogFragmentTransactionStatus fragmentMessage = DialogFragmentTransactionStatus.newInstance("Transaction Failed", message);
-                fragmentMessage.show(getSupportFragmentManager(), null);
-            }
-        });
     }
 
     @Override
@@ -325,11 +326,11 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final int position = viewHolder.getAdapterPosition();
-        if (viewHolder instanceof GroupAddressAdapter.ViewHolder) {
-            deleteSubscription(position);
-        } else if (viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
+        final int position = viewHolder.getAbsoluteAdapterPosition();
+        if (viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
             unbindAppKey(position);
+        } else if (viewHolder instanceof GroupAddressAdapter.ViewHolder) {
+            deleteSubscription(position);
         }
     }
 
@@ -359,7 +360,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                         mViewModel.getMessageQueue().add(new ConfigSigModelSubscriptionGet(element.getElementAddress(), model.getModelId()));
                         queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
                     }
-                    sendAcknowledgedMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                    sendQueuedMessage(node.getUnicastAddress());
                 } else {
                     mSwipe.setRefreshing(false);
                 }
@@ -371,9 +372,15 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
                 mViewModel.getMessageQueue().add(appGet);
                 mViewModel.getMessageQueue().add(subscriptionGet);
                 queuePublicationGetMessage(element.getElementAddress(), model.getModelId());
-                sendAcknowledgedMessage(node.getUnicastAddress(), mViewModel.getMessageQueue().peek());
+                sendQueuedMessage(node.getUnicastAddress());
             }
         }
+    }
+
+    protected final void sendQueuedMessage(final int address){
+        final MeshMessage message = mViewModel.getMessageQueue().peek();
+        if (message != null)
+            sendAcknowledgedMessage(address, message);
     }
 
     protected void navigateToPublication() {
@@ -554,11 +561,11 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         if (!subscriptionAddresses.isEmpty()) {
             mSubscribeHint.setVisibility(View.VISIBLE);
             mSubscribeAddressView.setVisibility(View.GONE);
-            recyclerViewAddresses.setVisibility(View.VISIBLE);
+            recyclerViewSubscriptions.setVisibility(View.VISIBLE);
         } else {
             mSubscribeHint.setVisibility(View.GONE);
             mSubscribeAddressView.setVisibility(View.VISIBLE);
-            recyclerViewAddresses.setVisibility(View.GONE);
+            recyclerViewSubscriptions.setVisibility(View.GONE);
         }
     }
 
@@ -574,7 +581,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
             final DialogFragmentError message = DialogFragmentError.
-                    newInstance(getString(R.string.title_error), ex.getMessage());
+                    newInstance(getString(R.string.title_error), ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
     }
@@ -599,7 +606,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
             DialogFragmentError
-                    .newInstance(getString(R.string.title_error), ex.getMessage())
+                    .newInstance(getString(R.string.title_error), ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage())
                     .show(getSupportFragmentManager(), null);
         }
     }
@@ -612,7 +619,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
             mViewModel.getMeshManagerApi().createMeshPdu(address, meshMessage);
         } catch (IllegalArgumentException ex) {
             DialogFragmentError
-                    .newInstance(getString(R.string.title_error), ex.getMessage())
+                    .newInstance(getString(R.string.title_error), ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage())
                     .show(getSupportFragmentManager(), null);
         }
     }
