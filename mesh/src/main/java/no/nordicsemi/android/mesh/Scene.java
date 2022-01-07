@@ -171,4 +171,26 @@ public class Scene implements Parcelable {
                 ", number=" + number +
                 '}';
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Scene scene = (Scene) o;
+
+        if (number != scene.number) return false;
+        if (!meshUuid.equals(scene.meshUuid)) return false;
+        if (!name.equals(scene.name)) return false;
+        return addresses.equals(scene.addresses);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = meshUuid.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + addresses.hashCode();
+        result = 31 * result + number;
+        return result;
+    }
 }
