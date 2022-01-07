@@ -537,8 +537,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mIsConnectedToProxy.postValue(false);
             if (mConnectedProxyAddress.getValue() != null) {
                 final MeshNetwork network = mMeshManagerApi.getMeshNetwork();
-                network.setProxyFilter(null);
-
+                if(network != null) {
+                    network.setProxyFilter(null);
+                }
             }
             //clearExtendedMeshNode();
         }
@@ -968,7 +969,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
 
         //Refresh mesh network live data
-        mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
+        if(mMeshManagerApi.getMeshNetwork() != null) {
+            mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
+        }
     }
 
     @Override

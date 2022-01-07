@@ -34,6 +34,7 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.nrfmesh.R;
@@ -44,18 +45,14 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapter.ViewHolder> {
 
-    private final List<Scene> scenes = new ArrayList<>();
+    private final AsyncListDiffer<Scene> differ = new AsyncListDiffer<>(this, new SceneDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
     public ManageScenesAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         meshNetworkLiveData.observe(owner, networkData -> {
-            final List<Scene> scenes = networkData.getScenes();
-            if (scenes != null) {
-                this.scenes.clear();
-                this.scenes.addAll(scenes);
-                Collections.sort(this.scenes, Utils.sceneComparator);
-            }
-            notifyDataSetChanged();
+            final List<Scene> scenes = new ArrayList<>(networkData.getScenes());
+            Collections.sort(scenes, Utils.sceneComparator);
+            differ.submitList(scenes);
         });
     }
 
@@ -71,8 +68,8 @@ public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ManageScenesAdapter.ViewHolder holder, final int position) {
-        if (scenes.size() > 0) {
-            final Scene scene = scenes.get(position);
+        if (getItemCount() > 0) {
+            final Scene scene = differ.getCurrentList().get(position);
             holder.sceneName.setText(scene.getName());
             final String number = "0x" + String.format(Locale.US, "%04X", scene.getNumber());
             holder.sceneNumber.setText(number);
@@ -87,7 +84,7 @@ public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapte
 
     @Override
     public int getItemCount() {
-        return scenes.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -110,8 +107,8 @@ public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapte
             sceneNumber = binding.subtitle;
             binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final Scene scene = scenes.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), scene);
+                    final Scene scene = differ.getCurrentList().get(getAbsoluteAdapterPosition());
+                    mOnItemClickListener.onItemClick(getAbsoluteAdapterPosition(), scene);
                 }
             });
         }
