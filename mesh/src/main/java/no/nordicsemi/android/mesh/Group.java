@@ -358,4 +358,34 @@ public class Group implements Parcelable {
         this.name = name;
     }
 
+    @SuppressWarnings("EqualsReplaceableByObjectsCall")
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Group group = (Group) o;
+
+        if (id != group.id) return false;
+        if (address != group.address) return false;
+        if (parentAddress != group.parentAddress) return false;
+        if (!name.equals(group.name)) return false;
+        if (addressLabel != null ? !addressLabel.equals(group.addressLabel) : group.addressLabel != null)
+            return false;
+        if (parentAddressLabel != null ? !parentAddressLabel.equals(group.parentAddressLabel) : group.parentAddressLabel != null)
+            return false;
+        return meshUuid.equals(group.meshUuid);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + address;
+        result = 31 * result + (addressLabel != null ? addressLabel.hashCode() : 0);
+        result = 31 * result + parentAddress;
+        result = 31 * result + (parentAddressLabel != null ? parentAddressLabel.hashCode() : 0);
+        result = 31 * result + meshUuid.hashCode();
+        return result;
+    }
 }
