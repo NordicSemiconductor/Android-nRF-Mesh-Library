@@ -111,8 +111,10 @@ public class NodeConfigurationActivity extends BaseActivity implements
         }
         // Set up views
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.title_node_configuration);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.title_node_configuration);
+        }
 
         final LayoutContainerBinding containerNodeName = binding.containerNodeName;
         containerNodeName.image
@@ -129,8 +131,8 @@ public class NodeConfigurationActivity extends BaseActivity implements
         actionDetails.setOnClickListener(v -> startActivity(new Intent(NodeConfigurationActivity.this, NodeDetailsActivity.class)));
 
         binding.recyclerViewElements.setLayoutManager(new LinearLayoutManager(this));
-        final ElementAdapter adapter = new ElementAdapter(this, mViewModel.getSelectedMeshNode());
-        adapter.setHasStableIds(true);
+        final ElementAdapter adapter = new ElementAdapter();
+        //adapter.setHasStableIds(true);
         adapter.setOnItemClickListener(this);
         binding.recyclerViewElements.setAdapter(adapter);
 
@@ -157,6 +159,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
                 finish();
                 return;
             }
+            adapter.update(meshNode);
             getSupportActionBar().setSubtitle(meshNode.getNodeName());
             nodeNameView.setText(meshNode.getNodeName());
 
@@ -290,11 +293,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
     @Override
     public boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name) {
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-        if (network != null) {
-            network.updateElementName(element, name);
-        }
-
-        return true;
+        return network.updateElementName(element, name);
     }
 
     private void updateProxySettingsCardUi() {
@@ -401,7 +400,8 @@ public class NodeConfigurationActivity extends BaseActivity implements
         } catch (IllegalArgumentException ex) {
             hideProgressBar();
             final DialogFragmentError message = DialogFragmentError.
-                    newInstance(getString(R.string.title_error), ex.getMessage());
+                    newInstance(getString(R.string.title_error),
+                            ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage());
             message.show(getSupportFragmentManager(), null);
         }
     }
