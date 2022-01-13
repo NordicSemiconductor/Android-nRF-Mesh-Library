@@ -53,10 +53,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
     }
 
-    dexOptions {
-        preDexLibraries = false
-    }
-
     configurations.all {
         resolutionStrategy.force 'com.android.support:multidex:1.0.2'
     }
