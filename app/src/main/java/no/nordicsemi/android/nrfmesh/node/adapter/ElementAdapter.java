@@ -36,8 +36,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -47,19 +46,14 @@ import no.nordicsemi.android.mesh.utils.CompositionDataParser;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.ElementItemBinding;
 
-public class ElementAdapter extends ListAdapter<Element, ElementAdapter.ViewHolder> {
-
-    private static final DiffUtil.ItemCallback<Element> DIFFER = new ElementDiffCallback();
+public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
+    private final AsyncListDiffer<Element> differ = new AsyncListDiffer<>(this, new ElementDiffCallback());
     private OnItemClickListener mOnItemClickListener;
     private ProvisionedMeshNode meshNode;
 
-    public ElementAdapter() {
-        super(DIFFER);
-    }
-
     public void update(final ProvisionedMeshNode meshNode) {
         this.meshNode = meshNode;
-        submitList(populateList(meshNode));
+        differ.submitList(populateList(meshNode));
     }
 
     private List<Element> populateList(@NonNull final ProvisionedMeshNode meshNode) {
@@ -84,9 +78,21 @@ public class ElementAdapter extends ListAdapter<Element, ElementAdapter.ViewHold
         return new ViewHolder(ElementItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
+
+    @Override
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position, @NonNull final List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            if ((Boolean) payloads.get(0)) {
+                holder.mElementTitle.setText(differ.getCurrentList().get(position).getName());
+            }
+        }
+    }
+
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        final Element element = getCurrentList().get(position);
+        final Element element = differ.getCurrentList().get(position);
         final int modelCount = element.getMeshModels().size();
         holder.mElementTitle.setText(element.getName());
         holder.mElementSubtitle.setText(holder.mElementSubtitle.getContext().getString(R.string.model_count, modelCount));
@@ -111,7 +117,7 @@ public class ElementAdapter extends ListAdapter<Element, ElementAdapter.ViewHold
             }
             modelView.setOnClickListener(v -> {
                 final int position = holder.getBindingAdapterPosition();
-                final Element element = getCurrentList().get(position);
+                final Element element = differ.getCurrentList().get(position);
                 mOnItemClickListener.onModelClicked(meshNode, element, model);
             });
             holder.mModelContainer.addView(modelView);
@@ -120,12 +126,12 @@ public class ElementAdapter extends ListAdapter<Element, ElementAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return getCurrentList().size();
+        return differ.getCurrentList().size();
     }
 
     @Override
     public long getItemId(final int position) {
-        return getCurrentList().get(position).getElementAddress();
+        return differ.getCurrentList().get(position).getElementAddress();
     }
 
     public boolean isEmpty() {
@@ -171,7 +177,7 @@ public class ElementAdapter extends ListAdapter<Element, ElementAdapter.ViewHold
                     mModelContainer.setVisibility(View.VISIBLE);
                 }
             } else if (v.getId() == R.id.edit) {
-                mOnItemClickListener.onElementClicked(getCurrentList().get(getAbsoluteAdapterPosition()));
+                mOnItemClickListener.onElementClicked(differ.getCurrentList().get(getAbsoluteAdapterPosition()));
             }
         }
     }

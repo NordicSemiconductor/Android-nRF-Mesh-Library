@@ -191,12 +191,14 @@ public final class Element implements Parcelable, Cloneable {
     }
 
     @Override
-    public boolean equals(final Object other) {
-        if(other instanceof Element) {
-            final Element element = (Element) other;
-            return locationDescriptor == element.locationDescriptor && elementAddress == element.elementAddress && meshModels.equals(element.meshModels) && name.equals(element.name);
-        }
-        return false;
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final Element element = (Element) o;
+        return locationDescriptor == element.locationDescriptor &&
+                elementAddress == element.elementAddress &&
+                meshModels.equals(element.meshModels) &&
+                name.equals(element.name);
     }
 
     @Override
@@ -213,26 +215,4 @@ public final class Element implements Parcelable, Cloneable {
     public Element clone() throws CloneNotSupportedException {
         return (Element) super.clone();
     }
-
-    /*    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        final Element element = (Element) o;
-
-        if (locationDescriptor != element.locationDescriptor) return false;
-        if (elementAddress != element.elementAddress) return false;
-        if (!meshModels.equals(element.meshModels)) return false;
-        return name.equals(element.name);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = locationDescriptor;
-        result = 31 * result + meshModels.hashCode();
-        result = 31 * result + elementAddress;
-        result = 31 * result + name.hashCode();
-        return result;
-    }*/
 }

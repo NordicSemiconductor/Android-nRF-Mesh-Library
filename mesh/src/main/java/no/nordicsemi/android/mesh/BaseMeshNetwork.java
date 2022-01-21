@@ -1278,6 +1278,28 @@ abstract class BaseMeshNetwork {
     }
 
     /**
+     * @param address {@link Element} address
+     * @param name    Name
+     * @return true if successful and false otherwise
+     * @throws IllegalArgumentException if name is empty
+     */
+    public boolean updateElementName(final int address, @NonNull final String name) throws IllegalArgumentException {
+        if (TextUtils.isEmpty(name))
+            throw new IllegalArgumentException("Element name cannot be empty.");
+
+        final ProvisionedMeshNode node = getNode(address);
+        if (node != null) {
+            final Element element = node.getElements().get(address);
+            if (element != null) {
+                element.setName(name);
+                notifyNodeUpdated(node);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the sequence numbers used by the network where key is the address and the value being the sequence number.
      */
     public SparseIntArray getSequenceNumbers() {

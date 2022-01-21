@@ -291,9 +291,9 @@ public class NodeConfigurationActivity extends BaseActivity implements
     }
 
     @Override
-    public boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name) {
+    public boolean onElementNameUpdated(final int address, @NonNull final String name) {
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-        return network.updateElementName(element, name);
+        return network.updateElementName(address, name);
     }
 
     private void updateProxySettingsCardUi() {
