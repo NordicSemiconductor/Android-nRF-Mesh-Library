@@ -1,11 +1,11 @@
 package no.nordicsemi.android.mesh;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
 
 @SuppressWarnings("unused")
 public abstract class AddressRange extends Range {
@@ -138,5 +138,18 @@ public abstract class AddressRange extends Range {
             results.add(rightSlice);
         }
         return results;
+    }
+
+    public Boolean isInRange(int address) {
+        return lowAddress <= address && address <= highAddress;
+    }
+
+    public static Boolean isAddressInAnyRanges(List<? extends AddressRange> ranges, int address) {
+        for (AddressRange range : ranges) {
+            if (range.isInRange(address)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

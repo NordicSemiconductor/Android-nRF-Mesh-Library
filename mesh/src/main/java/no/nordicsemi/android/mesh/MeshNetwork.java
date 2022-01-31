@@ -1,7 +1,14 @@
 
 package no.nordicsemi.android.mesh;
 
+import static no.nordicsemi.android.mesh.AddressRange.isAddressInAnyRanges;
+
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.Entity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,10 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.Entity;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -437,11 +440,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
                     " there is no group range allocated to the current provisioner");
         }
 
-        for (AllocatedGroupRange range : provisioner.getAllocatedGroupRanges()) {
-            if (range.getLowAddress() > address || range.getHighAddress() < address) {
-                throw new IllegalArgumentException("Unable to create group, " +
-                        "the address is outside the range allocated to the provisioner");
-            }
+        if (!isAddressInAnyRanges(provisioner.getAllocatedGroupRanges(), address)) {
+            throw new IllegalArgumentException("Unable to create group, " +
+                    "the address is outside the range allocated to the provisioner");
         }
 
         final Group group = new Group(address, meshUUID);
@@ -449,6 +450,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
             group.setName(name);
         return group;
     }
+
 
     /**
      * Adds a group to the existing group list within the network
@@ -467,11 +469,9 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
         //We check if the group is made of a virtual address
         if (group.getAddressLabel() == null) {
-            for (AllocatedGroupRange range : provisioner.getAllocatedGroupRanges()) {
-                if (range.getLowAddress() > group.getAddress() || range.getHighAddress() < group.getAddress()) {
-                    throw new IllegalArgumentException("Unable to create group, " +
-                            "the address is outside the range allocated to the provisioner");
-                }
+            if (!isAddressInAnyRanges(provisioner.getAllocatedGroupRanges(), group.getAddress())) {
+                throw new IllegalArgumentException("Unable to create group, " +
+                        "the address is outside the range allocated to the provisioner");
             }
         }
         return insertGroup(group);
