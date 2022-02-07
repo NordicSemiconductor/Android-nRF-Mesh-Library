@@ -1051,6 +1051,11 @@ public enum DeviceProperty {
             case ACTIVE_ENERGY_LOAD_SIDE:
             case PRECISE_TOTAL_DEVICE_ENERGY_USE:
                 return new Energy32(data, offset);
+            case ACTIVE_POWER_LOAD_SIDE:
+            case LUMINAIRE_NOMINAL_INPUT_POWER:
+            case LUMINAIRE_POWER_AT_MINIMUM_DIM_LEVEL:
+            case PRESENT_DEVICE_INPUT_POWER:
+                return new Power(data, offset);
             default:
                 return new UnknownCharacteristic(data, offset, length);
         }
