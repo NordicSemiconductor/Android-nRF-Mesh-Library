@@ -268,4 +268,44 @@ public class DevicePropertyCharacteristicTest {
             }
         }
     }
+
+    @Test
+    public void testElectricCurrent() {
+        final ArrayList<Float> expectedSamples = new ArrayList<>();
+        expectedSamples.add(0.0f);
+        expectedSamples.add(0.01f);
+        expectedSamples.add(327.67f);
+        expectedSamples.add(655.34f);
+        expectedSamples.add(null);
+        final ArrayList<byte[]> samples = new ArrayList<>();
+        // Note that sample data has been padded with leading and trailing "random" bytes to test
+        // data offset and length.
+        samples.add(new byte[]{0x01, 0x00, 0x00, 0x01});
+        samples.add(new byte[]{0x02, 0x01, 0x00, 0x02});
+        samples.add(new byte[]{0x03, (byte) 0xFF, 0x7F, 0x03});
+        samples.add(new byte[]{0x04, (byte) 0xFE, (byte) 0xFF, 0x04});
+        samples.add(new byte[]{0x05, (byte) 0xFF, (byte) 0xFF, 0x05});
+
+        final ArrayList<byte[]> expectedGetBytes = new ArrayList<>();
+        expectedGetBytes.add(new byte[]{0x00, 0x00});
+        expectedGetBytes.add(new byte[]{0x01, 0x00});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, 0x7F});
+        expectedGetBytes.add(new byte[]{(byte) 0xFE, (byte) 0xFF});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, (byte) 0xFF});
+
+        DeviceProperty[] properties = {
+                DeviceProperty.PRESENT_INPUT_CURRENT,
+                DeviceProperty.PRESENT_OUTPUT_CURRENT,
+        };
+        for (DeviceProperty property : properties) {
+            int counter = 0;
+            for (byte[] sample : samples) {
+                final DevicePropertyCharacteristic<?> electricCurrent = DeviceProperty.
+                        getCharacteristic(property, sample, 1, 2);
+                Assert.assertEquals(expectedSamples.get(counter), electricCurrent.getValue());
+                Assert.assertArrayEquals(expectedGetBytes.get(counter), electricCurrent.getBytes());
+                counter++;
+            }
+        }
+    }
 }
