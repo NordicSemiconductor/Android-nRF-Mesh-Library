@@ -1056,6 +1056,9 @@ public enum DeviceProperty {
             case LUMINAIRE_POWER_AT_MINIMUM_DIM_LEVEL:
             case PRESENT_DEVICE_INPUT_POWER:
                 return new Power(data, offset);
+            case PRESENT_INPUT_CURRENT:
+            case PRESENT_OUTPUT_CURRENT:
+                return new ElectricCurrent(data, offset);
             default:
                 return new UnknownCharacteristic(data, offset, length);
         }
