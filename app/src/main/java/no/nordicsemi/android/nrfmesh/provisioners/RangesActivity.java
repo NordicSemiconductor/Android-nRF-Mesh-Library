@@ -87,10 +87,11 @@ public class RangesActivity extends AppCompatActivity implements
         binding = ActivityRangesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(RangesViewModel.class);
-        mType = getIntent().getExtras().getInt(Utils.RANGE_TYPE);
+        mType = getIntent().getIntExtra(Utils.RANGE_TYPE, Utils.UNICAST_RANGE);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         binding.infoRanges.getRoot().setVisibility(View.VISIBLE);
 
@@ -381,13 +382,14 @@ public class RangesActivity extends AppCompatActivity implements
             List<AllocatedGroupRange> ranges = new ArrayList<>(mProvisioner.getAllocatedGroupRanges());
             Collections.sort(ranges, addressRangeComparator);
             for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
-                final List<AllocatedGroupRange> otherRanges = new ArrayList<>(p.getAllocatedGroupRanges());
-                Collections.sort(otherRanges, addressRangeComparator);
-                for (AllocatedGroupRange otherRange : otherRanges) {
-                    ranges = AddressRange.minus(ranges, otherRange);
+                if (!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
+                    final List<AllocatedGroupRange> otherRanges = new ArrayList<>(p.getAllocatedGroupRanges());
+                    Collections.sort(otherRanges, addressRangeComparator);
+                    for (AllocatedGroupRange otherRange : otherRanges) {
+                        ranges = AddressRange.minus(ranges, otherRange);
+                    }
                 }
             }
-
             Collections.sort(ranges, addressRangeComparator);
             mProvisioner.setAllocatedGroupRanges(ranges);
             mRangeAdapter.updateData(ranges);
@@ -403,10 +405,12 @@ public class RangesActivity extends AppCompatActivity implements
             List<AllocatedSceneRange> ranges = new ArrayList<>(mProvisioner.getAllocatedSceneRanges());
             Collections.sort(ranges, sceneRangeComparator);
             for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
-                final List<AllocatedSceneRange> otherRanges = new ArrayList<>(p.getAllocatedSceneRanges());
-                Collections.sort(otherRanges, sceneRangeComparator);
-                for (AllocatedSceneRange otherRange : otherRanges) {
-                    ranges = AllocatedSceneRange.minus(ranges, otherRange);
+                if (!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
+                    final List<AllocatedSceneRange> otherRanges = new ArrayList<>(p.getAllocatedSceneRanges());
+                    Collections.sort(otherRanges, sceneRangeComparator);
+                    for (AllocatedSceneRange otherRange : otherRanges) {
+                        ranges = AllocatedSceneRange.minus(ranges, otherRange);
+                    }
                 }
             }
 
