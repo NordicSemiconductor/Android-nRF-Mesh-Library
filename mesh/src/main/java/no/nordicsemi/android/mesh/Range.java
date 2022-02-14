@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Ignore;
 
 @SuppressWarnings("WeakerAccess")
-public abstract class Range implements Parcelable {
+public abstract class Range implements Parcelable, Cloneable {
 
     @Ignore
     protected int lowerBound;
@@ -62,7 +62,6 @@ public abstract class Range implements Parcelable {
         else return rHigh >= oHigh &&
                     rLow >= oLow && rLow <= oHigh;
     }
-
 
     /**
      * Returns a list of merged unicast ranges
@@ -179,5 +178,28 @@ public abstract class Range implements Parcelable {
             result.add(accumulator);
         }
         return result;
+    }
+
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @Override
+    public boolean equals(final Object o) {
+        if(this == o)
+            return true;
+        final Range range = (Range) o;
+        return lowerBound == range.lowerBound &&
+                upperBound == range.upperBound;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = lowerBound;
+        result = 31 * result + upperBound;
+        return result;
+    }
+
+    @NonNull
+    @Override
+    public Range clone() throws CloneNotSupportedException {
+        return (Range) super.clone();
     }
 }

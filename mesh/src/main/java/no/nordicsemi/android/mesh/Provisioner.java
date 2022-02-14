@@ -336,26 +336,77 @@ public class Provisioner implements Parcelable {
     @SuppressWarnings("UnusedReturnValue")
     public boolean addRange(@NonNull final Range allocatedRange) {
         if (allocatedRange instanceof AllocatedUnicastRange) {
-            allocatedUnicastRanges.add((AllocatedUnicastRange) allocatedRange);
+            final AllocatedUnicastRange newAllocatedRange = (AllocatedUnicastRange) allocatedRange;
+            allocatedUnicastRanges.add((AllocatedUnicastRange) newAllocatedRange);
             final ArrayList<AllocatedUnicastRange> ranges = new ArrayList<>(allocatedUnicastRanges);
             Collections.sort(ranges, addressRangeComparator);
             allocatedUnicastRanges.clear();
             allocatedUnicastRanges.addAll(Range.mergeUnicastRanges(ranges));
             return true;
         } else if (allocatedRange instanceof AllocatedGroupRange) {
-            allocatedGroupRanges.add((AllocatedGroupRange) allocatedRange);
+            final AllocatedGroupRange newAllocatedRange = (AllocatedGroupRange) allocatedRange;
+            allocatedGroupRanges.add(newAllocatedRange);
             final ArrayList<AllocatedGroupRange> ranges = new ArrayList<>(allocatedGroupRanges);
             Collections.sort(ranges, addressRangeComparator);
             allocatedGroupRanges.clear();
             allocatedGroupRanges.addAll(Range.mergeGroupRanges(ranges));
             return true;
         } else if (allocatedRange instanceof AllocatedSceneRange) {
-            allocatedSceneRanges.add((AllocatedSceneRange) allocatedRange);
+            final AllocatedSceneRange newAllocatedRange = (AllocatedSceneRange) allocatedRange;
+            allocatedSceneRanges.add(newAllocatedRange);
             final ArrayList<AllocatedSceneRange> ranges = new ArrayList<>(allocatedSceneRanges);
             Collections.sort(allocatedSceneRanges, sceneRangeComparator);
             allocatedSceneRanges.clear();
             allocatedSceneRanges.addAll(Range.mergeSceneRanges(ranges));
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * Edit an existing range
+     *
+     * @param oldRange Old range
+     * @param newRange New range
+     */
+    public boolean updateRange(@NonNull final Range oldRange, @NonNull final Range newRange) {
+        int index;
+        if (oldRange instanceof AllocatedUnicastRange) {
+            index = allocatedUnicastRanges.indexOf((AllocatedUnicastRange) oldRange);
+            if (index > -1) {
+                final AllocatedUnicastRange exitingRange = allocatedUnicastRanges.get(index);
+                allocatedUnicastRanges.set(index, (AllocatedUnicastRange) newRange);
+                //Let's merge if there is any overlapping
+                final ArrayList<AllocatedUnicastRange> ranges = new ArrayList<>(allocatedUnicastRanges);
+                Collections.sort(ranges, addressRangeComparator);
+                allocatedUnicastRanges.clear();
+                allocatedUnicastRanges.addAll(Range.mergeUnicastRanges(ranges));
+                return true;
+            }
+        } else if (oldRange instanceof AllocatedGroupRange) {
+            index = allocatedGroupRanges.indexOf((AllocatedGroupRange) oldRange);
+            if (index > -1) {
+                final AllocatedGroupRange exitingRange = allocatedGroupRanges.get(index);
+                allocatedGroupRanges.set(index, (AllocatedGroupRange) newRange);
+                //Let's merge if there is any overlapping
+                final ArrayList<AllocatedGroupRange> ranges = new ArrayList<>(allocatedGroupRanges);
+                Collections.sort(ranges, addressRangeComparator);
+                allocatedGroupRanges.clear();
+                allocatedGroupRanges.addAll(Range.mergeGroupRanges(ranges));
+                return true;
+            }
+        } else if (oldRange instanceof AllocatedSceneRange) {
+            index = allocatedSceneRanges.indexOf((AllocatedSceneRange) oldRange);
+            if (index > -1) {
+                final AllocatedSceneRange exitingRange = allocatedSceneRanges.get(index);
+                allocatedSceneRanges.set(index, (AllocatedSceneRange) newRange);
+                //Let's merge if there is any overlapping
+                final ArrayList<AllocatedSceneRange> ranges = new ArrayList<>(allocatedSceneRanges);
+                Collections.sort(allocatedSceneRanges, sceneRangeComparator);
+                allocatedSceneRanges.clear();
+                allocatedSceneRanges.addAll(Range.mergeSceneRanges(ranges));
+                return true;
+            }
         }
         return false;
     }

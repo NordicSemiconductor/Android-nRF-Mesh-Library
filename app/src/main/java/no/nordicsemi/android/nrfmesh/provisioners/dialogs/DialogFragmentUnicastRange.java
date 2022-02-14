@@ -140,14 +140,18 @@ public class DialogFragmentUnicastRange extends DialogFragment {
                     AllocatedUnicastRange range = mRange;
                     if (range == null) {
                         range = new AllocatedUnicastRange(Integer.parseInt(low, 16), Integer.parseInt(high, 16));
+                        ((RangeListener) requireActivity()).addRange(range);
                     } else {
+                        AllocatedUnicastRange newRange = (AllocatedUnicastRange) range.clone();
                         range.setLowAddress(Integer.parseInt(low, 16));
                         range.setHighAddress(Integer.parseInt(high, 16));
+                        ((RangeListener) requireActivity()).updateRange(range, newRange);
                     }
-                    ((RangeListener) requireActivity()).addRange(range);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
                     binding.lowAddressLayout.setError(ex.getMessage());
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
                 }
             }
         });
