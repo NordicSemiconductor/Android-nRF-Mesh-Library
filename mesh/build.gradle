@@ -65,9 +65,9 @@ dependencies {
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.google.code.gson:gson:2.8.9'
 
-    implementation 'androidx.room:room-runtime:2.3.0'
-    annotationProcessor 'androidx.room:room-compiler:2.3.0'
-    androidTestImplementation 'androidx.room:room-testing:2.3.0'
+    implementation 'androidx.room:room-runtime:2.4.1'
+    annotationProcessor 'androidx.room:room-compiler:2.4.1'
+    androidTestImplementation 'androidx.room:room-testing:2.4.1'
 
 }
 // === Maven Central configuration ===
