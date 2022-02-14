@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
                     // Keep the splash screen on-screen for longer periods.
                     // Handle the splash screen transition.
                     final long then = System.currentTimeMillis();
-                    splashScreen.setKeepVisibleCondition(() -> mViewModel.getNetworkLiveData().getMeshNetwork() == null);
+                    splashScreen.setKeepOnScreenCondition(() -> mViewModel.getNetworkLiveData().getMeshNetwork() == null);
                 }
             }
         }
