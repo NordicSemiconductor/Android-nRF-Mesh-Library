@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import no.nordicsemi.android.mesh.data.GenericTransitionTime;
 import no.nordicsemi.android.mesh.data.ScheduleEntry;
 import no.nordicsemi.android.mesh.utils.BitReader;
 import no.nordicsemi.android.mesh.utils.BitWriter;
@@ -37,7 +38,7 @@ public class EntrySpecTest {
                 .setDayOfWeek(ScheduleEntry.DayOfWeek.Any(new ArrayList<>(
                         Arrays.asList(ScheduleEntry.DayOfWeek.SATURDAY, ScheduleEntry.DayOfWeek.SUNDAY))))
                 .setAction(ScheduleEntry.Action.TurnOn)
-                .setGenericTransitionTime(new ScheduleEntry.TransitionTime(1,8))
+                .setGenericTransitionTime(new GenericTransitionTime(GenericTransitionTime.TransitionResolution.SECOND, GenericTransitionTime.TransitionStep.Specific(8)))
                 .setScene(ScheduleEntry.Scene.Address(0x3333));
        BitWriter bitWriter = new BitWriter();
         entry.assembleMessageParameters(bitWriter);
@@ -70,7 +71,7 @@ public class EntrySpecTest {
                 .setDayOfWeek(ScheduleEntry.DayOfWeek.Any(new ArrayList<>(
                         Arrays.asList(ScheduleEntry.DayOfWeek.SATURDAY, ScheduleEntry.DayOfWeek.SUNDAY))))
                 .setAction(ScheduleEntry.Action.TurnOn)
-                .setGenericTransitionTime(new ScheduleEntry.TransitionTime(1,8))
+                .setGenericTransitionTime(new GenericTransitionTime(GenericTransitionTime.TransitionResolution.SECOND, GenericTransitionTime.TransitionStep.Specific(8)))
                 .setScene(ScheduleEntry.Scene.Address(0x3333));
 
         byte[] testData = new byte[]{(byte)0x33,(byte) 0x33,(byte) 0x48,(byte) 0x1C,(byte) 0x16, (byte) 0xBC, (byte) 0xC4, (byte)0x50,(byte) 0x11,(byte) 0x40};

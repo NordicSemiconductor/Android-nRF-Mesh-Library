@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoRule;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import no.nordicsemi.android.mesh.data.GenericTransitionTime;
 import no.nordicsemi.android.mesh.data.ScheduleEntry;
 
 import static org.junit.Assert.assertEquals;
@@ -37,7 +38,7 @@ public class SchedulerActionStatusTest {
                 .setDayOfWeek(ScheduleEntry.DayOfWeek.Any(new ArrayList<>(
                         Arrays.asList(ScheduleEntry.DayOfWeek.SATURDAY, ScheduleEntry.DayOfWeek.SUNDAY))))
                 .setAction(ScheduleEntry.Action.TurnOn)
-                .setGenericTransitionTime(new ScheduleEntry.TransitionTime(1,8))
+                .setGenericTransitionTime(new GenericTransitionTime(GenericTransitionTime.TransitionResolution.SECOND, GenericTransitionTime.TransitionStep.Specific(8)))
                 .setScene(ScheduleEntry.Scene.Address(0x3333));
 
         Mockito.when(accessMessage.getParameters()).thenReturn(schedulerData);
