@@ -23,9 +23,9 @@
 package no.nordicsemi.android.nrfmesh.export;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -39,7 +39,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -65,7 +64,6 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ExportNetworkViewModel;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 @AndroidEntryPoint
 public class ExportNetworkActivity extends AppCompatActivity implements
         DialogFragmentPermissionRationale.StoragePermissionListener,
@@ -77,6 +75,7 @@ public class ExportNetworkActivity extends AppCompatActivity implements
     private ActivityExportBinding binding;
     private ExportNetworkViewModel mViewModel;
 
+    @SuppressLint("NewApi")
     final ActivityResultLauncher<String> fileExporter = registerForActivityResult( new ActivityResultContracts.CreateDocument(), uri -> {
         if (uri != null) {
             try {

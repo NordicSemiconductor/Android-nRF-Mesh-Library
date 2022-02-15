@@ -33,6 +33,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Date;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,7 +42,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.databinding.FragmentSettingsBinding;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutContainerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
@@ -58,6 +59,7 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
 import static androidx.activity.result.contract.ActivityResultContracts.GetContent;
+import static java.text.DateFormat.getDateTimeInstance;
 
 @AndroidEntryPoint
 public class SettingsFragment extends Fragment implements
@@ -71,7 +73,7 @@ public class SettingsFragment extends Fragment implements
 
     private final ActivityResultLauncher<String> fileSelector = registerForActivityResult(
             new GetContent(), result -> {
-                if(result != null) {
+                if (result != null) {
                     mViewModel.disconnect();
                     mViewModel.getMeshManagerApi().importMeshNetwork(result);
                 }
@@ -173,7 +175,7 @@ public class SettingsFragment extends Fragment implements
                 binding.containerProvisioners.text.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
                 binding.containerAppKeys.text.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
                 binding.containerScenes.text.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
-                binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(meshNetworkLiveData.getMeshNetwork().getTimestamp()));
+                binding.containerLastModified.text.setText(getDateTimeInstance().format(new Date(meshNetworkLiveData.getMeshNetwork().getTimestamp())));
             }
         });
 
