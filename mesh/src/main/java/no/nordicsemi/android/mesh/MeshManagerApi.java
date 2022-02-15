@@ -291,7 +291,7 @@ public class MeshManagerApi implements MeshMngrApi {
                         final int flags = receivedBeacon.getFlags();
                         final byte[] networkId = SecureUtils.calculateK3(n);
                         final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
-                        Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
+                        Log.d(TAG, "Received mesh beacon: " + receivedBeacon);
 
                         final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
                         //Check the the beacon received is a valid by matching the authentication values
@@ -1146,7 +1146,6 @@ public class MeshManagerApi implements MeshMngrApi {
             return keys;
         }
 
-        @Nullable
         @Override
         public List<Group> gerVirtualGroups() {
             return mMeshNetwork.getGroups();
@@ -1283,7 +1282,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public void onNodesUpdated() {
-            mMeshNetworkDb.update(mProvisionedNodesDao, mMeshNetwork.nodes);
+            mMeshNetworkDb.update(mProvisionedNodesDao, mMeshNetwork.getNodes());
             onMeshNetworkUpdated();
         }
 

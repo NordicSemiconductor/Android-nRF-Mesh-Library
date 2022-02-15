@@ -1,14 +1,7 @@
 
 package no.nordicsemi.android.mesh;
 
-import static no.nordicsemi.android.mesh.AddressRange.isAddressInAnyRanges;
-
 import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.room.Entity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,10 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.room.Entity;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
+
+import static no.nordicsemi.android.mesh.AddressRange.isAddressInAnyRanges;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 @Entity(tableName = "mesh_network")
@@ -121,7 +120,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
 
 
     public List<Group> getGroups() {
-        return groups;
+        return Collections.unmodifiableList(groups);
     }
 
     void setGroups(final List<Group> groups) {
@@ -893,7 +892,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
     /**
      * Returns the provisioning flags
      */
-    public final int getProvisioningFlags() {
+    public int getProvisioningFlags() {
         int flags = 0;
         final NetworkKey key = getPrimaryNetworkKey();
         if (key != null) {
