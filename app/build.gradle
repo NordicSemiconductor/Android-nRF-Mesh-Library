@@ -31,7 +31,7 @@ android {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 18
         targetSdkVersion 31
-        versionCode 81
+        versionCode 82
         versionName VERSION_NAME
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
