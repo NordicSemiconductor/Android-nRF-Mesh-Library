@@ -34,7 +34,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -43,7 +42,6 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemProvisionerBinding;
 import no.nordicsemi.android.nrfmesh.utils.ProvisionerDiffCallback;
-import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.ViewHolder> {
@@ -51,14 +49,18 @@ public class ProvisionerAdapter extends RecyclerView.Adapter<ProvisionerAdapter.
     private final AsyncListDiffer<Provisioner> differ = new AsyncListDiffer<>(this, new ProvisionerDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
-    public ProvisionerAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
-        meshNetworkLiveData.observe(owner, networkData -> {
-            final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
-            final List<Provisioner> provisioners = new ArrayList<>(network.getProvisioners());
+    public void updateData(@NonNull final MeshNetwork network) {
+        try {
+            final List<Provisioner> provisioners = new ArrayList<>();
+            for (Provisioner provisioner : network.getProvisioners()) {
+                provisioners.add(provisioner.clone());
+            }
             final Provisioner provisioner = network.getSelectedProvisioner();
             provisioners.remove(provisioner);
             differ.submitList(provisioners);
-        });
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setOnItemClickListener(final ProvisionerAdapter.OnItemClickListener listener) {

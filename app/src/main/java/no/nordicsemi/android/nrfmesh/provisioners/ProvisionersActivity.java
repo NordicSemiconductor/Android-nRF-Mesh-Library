@@ -82,7 +82,7 @@ public class ProvisionersActivity extends AppCompatActivity implements
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         mItemTouchHelper.attachToRecyclerView(binding.recyclerViewProvisioners);
-        mAdapter = new ProvisionerAdapter(this, mViewModel.getNetworkLiveData());
+        mAdapter = new ProvisionerAdapter();
         mAdapter.setOnItemClickListener(this);
         binding.recyclerViewProvisioners.setAdapter(mAdapter);
 
@@ -107,6 +107,7 @@ public class ProvisionersActivity extends AppCompatActivity implements
                 } else {
                     binding.provisionersCard.setVisibility(View.GONE);
                 }
+                mAdapter.updateData(network);
             }
         });
 

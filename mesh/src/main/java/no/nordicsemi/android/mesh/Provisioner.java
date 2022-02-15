@@ -39,7 +39,7 @@ import static androidx.room.ForeignKey.CASCADE;
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Provisioner implements Parcelable {
+public class Provisioner implements Parcelable, Cloneable {
 
     @ColumnInfo(name = "mesh_uuid")
     @NonNull
@@ -512,9 +512,9 @@ public class Provisioner implements Parcelable {
         if (!allocatedUnicastRanges.equals(that.allocatedUnicastRanges)) return false;
         if (!allocatedGroupRanges.equals(that.allocatedGroupRanges)) return false;
         if (!allocatedSceneRanges.equals(that.allocatedSceneRanges)) return false;
-        if (!provisionerAddress.equals(that.provisionerAddress)) return false;
-        if (!addressRangeComparator.equals(that.addressRangeComparator)) return false;
-        return sceneRangeComparator.equals(that.sceneRangeComparator);
+        if (provisionerAddress != null && that.provisionerAddress != null)
+            return provisionerAddress.equals(that.provisionerAddress);
+        else return false;
     }
 
     @Override
@@ -528,8 +528,11 @@ public class Provisioner implements Parcelable {
         result = 31 * result + provisionerAddress.hashCode();
         result = 31 * result + globalTtl;
         result = 31 * result + (lastSelected ? 1 : 0);
-        result = 31 * result + addressRangeComparator.hashCode();
-        result = 31 * result + sceneRangeComparator.hashCode();
         return result;
+    }
+
+    @Override
+    public Provisioner clone() throws CloneNotSupportedException {
+        return (Provisioner) super.clone();
     }
 }
