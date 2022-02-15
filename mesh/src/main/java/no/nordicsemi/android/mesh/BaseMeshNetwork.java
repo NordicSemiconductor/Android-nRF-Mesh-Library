@@ -951,6 +951,8 @@ abstract class BaseMeshNetwork {
             }
             if (provisioner.isLastSelected()) {
                 selectProvisioner(provisioner);
+            } else {
+                notifyProvisionerUpdated(provisioner);
             }
             return true;
         }
@@ -1008,7 +1010,7 @@ abstract class BaseMeshNetwork {
                 prov.setLastSelected(false);
             }
         }
-        notifyProvisionersUpdated(provisioners);
+        notifyProvisionersUpdated(getProvisioners());
     }
 
     /**
