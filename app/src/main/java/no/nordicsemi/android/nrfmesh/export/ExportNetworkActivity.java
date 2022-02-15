@@ -76,7 +76,7 @@ public class ExportNetworkActivity extends AppCompatActivity implements
     private ExportNetworkViewModel mViewModel;
 
     @SuppressLint("NewApi")
-    final ActivityResultLauncher<String> fileExporter = registerForActivityResult( new ActivityResultContracts.CreateDocument(), uri -> {
+    final ActivityResultLauncher<String> fileExporter = registerForActivityResult( new ActivityResultContracts.CreateDocument("application/json"), uri -> {
         if (uri != null) {
             try {
                 final OutputStream stream = getContentResolver().openOutputStream(uri);
