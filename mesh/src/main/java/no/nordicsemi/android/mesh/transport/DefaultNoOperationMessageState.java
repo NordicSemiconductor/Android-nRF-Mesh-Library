@@ -419,6 +419,14 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericLevelStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericLevelStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.DOOZ_SCENARIO_STATUS) {
+                    final DoozScenarioStatus doozScenarioStatus = new DoozScenarioStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(doozScenarioStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), doozScenarioStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.DOOZ_EPOCH_STATUS) {
+                    final DoozEpochStatus doozEpochStatus = new DoozEpochStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(doozEpochStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), doozEpochStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.MAGIC_LEVEL_SET_STATUS) {
                     final MagicLevelSetStatus magicLevelSetStatus = new MagicLevelSetStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(magicLevelSetStatus);

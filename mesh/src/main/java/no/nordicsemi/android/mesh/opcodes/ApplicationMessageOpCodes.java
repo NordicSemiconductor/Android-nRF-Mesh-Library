@@ -25,6 +25,26 @@ package no.nordicsemi.android.mesh.opcodes;
 public class ApplicationMessageOpCodes {
 
     /**
+     * Opcode for the "DooZ Scenario Set" message.
+     */
+    public static final int DOOZ_SCENARIO_SET = 0x8219;
+
+    /**
+     * Opcode for the "DooZ Epoch Set" message.
+     */
+    public static final int DOOZ_EPOCH_SET = 0x8220;
+
+    /**
+     * Opcode for the "DooZ Scenario Status" message.
+     */
+    public static final int DOOZ_SCENARIO_STATUS = 0x8221;
+
+    /**
+     * Opcode for the "DooZ Epoch Status" message.
+     */
+    public static final int DOOZ_EPOCH_STATUS = 0x8222;
+
+    /**
      * Opcode for the "Magic Level Set" message.
      */
     public static final int MAGIC_LEVEL_SET = 0x8223;
