@@ -222,7 +222,7 @@ public class ProxyFilterFragment extends Fragment implements
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final int position = viewHolder.getAdapterPosition();
+        final int position = viewHolder.getAbsoluteAdapterPosition();
         if (viewHolder instanceof FilterAddressAdapter.ViewHolder) {
             removeAddress(position);
         }
@@ -242,7 +242,7 @@ public class ProxyFilterFragment extends Fragment implements
                 final AddressArray addressArr = proxyFilter.getAddresses().get(position);
                 final List<AddressArray> addresses = new ArrayList<>();
                 addresses.add(addressArr);
-                addressAdapter.clearRow(position);
+                addressAdapter.clearRow(proxyFilter, position);
                 final ProxyConfigRemoveAddressFromFilter removeAddressFromFilter = new ProxyConfigRemoveAddressFromFilter(addresses);
                 sendMessage(removeAddressFromFilter);
             }
@@ -272,7 +272,7 @@ public class ProxyFilterFragment extends Fragment implements
             mViewModel.getMeshManagerApi().createMeshPdu(MeshAddress.UNASSIGNED_ADDRESS, meshMessage);
         } catch (IllegalArgumentException ex) {
             final DialogFragmentError message = DialogFragmentError.
-                    newInstance(getString(R.string.title_error), ex.getMessage());
+                    newInstance(getString(R.string.title_error), ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage());
             message.show(getChildFragmentManager(), null);
         }
     }

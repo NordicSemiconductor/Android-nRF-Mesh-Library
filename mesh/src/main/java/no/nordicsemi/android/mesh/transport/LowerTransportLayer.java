@@ -395,7 +395,9 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
                 return null;
             }
             mMeshNode.setSeqAuth(srcAdd, seqAuth);
-            mMeshNode.setSequenceNumber(MeshParserUtils.convert24BitsToInt(sequenceNumber));
+            // We do not need to rely on the sequence number here
+            // Setting hte sequence number here will reset the already incremented sequence number for a message sent to all nodes.
+            // mMeshNode.setSequenceNumber(MeshParserUtils.convert24BitsToInt(sequenceNumber));
             message = new AccessMessage();
             if (akf == 0) {// device key was used to encrypt
                 final int lowerTransportPduLength = pdu.length - 10;
@@ -471,7 +473,9 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
 
         //Check if the current SeqAuth value is greater than the last and if the incomplete timer has not started, start it!
         if ((lastSeqAuth == null || lastSeqAuth < seqAuth)) {
-            mMeshNode.setSequenceNumber(seqNumber);
+            // We do not need to rely on the sequence number here
+            // Setting hte sequence number here will reset the already incremented sequence number for a message sent to all nodes.
+            // mMeshNode.setSequenceNumber(seqNumber);
             segmentedAccessMessageMap.clear();
             segmentedAccessMessageMap.put(segO, payloadBuffer.array());
             mMeshNode.setSeqAuth(blockAckDst, seqAuth);

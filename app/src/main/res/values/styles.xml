@@ -67,11 +67,6 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
-    <style name="AppTheme.SplashScreen">
-        <item name="colorPrimaryDark">@android:color/transparent</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
-
     <style name="Widget" />
 
     <style name="Widget.InfoWarningTitles">

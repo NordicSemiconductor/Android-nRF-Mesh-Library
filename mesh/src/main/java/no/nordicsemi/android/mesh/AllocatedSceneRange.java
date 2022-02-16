@@ -192,4 +192,18 @@ public class AllocatedSceneRange extends Range {
         }
         return results;
     }
+
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @Override
+    public boolean equals(final Object o) {
+        final AllocatedSceneRange range = (AllocatedSceneRange) o;
+        return firstScene == range.firstScene && lastScene == range.lastScene;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = firstScene;
+        result = 31 * result + lastScene;
+        return result;
+    }
 }

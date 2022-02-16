@@ -73,6 +73,7 @@ public class ModelConfigurationViewModel extends BaseViewModel {
     }
 
     public void prepareMessageQueue() {
+        final ApplicationKey key = getDefaultApplicationKey();
         switch (getSelectedModel().getValue().getModelId()) {
             case SigModelParser.CONFIGURATION_SERVER:
                 messageQueue.add(new ConfigHeartbeatPublicationGet());
@@ -84,7 +85,9 @@ public class ModelConfigurationViewModel extends BaseViewModel {
                 messageQueue.add(new ConfigNodeIdentityGet());
                 break;
             case SigModelParser.SCENE_SERVER:
-                messageQueue.add(new SceneGet(getDefaultApplicationKey()));
+                if (key != null) {
+                    messageQueue.add(new SceneGet(key));
+                }
                 break;
         }
     }

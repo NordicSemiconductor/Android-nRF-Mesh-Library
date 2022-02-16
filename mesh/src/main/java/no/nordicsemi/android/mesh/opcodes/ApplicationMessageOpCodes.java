@@ -343,4 +343,103 @@ public class ApplicationMessageOpCodes {
      */
     public static final int SENSOR_SETTING_STATUS = 0x5B;
 
+    /**
+     * Opcode for the "Scheduler Get" message
+     */
+    public static final int SCHEDULER_GET = 0x8249;
+
+    /**
+     * Opcode for the "Scheduler Status" message
+     */
+    public static final int SCHEDULER_STATUS = 0x824A;
+
+    /**
+     * Opcode for the "Scheduler Action Get" message
+     */
+    public static final int SCHEDULER_ACTION_GET = 0x8248;
+
+    /**
+     * Opcode for the "Scheduler Action Set" message
+     */
+    public static final int SCHEDULER_ACTION_SET = 0x60;
+
+    /**
+     * Opcode for the "Scheduler Action Status" message
+     */
+    public static final int SCHEDULER_ACTION_STATUS = 0x5F;
+
+    /**
+     * Opcode for the "Generic Default Transition Time Get" message
+     */
+    public static final int GENERIC_DEFAULT_TRANSITION_TIME_GET = 0x820D;
+
+    /**
+     * Opcode for the "Generic Default Transition Time Set" message
+     */
+    public static final int GENERIC_DEFAULT_TRANSITION_TIME_SET = 0x820E;
+
+    /**
+     * Opcode for the "Generic Default Transition Time Status" message
+     */
+    public static final int GENERIC_DEFAULT_TRANSITION_TIME_STATUS = 0x8210;
+
+    /**
+     * Opcode for the "OnPowerUp Get" message
+     */
+    public static final int GENERIC_ON_POWER_UP_GET = 0x8211;
+
+    /**
+     * Opcode for the "OnPowerUp Set" message
+     */
+    public static final int GENERIC_ON_POWER_UP_SET = 0x8213;
+
+    /**
+     * Opcode for the "OnPowerUp Status" message
+     */
+    public static final int GENERIC_ON_POWER_UP_STATUS = 0x8212;
+
+    /**
+     * Opcode for the "Generic Admin Property Status" message
+     */
+    public static final int GENERIC_ADMIN_PROPERTY_STATUS = 0x4A;
+
+    /**
+     * Opcode for the "Generic Manufacturer Property Status" message
+     */
+    public static final int GENERIC_MANUFACTURER_PROPERTY_STATUS = 0x46;
+
+    /**
+     * Opcode for the "Generic User Property Status" message
+     */
+    public static final int GENERIC_USER_PROPERTY_STATUS = 0x4E;
+
+    /**
+     * Opcode for the "Generic User Property Set" message
+     */
+    public static final int GENERIC_USER_PROPERTY_SET = 0x4C;
+
+    /**
+     * Opcode for the "Generic Admin Property Set" message
+     */
+    public static final int GENERIC_ADMIN_PROPERTY_SET = 0x48;
+
+    /**
+     * Opcode for the "Generic Manufacturer Property Set" message
+     */
+    public static final int GENERIC_MANUFACTURER_PROPERTY_SET = 0x44;
+
+    /**
+     * Opcode for the "Time Get" message
+     */
+    public static final int TIME_GET = 0x8237;
+
+    /**
+     * Opcode for the "Time Set" message
+     */
+    public static final int TIME_SET = 0x5C;
+
+    /**
+     * Opcode for the "Time Status" message
+     */
+    public static final int TIME_STATUS = 0x5D;
 }

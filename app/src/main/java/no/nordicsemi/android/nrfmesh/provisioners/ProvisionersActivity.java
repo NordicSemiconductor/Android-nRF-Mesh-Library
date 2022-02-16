@@ -67,8 +67,10 @@ public class ProvisionersActivity extends AppCompatActivity implements
         mViewModel = new ViewModelProvider(this).get(ProvisionersViewModel.class);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(R.string.title_manage_provisioners);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.title_manage_provisioners);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         binding.containerCurrentProvisioner.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_account_key));
@@ -80,7 +82,7 @@ public class ProvisionersActivity extends AppCompatActivity implements
         final ItemTouchHelper.Callback itemTouchHelperCallback = new RemovableItemTouchHelperCallback(this);
         final ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(itemTouchHelperCallback);
         mItemTouchHelper.attachToRecyclerView(binding.recyclerViewProvisioners);
-        mAdapter = new ProvisionerAdapter(this, mViewModel.getNetworkLiveData());
+        mAdapter = new ProvisionerAdapter();
         mAdapter.setOnItemClickListener(this);
         binding.recyclerViewProvisioners.setAdapter(mAdapter);
 
@@ -105,6 +107,7 @@ public class ProvisionersActivity extends AppCompatActivity implements
                 } else {
                     binding.provisionersCard.setVisibility(View.GONE);
                 }
+                mAdapter.updateData(network);
             }
         });
 
@@ -155,7 +158,7 @@ public class ProvisionersActivity extends AppCompatActivity implements
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        final int position = viewHolder.getAdapterPosition();
+        final int position = viewHolder.getAbsoluteAdapterPosition();
         final Provisioner provisioner = mAdapter.getItem(position);
         final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
         try {
@@ -165,8 +168,8 @@ public class ProvisionersActivity extends AppCompatActivity implements
                 }
             }
         } catch (Exception ex) {
-            mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mAdapter.notifyItemChanged(position);
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 

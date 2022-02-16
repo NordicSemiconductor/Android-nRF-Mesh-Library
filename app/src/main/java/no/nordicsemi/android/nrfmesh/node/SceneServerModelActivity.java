@@ -2,6 +2,8 @@ package no.nordicsemi.android.nrfmesh.node;
 
 import android.os.Bundle;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
@@ -21,12 +23,14 @@ import no.nordicsemi.android.mesh.transport.SceneRegisterStatus;
 import no.nordicsemi.android.mesh.transport.SceneStatus;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutSceneServerBinding;
+import no.nordicsemi.android.nrfmesh.scenes.adapter.SceneUiState;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.scenes.dialog.BottomSheetSceneRecallDialogFragment;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
 
 @AndroidEntryPoint
 public class SceneServerModelActivity extends ModelConfigurationActivity implements
@@ -34,7 +38,7 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
         StoredScenesAdapter.OnItemListener {
 
     private LayoutSceneServerBinding layoutSceneServerBinding;
-    protected StoredScenesAdapter mScenesAdapter;
+    protected final StoredScenesAdapter mScenesAdapter = new StoredScenesAdapter();
 
     protected void updateUi(final MeshModel model) {
         updateAppStatusUi(model);
@@ -69,9 +73,17 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
             final RecyclerView recyclerView = layoutSceneServerBinding.recyclerViewScenes;
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setItemAnimator(new DefaultItemAnimator());
-            recyclerView.setAdapter(mScenesAdapter = new StoredScenesAdapter(this, mViewModel.getSelectedElement(), mViewModel.getNetworkLiveData()));
+            recyclerView.setAdapter(mScenesAdapter);
             mScenesAdapter.setOnItemClickListener(this);
             mViewModel.getSelectedModel().observe(this, this::updateUi);
+
+            mViewModel.getSelectedElement().observe(this, element -> {
+                final SceneServer sceneServer = (SceneServer) element.getMeshModels().get((int) SCENE_SERVER);
+                if (sceneServer != null) {
+                    mScenesAdapter.update(populateAdapter(sceneServer));
+                    updateScenesUi(sceneServer);
+                }
+            });
         }
     }
 
@@ -129,26 +141,38 @@ public class SceneServerModelActivity extends ModelConfigurationActivity impleme
     }
 
     @Override
-    public void recallScene(@NonNull final Scene scene, final int transitionSteps, final int transitionStepResolution, final int delay) {
-        sendSceneRecall(scene, transitionSteps, transitionStepResolution, delay);
+    public void recallScene(final int sceneNumber, final int transitionSteps, final int transitionStepResolution, final int delay) {
+        sendSceneRecall(sceneNumber, transitionSteps, transitionStepResolution, delay);
     }
 
-    private void sendSceneRecall(@NonNull final Scene scene, final int transitionSteps, final int transitionStepResolution, final int delay) {
+    private void sendSceneRecall(final int sceneNumber, final int transitionSteps, final int transitionStepResolution, final int delay) {
         final ApplicationKey key = ((ModelConfigurationViewModel) mViewModel).getDefaultApplicationKey();
         if (key != null) {
             final SceneRecall recall;
             if (transitionSteps == 0 && transitionStepResolution == 0 && delay == 0) {
-                recall = new SceneRecall(key, scene.getNumber(), new Random().nextInt());
+                recall = new SceneRecall(key, sceneNumber, new Random().nextInt());
             } else {
-                recall = new SceneRecall(key, transitionSteps, transitionStepResolution, delay, scene.getNumber(), new Random().nextInt());
+                recall = new SceneRecall(key, transitionSteps, transitionStepResolution, delay, sceneNumber, new Random().nextInt());
             }
             sendMessage(recall);
         }
     }
 
     @Override
-    public void onItemClick(final int position, @NonNull final Scene scene) {
+    public void onItemClick(@NonNull final SceneUiState sceneUiState) {
         if (checkConnectivity(mContainer))
-            BottomSheetSceneRecallDialogFragment.instantiate(scene).show(getSupportFragmentManager(), null);
+            BottomSheetSceneRecallDialogFragment.instantiate(sceneUiState).show(getSupportFragmentManager(), null);
+    }
+
+    protected final List<SceneUiState> populateAdapter(@NonNull final SceneServer sceneServer){
+        final List<SceneUiState> scenes = new ArrayList<>();
+        final List<Integer> scenesNumbers = sceneServer.getScenesNumbers();
+        for (int sceneNumber : scenesNumbers) {
+            final Scene scene = mViewModel.getNetworkLiveData().getMeshNetwork().getScene(sceneNumber);
+            if (scene != null) {
+                scenes.add(new SceneUiState(scene.getNumber(), scene.getName(), scene.getNumber() == sceneServer.getCurrentScene()));
+            }
+        }
+        return scenes;
     }
 }

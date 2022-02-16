@@ -36,6 +36,7 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.createVendorOpCode;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.getOpCode;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.getOpCodeLength;
+import static no.nordicsemi.android.mesh.utils.MeshParserUtils.unsignedByteToInt;
 
 /**
  * AccessLayer implementation of the mesh network architecture as per the mesh profile specification.
@@ -128,6 +129,9 @@ abstract class AccessLayer {
         final byte[] accessPayload = message.getAccessPdu();
         final int opCodeLength = getOpCodeLength(accessPayload[0] & 0xFF);
         message.setOpCode(getOpCode(accessPayload, opCodeLength));
+        if(opCodeLength == 3) {
+            message.setCompanyIdentifier(unsignedByteToInt(accessPayload[2]) << 8 | unsignedByteToInt(accessPayload[1]));
+        }
         final int length = accessPayload.length - opCodeLength;
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(length).order(ByteOrder.BIG_ENDIAN);
         paramsBuffer.put(accessPayload, opCodeLength, length);

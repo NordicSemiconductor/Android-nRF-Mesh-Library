@@ -25,7 +25,6 @@ package no.nordicsemi.android.nrfmesh.keys.adapter;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NodeKey;
@@ -46,8 +46,7 @@ import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.ViewHolder> {
-
-    private final List<ApplicationKey> appKeys = new ArrayList<>();
+    private final AsyncListDiffer<ApplicationKey> differ = new AsyncListDiffer<>(this, new ApplicationKeyDiffCallback());
     private final List<ApplicationKey> addedAppKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
     private boolean enableSelection = true;
@@ -55,20 +54,20 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     public AddedAppKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<ApplicationKey> appKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.appKeys.clear();
-        this.appKeys.addAll(appKeys);
-        Collections.sort(this.appKeys, Utils.appKeyComparator);
         meshNodeLiveData.observe((LifecycleOwner) owner, meshNode -> {
+            final List<ApplicationKey> applicationKeys = new ArrayList<>(appKeys);
+            Collections.sort(applicationKeys, Utils.appKeyComparator);
+            differ.submitList(applicationKeys);
+
             addedAppKeys.clear();
             for (NodeKey nodeKey : meshNode.getAddedAppKeys()) {
-                for (ApplicationKey applicationKey : appKeys) {
+                for (ApplicationKey applicationKey : differ.getCurrentList()) {
                     if (nodeKey.getIndex() == applicationKey.getKeyIndex()) {
                         addedAppKeys.add(applicationKey);
                     }
                 }
             }
             Collections.sort(addedAppKeys, Utils.appKeyComparator);
-            notifyDataSetChanged();
         });
     }
 
@@ -78,7 +77,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     public void enableDisableKeySelection(final boolean flag) {
         enableSelection = flag;
-        notifyDataSetChanged();
+        notifyItemRangeChanged(0, differ.getCurrentList().size());
     }
 
     @NonNull
@@ -89,7 +88,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final AddedAppKeyAdapter.ViewHolder holder, final int position) {
-        final ApplicationKey key = appKeys.get(position);
+        final ApplicationKey key = differ.getCurrentList().get(position);
         holder.keyName.setText(key.getName());
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
@@ -104,11 +103,7 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
 
     @Override
     public int getItemCount() {
-        return appKeys.size();
-    }
-
-    public boolean isEmpty() {
-        return getItemCount() == 0;
+        return differ.getCurrentList().size();
     }
 
     @FunctionalInterface
@@ -117,7 +112,6 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView icon;
         TextView keyName;
         TextView key;
         CheckBox check;
@@ -130,7 +124,8 @@ public class AddedAppKeyAdapter extends RecyclerView.Adapter<AddedAppKeyAdapter.
             check = binding.check;
             check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final ApplicationKey key = appKeys.get(getAdapterPosition());
+                    check.setChecked(!check.isChecked());
+                    final ApplicationKey key = differ.getCurrentList().get(getAbsoluteAdapterPosition());
                     mOnItemClickListener.onItemClick(key);
                 }
             });

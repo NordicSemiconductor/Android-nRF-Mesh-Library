@@ -102,8 +102,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
         final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index
-        final byte iviNID = (byte) ((ivi << 7) | nid);
-        final byte ctlTTL = (byte) ((ctl << 7) | ttl);
+        final byte iviNID = (byte) ((ivi << 7) | (nid & 0x7F));
+        final byte ctlTTL = (byte) ((ctl << 7) | (ttl & 0x7F));
 
         final int src = message.getSrc();
         final SparseArray<byte[]> lowerTransportPduMap;
@@ -111,7 +111,6 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final List<byte[]> sequenceNumbers = new ArrayList<>();
 
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(message.getSrc());
-
         final int pduType = message.getPduType();
         switch (message.getPduType()) {
             case MeshManagerApi.PDU_TYPE_NETWORK:
@@ -184,8 +183,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
         final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index
-        final byte iviNID = (byte) ((ivi << 7) | nid);
-        final byte ctlTTL = (byte) ((ctl << 7) | ttl);
+        final byte iviNID = (byte) ((ivi << 7) | (nid & 0x7F));
+        final byte ctlTTL = (byte) ((ctl << 7) | (ttl & 0x7F));
 
         final int src = message.getSrc();
         final SparseArray<byte[]> lowerTransportPduMap;

@@ -36,8 +36,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -48,22 +47,26 @@ import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.ElementItemBinding;
 
 public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHolder> {
-
-    private final List<Element> mElements = new ArrayList<>();
+    private final AsyncListDiffer<Element> differ = new AsyncListDiffer<>(this, new ElementDiffCallback());
     private OnItemClickListener mOnItemClickListener;
-    private ProvisionedMeshNode mProvisionedMeshNode;
+    private ProvisionedMeshNode meshNode;
 
-    public ElementAdapter(@NonNull final LifecycleOwner owner, @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        meshNodeLiveData.observe(owner, meshNode -> {
-            if (meshNode != null) {
-                mProvisionedMeshNode = meshNode;
-                mElements.clear();
-                mElements.addAll(mProvisionedMeshNode.getElements().values());
-                notifyDataSetChanged();
-            }
-        });
+    public void update(final ProvisionedMeshNode meshNode) {
+        this.meshNode = meshNode;
+        differ.submitList(populateList(meshNode));
     }
 
+    private List<Element> populateList(@NonNull final ProvisionedMeshNode meshNode) {
+        final List<Element> elements = new ArrayList<>();
+        for (Element element : meshNode.getElements().values()) {
+            try {
+                elements.add(element.clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+        return elements;
+    }
 
     public void setOnItemClickListener(@NonNull final ElementAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
@@ -75,15 +78,25 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
         return new ViewHolder(ElementItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
+
+    @Override
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position, @NonNull final List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            if ((Boolean) payloads.get(0)) {
+                holder.mElementTitle.setText(differ.getCurrentList().get(position).getName());
+            }
+        }
+    }
+
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        final Element element = mElements.get(position);
+        final Element element = differ.getCurrentList().get(position);
         final int modelCount = element.getMeshModels().size();
         holder.mElementTitle.setText(element.getName());
         holder.mElementSubtitle.setText(holder.mElementSubtitle.getContext().getString(R.string.model_count, modelCount));
-
-        final List<MeshModel> models = new ArrayList<>(element.getMeshModels().values());
-        inflateModelViews(holder, models);
+        inflateModelViews(holder, new ArrayList<>(element.getMeshModels().values()));
     }
 
     private void inflateModelViews(final ViewHolder holder, final List<MeshModel> models) {
@@ -103,9 +116,9 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
                 modelIdView.setText(context.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
             }
             modelView.setOnClickListener(v -> {
-                final int position = holder.getAdapterPosition();
-                final Element element = mElements.get(position);
-                mOnItemClickListener.onModelClicked(mProvisionedMeshNode, element, model);
+                final int position = holder.getBindingAdapterPosition();
+                final Element element = differ.getCurrentList().get(position);
+                mOnItemClickListener.onModelClicked(meshNode, element, model);
             });
             holder.mModelContainer.addView(modelView);
         }
@@ -113,12 +126,12 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mElements.size();
+        return differ.getCurrentList().size();
     }
 
     @Override
     public long getItemId(final int position) {
-        return mElements.get(position).getElementAddress();
+        return differ.getCurrentList().get(position).getElementAddress();
     }
 
     public boolean isEmpty() {
@@ -164,7 +177,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
                     mModelContainer.setVisibility(View.VISIBLE);
                 }
             } else if (v.getId() == R.id.edit) {
-                mOnItemClickListener.onElementClicked(mElements.get(getAdapterPosition()));
+                mOnItemClickListener.onElementClicked(differ.getCurrentList().get(getAbsoluteAdapterPosition()));
             }
         }
     }

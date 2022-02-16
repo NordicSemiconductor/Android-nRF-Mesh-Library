@@ -399,9 +399,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
     }
 
     private void clearExtendedMeshNode() {
-        if (mExtendedMeshNode != null) {
-            mExtendedMeshNode.postValue(null);
-        }
+        mExtendedMeshNode.postValue(null);
     }
 
     LiveData<UnprovisionedMeshNode> getUnprovisionedMeshNode() {
@@ -539,8 +537,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
             mIsConnectedToProxy.postValue(false);
             if (mConnectedProxyAddress.getValue() != null) {
                 final MeshNetwork network = mMeshManagerApi.getMeshNetwork();
-                network.setProxyFilter(null);
-
+                if(network != null) {
+                    network.setProxyFilter(null);
+                }
             }
             //clearExtendedMeshNode();
         }
@@ -827,8 +826,8 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
                     if (appKey != null) {
                         mHandler.postDelayed(() -> {
-                            final int index = node.getAddedNetKeys().get(0).getIndex();
-                            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(index);
+                            // We should use the app key's boundNetKeyIndex as the network key index when adding the default app key
+                            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(appKey.getBoundNetKeyIndex());
                             final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
                             mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
                         }, 1500);
@@ -954,7 +953,6 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                     }
                 }
             } else if (meshMessage instanceof VendorModelMessageStatus) {
-
                 if (updateNode(node)) {
                     final VendorModelMessageStatus status = (VendorModelMessageStatus) meshMessage;
                     if (node.getElements().containsKey(status.getSrcAddress())) {
@@ -971,7 +969,9 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
         }
 
         //Refresh mesh network live data
-        mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
+        if(mMeshManagerApi.getMeshNetwork() != null) {
+            mMeshNetworkLiveData.refresh(mMeshManagerApi.getMeshNetwork());
+        }
     }
 
     @Override

@@ -41,7 +41,7 @@ import no.nordicsemi.android.mesh.models.VendorModel;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public final class Element implements Parcelable {
+public final class Element implements Parcelable, Cloneable {
 
     @Expose
     int locationDescriptor;
@@ -188,5 +188,31 @@ public final class Element implements Parcelable {
      */
     public Map<Integer, MeshModel> getMeshModels() {
         return Collections.unmodifiableMap(meshModels);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final Element element = (Element) o;
+        return locationDescriptor == element.locationDescriptor &&
+                elementAddress == element.elementAddress &&
+                meshModels.equals(element.meshModels) &&
+                name.equals(element.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = locationDescriptor;
+        result = 31 * result + meshModels.hashCode();
+        result = 31 * result + elementAddress;
+        result = 31 * result + name.hashCode();
+        return result;
+    }
+
+    @NonNull
+    @Override
+    public Element clone() throws CloneNotSupportedException {
+        return (Element) super.clone();
     }
 }

@@ -31,12 +31,15 @@
     <string name="state">On Off State:</string>
     <string name="button_unknown">UNKNOWN</string>
 
+    <string name="ble_permissions_title">BLUETOOTH PERMISSIONS REQUIRED</string>
+    <string name="ble_permissions_info">From Android S onwards the application requires Bluetooth Scan and Connect permissions to scan and connect to Bluetooth Low Energy devices.</string>
+
     <string name="location_permission_title">LOCATION PERMISSION REQUIRED</string>
     <string name="location_permission_info">From Android 6.0 Marshmallow onwards the application requires Location permission in order to scan for Bluetooth Low Energy devices.
       \n\nThis is because Bluetooth LE beacons, for example iBeacons or Eddystone, may be used to determine the phone\'s and user\'s location.
         <b>nRF Mesh Provisioner</b> will not use this information in any way.</string>
-    <string name="location_permission_action">Grant permission</string>
-    <string name="location_permission_settings">Settings</string>
+    <string name="action_grant_permission">Grant permission</string>
+    <string name="action_permission_settings">Settings</string>
 
     <string name="bluetooth_disabled_title">BLUETOOTH DISABLED</string>
     <string name="bluetooth_disabled_info">The Bluetooth adapter is turned off. Click the button below to enable it.</string>
@@ -672,4 +675,5 @@
         If the Mesh Proxy Service is exposed, the node can be configured to advertise with Node Identity on a subnet.</string>
     <string name="title_sensor_information">Sensor Information</string>
     <string name="error_empty_scene_name">Error empty scene name</string>
+    <string name="unknwon_error">Unknown error</string>
 </resources>

@@ -32,6 +32,8 @@ import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,12 +57,30 @@ import no.nordicsemi.android.nrfmesh.viewmodels.ScannerViewModel;
 @AndroidEntryPoint
 public class ScannerActivity extends AppCompatActivity implements
         DevicesAdapter.OnItemClickListener {
-    private static final int REQUEST_ENABLE_BLUETOOTH = 1021; // random number
     private static final int REQUEST_ACCESS_FINE_LOCATION = 1022; // random number
+    private static final int REQUEST_ACCESS_BLUETOOTH_PERMISSION = 1023; // random number
 
     private ActivityScannerBinding binding;
     private ScannerViewModel mViewModel;
     private boolean mScanWithProxyService;
+
+    private final ActivityResultLauncher<Intent> provisioner = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            setResultIntent(result.getData());
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> enableBluetooth = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            startScan(mViewModel.getScannerRepository().getScannerState());
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> reconnect = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            finish();
+        }
+    });
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -101,6 +121,7 @@ public class ScannerActivity extends AppCompatActivity implements
         binding.bluetoothOff.actionEnableBluetooth.setOnClickListener(v -> onEnableBluetoothClicked());
         binding.noLocationPermission.actionGrantLocationPermission.setOnClickListener(v -> onGrantLocationPermissionClicked());
         binding.noLocationPermission.actionPermissionSettings.setOnClickListener(v -> onPermissionSettingsClicked());
+        binding.noBluetoothPermissions.actionGrantBluetoothPermission.setOnClickListener(v -> onGrantBluetoothPermissionClicked());
 
         mViewModel.getScannerRepository().getScannerState().observe(this, this::startScan);
     }
@@ -127,31 +148,6 @@ public class ScannerActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ReconnectActivity.REQUEST_DEVICE_READY) {
-            if (resultCode == RESULT_OK) {
-                final boolean isDeviceReady = data.getBooleanExtra(Utils.ACTIVITY_RESULT, false);
-                if (isDeviceReady) {
-                    finish();
-                }
-            }
-        } else if (requestCode == Utils.PROVISIONING_SUCCESS) {
-            if (resultCode == RESULT_OK) {
-                setResultIntent(data);
-            }
-        } else if (requestCode == Utils.CONNECT_TO_NETWORK) {
-            if (resultCode == RESULT_OK) {
-                finish();
-            }
-        } else if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
-            if (resultCode == RESULT_OK) {
-                startScan(mViewModel.getScannerRepository().getScannerState());
-            }
-        }
-    }
-
-    @Override
     public void onItemClick(final ExtendedBluetoothDevice device) {
         //We must disconnect from any nodes that we are connected to before we start scanning.
         if (mViewModel.getBleMeshManager().isConnected())
@@ -160,19 +156,20 @@ public class ScannerActivity extends AppCompatActivity implements
         if (mScanWithProxyService) {
             intent = new Intent(this, ProvisioningActivity.class);
             intent.putExtra(Utils.EXTRA_DEVICE, device);
-            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
+            provisioner.launch(intent);
         } else {
             intent = new Intent(this, ReconnectActivity.class);
             intent.putExtra(Utils.EXTRA_DEVICE, device);
-            startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+            reconnect.launch(intent);
         }
-        //stopScan();
     }
 
     @Override
     public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
+            mViewModel.getScannerRepository().getScannerState().startScanning();
+        } else if (requestCode == REQUEST_ACCESS_BLUETOOTH_PERMISSION) {
             mViewModel.getScannerRepository().getScannerState().startScanning();
         }
     }
@@ -184,12 +181,19 @@ public class ScannerActivity extends AppCompatActivity implements
 
     private void onEnableBluetoothClicked() {
         final Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(enableIntent, REQUEST_ENABLE_BLUETOOTH);
+        enableBluetooth.launch(enableIntent);
     }
 
     private void onGrantLocationPermissionClicked() {
         Utils.markLocationPermissionRequested(this);
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
+    }
+
+    private void onGrantBluetoothPermissionClicked() {
+        if (Utils.isSorAbove()) {
+            Utils.markBluetoothPermissionsRequested(this);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_ACCESS_FINE_LOCATION);
+        }
     }
 
     private void onPermissionSettingsClicked() {
@@ -202,49 +206,64 @@ public class ScannerActivity extends AppCompatActivity implements
      * Start scanning for Bluetooth devices or displays a message based on the scanner state.
      */
     private void startScan(final ScannerStateLiveData state) {
-        // First, check the Location permission. This is required on Marshmallow onwards in order to scan for Bluetooth LE devices.
-        if (Utils.isLocationPermissionsGranted(this)) {
-            binding.noLocationPermission.getRoot().setVisibility(View.GONE);
+        if (Utils.isBluetoothScanAndConnectPermissionsGranted(this)) {
+            binding.noBluetoothPermissions.getRoot().setVisibility(View.GONE);
+            // First, check the Location permission. This is required on Marshmallow onwards in order to scan for Bluetooth LE devices.
+            if (Utils.isLocationPermissionsGranted(this)) {
+                binding.noLocationPermission.getRoot().setVisibility(View.GONE);
 
-            // Bluetooth must be enabled
-            if (state.isBluetoothEnabled()) {
-                binding.bluetoothOff.getRoot().setVisibility(View.GONE);
+                // Bluetooth must be enabled
+                if (state.isBluetoothEnabled()) {
+                    binding.bluetoothOff.getRoot().setVisibility(View.GONE);
 
-                if (!state.isScanning()) {
-                    // We are now OK to start scanning
-                    if (mScanWithProxyService) {
-                        mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
-                    } else {
-                        mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROXY_UUID);
+                    if (!state.isScanning()) {
+                        // We are now OK to start scanning
+                        if (mScanWithProxyService) {
+                            mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROVISIONING_UUID);
+                        } else {
+                            mViewModel.getScannerRepository().startScan(BleMeshManager.MESH_PROXY_UUID);
+                        }
+                        binding.stateScanning.setVisibility(View.VISIBLE);
                     }
-                    binding.stateScanning.setVisibility(View.VISIBLE);
-                }
 
-                if (state.isEmpty()) {
-                    binding.noDevices.getRoot().setVisibility(View.VISIBLE);
+                    if (state.isEmpty()) {
+                        binding.noDevices.getRoot().setVisibility(View.VISIBLE);
 
-                    if (!Utils.isLocationRequired(this) || Utils.isLocationEnabled(this)) {
-                        binding.noLocationPermission.getRoot().setVisibility(View.INVISIBLE);
+                        if (!Utils.isLocationRequired(this) || Utils.isLocationEnabled(this)) {
+                            binding.noLocationPermission.getRoot().setVisibility(View.INVISIBLE);
+                        } else {
+                            binding.noLocationPermission.getRoot().setVisibility(View.VISIBLE);
+                        }
                     } else {
-                        binding.noLocationPermission.getRoot().setVisibility(View.VISIBLE);
+                        binding.noDevices.getRoot().setVisibility(View.GONE);
                     }
                 } else {
+                    binding.bluetoothOff.getRoot().setVisibility(View.VISIBLE);
+                    binding.stateScanning.setVisibility(View.INVISIBLE);
                     binding.noDevices.getRoot().setVisibility(View.GONE);
                 }
             } else {
-                binding.bluetoothOff.getRoot().setVisibility(View.VISIBLE);
+                binding.noLocationPermission.getRoot().setVisibility(View.VISIBLE);
+                binding.bluetoothOff.getRoot().setVisibility(View.GONE);
                 binding.stateScanning.setVisibility(View.INVISIBLE);
                 binding.noDevices.getRoot().setVisibility(View.GONE);
+
+                final boolean deniedForever = Utils.isLocationPermissionDeniedForever(this);
+                binding.noLocationPermission.actionGrantLocationPermission.setVisibility(deniedForever ? View.GONE : View.VISIBLE);
+                binding.noLocationPermission.actionPermissionSettings.setVisibility(deniedForever ? View.VISIBLE : View.GONE);
             }
         } else {
-            binding.noLocationPermission.getRoot().setVisibility(View.VISIBLE);
+            binding.noBluetoothPermissions.getRoot().setVisibility(View.VISIBLE);
             binding.bluetoothOff.getRoot().setVisibility(View.GONE);
             binding.stateScanning.setVisibility(View.INVISIBLE);
             binding.noDevices.getRoot().setVisibility(View.GONE);
 
-            final boolean deniedForever = Utils.isLocationPermissionDeniedForever(this);
-            binding.noLocationPermission.actionGrantLocationPermission.setVisibility(deniedForever ? View.GONE : View.VISIBLE);
-            binding.noLocationPermission.actionPermissionSettings.setVisibility(deniedForever ? View.VISIBLE : View.GONE);
+            if(Utils.isSorAbove()){
+                final boolean deniedForever = Utils.isBluetoothPermissionDeniedForever(this);
+                binding.noBluetoothPermissions.actionGrantBluetoothPermission.setVisibility(deniedForever ? View.GONE : View.VISIBLE);
+                binding.noLocationPermission.actionPermissionSettings.setVisibility(deniedForever ? View.VISIBLE : View.GONE);
+            }
+
         }
     }
 

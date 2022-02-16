@@ -100,7 +100,7 @@ public class DialogFragmentElementName extends DialogFragment {
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String elementName = binding.textInput.getEditableText().toString().trim();
             if (!TextUtils.isEmpty(elementName)) {
-                if (((DialogFragmentElementNameListener) requireContext()).onElementNameUpdated(mElement, elementName)) {
+                if (((DialogFragmentElementNameListener) requireContext()).onElementNameUpdated(mElement.getElementAddress(), elementName)) {
                     dismiss();
                 }
             }
@@ -109,6 +109,6 @@ public class DialogFragmentElementName extends DialogFragment {
     }
 
     public interface DialogFragmentElementNameListener {
-        boolean onElementNameUpdated(@NonNull final Element element, @NonNull final String name);
+        boolean onElementNameUpdated(final int address, @NonNull final String name);
     }
 }

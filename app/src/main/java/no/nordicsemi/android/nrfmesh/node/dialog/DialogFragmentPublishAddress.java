@@ -287,7 +287,7 @@ public class DialogFragmentPublishAddress extends DialogFragment {
             address = mPublicationSettings.getPublishAddress();
         }
 
-        mAdapterSpinner = new AddressTypeAdapter(requireContext(), ADDRESS_TYPES);
+        mAdapterSpinner = new AddressTypeAdapter(ADDRESS_TYPES);
         binding.addressTypes.setAdapter(mAdapterSpinner);
         final AddressType type = MeshAddress.getAddressType(address);
         if (type != null) {

@@ -2,13 +2,14 @@ package no.nordicsemi.android.mesh;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
+
 /**
- * Contains the information related to a secure network beacon.
+ * Contains the information related to a unprovisioned beacon.
  */
 @SuppressWarnings("unused")
 public class UnprovisionedBeacon extends MeshBeacon {

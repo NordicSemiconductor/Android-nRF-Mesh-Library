@@ -150,6 +150,20 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SensorSeriesStatus status = new SensorSeriesStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCHEDULER_ACTION_STATUS) {
+                    final SchedulerActionStatus schedulerActionStatus = new SchedulerActionStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(schedulerActionStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerActionStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ADMIN_PROPERTY_STATUS ||
+                        message.getOpCode() == ApplicationMessageOpCodes.GENERIC_MANUFACTURER_PROPERTY_STATUS ||
+                        message.getOpCode() == ApplicationMessageOpCodes.GENERIC_USER_PROPERTY_STATUS){
+                    final GenericPropertyStatus status = new GenericPropertyStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.TIME_STATUS) {
+                    final TimeStatus timeStatus = new TimeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(timeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), timeStatus);
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -162,6 +176,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ON_POWER_UP_STATUS) {
+                    final GenericOnPowerUpStatus genericOnPowerUpStatus = new GenericOnPowerUpStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericOnPowerUpStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericOnPowerUpStatus);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_NETKEY_STATUS) {
                     final ConfigNetKeyStatus status = new ConfigNetKeyStatus(message);
                     if (!isReceivedViaProxyFilter(message)) {
@@ -446,6 +464,14 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         mInternalTransportCallbacks.updateMeshNetwork(status);
                         mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                     }
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.SCHEDULER_STATUS) {
+                    final SchedulerStatus schedulerStatus = new SchedulerStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(schedulerStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_DEFAULT_TRANSITION_TIME_STATUS) {
+                    final GenericDefaultTransitionTimeStatus genericDefaultTransitionTimeStatus = new GenericDefaultTransitionTimeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericDefaultTransitionTimeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericDefaultTransitionTimeStatus);
                 } else {
                     handleUnknownPdu(message);
                 }
@@ -542,7 +568,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isReceivedViaProxyFilter(@NonNull final Message message) {
         final ProxyFilter filter = mInternalTransportCallbacks.getProxyFilter();
-        if (filter != null) {
+        if (filter != null && !filter.getAddresses().isEmpty()) {
             if (filter.getFilterType().getType() == ProxyFilterType.INCLUSION_LIST_FILTER) {
                 return filterAddressMatches(filter, message.getDst());
             } else {

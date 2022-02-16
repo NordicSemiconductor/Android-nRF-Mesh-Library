@@ -23,16 +23,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="no.nordicsemi.android.nrfmesh">
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
-
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <!--
+	 Bluetooth permission is required on Android 4.3 - 11 in order to communicate with
+	 Bluetooth LE devices.
+	-->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30"/>
+    <!--
+	 Bluetooth Admin permission is required on Android 4.3 - 11 in order to scan for
+	 Bluetooth LE devices.
+	-->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <!--
+	 Location permission is required from Android 6 to 11 to be able to scan for advertising
+	 Bluetooth LE devices. Some BLE devices, called beacons, may be used to position the phone.
+	 This is to ensure that the user agrees to do so.
+	 This app does not use this location information in any way.
+	 Since Android 10 ACCESS_FINE_LOCATION is required and for that, the COARSE one also needs
+	 to be specified.
+    -->
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30" />
+    <!--
+     On Android 12 new set of Bluetooth permissions were added. BLUETOOTH_SCAN permission is
+     needed to scan for Bluetooth LE devices. The "never for location" flag is set, as we are not
+     interested in finding the user location, and we are OK with the fact, that beacons info
+     will be removed from the scan results.
+    -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <!--
+     This permission is required in order to connect to a Bluetooth LE device on Android 12
+     onwards.
+    -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_CONNECT"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+
+    <uses-sdk tools:overrideLibrary="androidx.core.splashscreen"/>
 
     <application
         android:name=".di.MeshApplication"
@@ -43,27 +88,37 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity
-            android:name=".SplashScreenActivity"
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.SplashScreen"
+            android:windowSoftInputMode="adjustPan"
             android:launchMode="singleTop"
-            android:noHistory="true"
-            android:theme="@style/AppTheme.SplashScreen">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".MainActivity"
+
+        <!--
+         This activity alias is used to allow opening nRF Blinky from nRF Toolbox.
+         This is not required if this feature is not desired.
+         nRF Toolbox is displaying a different name and an icon, which are taken from this alias.
+        -->
+        <activity-alias
+            android:name="SplashScreenActivity"
+            android:targetActivity=".MainActivity"
             android:icon="@drawable/ic_mesh_feature"
             android:label="@string/feature_name"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustPan">
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="no.nordicsemi.android.nrftoolbox.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
+
         <activity
             android:name=".ble.ScannerActivity"
             android:launchMode="singleTop" />

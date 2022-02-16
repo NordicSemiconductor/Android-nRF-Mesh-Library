@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh.keys.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NodeKey;
@@ -45,32 +47,30 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapter.ViewHolder> {
 
-    private final List<ApplicationKey> appKeys = new ArrayList<>();
+    private final AsyncListDiffer<ApplicationKey> differ = new AsyncListDiffer<>(this, new ApplicationKeyDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
     public ManageAppKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         meshNetworkLiveData.observe(owner, networkData -> {
-            final List<ApplicationKey> keys = networkData.getAppKeys();
-            if (keys != null) {
-                appKeys.clear();
-                appKeys.addAll(keys);
-                Collections.sort(appKeys, Utils.appKeyComparator);
-            }
-            notifyDataSetChanged();
+            final List<ApplicationKey> keys = new ArrayList<>(networkData.getMeshNetwork().getAppKeys());
+            Collections.sort(keys, Utils.appKeyComparator);
+            Log.d("AAAA", "Size " + keys.size());
+            differ.submitList(keys);
         });
     }
 
     public ManageAppKeyAdapter(@NonNull final List<ApplicationKey> appKeys,
                                @NonNull final List<NodeKey> appKeyIndexes) {
+        final List<ApplicationKey> applicationKeys = new ArrayList<>();
         for (NodeKey nodeKey : appKeyIndexes) {
             for (ApplicationKey applicationKey : appKeys) {
                 if (nodeKey.getIndex() == applicationKey.getKeyIndex()) {
-                    this.appKeys.add(applicationKey);
+                    applicationKeys.add(applicationKey);
                 }
             }
         }
-        Collections.sort(this.appKeys, Utils.appKeyComparator);
-        notifyDataSetChanged();
+        Collections.sort(applicationKeys, Utils.appKeyComparator);
+        differ.submitList(applicationKeys);
     }
 
     public void setOnItemClickListener(final ManageAppKeyAdapter.OnItemClickListener listener) {
@@ -85,8 +85,8 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ManageAppKeyAdapter.ViewHolder holder, final int position) {
-        if (appKeys.size() > 0) {
-            final ApplicationKey appKey = appKeys.get(position);
+        if (getItemCount() > 0) {
+            final ApplicationKey appKey = differ.getCurrentList().get(position);
             holder.appKeyName.setText(appKey.getName());
             final String key = MeshParserUtils.bytesToHex(appKey.getKey(), false);
             holder.appKey.setText(key.toUpperCase());
@@ -101,7 +101,7 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
 
     @Override
     public int getItemCount() {
-        return appKeys.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -124,8 +124,8 @@ public class ManageAppKeyAdapter extends RecyclerView.Adapter<ManageAppKeyAdapte
             appKey = binding.subtitle;
             binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final ApplicationKey key = appKeys.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), key);
+                    final ApplicationKey key = differ.getCurrentList().get(getAbsoluteAdapterPosition());
+                    mOnItemClickListener.onItemClick(getAbsoluteAdapterPosition(), key);
                 }
             });
         }

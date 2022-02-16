@@ -144,14 +144,18 @@ public class DialogFragmentSceneRange extends DialogFragment {
                     AllocatedSceneRange range = mRange;
                     if (range == null) {
                         range = new AllocatedSceneRange(Integer.parseInt(low, 16), Integer.parseInt(high, 16));
+                        ((RangeListener) requireActivity()).addRange(range);
                     } else {
+                        AllocatedSceneRange newRange = (AllocatedSceneRange) range.clone();
                         range.setFirstScene(Integer.parseInt(low, 16));
                         range.setLastScene(Integer.parseInt(high, 16));
+                        ((RangeListener) requireActivity()).updateRange(range, newRange);
                     }
-                    ((RangeListener) requireActivity()).addRange(range);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
                     binding.lowAddressLayout.setError(ex.getMessage());
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
                 }
             }
         });

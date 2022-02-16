@@ -25,7 +25,6 @@ package no.nordicsemi.android.nrfmesh.keys.adapter;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
@@ -46,8 +46,8 @@ import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.ViewHolder> {
+    private final AsyncListDiffer<NetworkKey> differ = new AsyncListDiffer<>(this, new NetworkKeyDiffCallback());
 
-    private final List<NetworkKey> netKeys = new ArrayList<>();
     private final List<NetworkKey> addedNetKeys = new ArrayList<>();
     private OnItemClickListener mOnItemClickListener;
     private boolean enableSelection = true;
@@ -55,19 +55,20 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
     public AddedNetKeyAdapter(@NonNull final LifecycleOwner owner,
                               @NonNull final List<NetworkKey> netKeys,
                               @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData) {
-        this.netKeys.addAll(netKeys);
-        Collections.sort(this.netKeys, Utils.netKeyComparator);
         meshNodeLiveData.observe(owner, meshNode -> {
+            final List<NetworkKey> networkKeys = new ArrayList<>(netKeys);
+            Collections.sort(networkKeys, Utils.netKeyComparator);
+            differ.submitList(networkKeys);
+
             addedNetKeys.clear();
             for (NodeKey nodeKey : meshNode.getAddedNetKeys()) {
-                for (NetworkKey networkKey : netKeys) {
+                for (NetworkKey networkKey : networkKeys) {
                     if (nodeKey.getIndex() == networkKey.getKeyIndex()) {
                         addedNetKeys.add(networkKey);
                     }
                 }
             }
             Collections.sort(addedNetKeys, Utils.netKeyComparator);
-            notifyDataSetChanged();
         });
     }
 
@@ -77,7 +78,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
 
     public void enableDisableKeySelection(final boolean flag) {
         enableSelection = flag;
-        notifyDataSetChanged();
+        notifyItemRangeChanged(0, differ.getCurrentList().size());
     }
 
     @NonNull
@@ -88,7 +89,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final AddedNetKeyAdapter.ViewHolder holder, final int position) {
-        final NetworkKey key = netKeys.get(position);
+        final NetworkKey key = differ.getCurrentList().get(position);
         holder.keyName.setText(key.getName());
         final String appKey = MeshParserUtils.bytesToHex(key.getKey(), false);
         holder.key.setText(appKey.toUpperCase());
@@ -103,11 +104,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
 
     @Override
     public int getItemCount() {
-        return netKeys.size();
-    }
-
-    public boolean isEmpty() {
-        return getItemCount() == 0;
+        return differ.getCurrentList().size();
     }
 
     @FunctionalInterface
@@ -116,7 +113,6 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView icon;
         TextView keyName;
         TextView key;
         CheckBox check;
@@ -130,7 +126,7 @@ public class AddedNetKeyAdapter extends RecyclerView.Adapter<AddedNetKeyAdapter.
             check.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
                     check.setChecked(!check.isChecked());
-                    final NetworkKey key = netKeys.get(getAdapterPosition());
+                    final NetworkKey key = differ.getCurrentList().get(getBindingAdapterPosition());
                     mOnItemClickListener.onItemClick(key);
                 }
             });

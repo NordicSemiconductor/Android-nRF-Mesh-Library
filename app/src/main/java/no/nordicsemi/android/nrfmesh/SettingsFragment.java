@@ -24,9 +24,7 @@ package no.nordicsemi.android.nrfmesh;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,16 +33,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
+import java.util.Date;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.databinding.FragmentSettingsBinding;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutContainerBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
@@ -61,7 +58,8 @@ import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
 
-import static android.app.Activity.RESULT_OK;
+import static androidx.activity.result.contract.ActivityResultContracts.GetContent;
+import static java.text.DateFormat.getDateTimeInstance;
 
 @AndroidEntryPoint
 public class SettingsFragment extends Fragment implements
@@ -72,6 +70,14 @@ public class SettingsFragment extends Fragment implements
     private static final String TAG = SettingsFragment.class.getSimpleName();
     private static final int READ_FILE_REQUEST_CODE = 42;
     private SharedViewModel mViewModel;
+
+    private final ActivityResultLauncher<String> fileSelector = registerForActivityResult(
+            new GetContent(), result -> {
+                if (result != null) {
+                    mViewModel.disconnect();
+                    mViewModel.getMeshManagerApi().importMeshNetwork(result);
+                }
+            });
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -169,7 +175,7 @@ public class SettingsFragment extends Fragment implements
                 binding.containerProvisioners.text.setText(String.valueOf(meshNetworkLiveData.getProvisioners().size()));
                 binding.containerAppKeys.text.setText(String.valueOf(meshNetworkLiveData.getAppKeys().size()));
                 binding.containerScenes.text.setText(String.valueOf(meshNetworkLiveData.getScenes().size()));
-                binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(meshNetworkLiveData.getMeshNetwork().getTimestamp()));
+                binding.containerLastModified.text.setText(getDateTimeInstance().format(new Date(meshNetworkLiveData.getMeshNetwork().getTimestamp())));
             }
         });
 
@@ -190,7 +196,6 @@ public class SettingsFragment extends Fragment implements
         });
 
         return binding.getRoot();
-
     }
 
     @Override
@@ -220,35 +225,6 @@ public class SettingsFragment extends Fragment implements
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == READ_FILE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                if (data != null && data.getData() != null) {
-                    //Disconnect from network before importing
-                    mViewModel.disconnect();
-                    final Uri uri = data.getData();
-                    mViewModel.getMeshManagerApi().importMeshNetwork(uri);
-                }
-            } else {
-                Log.e(TAG, "Error while opening file browser");
-            }
-        } else if (requestCode == 2011) {
-            if (resultCode == RESULT_OK) {
-                if (data != null && data.getData() != null) {
-                    final Uri uri = data.getData();
-                    try {
-                        final OutputStream stream = requireContext().getContentResolver().openOutputStream(uri);
-                        mViewModel.exportMeshNetwork(stream);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public void onNetworkNameEntered(@NonNull final String name) {
         mViewModel.getNetworkLiveData().setNetworkName(name);
     }
@@ -267,14 +243,6 @@ public class SettingsFragment extends Fragment implements
      * Fires an intent to spin up the "file chooser" UI to select a file
      */
     private void performFileSearch() {
-        final Intent intent;
-        if (Utils.isKitkatOrAbove()) {
-            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        } else {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-        }
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        startActivityForResult(intent, READ_FILE_REQUEST_CODE);
+        fileSelector.launch("application/json");
     }
 }

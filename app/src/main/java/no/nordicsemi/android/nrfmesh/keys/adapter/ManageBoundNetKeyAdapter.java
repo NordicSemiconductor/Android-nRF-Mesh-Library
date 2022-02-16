@@ -34,6 +34,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.ApplicationKey;
 import no.nordicsemi.android.mesh.NetworkKey;
@@ -43,18 +44,50 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNetKeyAdapter.ViewHolder> {
 
-    private final List<NetworkKey> mNetworkKeys;
-    private ApplicationKey mAppKey;
+    private final AsyncListDiffer<NetworkKey> differ = new AsyncListDiffer<>(this, new NetworkKeyDiffCallback());
+
+    private ApplicationKey appKey;
     private OnItemClickListener mOnItemClickListener;
 
     public ManageBoundNetKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final LiveData<ApplicationKey> appKey, @NonNull final List<NetworkKey> networkKeys) {
+        differ.submitList(networkKeys);
         appKey.observe(owner, applicationKey -> {
+            if (this.appKey != null && this.appKey.getBoundNetKeyIndex() != applicationKey.getBoundNetKeyIndex()) {
+                final int oldIndex = getIndex(this.appKey, networkKeys);
+                if (oldIndex > -1)
+                    notifyItemChanged(oldIndex);
+                final int newIndex = getIndex(applicationKey, networkKeys);
+                if (newIndex > -1)
+                    notifyItemChanged(newIndex);
+            }
+            this.appKey = applicationKey;
+        });
+    }
+
+    private int getIndex(final ApplicationKey applicationKey, final List<NetworkKey> networkKeys) {
+        NetworkKey networkKey;
+        for (int i = 0; i < networkKeys.size(); i++) {
+            networkKey = networkKeys.get(i);
+            if (networkKey.getKeyIndex() == applicationKey.getBoundNetKeyIndex()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+/*    public ManageBoundNetKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final LiveData<ApplicationKey> appKey, @NonNull final List<NetworkKey> networkKeys) {
+        appKey.observe(owner, applicationKey -> {
+            if(mAppKey.getBoundNetKeyIndex() != applicationKey.getBoundNetKeyIndex()) {
+                notifyItemChanged(mAppKey.getBoundNetKeyIndex());
+                notifyItemChanged(applicationKey.getBoundNetKeyIndex());
+                mAppKey = applicationKey
+            }
             mAppKey = applicationKey;
-            notifyDataSetChanged();
         });
         mNetworkKeys = networkKeys;
 
-    }
+    }*/
 
     public void setOnItemClickListener(final ManageBoundNetKeyAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
@@ -68,8 +101,8 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
 
     @Override
     public void onBindViewHolder(@NonNull final ManageBoundNetKeyAdapter.ViewHolder holder, final int position) {
-        if (mNetworkKeys.size() > 0) {
-            final NetworkKey networkKey = mNetworkKeys.get(position);
+        if (getItemCount() > 0) {
+            final NetworkKey networkKey = differ.getCurrentList().get(position);
             holder.netKeyName.setText(networkKey.getName());
             final String key = MeshParserUtils.bytesToHex(networkKey.getKey(), false);
             holder.netKey.setText(key.toUpperCase());
@@ -79,7 +112,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
     }
 
     private boolean checkRadio(@NonNull final NetworkKey key) {
-        return key.getKeyIndex() == mAppKey.getBoundNetKeyIndex();
+        return key.getKeyIndex() == appKey.getBoundNetKeyIndex();
     }
 
     @Override
@@ -89,11 +122,7 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
 
     @Override
     public int getItemCount() {
-        return mNetworkKeys.size();
-    }
-
-    public boolean isEmpty() {
-        return getItemCount() == 0;
+        return differ.getCurrentList().size();
     }
 
     @FunctionalInterface
@@ -117,8 +146,8 @@ public class ManageBoundNetKeyAdapter extends RecyclerView.Adapter<ManageBoundNe
             getSwipeableView().setBackgroundColor(color);
             binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final NetworkKey netKey = mNetworkKeys.get(getAdapterPosition());
-                    mOnItemClickListener.updateBoundNetKeyIndex(getAdapterPosition(), netKey);
+                    final NetworkKey netKey = differ.getCurrentList().get(getBindingAdapterPosition());
+                    mOnItemClickListener.updateBoundNetKeyIndex(getBindingAdapterPosition(), netKey);
                 }
             });
         }

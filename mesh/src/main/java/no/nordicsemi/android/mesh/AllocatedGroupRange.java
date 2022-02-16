@@ -107,4 +107,10 @@ public class AllocatedGroupRange extends AddressRange {
         dest.writeInt(highAddress);
         dest.writeInt(lowAddress);
     }
+
+    /*@NonNull
+    @Override
+    public AllocatedGroupRange clone() throws CloneNotSupportedException {
+        return (AllocatedGroupRange) super.clone();
+    }*/
 }

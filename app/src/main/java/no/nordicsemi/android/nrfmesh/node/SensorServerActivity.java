@@ -116,7 +116,7 @@ public class SensorServerActivity extends ModelConfigurationActivity {
                 if (keyIndex != null) {
                     clearViews();
                     final ApplicationKey key = mViewModel.getNetworkLiveData().getAppKeys().get(keyIndex);
-                    sendMessage(element.getElementAddress(), new SensorGet(key, null));
+                    sendAcknowledgedMessage(element.getElementAddress(), new SensorGet(key, null));
                 }
             }
         }

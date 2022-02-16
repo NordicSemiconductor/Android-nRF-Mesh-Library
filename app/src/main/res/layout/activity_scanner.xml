@@ -98,7 +98,18 @@
 
     <include
         android:id="@+id/no_location_permission"
-        layout="@layout/info_no_permission"
+        layout="@layout/info_no_location_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_layout" />
+
+    <include
+        android:id="@+id/no_bluetooth_permissions"
+        layout="@layout/info_no_bluetooth_permissions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"

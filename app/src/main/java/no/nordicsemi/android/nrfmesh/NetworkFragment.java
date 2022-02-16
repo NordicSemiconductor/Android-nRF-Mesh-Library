@@ -31,6 +31,9 @@ import android.view.ViewGroup;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -64,6 +67,9 @@ public class NetworkFragment extends Fragment implements
     private SharedViewModel mViewModel;
 
     private NodeAdapter mNodeAdapter;
+
+    private final ActivityResultLauncher<Intent> provisioner =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::handleActivityResult);
 
     @Nullable
     @Override
@@ -119,16 +125,10 @@ public class NetworkFragment extends Fragment implements
         fab.setOnClickListener(v -> {
             final Intent intent = new Intent(requireContext(), ScannerActivity.class);
             intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, true);
-            startActivityForResult(intent, Utils.PROVISIONING_SUCCESS);
+            provisioner.launch(intent);
         });
 
         return binding.getRoot();
-    }
-
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        handleActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -165,48 +165,47 @@ public class NetworkFragment extends Fragment implements
         mNodeAdapter.notifyItemChanged(position);
     }
 
-    private void handleActivityResult(final int requestCode, final int resultCode, @NonNull final Intent data) {
-        if (requestCode == Utils.PROVISIONING_SUCCESS) {
-            if (resultCode == RESULT_OK) {
-                final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
-                final DialogFragmentError fragmentConfigError;
-                if (provisioningSuccess) {
-                    final boolean provisionerUnassigned = data.getBooleanExtra(Utils.PROVISIONER_UNASSIGNED, false);
-                    if (provisionerUnassigned) {
-                        fragmentConfigError =
-                                DialogFragmentError.newInstance(getString(R.string.title_init_config_error)
-                                        , getString(R.string.provisioner_unassigned_msg));
-                        fragmentConfigError.show(getChildFragmentManager(), null);
-                    } else {
-                        final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
-                        final boolean defaultTtlGetCompleted = data.getBooleanExtra(Utils.DEFAULT_GET_COMPLETED, false);
-                        final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
-                        final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
-                        final String title = getString(R.string.title_init_config_error);
-                        final String message;
-                        if (compositionDataReceived) {
-                            if (defaultTtlGetCompleted) {
-                                if (appKeyAddCompleted) {
-                                    if (!networkRetransmitSetCompleted) {
-                                        message = getString(R.string.init_config_error_app_key_msg);
-                                        showErrorDialog(title, message);
-                                    }
-                                } else {
+    private void handleActivityResult(final ActivityResult result) {
+        final Intent data = result.getData();
+        if (result.getResultCode() == RESULT_OK && data != null) {
+            final boolean provisioningSuccess = data.getBooleanExtra(Utils.PROVISIONING_COMPLETED, false);
+            final DialogFragmentError fragmentConfigError;
+            if (provisioningSuccess) {
+                final boolean provisionerUnassigned = data.getBooleanExtra(Utils.PROVISIONER_UNASSIGNED, false);
+                if (provisionerUnassigned) {
+                    fragmentConfigError =
+                            DialogFragmentError.newInstance(getString(R.string.title_init_config_error)
+                                    , getString(R.string.provisioner_unassigned_msg));
+                    fragmentConfigError.show(getChildFragmentManager(), null);
+                } else {
+                    final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
+                    final boolean defaultTtlGetCompleted = data.getBooleanExtra(Utils.DEFAULT_GET_COMPLETED, false);
+                    final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
+                    final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
+                    final String title = getString(R.string.title_init_config_error);
+                    final String message;
+                    if (compositionDataReceived) {
+                        if (defaultTtlGetCompleted) {
+                            if (appKeyAddCompleted) {
+                                if (!networkRetransmitSetCompleted) {
                                     message = getString(R.string.init_config_error_app_key_msg);
                                     showErrorDialog(title, message);
                                 }
                             } else {
-                                message = getString(R.string.init_config_error_default_ttl_get_msg);
+                                message = getString(R.string.init_config_error_app_key_msg);
                                 showErrorDialog(title, message);
                             }
                         } else {
-                            message = getString(R.string.init_config_error_all);
+                            message = getString(R.string.init_config_error_default_ttl_get_msg);
                             showErrorDialog(title, message);
                         }
+                    } else {
+                        message = getString(R.string.init_config_error_all);
+                        showErrorDialog(title, message);
                     }
                 }
-                requireActivity().invalidateOptionsMenu();
             }
+            requireActivity().invalidateOptionsMenu();
         }
     }
 

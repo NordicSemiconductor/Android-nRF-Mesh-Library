@@ -29,63 +29,32 @@ import android.widget.TextView;
 
 import com.google.android.material.elevation.ElevationOverlayProvider;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
-import no.nordicsemi.android.mesh.MeshNetwork;
-import no.nordicsemi.android.mesh.Scene;
-import no.nordicsemi.android.mesh.models.SceneServer;
-import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.RemovableRowItemBinding;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
-import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
 
 public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapter.ViewHolder> {
 
-    private final List<Scene> scenes = new ArrayList<>();
+    @SuppressWarnings("ComparatorCombinators")
+    public static final Comparator<SceneUiState> sceneComparator = (scene1UiState1, sceneUiState2) -> Integer.compare(scene1UiState1.getNumber(), sceneUiState2.getNumber());
+    private final AsyncListDiffer<SceneUiState> differ = new AsyncListDiffer<>(this, new SceneItemDiffCallback());
     private OnItemListener mOnItemListener;
-    private MeshNetwork network;
-    private int currentScene = 0;
 
-    /**
-     * Constructs an adapter with the scenes added to a given node
-     *
-     * @param owner           Lifecycle owner
-     * @param elementLiveData LiveData element
-     * @param networkLiveData Network live data
-     */
-    public StoredScenesAdapter(@NonNull final LifecycleOwner owner,
-                               @NonNull final LiveData<Element> elementLiveData,
-                               @NonNull final MeshNetworkLiveData networkLiveData) {
-        networkLiveData.observe(owner, meshNetworkLiveData -> network = meshNetworkLiveData.getMeshNetwork());
-        elementLiveData.observe(owner, element -> {
-            final SceneServer sceneServer = (SceneServer) element.getMeshModels().get((int) SCENE_SERVER);
-            currentScene = sceneServer.getCurrentScene();
-            final List<Integer> scenesNumbers = sceneServer.getScenesNumbers();
-            this.scenes.clear();
-            for (int sceneNumber : scenesNumbers) {
-                final Scene scene = network.getScene(sceneNumber);
-                if (scene != null) {
-                    this.scenes.add(scene);
-                }
-
-            }
-            Collections.sort(this.scenes, Utils.sceneComparator);
-            notifyDataSetChanged();
-        });
+    public void update(@NonNull final List<SceneUiState> scenes) {
+        Collections.sort(scenes, sceneComparator);
+        differ.submitList(scenes);
     }
 
     public void setOnItemClickListener(final OnItemListener listener) {
@@ -100,17 +69,15 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final StoredScenesAdapter.ViewHolder holder, final int position) {
-        if (scenes.size() > 0) {
-            final Scene scene = scenes.get(position);
-            holder.sceneName.setText(scene.getName());
-            final String number = "0x" + String.format(Locale.US, "%04X", scene.getNumber());
-            holder.sceneNumber.setText(number);
-            holder.getSwipeableView().setTag(scene);
-            if (currentScene > 0 && currentScene == scene.getNumber()) {
-                holder.image.setVisibility(VISIBLE);
-            } else {
-                holder.image.setVisibility(INVISIBLE);
-            }
+        final SceneUiState scene = differ.getCurrentList().get(position);
+        holder.sceneName.setText(scene.getName());
+        final String number = "0x" + String.format(Locale.US, "%04X", scene.getNumber());
+        holder.sceneNumber.setText(number);
+        holder.getSwipeableView().setTag(scene);
+        if (scene.isCurrentScene()) {
+            holder.image.setVisibility(VISIBLE);
+        } else {
+            holder.image.setVisibility(INVISIBLE);
         }
     }
 
@@ -121,15 +88,15 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
 
     @Override
     public int getItemCount() {
-        return scenes.size();
+        return differ.getCurrentList().size();
     }
 
     @FunctionalInterface
     public interface OnItemListener {
-        void onItemClick(final int position, @NonNull final Scene scene);
+        void onItemClick(@NonNull final SceneUiState sceneNumber);
     }
 
-    final class ViewHolder extends RemovableViewHolder {
+    public final class ViewHolder extends RemovableViewHolder {
         TextView sceneName;
         TextView sceneNumber;
         ImageView image;
@@ -146,7 +113,7 @@ public class StoredScenesAdapter extends RecyclerView.Adapter<StoredScenesAdapte
             getSwipeableView().setBackgroundColor(color);
             binding.container.setOnClickListener(v -> {
                 if (mOnItemListener != null)
-                    mOnItemListener.onItemClick(getAdapterPosition(), scenes.get(getAdapterPosition()));
+                    mOnItemListener.onItemClick(differ.getCurrentList().get(getAbsoluteAdapterPosition()));
             });
         }
     }

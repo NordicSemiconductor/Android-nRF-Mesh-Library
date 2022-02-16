@@ -3,6 +3,8 @@ package no.nordicsemi.android.mesh.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Arrays;
+
 /**
  * Wrapper class for addresses
  */
@@ -57,5 +59,20 @@ public class AddressArray implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeByteArray(address);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final AddressArray that = (AddressArray) o;
+
+        return Arrays.equals(address, that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(address);
     }
 }

@@ -72,8 +72,8 @@ public class RangesActivity extends AppCompatActivity implements
     private RangesViewModel mViewModel;
 
     private int mType;
-    private RangeAdapter mRangeAdapter;
-    private Provisioner mProvisioner;
+    private RangeAdapter<? extends Range> mRangeAdapter;
+    private Provisioner provisioner;
 
     private final Comparator<AddressRange> addressRangeComparator = (addressRange1, addressRange2) ->
             Integer.compare(addressRange1.getLowAddress(), addressRange2.getLowAddress());
@@ -87,43 +87,46 @@ public class RangesActivity extends AppCompatActivity implements
         binding = ActivityRangesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(RangesViewModel.class);
-        mType = getIntent().getExtras().getInt(Utils.RANGE_TYPE);
+        mType = getIntent().getIntExtra(Utils.RANGE_TYPE, Utils.UNICAST_RANGE);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         binding.infoRanges.getRoot().setVisibility(View.VISIBLE);
 
-        mProvisioner = mViewModel.getSelectedProvisioner().getValue();
-
-        switch (mType) {
-            case Utils.GROUP_RANGE:
-                binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_GROUP_ADDRESS, true));
-                binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_GROUP_ADDRESS, true));
-                getSupportActionBar().setTitle(R.string.title_edit_group_ranges);
-                mRangeAdapter = new RangeAdapter(mProvisioner.getProvisionerUuid(),
-                        mProvisioner.getAllocatedGroupRanges(),
-                        mViewModel.getNetworkLiveData().getProvisioners());
-                break;
-            case Utils.SCENE_RANGE:
-                binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(0x0000, true));
-                binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(0xFFFF, true));
-                getSupportActionBar().setTitle(R.string.title_edit_scene_ranges);
-                mRangeAdapter = new RangeAdapter(mProvisioner.getProvisionerUuid(),
-                        mProvisioner.getAllocatedSceneRanges(),
-                        mViewModel.getNetworkLiveData().getProvisioners());
-                break;
-            default:
-            case Utils.UNICAST_RANGE:
-                binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_UNICAST_ADDRESS, true));
-                binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_UNICAST_ADDRESS, true));
-                getSupportActionBar().setTitle(R.string.title_edit_unicast_ranges);
-                mRangeAdapter = new RangeAdapter(mProvisioner.getProvisionerUuid(),
-                        mProvisioner.getAllocatedUnicastRanges(),
-                        mViewModel.getNetworkLiveData().getProvisioners());
-                break;
+        provisioner = mViewModel.getSelectedProvisioner().getValue();
+        if (provisioner != null) {
+            switch (mType) {
+                case Utils.GROUP_RANGE:
+                    binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_GROUP_ADDRESS, true));
+                    binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_GROUP_ADDRESS, true));
+                    getSupportActionBar().setTitle(R.string.title_edit_group_ranges);
+                    mRangeAdapter = new RangeAdapter<>(provisioner.getProvisionerUuid(),
+                            provisioner.getAllocatedGroupRanges(),
+                            mViewModel.getNetworkLiveData().getProvisioners());
+                    break;
+                case Utils.SCENE_RANGE:
+                    binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(0x0000, true));
+                    binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(0xFFFF, true));
+                    getSupportActionBar().setTitle(R.string.title_edit_scene_ranges);
+                    mRangeAdapter = new RangeAdapter<>(provisioner.getProvisionerUuid(),
+                            provisioner.getAllocatedSceneRanges(),
+                            mViewModel.getNetworkLiveData().getProvisioners());
+                    break;
+                default:
+                case Utils.UNICAST_RANGE:
+                    binding.infoRanges.startAddress.setText(MeshAddress.formatAddress(MeshAddress.START_UNICAST_ADDRESS, true));
+                    binding.infoRanges.endAddress.setText(MeshAddress.formatAddress(MeshAddress.END_UNICAST_ADDRESS, true));
+                    getSupportActionBar().setTitle(R.string.title_edit_unicast_ranges);
+                    mRangeAdapter = new RangeAdapter<>(provisioner.getProvisionerUuid(),
+                            provisioner.getAllocatedUnicastRanges(),
+                            mViewModel.getNetworkLiveData().getProvisioners());
+                    break;
+            }
+        } else {
+            finish();
         }
-
         mRangeAdapter.setOnItemClickListener(this);
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -153,13 +156,8 @@ public class RangesActivity extends AppCompatActivity implements
                     break;
             }
         });
-
         binding.fabResolve.setOnClickListener(v -> resolveRanges());
-
-        updateRanges();
-        updateOtherRanges();
-        updateEmptyView();
-        updateResolveFab();
+        updateUi();
     }
 
     @Override
@@ -174,7 +172,9 @@ public class RangesActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        mViewModel.setSelectedProvisioner(mProvisioner);
+        if (provisioner != null) {
+            mViewModel.setSelectedProvisioner(provisioner);
+        }
     }
 
     @Override
@@ -193,32 +193,36 @@ public class RangesActivity extends AppCompatActivity implements
 
     @Override
     public void addRange(@NonNull final Range range) {
-        if (mProvisioner != null) {
-            mProvisioner.addRange(range);
+        if (provisioner != null) {
+            provisioner.addRange(range);
             updateData(range);
-            updateRanges();
-            updateOtherRanges();
-            updateEmptyView();
-            updateResolveFab();
+            updateUi();
+        }
+    }
+
+    @Override
+    public void updateRange(@NonNull final Range oldRange, final Range newRange) {
+        if (provisioner != null) {
+            provisioner.updateRange(oldRange, newRange);
+            updateData(oldRange);
+            updateUi();
         }
     }
 
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
-        if (mProvisioner != null) {
-            final int position = viewHolder.getAdapterPosition();
+        if (provisioner != null) {
+            final int position = viewHolder.getAbsoluteAdapterPosition();
             try {
                 final Range range = mRangeAdapter.getItem(position);
-                mRangeAdapter.removeItem(position);
-                displaySnackBar(position, range);
-                mProvisioner.removeRange(range);
-                updateRanges();
-                updateOtherRanges();
-                updateEmptyView();
-                updateResolveFab();
+                //mRangeAdapter.removeItem(position);
+                displaySnackBar(range);
+                provisioner.removeRange(range);
+                updateData(range);
+                updateUi();
             } catch (Exception ex) {
-                mRangeAdapter.notifyDataSetChanged();
-                mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
+                mViewModel.displaySnackBar(this, binding.container,
+                        ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage(), Snackbar.LENGTH_LONG);
             }
         }
     }
@@ -229,77 +233,82 @@ public class RangesActivity extends AppCompatActivity implements
     }
 
     private void updateRanges() {
-        if (mProvisioner != null) {
+        if (provisioner != null) {
             binding.infoRanges.range.clearRanges();
             switch (mType) {
                 case Utils.GROUP_RANGE:
-                    binding.infoRanges.range.addRanges(mProvisioner.getAllocatedGroupRanges());
+                    binding.infoRanges.range.addRanges(provisioner.getAllocatedGroupRanges());
                     break;
                 case Utils.SCENE_RANGE:
-                    binding.infoRanges.range.addRanges(mProvisioner.getAllocatedSceneRanges());
+                    binding.infoRanges.range.addRanges(provisioner.getAllocatedSceneRanges());
                     break;
                 default:
                 case Utils.UNICAST_RANGE:
-                    binding.infoRanges.range.addRanges(mProvisioner.getAllocatedUnicastRanges());
+                    binding.infoRanges.range.addRanges(provisioner.getAllocatedUnicastRanges());
                     break;
             }
         }
     }
 
     private void updateOtherRanges() {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            binding.infoRanges.range.clearOtherRanges();
-            for (Provisioner other : network.getProvisioners()) {
-                if (!other.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid()))
-                    switch (mType) {
-                        case Utils.GROUP_RANGE:
-                            binding.infoRanges.range.addOtherRanges(other.getAllocatedGroupRanges());
-                            break;
-                        case Utils.SCENE_RANGE:
-                            binding.infoRanges.range.addOtherRanges(other.getAllocatedSceneRanges());
-                            break;
-                        default:
-                        case Utils.UNICAST_RANGE:
-                            binding.infoRanges.range.addOtherRanges(other.getAllocatedUnicastRanges());
-                            break;
-                    }
+        if (provisioner != null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                binding.infoRanges.range.clearOtherRanges();
+                for (Provisioner other : network.getProvisioners()) {
+                    if (!other.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid()))
+                        switch (mType) {
+                            case Utils.GROUP_RANGE:
+                                binding.infoRanges.range.addOtherRanges(other.getAllocatedGroupRanges());
+                                break;
+                            case Utils.SCENE_RANGE:
+                                binding.infoRanges.range.addOtherRanges(other.getAllocatedSceneRanges());
+                                break;
+                            default:
+                            case Utils.UNICAST_RANGE:
+                                binding.infoRanges.range.addOtherRanges(other.getAllocatedUnicastRanges());
+                                break;
+                        }
+                }
             }
         }
     }
 
     private void updateResolveFab() {
-        final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
-        if (network != null) {
-            for (Provisioner other : network.getProvisioners()) {
-                if (!other.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid()))
-                    switch (mType) {
-                        case Utils.GROUP_RANGE:
-                            if (mProvisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())) {
-                                binding.fabResolve.show();
-                                return;
-                            } else {
-                                binding.fabResolve.hide();
-                            }
-                            break;
-                        case Utils.SCENE_RANGE:
-                            if (mProvisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
-                                binding.fabResolve.show();
-                                return;
-                            } else {
-                                binding.fabResolve.hide();
-                            }
-                            break;
-                        default:
-                        case Utils.UNICAST_RANGE:
-                            if (mProvisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())) {
-                                binding.fabResolve.show();
-                                return;
-                            } else {
-                                binding.fabResolve.hide();
-                            }
-                            break;
+        if (provisioner != null) {
+            final MeshNetwork network = mViewModel.getMeshManagerApi().getMeshNetwork();
+            if (network != null) {
+                for (Provisioner other : network.getProvisioners()) {
+                    if (!other.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())){
+                        switch (mType) {
+                            case Utils.GROUP_RANGE:
+                                if (provisioner.hasOverlappingGroupRanges(other.getAllocatedGroupRanges())) {
+                                    binding.fabResolve.show();
+                                    return;
+                                } else {
+                                    binding.fabResolve.hide();
+                                }
+                                break;
+                            case Utils.SCENE_RANGE:
+                                if (provisioner.hasOverlappingSceneRanges(other.getAllocatedSceneRanges())) {
+                                    binding.fabResolve.show();
+                                    return;
+                                } else {
+                                    binding.fabResolve.hide();
+                                }
+                                break;
+                            default:
+                            case Utils.UNICAST_RANGE:
+                                if (provisioner.hasOverlappingUnicastRanges(other.getAllocatedUnicastRanges())) {
+                                    binding.fabResolve.show();
+                                    return;
+                                } else {
+                                    binding.fabResolve.hide();
+                                }
+                                break;
+                        }
                     }
+                }
             }
         }
     }
@@ -314,29 +323,29 @@ public class RangesActivity extends AppCompatActivity implements
     }
 
     private void updateData(@NonNull final Range range) {
-        if (mProvisioner != null) {
+        if (provisioner != null) {
             if (range instanceof AllocatedUnicastRange) {
-                mRangeAdapter.updateData(mProvisioner.getAllocatedUnicastRanges());
+                mRangeAdapter.updateData(provisioner.getAllocatedUnicastRanges());
             } else if (range instanceof AllocatedGroupRange) {
-                mRangeAdapter.updateData(mProvisioner.getAllocatedGroupRanges());
+                mRangeAdapter.updateData(provisioner.getAllocatedGroupRanges());
             } else {
-                mRangeAdapter.updateData(mProvisioner.getAllocatedSceneRanges());
+                mRangeAdapter.updateData(provisioner.getAllocatedSceneRanges());
             }
         }
     }
 
-    private void displaySnackBar(final int position, final Range range) {
-        Snackbar.make(binding.container, getString(R.string.range_deleted), Snackbar.LENGTH_LONG)
-                .setAction(getString(R.string.undo), view -> {
-                    mRangeAdapter.addItem(position, range);
-                    mProvisioner.addRange(range);
-                    updateRanges();
-                    updateOtherRanges();
-                    updateEmptyView();
-                    updateResolveFab();
-                })
-                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
-                .show();
+    private void displaySnackBar(@NonNull final Range range) {
+        if (provisioner != null) {
+            Snackbar.make(binding.container, getString(R.string.range_deleted), Snackbar.LENGTH_LONG)
+                    .setAction(getString(R.string.undo), view -> {
+                        //mRangeAdapter.addItem(position, range);
+                        provisioner.addRange(range);
+                        updateData(range);
+                        updateUi();
+                    })
+                    .setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                    .show();
+        }
     }
 
     private void resolveRanges() {
@@ -355,11 +364,11 @@ public class RangesActivity extends AppCompatActivity implements
     }
 
     private void removeConflictingUnicastRanges() {
-        if (mProvisioner != null) {
-            List<AllocatedUnicastRange> ranges = new ArrayList<>(mProvisioner.getAllocatedUnicastRanges());
+        if (provisioner != null) {
+            List<AllocatedUnicastRange> ranges = new ArrayList<>(provisioner.getAllocatedUnicastRanges());
             Collections.sort(ranges, addressRangeComparator);
             for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
-                if (!p.getProvisionerUuid().equalsIgnoreCase(mProvisioner.getProvisionerUuid())) {
+                if (!p.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
                     final List<AllocatedUnicastRange> otherRanges = new ArrayList<>(p.getAllocatedUnicastRanges());
                     Collections.sort(otherRanges, addressRangeComparator);
                     for (AllocatedUnicastRange otherRange : otherRanges) {
@@ -367,56 +376,57 @@ public class RangesActivity extends AppCompatActivity implements
                     }
                 }
             }
-            mProvisioner.setAllocatedUnicastRanges(ranges);
             mRangeAdapter.updateData(ranges);
-            updateRanges();
-            updateOtherRanges();
-            updateEmptyView();
-            updateResolveFab();
+            provisioner.setAllocatedUnicastRanges(ranges);
+            updateUi();
         }
     }
 
     private void removeConflictingGroupRanges() {
-        if (mProvisioner != null) {
-            List<AllocatedGroupRange> ranges = new ArrayList<>(mProvisioner.getAllocatedGroupRanges());
+        if (provisioner != null) {
+            List<AllocatedGroupRange> ranges = new ArrayList<>(provisioner.getAllocatedGroupRanges());
             Collections.sort(ranges, addressRangeComparator);
             for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
-                final List<AllocatedGroupRange> otherRanges = new ArrayList<>(p.getAllocatedGroupRanges());
-                Collections.sort(otherRanges, addressRangeComparator);
-                for (AllocatedGroupRange otherRange : otherRanges) {
-                    ranges = AddressRange.minus(ranges, otherRange);
+                if (!p.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                    final List<AllocatedGroupRange> otherRanges = new ArrayList<>(p.getAllocatedGroupRanges());
+                    Collections.sort(otherRanges, addressRangeComparator);
+                    for (AllocatedGroupRange otherRange : otherRanges) {
+                        ranges = AddressRange.minus(ranges, otherRange);
+                    }
                 }
             }
-
             Collections.sort(ranges, addressRangeComparator);
-            mProvisioner.setAllocatedGroupRanges(ranges);
+            provisioner.setAllocatedGroupRanges(ranges);
             mRangeAdapter.updateData(ranges);
-            updateRanges();
-            updateOtherRanges();
-            updateEmptyView();
-            updateResolveFab();
+            updateUi();
         }
     }
 
     private void removeConflictingSceneRanges() {
-        if (mProvisioner != null) {
-            List<AllocatedSceneRange> ranges = new ArrayList<>(mProvisioner.getAllocatedSceneRanges());
+        if (provisioner != null) {
+            List<AllocatedSceneRange> ranges = new ArrayList<>(provisioner.getAllocatedSceneRanges());
             Collections.sort(ranges, sceneRangeComparator);
             for (Provisioner p : mViewModel.getNetworkLiveData().getProvisioners()) {
-                final List<AllocatedSceneRange> otherRanges = new ArrayList<>(p.getAllocatedSceneRanges());
-                Collections.sort(otherRanges, sceneRangeComparator);
-                for (AllocatedSceneRange otherRange : otherRanges) {
-                    ranges = AllocatedSceneRange.minus(ranges, otherRange);
+                if (!p.getProvisionerUuid().equalsIgnoreCase(provisioner.getProvisionerUuid())) {
+                    final List<AllocatedSceneRange> otherRanges = new ArrayList<>(p.getAllocatedSceneRanges());
+                    Collections.sort(otherRanges, sceneRangeComparator);
+                    for (AllocatedSceneRange otherRange : otherRanges) {
+                        ranges = AllocatedSceneRange.minus(ranges, otherRange);
+                    }
                 }
             }
 
             Collections.sort(ranges, sceneRangeComparator);
-            mProvisioner.setAllocatedSceneRanges(ranges);
+            provisioner.setAllocatedSceneRanges(ranges);
             mRangeAdapter.updateData(ranges);
-            updateRanges();
-            updateOtherRanges();
-            updateEmptyView();
-            updateResolveFab();
+            updateUi();
         }
+    }
+
+    private void updateUi() {
+        updateRanges();
+        updateOtherRanges();
+        updateEmptyView();
+        updateResolveFab();
     }
 }

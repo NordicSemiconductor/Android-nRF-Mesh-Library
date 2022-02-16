@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.AddressRange;
 import no.nordicsemi.android.mesh.AllocatedGroupRange;
@@ -43,17 +44,17 @@ import no.nordicsemi.android.nrfmesh.databinding.RangeItemBinding;
 import no.nordicsemi.android.nrfmesh.widgets.RangeView;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
-public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> {
+public class RangeAdapter<T extends Range> extends RecyclerView.Adapter<RangeAdapter<T>.ViewHolder> {
 
-    private final ArrayList<Range> mRanges;
+    private final AsyncListDiffer<T> differ = new AsyncListDiffer<>(this, new RangeDiffCallback<>());
     private final List<Provisioner> mProvisioners;
     private final String mUuid;
     private OnItemClickListener mOnItemClickListener;
 
-    public RangeAdapter(@NonNull final String uuid, @NonNull final List<? extends Range> ranges, @NonNull final List<Provisioner> provisioners) {
+    public RangeAdapter(@NonNull final String uuid, @NonNull final List<T> ranges, @NonNull final List<Provisioner> provisioners) {
         mUuid = uuid;
-        mRanges = new ArrayList<>(ranges);
         mProvisioners = provisioners;
+        differ.submitList(new ArrayList<>(ranges));
     }
 
     public void setOnItemClickListener(final RangeAdapter.OnItemClickListener listener) {
@@ -61,20 +62,33 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
     }
 
     public void updateData(@NonNull List<? extends Range> ranges) {
-        mRanges.clear();
-        mRanges.addAll(ranges);
-        notifyDataSetChanged();
+        final List<? extends Range> a = new ArrayList<>(ranges);
+        //noinspection unchecked
+        differ.submitList((List<T>) a);
+    }
+
+    private List<T> populateLists(@NonNull List<T> ranges) {
+        final List<Range> r = new ArrayList<>();
+        for (T range : ranges) {
+            try {
+                r.add(range.clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+        //noinspection unchecked
+        return (List<T>) r;
     }
 
     @NonNull
     @Override
-    public RangeAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        return new RangeAdapter.ViewHolder(RangeItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+    public RangeAdapter<T>.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        return new RangeAdapter<T>.ViewHolder(RangeItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull final RangeAdapter.ViewHolder holder, final int position) {
-        final Range range = mRanges.get(position);
+        final Range range = differ.getCurrentList().get(position);
         final String low, high;
         if (range instanceof AddressRange) {
             low = MeshAddress.formatAddress(((AddressRange) range).getLowAddress(), true);
@@ -96,7 +110,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return mRanges.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -104,20 +118,16 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
     }
 
     public Range getItem(final int position) {
-        return mRanges.get(position);
-    }
-
-    public List<Range> getItems() {
-        return mRanges;
+        return differ.getCurrentList().get(position);
     }
 
     public void addItem(final int position, @NonNull final Range range) {
-        mRanges.add(position, range);
+        //mRanges.add(position, range);
         notifyItemInserted(position);
     }
 
     public void removeItem(final int position) {
-        mRanges.remove(position);
+        //mRanges.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -163,7 +173,7 @@ public class RangeAdapter extends RecyclerView.Adapter<RangeAdapter.ViewHolder> 
             rangeView = binding.range;
             binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mRanges.get(getAdapterPosition()));
+                    mOnItemClickListener.onItemClick(getAbsoluteAdapterPosition(), differ.getCurrentList().get(getAbsoluteAdapterPosition()));
                 }
             });
         }

@@ -21,25 +21,35 @@
   ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
 
-<!--
-	This has to be a CoordinatorLayout, or any other layout that dispatches insets
-	to its children, as the image is to be drawn behind status bar as well.
--->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".SplashScreenActivity"
-    tools:ignore="ContentDescription">
+<resources>
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:scaleType="centerCrop"
-        android:background="@color/colorNordicLogoTop"
-        app:srcCompat="@drawable/nordic_logo"/>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+	<!-- Configuration for compat splashscreen, from androidx.core.core-splashscreen. -->
+	<style name="AppTheme.SplashScreenBase" parent="Theme.SplashScreen">
+		<!--
+		Set the splash screen background.
+		The window background will be white in light mode, and black in dark mode.
+		-->
+		<item name="windowSplashScreenBackground">@color/colorBackground</item>
+
+		<!--
+		Use windowSplashScreenAnimatedIcon to add either a drawable or an
+		animated drawable. One of these is required.
+		-->
+		<item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_screen</item>
+		<!-- Required for animated icons-->
+		<item name="windowSplashScreenAnimationDuration">900</item>
+
+		<!--
+		Set the theme of the Activity that directly follows your splash screen.
+		This is no longer required since alpha02:
+		https://developer.android.com/jetpack/androidx/releases/core#core-splashscreen-1.0.0-alpha02
+
+		<item name="postSplashScreenTheme">@style/AppTheme</item>
+		-->
+	</style>
+
+	<style name="AppTheme.SplashScreen" parent="AppTheme.SplashScreenBase">
+		<!-- Use white status bar text on light theme. -->
+		<item name="android:windowLightStatusBar">true</item>
+	</style>
+</resources>

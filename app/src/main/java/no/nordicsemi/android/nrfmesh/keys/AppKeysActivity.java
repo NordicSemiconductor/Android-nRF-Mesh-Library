@@ -58,11 +58,9 @@ import static no.nordicsemi.android.nrfmesh.utils.Utils.ADD_APP_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.BIND_APP_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EXTRA_DATA;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.MANAGE_APP_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.PUBLICATION_APP_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_INDEX;
-import static no.nordicsemi.android.nrfmesh.utils.Utils.RESULT_KEY_LIST_SIZE;
 
 @AndroidEntryPoint
 public class AppKeysActivity extends AppCompatActivity implements
@@ -81,7 +79,8 @@ public class AppKeysActivity extends AppCompatActivity implements
         mViewModel = new ViewModelProvider(this).get(AppKeysViewModel.class);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         binding.recyclerViewKeys.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
@@ -92,8 +91,6 @@ public class AppKeysActivity extends AppCompatActivity implements
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             switch (bundle.getInt(EXTRA_DATA)) {
-                case MANAGE_APP_KEY:
-                    break;
                 case ADD_APP_KEY:
                     getSupportActionBar().setTitle(R.string.title_select_app_key);
                     binding.fabAdd.hide();
@@ -164,20 +161,6 @@ public class AppKeysActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onBackPressed() {
-        final Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            if (bundle.getInt(EXTRA_DATA) == MANAGE_APP_KEY) {
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(RESULT_KEY_LIST_SIZE, mAdapter.getItemCount());
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
-            }
-        }
-        super.onBackPressed();
-    }
-
-    @Override
     public void onItemClick(final int position, @NonNull final ApplicationKey appKey) {
         final Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -213,8 +196,8 @@ public class AppKeysActivity extends AppCompatActivity implements
                 }
             }
         } catch (Exception ex) {
-            mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mAdapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 

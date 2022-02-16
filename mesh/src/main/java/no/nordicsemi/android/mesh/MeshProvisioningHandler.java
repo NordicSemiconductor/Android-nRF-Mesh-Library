@@ -192,7 +192,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
             provisioningState = new ProvisioningCompleteState(unprovisionedMeshNode);
             //Generate the network id and store it in the mesh node, this is needed to reconnect to the device at a later stage.
             final ProvisionedMeshNode provisionedMeshNode = new ProvisionedMeshNode(unprovisionedMeshNode);
-            mInternalMeshManagerCallbacks.onNodeProvisioned(provisionedMeshNode);
+            mInternalMeshManagerCallbacks.onNodeProvisioned(provisionedMeshNode, unprovisionedMeshNode.getProvisioningCapabilities().getNumberOfElements());
             mStatusCallbacks.onProvisioningCompleted(provisionedMeshNode, ProvisioningState.States.PROVISIONING_COMPLETE, data);
         } else {
             final ProvisioningFailedState provisioningFailedState = new ProvisioningFailedState();
