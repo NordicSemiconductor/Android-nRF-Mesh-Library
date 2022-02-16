@@ -7,4 +7,5 @@ public interface RangeListener {
 
     void addRange(@NonNull final Range range);
 
+    void updateRange(@NonNull final Range range, final Range newRange);
 }

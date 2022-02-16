@@ -199,7 +199,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
                     Log.v(TAG, "Sending message to element's unicast address: " + MeshAddress.formatAddress(address, true));
 
                     final GenericOnOffGet genericOnOffSet = new GenericOnOffGet(appKey);
-                    sendMessage(address, genericOnOffSet);
+                    sendAcknowledgedMessage(address, genericOnOffSet);
                 } else {
                     mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                 }
@@ -227,7 +227,7 @@ public class GenericOnOffServerActivity extends ModelConfigurationActivity {
                         final int address = element.getElementAddress();
                         final GenericOnOffSet genericOnOffSet = new GenericOnOffSet(appKey, state,
                                 new Random().nextInt(), mTransitionSteps, mTransitionStepResolution, delay);
-                        sendMessage(address, genericOnOffSet);
+                        sendAcknowledgedMessage(address, genericOnOffSet);
                     } else {
                         mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                     }

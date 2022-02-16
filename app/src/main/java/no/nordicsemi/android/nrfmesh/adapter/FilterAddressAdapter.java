@@ -32,6 +32,7 @@ import com.google.android.material.elevation.ElevationOverlayProvider;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -39,43 +40,38 @@ import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.AddressItemBinding;
+import no.nordicsemi.android.nrfmesh.utils.AddressArrayDiffCallback;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdapter.ViewHolder> {
 
-    private final ArrayList<AddressArray> mAddresses = new ArrayList<>();
-    private OnItemClickListener mOnItemClickListener;
+    private final AsyncListDiffer<AddressArray> differ = new AsyncListDiffer<>(this, new AddressArrayDiffCallback());
 
     public void updateData(@NonNull final ProxyFilter filter) {
-        mAddresses.clear();
-        mAddresses.addAll(filter.getAddresses());
-        notifyDataSetChanged();
+        final ArrayList<AddressArray> addresses = new ArrayList<>(filter.getAddresses());
+        differ.submitList(addresses);
     }
 
     public void clearData() {
-        mAddresses.clear();
-        notifyDataSetChanged();
+        differ.submitList(new ArrayList<>());
     }
 
-    public void clearRow(final int position) {
-        mAddresses.remove(position);
-        notifyDataSetChanged();
-    }
-
-    public void setOnItemClickListener(final FilterAddressAdapter.OnItemClickListener listener) {
-        mOnItemClickListener = listener;
+    public void clearRow(@NonNull final ProxyFilter filter, final int position) {
+        final ArrayList<AddressArray> addresses = new ArrayList<>(filter.getAddresses());
+        addresses.remove(position);
+        differ.submitList(addresses);
     }
 
     @NonNull
     @Override
     public FilterAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         final AddressItemBinding binding = AddressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new FilterAddressAdapter.ViewHolder(binding);
+        return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final FilterAddressAdapter.ViewHolder holder, int position) {
-        final byte[] address = mAddresses.get(position).getAddress();
+        final byte[] address = differ.getCurrentList().get(position).getAddress();
         holder.address.setText(MeshParserUtils.bytesToHex(address, true));
         if (MeshAddress.isValidGroupAddress(address)) {
             holder.addressTitle.setText(R.string.title_group_address);
@@ -93,19 +89,14 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
-    @FunctionalInterface
-    public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
-    }
-
-    public final class ViewHolder extends RemovableViewHolder {
+    public static final class ViewHolder extends RemovableViewHolder {
         FrameLayout container;
         TextView addressTitle;
         TextView address;
@@ -118,11 +109,7 @@ public class FilterAddressAdapter extends RecyclerView.Adapter<FilterAddressAdap
             final ElevationOverlayProvider provider = new ElevationOverlayProvider(itemView.getContext());
             final int color = provider.compositeOverlayIfNeeded(provider.getThemeSurfaceColor(), 3.5f);
             getSwipeableView().setBackgroundColor(color);
-            container.setOnClickListener(v -> {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), mAddresses.get(getAdapterPosition()).getAddress());
-                }
-            });
+            container.setClickable(false);
         }
     }
 }

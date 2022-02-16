@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.NodeKey;
@@ -50,19 +51,15 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapter.ViewHolder> {
 
-    private final List<NetworkKey> networkKeys = new ArrayList<>();
+    private final AsyncListDiffer<NetworkKey> differ = new AsyncListDiffer<>(this, new NetworkKeyDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
     public ManageNetKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         meshNetworkLiveData.observe(owner, networkData -> {
-            final List<NetworkKey> keys = networkData.getNetworkKeys();
-            if (keys != null) {
-                networkKeys.clear();
-                networkKeys.addAll(keys);
-                networkKeys.remove(0);
-                Collections.sort(networkKeys, Utils.netKeyComparator);
-            }
-            notifyDataSetChanged();
+            final List<NetworkKey> networkKeys = new ArrayList<>(networkData.getMeshNetwork().getNetKeys());
+            networkKeys.remove(0);
+            Collections.sort(networkKeys, Utils.netKeyComparator);
+            differ.submitList(networkKeys);
         });
     }
 
@@ -70,7 +67,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
                                @NonNull final LiveData<ProvisionedMeshNode> meshNodeLiveData,
                                @NonNull final List<NetworkKey> netKeys) {
         meshNodeLiveData.observe(owner, node -> {
-            networkKeys.clear();
+            final List<NetworkKey> networkKeys = new ArrayList<>();
             for (NodeKey key : node.getAddedNetKeys()) {
                 for (NetworkKey networkKey : netKeys) {
                     if (networkKey.getKeyIndex() == key.getIndex()) {
@@ -79,7 +76,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
                 }
             }
             Collections.sort(networkKeys, Utils.netKeyComparator);
-            notifyDataSetChanged();
+            differ.submitList(networkKeys);
         });
     }
 
@@ -95,8 +92,8 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ManageNetKeyAdapter.ViewHolder holder, final int position) {
-        if (networkKeys.size() > 0) {
-            final NetworkKey networkKey = networkKeys.get(position);
+        if (getItemCount() > 0) {
+            final NetworkKey networkKey = differ.getCurrentList().get(position);
             holder.netKeyName.setText(networkKey.getName());
             final String key = MeshParserUtils.bytesToHex(networkKey.getKey(), false);
             holder.netKey.setText(key.toUpperCase());
@@ -111,7 +108,7 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
 
     @Override
     public int getItemCount() {
-        return networkKeys.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -139,8 +136,8 @@ public class ManageNetKeyAdapter extends RecyclerView.Adapter<ManageNetKeyAdapte
             getSwipeableView().setBackgroundColor(color);
             container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    final NetworkKey key = networkKeys.get(getAdapterPosition());
-                    mOnItemClickListener.onItemClick(getAdapterPosition(), key);
+                    final NetworkKey key = differ.getCurrentList().get(getBindingAdapterPosition());
+                    mOnItemClickListener.onItemClick(getBindingAdapterPosition(), key);
                 }
             });
         }

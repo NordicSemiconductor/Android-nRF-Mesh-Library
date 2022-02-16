@@ -22,27 +22,33 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.utils.AddressArray;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.databinding.CustomChipBinding;
+import no.nordicsemi.android.nrfmesh.utils.AddressArrayDiffCallback;
 
 public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAdapter1.ViewHolder> {
 
-    private final ArrayList<AddressArray> mAddresses;
-    private final Context mContext;
+    private final AsyncListDiffer<AddressArray> differ = new AsyncListDiffer<>(this, new AddressArrayDiffCallback());
+    private OnItemClickListener itemClickListener;
 
-    public FilterAddressAdapter1(@NonNull final Context context, @NonNull final ArrayList<AddressArray> addresses) {
-        this.mContext = context;
-        this.mAddresses = addresses;
+    public void update(@NonNull final ArrayList<AddressArray> addresses) {
+        final List<AddressArray> addressArray = new ArrayList<>(addresses);
+        differ.submitList(addressArray);
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener itemClickListener){
+        this.itemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -54,10 +60,8 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
 
     @Override
     public void onBindViewHolder(@NonNull final FilterAddressAdapter1.ViewHolder holder, final int position) {
-        if (mAddresses.size() > 0) {
-            final byte[] address = mAddresses.get(position).getAddress();
-            holder.address.setText(MeshParserUtils.bytesToHex(address, true));
-        }
+        final byte[] address = differ.getCurrentList().get(position).getAddress();
+        holder.address.setText(MeshParserUtils.bytesToHex(address, true));
     }
 
     @Override
@@ -67,7 +71,7 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -76,7 +80,7 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
 
     @FunctionalInterface
     public interface OnItemClickListener {
-        void onItemClick(final int position, final byte[] address);
+        void onItemClick(final int position);
     }
 
     final class ViewHolder extends RecyclerView.ViewHolder {
@@ -86,9 +90,8 @@ public class FilterAddressAdapter1 extends RecyclerView.Adapter<FilterAddressAda
             super(binding.getRoot());
             address = binding.title;
             binding.imgDelete.setOnClickListener(v -> {
-                final int position = getAdapterPosition();
-                mAddresses.remove(position);
-                notifyItemRemoved(position);
+                final int position = getAbsoluteAdapterPosition();
+                itemClickListener.onItemClick(position);
             });
         }
     }

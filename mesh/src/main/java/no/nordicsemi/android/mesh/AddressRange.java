@@ -58,8 +58,6 @@ public abstract class AddressRange extends Range {
             results.addAll(range.minus(other));
             results = mergeGroupRanges(results);
         }
-        /*ranges.clear();
-        ranges.addAll(results);*/
         return results;
     }
 
@@ -138,5 +136,47 @@ public abstract class AddressRange extends Range {
             results.add(rightSlice);
         }
         return results;
+    }
+
+    /**
+     * Checks if the address is in range.
+     *
+     * @param address address to be verified.
+     * @return true if the address in range or false otherwise.
+     */
+    public Boolean isInRange(int address) {
+        return address >= lowAddress && address <= highAddress;
+    }
+
+    /**
+     * Checks a given address is within any of the address range in a given list of address ranges.
+     *
+     * @param ranges  List of ranges.
+     * @param address address to be verified.
+     * @return true if the address is in range or false otherwise.
+     */
+    public static Boolean isAddressInAnyRanges(List<? extends AddressRange> ranges, int address) {
+        for (AddressRange range : ranges) {
+            if (range.isInRange(address)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @Override
+    public boolean equals(final Object o) {
+        if(this == o)
+            return true;
+        final AddressRange range = (AddressRange) o;
+        return lowAddress == range.lowAddress && highAddress == range.highAddress;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = lowAddress;
+        result = 31 * result + highAddress;
+        return result;
     }
 }

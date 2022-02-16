@@ -12,22 +12,22 @@ import com.google.android.material.slider.Slider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import no.nordicsemi.android.mesh.Scene;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutRecallSceneBottomSheetBinding;
+import no.nordicsemi.android.nrfmesh.scenes.adapter.SceneUiState;
 
 public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragment {
     private static final String SCENE = "SCENE";
     private int mTransitionStepResolution;
     private int mTransitionSteps;
-    private Scene mScene;
+    private SceneUiState scene;
 
     public interface SceneRecallListener {
-        void recallScene(@NonNull final Scene scene, final int transitionSteps, final int transitionStepResolution, final int delay);
+        void recallScene(final int sceneNumber, final int transitionSteps, final int transitionStepResolution, final int delay);
     }
 
-    public static BottomSheetSceneRecallDialogFragment instantiate(@NonNull final Scene scene) {
+    public static BottomSheetSceneRecallDialogFragment instantiate(@NonNull final SceneUiState scene) {
         final BottomSheetSceneRecallDialogFragment fragment = new BottomSheetSceneRecallDialogFragment();
         final Bundle args = new Bundle();
         args.putParcelable(SCENE, scene);
@@ -39,7 +39,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mScene = getArguments().getParcelable(SCENE);
+            scene = getArguments().getParcelable(SCENE);
         }
     }
 
@@ -47,7 +47,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final LayoutRecallSceneBottomSheetBinding binding = LayoutRecallSceneBottomSheetBinding.inflate(getLayoutInflater(), container, false);
-        binding.sceneRecallToolbar.setTitle(mScene.getName());
+        binding.sceneRecallToolbar.setTitle(scene.getName());
 
         binding.transitionSlider.setValueFrom(0);
         binding.transitionSlider.setValueTo(230);
@@ -61,7 +61,7 @@ public class BottomSheetSceneRecallDialogFragment extends BottomSheetDialogFragm
         final Button actionRecallScene = binding.actionRecall;
         actionRecallScene.setOnClickListener(v -> {
             try {
-                ((SceneRecallListener) requireActivity()).recallScene(mScene, mTransitionSteps, mTransitionStepResolution, (int) binding.delaySlider.getValue());
+                ((SceneRecallListener) requireActivity()).recallScene(scene.getNumber(), mTransitionSteps, mTransitionStepResolution, (int) binding.delaySlider.getValue());
                 dismiss();
             } catch (IllegalArgumentException ex) {
                 Toast.makeText(requireContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();

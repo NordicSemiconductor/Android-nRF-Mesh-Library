@@ -35,6 +35,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -46,16 +47,15 @@ import no.nordicsemi.android.nrfmesh.databinding.NetworkItemBinding;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
-    private final List<ProvisionedMeshNode> mNodes = new ArrayList<>();
+
+    private final AsyncListDiffer<ProvisionedMeshNode> differ = new AsyncListDiffer<>(this, new NodeDiffCallback());
     private OnItemClickListener mOnItemClickListener;
 
     public NodeAdapter(@NonNull final LifecycleOwner owner,
                        @NonNull final LiveData<List<ProvisionedMeshNode>> provisionedNodesLiveData) {
         provisionedNodesLiveData.observe(owner, nodes -> {
             if (nodes != null) {
-                mNodes.clear();
-                mNodes.addAll(nodes);
-                notifyDataSetChanged();
+                differ.submitList(new ArrayList<>(nodes));
             }
         });
     }
@@ -72,7 +72,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        final ProvisionedMeshNode node = mNodes.get(position);
+        final ProvisionedMeshNode node = differ.getCurrentList().get(position);
         if (node != null) {
             holder.name.setText(node.getNodeName());
             holder.unicastAddress.setText(MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
@@ -96,12 +96,12 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mNodes.size();
+        return differ.getCurrentList().size();
     }
 
     public ProvisionedMeshNode getItem(final int position) {
-        if (mNodes.size() > 0 && position > -1) {
-            return mNodes.get(position);
+        if (getItemCount() > 0 && position > -1) {
+            return differ.getCurrentList().get(position);
         }
         return null;
     }
@@ -143,7 +143,7 @@ public class NodeAdapter extends RecyclerView.Adapter<NodeAdapter.ViewHolder> {
             models = binding.models;
             container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onConfigureClicked(mNodes.get(getAdapterPosition()));
+                    mOnItemClickListener.onConfigureClicked(differ.getCurrentList().get(getAbsoluteAdapterPosition()));
                 }
             });
         }

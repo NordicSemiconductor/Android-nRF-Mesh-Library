@@ -101,7 +101,7 @@ public class RemovableItemTouchHelperCallback extends ItemTouchHelper.Callback {
         if (recyclerView.getId() == R.id.recycler_view_groups) {
             final GroupAdapter adapter = (GroupAdapter) recyclerView.getAdapter();
             if (adapter != null) {
-                final int count = adapter.getModelCount(viewHolder.getAdapterPosition());
+                final int count = adapter.getModelCount(viewHolder.getAbsoluteAdapterPosition());
                 if (count > 0) {
                     if (dX > -1100.0f && dX < 1100.0f && dX != 0) {
                         getDefaultUIUtil().onDraw(c, recyclerView, ((RemovableViewHolder) viewHolder).getSwipeableView(), dX, dY, actionState, isCurrentlyActive);

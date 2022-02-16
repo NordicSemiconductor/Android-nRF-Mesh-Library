@@ -4,6 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -14,15 +22,6 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
-import com.google.gson.annotations.Expose;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -40,7 +39,7 @@ import static androidx.room.ForeignKey.CASCADE;
                 onUpdate = CASCADE, onDelete = CASCADE),
         indices = @Index("mesh_uuid"))
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class Provisioner implements Parcelable {
+public class Provisioner implements Parcelable, Cloneable {
 
     @ColumnInfo(name = "mesh_uuid")
     @NonNull
@@ -111,6 +110,7 @@ public class Provisioner implements Parcelable {
         this.meshUuid = meshUuid;
     }
 
+    @SuppressWarnings("ConstantConditions")
     protected Provisioner(Parcel in) {
         meshUuid = in.readString();
         provisionerUuid = in.readString();
@@ -336,26 +336,77 @@ public class Provisioner implements Parcelable {
     @SuppressWarnings("UnusedReturnValue")
     public boolean addRange(@NonNull final Range allocatedRange) {
         if (allocatedRange instanceof AllocatedUnicastRange) {
-            allocatedUnicastRanges.add((AllocatedUnicastRange) allocatedRange);
+            final AllocatedUnicastRange newAllocatedRange = (AllocatedUnicastRange) allocatedRange;
+            allocatedUnicastRanges.add((AllocatedUnicastRange) newAllocatedRange);
             final ArrayList<AllocatedUnicastRange> ranges = new ArrayList<>(allocatedUnicastRanges);
             Collections.sort(ranges, addressRangeComparator);
             allocatedUnicastRanges.clear();
             allocatedUnicastRanges.addAll(Range.mergeUnicastRanges(ranges));
             return true;
         } else if (allocatedRange instanceof AllocatedGroupRange) {
-            allocatedGroupRanges.add((AllocatedGroupRange) allocatedRange);
+            final AllocatedGroupRange newAllocatedRange = (AllocatedGroupRange) allocatedRange;
+            allocatedGroupRanges.add(newAllocatedRange);
             final ArrayList<AllocatedGroupRange> ranges = new ArrayList<>(allocatedGroupRanges);
             Collections.sort(ranges, addressRangeComparator);
             allocatedGroupRanges.clear();
             allocatedGroupRanges.addAll(Range.mergeGroupRanges(ranges));
             return true;
         } else if (allocatedRange instanceof AllocatedSceneRange) {
-            allocatedSceneRanges.add((AllocatedSceneRange) allocatedRange);
+            final AllocatedSceneRange newAllocatedRange = (AllocatedSceneRange) allocatedRange;
+            allocatedSceneRanges.add(newAllocatedRange);
             final ArrayList<AllocatedSceneRange> ranges = new ArrayList<>(allocatedSceneRanges);
             Collections.sort(allocatedSceneRanges, sceneRangeComparator);
             allocatedSceneRanges.clear();
             allocatedSceneRanges.addAll(Range.mergeSceneRanges(ranges));
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * Edit an existing range
+     *
+     * @param oldRange Old range
+     * @param newRange New range
+     */
+    public boolean updateRange(@NonNull final Range oldRange, @NonNull final Range newRange) {
+        int index;
+        if (oldRange instanceof AllocatedUnicastRange) {
+            index = allocatedUnicastRanges.indexOf((AllocatedUnicastRange) oldRange);
+            if (index > -1) {
+                final AllocatedUnicastRange exitingRange = allocatedUnicastRanges.get(index);
+                allocatedUnicastRanges.set(index, (AllocatedUnicastRange) newRange);
+                //Let's merge if there is any overlapping
+                final ArrayList<AllocatedUnicastRange> ranges = new ArrayList<>(allocatedUnicastRanges);
+                Collections.sort(ranges, addressRangeComparator);
+                allocatedUnicastRanges.clear();
+                allocatedUnicastRanges.addAll(Range.mergeUnicastRanges(ranges));
+                return true;
+            }
+        } else if (oldRange instanceof AllocatedGroupRange) {
+            index = allocatedGroupRanges.indexOf((AllocatedGroupRange) oldRange);
+            if (index > -1) {
+                final AllocatedGroupRange exitingRange = allocatedGroupRanges.get(index);
+                allocatedGroupRanges.set(index, (AllocatedGroupRange) newRange);
+                //Let's merge if there is any overlapping
+                final ArrayList<AllocatedGroupRange> ranges = new ArrayList<>(allocatedGroupRanges);
+                Collections.sort(ranges, addressRangeComparator);
+                allocatedGroupRanges.clear();
+                allocatedGroupRanges.addAll(Range.mergeGroupRanges(ranges));
+                return true;
+            }
+        } else if (oldRange instanceof AllocatedSceneRange) {
+            index = allocatedSceneRanges.indexOf((AllocatedSceneRange) oldRange);
+            if (index > -1) {
+                final AllocatedSceneRange exitingRange = allocatedSceneRanges.get(index);
+                allocatedSceneRanges.set(index, (AllocatedSceneRange) newRange);
+                //Let's merge if there is any overlapping
+                final ArrayList<AllocatedSceneRange> ranges = new ArrayList<>(allocatedSceneRanges);
+                Collections.sort(allocatedSceneRanges, sceneRangeComparator);
+                allocatedSceneRanges.clear();
+                allocatedSceneRanges.addAll(Range.mergeSceneRanges(ranges));
+                return true;
+            }
         }
         return false;
     }
@@ -444,5 +495,44 @@ public class Provisioner implements Parcelable {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Provisioner that = (Provisioner) o;
+
+        if (globalTtl != that.globalTtl) return false;
+        if (lastSelected != that.lastSelected) return false;
+        if (!meshUuid.equals(that.meshUuid)) return false;
+        if (!provisionerUuid.equals(that.provisionerUuid)) return false;
+        if (!provisionerName.equals(that.provisionerName)) return false;
+        if (!allocatedUnicastRanges.equals(that.allocatedUnicastRanges)) return false;
+        if (!allocatedGroupRanges.equals(that.allocatedGroupRanges)) return false;
+        if (!allocatedSceneRanges.equals(that.allocatedSceneRanges)) return false;
+        if (provisionerAddress != null && that.provisionerAddress != null)
+            return provisionerAddress.equals(that.provisionerAddress);
+        else return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = meshUuid.hashCode();
+        result = 31 * result + provisionerUuid.hashCode();
+        result = 31 * result + provisionerName.hashCode();
+        result = 31 * result + allocatedUnicastRanges.hashCode();
+        result = 31 * result + allocatedGroupRanges.hashCode();
+        result = 31 * result + allocatedSceneRanges.hashCode();
+        result = 31 * result + provisionerAddress.hashCode();
+        result = 31 * result + globalTtl;
+        result = 31 * result + (lastSelected ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public Provisioner clone() throws CloneNotSupportedException {
+        return (Provisioner) super.clone();
     }
 }

@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import no.nordicsemi.android.ble.callback.DataReceivedCallback;
 import no.nordicsemi.android.ble.callback.DataSentCallback;
+
 @Singleton
 public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> {
     private static final int MTU_SIZE_DEFAULT = 23;
@@ -77,6 +78,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
     private boolean isProvisioningComplete;
     private boolean mIsDeviceReady;
     private boolean mNodeReset;
+
     /**
      * BluetoothGatt callbacks for connection/disconnection, service discovery, receiving notifications, etc.
      */
@@ -92,9 +94,9 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
                 mMeshProxyDataOutCharacteristic = meshProxyService.getCharacteristic(MESH_PROXY_DATA_OUT);
 
                 return mMeshProxyDataInCharacteristic != null &&
-                       mMeshProxyDataOutCharacteristic != null &&
-                       hasNotifyProperty(mMeshProxyDataOutCharacteristic) &&
-                       hasWriteNoResponseProperty(mMeshProxyDataInCharacteristic);
+                        mMeshProxyDataOutCharacteristic != null &&
+                        hasNotifyProperty(mMeshProxyDataOutCharacteristic) &&
+                        hasWriteNoResponseProperty(mMeshProxyDataInCharacteristic);
             }
             final BluetoothGattService meshProvisioningService = gatt.getService(MESH_PROVISIONING_UUID);
             if (meshProvisioningService != null) {
@@ -103,9 +105,9 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
                 mMeshProvisioningDataOutCharacteristic = meshProvisioningService.getCharacteristic(MESH_PROVISIONING_DATA_OUT);
 
                 return mMeshProvisioningDataInCharacteristic != null &&
-                       mMeshProvisioningDataOutCharacteristic != null &&
-                       hasNotifyProperty(mMeshProvisioningDataOutCharacteristic) &&
-                       hasWriteNoResponseProperty(mMeshProvisioningDataInCharacteristic);
+                        mMeshProvisioningDataOutCharacteristic != null &&
+                        hasNotifyProperty(mMeshProvisioningDataOutCharacteristic) &&
+                        hasWriteNoResponseProperty(mMeshProvisioningDataInCharacteristic);
             }
             return false;
         }
@@ -125,6 +127,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
             enableNotifications(characteristic).enqueue();
         }
 
+        //TODO Remove this when adding android 12 support
         @Override
         protected void onDeviceDisconnected() {
             //We reset the MTU to 23 upon disconnection
@@ -141,6 +144,18 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
         protected void onDeviceReady() {
             mIsDeviceReady = true;
             super.onDeviceReady();
+        }
+
+        @Override
+        protected void onServicesInvalidated() {
+            //We reset the MTU to 23 upon disconnection
+            overrideMtu(MTU_SIZE_DEFAULT);
+            mIsDeviceReady = false;
+            isProvisioningComplete = false;
+            mMeshProvisioningDataInCharacteristic = null;
+            mMeshProvisioningDataOutCharacteristic = null;
+            mMeshProxyDataInCharacteristic = null;
+            mMeshProxyDataOutCharacteristic = null;
         }
     }
 
@@ -159,7 +174,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
     protected boolean shouldClearCacheWhenDisconnected() {
         // This is to make sure that Android will discover the services as the the mesh node will
         // change the provisioning service to a proxy service.
-        final boolean result = !isProvisioningComplete ||  mNodeReset;
+        final boolean result = !isProvisioningComplete || mNodeReset;
         mNodeReset = false;
         return result;
     }
@@ -189,7 +204,7 @@ public class BleMeshManager extends LoggableBleManager<BleMeshManagerCallbacks> 
         // Write the right characteristic.
         final BluetoothGattCharacteristic characteristic = isProvisioningComplete ?
                 mMeshProxyDataInCharacteristic : mMeshProvisioningDataInCharacteristic;
-        writeCharacteristic(characteristic, pdu)
+        writeCharacteristic(characteristic, pdu, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
                 .split()
                 .with(callback)
                 .enqueue();

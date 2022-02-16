@@ -23,9 +23,9 @@
 package no.nordicsemi.android.nrfmesh.export;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -35,6 +35,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.OutputStream;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -68,12 +70,25 @@ public class ExportNetworkActivity extends AppCompatActivity implements
         SelectableProvisionerAdapter.OnItemCheckedChangedListener,
         SelectableNetworkKeyAdapter.OnItemCheckedChangedListener {
 
-    private static final int WRITE_TO_FILE = 2011;
     private static final int REQUEST_STORAGE_PERMISSION = 2023; // random number
 
     private ActivityExportBinding binding;
     private ExportNetworkViewModel mViewModel;
 
+    @SuppressLint("NewApi")
+    final ActivityResultLauncher<String> fileExporter = registerForActivityResult( new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+        if (uri != null) {
+            try {
+                final OutputStream stream = getContentResolver().openOutputStream(uri);
+                if (stream != null)
+                    if (mViewModel.exportNetwork(stream)) {
+                        displayExportSuccessSnackBar();
+                    }
+            } catch (Exception ex) {
+                displayExportErrorDialog(ex.getMessage());
+            }
+        }
+    });
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -84,8 +99,10 @@ public class ExportNetworkActivity extends AppCompatActivity implements
 
         final Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.export);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setTitle(R.string.export);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         final SelectableProvisionerAdapter provisionerAdapter = new SelectableProvisionerAdapter(this, mViewModel.getNetworkLiveData());
         provisionerAdapter.setOnItemCheckedChangedListener(this);
@@ -155,29 +172,6 @@ public class ExportNetworkActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == WRITE_TO_FILE) {
-            if (resultCode == RESULT_OK) {
-                if (data != null) {
-                    final Uri uri = data.getData();
-                    if (uri != null) {
-                        try {
-                            final OutputStream stream = getContentResolver().openOutputStream(uri);
-                            if (stream != null)
-                                if (mViewModel.exportNetwork(stream)) {
-                                    displayExportSuccessSnackBar();
-                                }
-                        } catch (Exception ex) {
-                            displayExportErrorDialog(ex.getMessage());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public void onProvisionerCheckedChanged(@NonNull final Provisioner provisioner, final boolean isChecked) {
         if (isChecked)
             mViewModel.addProvisioner(provisioner);
@@ -221,11 +215,7 @@ public class ExportNetworkActivity extends AppCompatActivity implements
             } else {
                 final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
                 if (Utils.isKitkatOrAbove()) {
-                    final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    intent.setType("application/json");
-                    intent.putExtra(Intent.EXTRA_TITLE, networkName);
-                    startActivityForResult(intent, WRITE_TO_FILE);
+                    fileExporter.launch(networkName);
                 } else {
                     if (mViewModel.exportNetwork()) {
                         displayExportSuccessSnackBar();

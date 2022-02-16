@@ -22,20 +22,16 @@
 
 package no.nordicsemi.android.nrfmesh.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
-import no.nordicsemi.android.mesh.Group;
-import no.nordicsemi.android.mesh.MeshNetwork;
-import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.GroupItemBinding;
@@ -43,20 +39,12 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
 
-    private final ArrayList<Group> mGroups = new ArrayList<>();
-    private final Context mContext;
+    private final AsyncListDiffer<GroupItemUIState> differ = new AsyncListDiffer<>(this, new GroupItemUiStateDiffCallback());
     private OnItemClickListener mOnItemClickListener;
-    private MeshNetwork mNetwork;
 
-    public GroupAdapter(@NonNull final Context context) {
-        this.mContext = context;
-    }
 
-    public void updateAdapter(@NonNull final MeshNetwork meshNetwork, @NonNull final List<Group> groups) {
-        mNetwork = meshNetwork;
-        mGroups.clear();
-        mGroups.addAll(groups);
-        notifyDataSetChanged();
+    public void updateAdapter(final List<GroupItemUIState> groups) {
+        differ.submitList(groups);
     }
 
     public void setOnItemClickListener(@NonNull final OnItemClickListener listener) {
@@ -72,15 +60,14 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull final GroupAdapter.ViewHolder holder, final int position) {
-        if (mNetwork != null && mGroups.size() > 0) {
-            final Group group = mGroups.get(position);
-            if (group != null) {
-                final List<MeshModel> models = mNetwork.getModels(group);
-                holder.groupName.setText(group.getName());
-                holder.groupAddress.setText(mContext.
-                        getString(R.string.group_address_summary, MeshAddress.formatAddress(group.getAddress(), true)));
-                holder.groupDeviceCount.setText(mContext.getResources().
-                        getQuantityString(R.plurals.device_count, models.size(), models.size()));
+        if (getItemCount() > 0) {
+            final GroupItemUIState state = differ.getCurrentList().get(position);
+            if (state != null) {
+                holder.groupName.setText(state.getName());
+                holder.groupAddress.setText(holder.groupAddress.getContext().
+                        getString(R.string.group_address_summary, MeshAddress.formatAddress(state.getAddress(), true)));
+                holder.groupDeviceCount.setText(holder.groupDeviceCount.getContext().getResources().getQuantityString(R.plurals.device_count,
+                        state.getSubscribedModels(), state.getSubscribedModels()));
             }
         }
     }
@@ -92,7 +79,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return mGroups.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -105,9 +92,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
      * @param position position
      */
     public int getModelCount(final int position) {
-        if (position >= 0 && !mGroups.isEmpty() && position < mGroups.size()) {
-            final Group group = mGroups.get(position);
-            return mNetwork.getModels(group).size();
+        if (position >= 0 && !differ.getCurrentList().isEmpty() && position < differ.getCurrentList().size()) {
+            return differ.getCurrentList().get(position).getSubscribedModels();
         }
         return 0;
     }
@@ -131,7 +117,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             groupDeviceCount = binding.groupDeviceCount;
             binding.container.setOnClickListener(v -> {
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(mGroups.get(getAdapterPosition()).getAddress());
+                    mOnItemClickListener.onItemClick(differ.getCurrentList().get(getAbsoluteAdapterPosition()).getAddress());
                 }
             });
         }

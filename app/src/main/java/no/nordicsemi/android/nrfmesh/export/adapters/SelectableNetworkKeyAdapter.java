@@ -37,25 +37,24 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
-import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
+import no.nordicsemi.android.nrfmesh.keys.adapter.NetworkKeyDiffCallback;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 
 public class SelectableNetworkKeyAdapter extends RecyclerView.Adapter<SelectableNetworkKeyAdapter.ViewHolder> {
 
-    private final List<NetworkKey> mNetworkKeys = new ArrayList<>();
+    private final AsyncListDiffer<NetworkKey> differ = new AsyncListDiffer<>(this, new NetworkKeyDiffCallback());
     private OnItemCheckedChangedListener mOnItemClickListener;
 
     public SelectableNetworkKeyAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         meshNetworkLiveData.observe(owner, networkData -> {
-            final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
-            mNetworkKeys.clear();
-            mNetworkKeys.addAll(network.getNetKeys());
-            notifyDataSetChanged();
+            final List<NetworkKey> networkKeys = new ArrayList<>(meshNetworkLiveData.getMeshNetwork().getNetKeys());
+            differ.submitList(networkKeys);
         });
     }
 
@@ -71,7 +70,7 @@ public class SelectableNetworkKeyAdapter extends RecyclerView.Adapter<Selectable
 
     @Override
     public void onBindViewHolder(@NonNull final SelectableNetworkKeyAdapter.ViewHolder holder, final int position) {
-        final NetworkKey key = mNetworkKeys.get(position);
+        final NetworkKey key = differ.getCurrentList().get(position);
         holder.networkKeyName.setText(key.getName());
         holder.networkKey.setText(MeshParserUtils.bytesToHex(key.getKey(), false).toUpperCase());
     }
@@ -83,7 +82,7 @@ public class SelectableNetworkKeyAdapter extends RecyclerView.Adapter<Selectable
 
     @Override
     public int getItemCount() {
-        return mNetworkKeys.size();
+        return differ.getCurrentList().size();
     }
 
     @FunctionalInterface
@@ -111,7 +110,7 @@ public class SelectableNetworkKeyAdapter extends RecyclerView.Adapter<Selectable
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_vpn_key_24dp));
             materialCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (mOnItemClickListener != null)
-                    mOnItemClickListener.onNetworkKeyChecked(mNetworkKeys.get(getAdapterPosition()), isChecked);
+                    mOnItemClickListener.onNetworkKeyChecked(differ.getCurrentList().get(getAbsoluteAdapterPosition()), isChecked);
             });
         }
     }

@@ -342,7 +342,7 @@
                                     app:layout_constraintTop_toTopOf="parent" />
 
                                 <androidx.recyclerview.widget.RecyclerView
-                                    android:id="@+id/recycler_view_addresses"
+                                    android:id="@+id/recycler_view_subscriptions"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:clipToPadding="false"

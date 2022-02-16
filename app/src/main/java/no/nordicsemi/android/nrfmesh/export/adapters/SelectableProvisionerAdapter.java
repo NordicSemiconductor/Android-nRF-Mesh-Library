@@ -38,26 +38,24 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
-import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.Provisioner;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.CheckableRowItemBinding;
+import no.nordicsemi.android.nrfmesh.utils.ProvisionerDiffCallback;
 import no.nordicsemi.android.nrfmesh.viewmodels.MeshNetworkLiveData;
 
 public class SelectableProvisionerAdapter extends RecyclerView.Adapter<SelectableProvisionerAdapter.ViewHolder> {
 
-    private final List<Provisioner> mProvisioners = new ArrayList<>();
+    private final AsyncListDiffer<Provisioner> differ = new AsyncListDiffer<>(this, new ProvisionerDiffCallback());
     private OnItemCheckedChangedListener mOnItemClickListener;
 
     public SelectableProvisionerAdapter(@NonNull final LifecycleOwner owner, @NonNull final MeshNetworkLiveData meshNetworkLiveData) {
         meshNetworkLiveData.observe(owner, networkData -> {
-            final MeshNetwork network = meshNetworkLiveData.getMeshNetwork();
-            final List<Provisioner> provisioners = network.getProvisioners();
-            mProvisioners.clear();
-            mProvisioners.addAll(provisioners);
-            notifyDataSetChanged();
+            final List<Provisioner> provisioners = new ArrayList<>(meshNetworkLiveData.getMeshNetwork().getProvisioners());
+            differ.submitList(provisioners);
         });
     }
 
@@ -73,7 +71,7 @@ public class SelectableProvisionerAdapter extends RecyclerView.Adapter<Selectabl
 
     @Override
     public void onBindViewHolder(@NonNull final SelectableProvisionerAdapter.ViewHolder holder, final int position) {
-        final Provisioner provisioner = mProvisioners.get(position);
+        final Provisioner provisioner = differ.getCurrentList().get(position);
         holder.provisionerName.setText(provisioner.getProvisionerName());
         final Context context = holder.provisionerName.getContext();
         if (provisioner.getProvisionerAddress() == null) {
@@ -92,7 +90,7 @@ public class SelectableProvisionerAdapter extends RecyclerView.Adapter<Selectabl
 
     @Override
     public int getItemCount() {
-        return mProvisioners.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
@@ -100,7 +98,7 @@ public class SelectableProvisionerAdapter extends RecyclerView.Adapter<Selectabl
     }
 
     public Provisioner getItem(final int position) {
-        return mProvisioners.get(position);
+        return differ.getCurrentList().get(position);
     }
 
     @FunctionalInterface
@@ -128,7 +126,7 @@ public class SelectableProvisionerAdapter extends RecyclerView.Adapter<Selectabl
             icon.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_account_key));
             materialCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (mOnItemClickListener != null)
-                    mOnItemClickListener.onProvisionerCheckedChanged(mProvisioners.get(getAdapterPosition()), isChecked);
+                    mOnItemClickListener.onProvisionerCheckedChanged(differ.getCurrentList().get(getAbsoluteAdapterPosition()), isChecked);
             });
         }
     }

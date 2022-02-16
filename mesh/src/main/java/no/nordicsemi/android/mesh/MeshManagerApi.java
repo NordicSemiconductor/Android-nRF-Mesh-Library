@@ -291,7 +291,7 @@ public class MeshManagerApi implements MeshMngrApi {
                         final int flags = receivedBeacon.getFlags();
                         final byte[] networkId = SecureUtils.calculateK3(n);
                         final int ivIndex = receivedBeacon.getIvIndex().getIvIndex();
-                        Log.d(TAG, "Received mesh beacon: " + receivedBeacon.toString());
+                        Log.d(TAG, "Received mesh beacon: " + receivedBeacon);
 
                         final SecureNetworkBeacon localSecureNetworkBeacon = SecureUtils.createSecureNetworkBeacon(n, flags, networkId, ivIndex);
                         //Check the the beacon received is a valid by matching the authentication values
@@ -1053,10 +1053,10 @@ public class MeshManagerApi implements MeshMngrApi {
     @SuppressWarnings("FieldCanBeLocal")
     private final InternalMeshManagerCallbacks internalMeshMgrCallbacks = new InternalMeshManagerCallbacks() {
         @Override
-        public void onNodeProvisioned(final ProvisionedMeshNode meshNode) {
+        public void onNodeProvisioned(final ProvisionedMeshNode meshNode, final int numberOfElements) {
             updateProvisionedNodeList(meshNode);
             mMeshNetwork.sequenceNumbers.put(meshNode.getUnicastAddress(), meshNode.getSequenceNumber());
-            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(meshNode.getNumberOfElements(), mMeshNetwork.getSelectedProvisioner());
+            mMeshNetwork.unicastAddress = mMeshNetwork.nextAvailableUnicastAddress(numberOfElements, mMeshNetwork.getSelectedProvisioner());
             //Set the mesh network uuid to the node so we can identify nodes belonging to a network
             meshNode.setMeshUuid(mMeshNetwork.getMeshUUID());
             mMeshNetworkDb.insert(mProvisionedNodeDao, meshNode);
@@ -1146,7 +1146,6 @@ public class MeshManagerApi implements MeshMngrApi {
             return keys;
         }
 
-        @Nullable
         @Override
         public List<Group> gerVirtualGroups() {
             return mMeshNetwork.getGroups();
@@ -1283,7 +1282,7 @@ public class MeshManagerApi implements MeshMngrApi {
 
         @Override
         public void onNodesUpdated() {
-            mMeshNetworkDb.update(mProvisionedNodesDao, mMeshNetwork.nodes);
+            mMeshNetworkDb.update(mProvisionedNodesDao, mMeshNetwork.getNodes());
             onMeshNetworkUpdated();
         }
 

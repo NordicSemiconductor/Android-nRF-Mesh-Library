@@ -22,7 +22,6 @@
 
 package no.nordicsemi.android.nrfmesh;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,14 +58,12 @@ import no.nordicsemi.android.mesh.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.adapter.SubGroupAdapter;
-import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityConfigGroupsBinding;
 import no.nordicsemi.android.nrfmesh.dialog.DialogFragmentError;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetDetailsDialogFragment;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetLevelDialogFragment;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetOnOffDialogFragment;
 import no.nordicsemi.android.nrfmesh.node.dialog.BottomSheetVendorDialogFragment;
-import no.nordicsemi.android.nrfmesh.utils.Utils;
 import no.nordicsemi.android.nrfmesh.viewmodels.GroupControlsViewModel;
 
 @AndroidEntryPoint
@@ -183,9 +180,7 @@ public class GroupControlsActivity extends AppCompatActivity implements
             editGroup();
             return true;
         } else if (id == R.id.action_connect){
-            final Intent intent = new Intent(this, ScannerActivity.class);
-            intent.putExtra(Utils.EXTRA_DATA_PROVISIONING_SERVICE, false);
-            startActivityForResult(intent, Utils.CONNECT_TO_NETWORK);
+            mViewModel.navigateToScannerActivity(this, false);
             return true;
         } else if (id == R.id.action_disconnect){
             mViewModel.disconnect();

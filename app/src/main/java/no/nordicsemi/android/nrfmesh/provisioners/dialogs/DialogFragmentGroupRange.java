@@ -140,14 +140,18 @@ public class DialogFragmentGroupRange extends DialogFragment {
                     AllocatedGroupRange range = mRange;
                     if (range == null) {
                         range = new AllocatedGroupRange(Integer.parseInt(low, 16), Integer.parseInt(high, 16));
+                        ((RangeListener) requireActivity()).addRange(range);
                     } else {
-                        range.setLowAddress(Integer.parseInt(low, 16));
-                        range.setHighAddress(Integer.parseInt(high, 16));
+                        AllocatedGroupRange newRange = (AllocatedGroupRange) range.clone();
+                        newRange.setLowAddress(Integer.parseInt(low, 16));
+                        newRange.setHighAddress(Integer.parseInt(high, 16));
+                        ((RangeListener) requireActivity()).updateRange(range, newRange);
                     }
-                    ((RangeListener) requireActivity()).addRange(range);
                     dismiss();
                 } catch (IllegalArgumentException ex) {
                     binding.lowAddressLayout.setError(ex.getMessage());
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
                 }
             }
         });

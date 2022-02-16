@@ -32,6 +32,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -82,6 +84,15 @@ public class ProvisioningActivity extends AppCompatActivity implements
     private ActivityMeshProvisionerBinding binding;
     private ProvisioningViewModel mViewModel;
 
+    private final ActivityResultLauncher<Intent> appKeySelector = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+            if (appKey != null) {
+                mViewModel.getNetworkLiveData().setSelectedAppKey(appKey);
+            }
+        }
+    });
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,9 +106,11 @@ public class ProvisioningActivity extends AppCompatActivity implements
         final String deviceAddress = device.getAddress();
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(deviceName);
-        getSupportActionBar().setSubtitle(deviceAddress);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setTitle(deviceName);
+            getSupportActionBar().setSubtitle(deviceAddress);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         if (savedInstanceState == null)
             mViewModel.connect(this, device, false);
@@ -132,7 +145,7 @@ public class ProvisioningActivity extends AppCompatActivity implements
         binding.containerAppKeys.getRoot().setOnClickListener(v -> {
             final Intent manageAppKeys = new Intent(ProvisioningActivity.this, AppKeysActivity.class);
             manageAppKeys.putExtra(Utils.EXTRA_DATA, Utils.ADD_APP_KEY);
-            startActivityForResult(manageAppKeys, Utils.SELECT_KEY);
+            appKeySelector.launch(manageAppKeys);
         });
 
         mViewModel.getConnectionState().observe(this, binding.connectionState::setText);
@@ -254,19 +267,6 @@ public class ProvisioningActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Utils.SELECT_KEY) {
-            if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
-                if (appKey != null) {
-                    mViewModel.getNetworkLiveData().setSelectedAppKey(appKey);
-                }
-            }
-        }
-    }
-
-    @Override
     public void onPinInputComplete(final String pin) {
         mViewModel.getMeshManagerApi().setProvisioningAuthentication(pin);
     }
@@ -335,19 +335,7 @@ public class ProvisioningActivity extends AppCompatActivity implements
                             }
                             break;
                         case PROVISIONING_AUTHENTICATION_STATIC_OOB_WAITING:
-                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
-                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                            }
-                            break;
                         case PROVISIONING_AUTHENTICATION_OUTPUT_OOB_WAITING:
-                            if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
-                                DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.
-                                        newInstance(mViewModel.getUnprovisionedMeshNode().getValue());
-                                dialogFragmentAuthenticationInput.show(getSupportFragmentManager(), DIALOG_FRAGMENT_AUTH_INPUT_TAG);
-                            }
-                            break;
                         case PROVISIONING_AUTHENTICATION_INPUT_OOB_WAITING:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_AUTH_INPUT_TAG) == null) {
                                 DialogFragmentAuthenticationInput dialogFragmentAuthenticationInput = DialogFragmentAuthenticationInput.

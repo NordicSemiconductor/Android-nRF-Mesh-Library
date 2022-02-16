@@ -26,19 +26,22 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.Date;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.AndroidEntryPoint;
-import no.nordicsemi.android.mesh.utils.MeshParserUtils;
+import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityEditKeyBinding;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentEditNetKey;
 import no.nordicsemi.android.nrfmesh.keys.dialogs.DialogFragmentKeyName;
 import no.nordicsemi.android.nrfmesh.viewmodels.EditNetKeyViewModel;
 
+import static java.text.DateFormat.getDateTimeInstance;
 import static no.nordicsemi.android.mesh.utils.MeshParserUtils.bytesToHex;
 import static no.nordicsemi.android.nrfmesh.utils.Utils.EDIT_KEY;
 
@@ -54,11 +57,12 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
         binding = ActivityEditKeyBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mViewModel = new ViewModelProvider(this).get(EditNetKeyViewModel.class);
-        final int index = getIntent().getExtras().getInt(EDIT_KEY);
+        final int index = getIntent().getIntExtra(EDIT_KEY, 0);
         mViewModel.selectNetKey(index);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(R.string.title_edit_net_key);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.title_edit_net_key);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         binding.containerKeyName.image.
@@ -95,13 +99,20 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
         binding.containerLastModified.text.setVisibility(View.VISIBLE);
         binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
 
-        binding.containerKey.getRoot().setOnClickListener(v ->
-                DialogFragmentEditNetKey.newInstance(mViewModel.getNetworkKeyLiveData().getValue())
-                        .show(getSupportFragmentManager(), null));
+        binding.containerKey.getRoot().setOnClickListener(v -> {
+            final NetworkKey networkKey = mViewModel.getNetworkKeyLiveData().getValue();
+            if (networkKey != null)
+                DialogFragmentEditNetKey.newInstance(networkKey)
+                        .show(getSupportFragmentManager(), null);
+        });
 
-        binding.containerKeyName.getRoot().setOnClickListener(v ->
-                DialogFragmentKeyName.newInstance(mViewModel.getNetworkKeyLiveData().getValue().getName())
-                        .show(getSupportFragmentManager(), null));
+        binding.containerKeyName.getRoot().setOnClickListener(v -> {
+            final NetworkKey networkKey = mViewModel.getNetworkKeyLiveData().getValue();
+            if (networkKey != null) {
+                DialogFragmentKeyName.newInstance(networkKey.getName())
+                        .show(getSupportFragmentManager(), null);
+            }
+        });
 
         mViewModel.getNetworkKeyLiveData().observe(this, key -> {
             binding.containerKeyName.text.setText(key.getName());
@@ -109,7 +120,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
             binding.containerOldKey.text.setText(key.getOldKey() != null ? bytesToHex(key.getOldKey(), false) : getString(R.string.na));
             binding.containerKeyIndex.text.setText(String.valueOf(key.getKeyIndex()));
             binding.containerPhase.text.setText(key.getPhaseDescription());
-            binding.containerLastModified.text.setText(MeshParserUtils.formatTimeStamp(key.getTimestamp()));
+            binding.containerLastModified.text.setText(getDateTimeInstance().format(new Date(key.getTimestamp())));
         });
     }
 

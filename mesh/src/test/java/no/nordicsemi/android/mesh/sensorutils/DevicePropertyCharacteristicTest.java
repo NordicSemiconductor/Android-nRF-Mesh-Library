@@ -180,4 +180,132 @@ public class DevicePropertyCharacteristicTest {
             counter++;
         }
     }
+
+    @Test
+    public void testEnergy32() {
+        final ArrayList<Double> expectedSamples = new ArrayList<>();
+        expectedSamples.add(0.0d);
+        expectedSamples.add(0.001d);
+        expectedSamples.add(2147483.646d);
+        expectedSamples.add(4294967.293d);
+        expectedSamples.add(null);
+        expectedSamples.add(null);
+        final ArrayList<byte[]> samples = new ArrayList<>();
+        samples.add(new byte[]{0x00, 0x00, 0x00, 0x00});
+        samples.add(new byte[]{0x01, 0x00, 0x00, 0x00});
+        samples.add(new byte[]{(byte) 0xFE, (byte) 0xFF, (byte) 0xFF, 0x7F});
+        samples.add(new byte[]{(byte) 0xFD, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        samples.add(new byte[]{(byte) 0xFE, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        samples.add(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+
+        final ArrayList<byte[]> expectedGetBytes = new ArrayList<>();
+        expectedGetBytes.add(new byte[]{0x00, 0x00, 0x00, 0x00});
+        expectedGetBytes.add(new byte[]{0x01, 0x00, 0x00, 0x00});
+        expectedGetBytes.add(new byte[]{(byte) 0xFE, (byte) 0xFF, (byte) 0xFF, 0x7F});
+        expectedGetBytes.add(new byte[]{(byte) 0xFD, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        // Note: The expected energy32.getBytes for sample 0xFFFFFFFE is 0xFFFFFFFF since we are
+        // using null to represent both non-valid values and have to choose one.
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+
+        DeviceProperty[] properties = {
+                DeviceProperty.ACTIVE_ENERGY_LOAD_SIDE,
+                DeviceProperty.PRECISE_TOTAL_DEVICE_ENERGY_USE
+        };
+        for (DeviceProperty property : properties) {
+            int counter = 0;
+            for (byte[] sample : samples) {
+                final DevicePropertyCharacteristic<?> energy32 = DeviceProperty.
+                        getCharacteristic(property, sample, 0, 4);
+                Assert.assertEquals(expectedSamples.get(counter), energy32.getValue());
+                Assert.assertArrayEquals(expectedGetBytes.get(counter), energy32.getBytes());
+                counter++;
+            }
+        }
+    }
+
+    @Test
+    public void testPower() {
+        final ArrayList<Float> expectedSamples = new ArrayList<>();
+        expectedSamples.add(0.0f);
+        expectedSamples.add(0.1f);
+        expectedSamples.add(78925.8f);
+        expectedSamples.add(838860.7f);
+        expectedSamples.add(1677721.4f);
+        expectedSamples.add(null);
+        final ArrayList<byte[]> samples = new ArrayList<>();
+        // Note that sample data has been padded with leading and trailing "random" bytes to test
+        // data offset and length.
+        samples.add(new byte[]{0x01, 0x00, 0x00, 0x00, 0x01});
+        samples.add(new byte[]{0x02, 0x01, 0x00, 0x00, 0x02});
+        samples.add(new byte[]{0x02, 0x0A, 0x0B, 0x0C, 0x02});
+        samples.add(new byte[]{0x03, (byte) 0xFF, (byte) 0xFF, 0x7F, 0x03});
+        samples.add(new byte[]{0x04, (byte) 0xFE, (byte) 0xFF, (byte) 0xFF, 0x04});
+        samples.add(new byte[]{0x05, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x05});
+
+        final ArrayList<byte[]> expectedGetBytes = new ArrayList<>();
+        expectedGetBytes.add(new byte[]{0x00, 0x00, 0x00});
+        expectedGetBytes.add(new byte[]{0x01, 0x00, 0x00});
+        expectedGetBytes.add(new byte[]{0x0A, 0x0B, 0x0C});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, (byte) 0xFF, 0x7F});
+        expectedGetBytes.add(new byte[]{(byte) 0xFE, (byte) 0xFF, (byte) 0xFF});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+
+        DeviceProperty[] properties = {
+                DeviceProperty.ACTIVE_POWER_LOAD_SIDE,
+                DeviceProperty.LUMINAIRE_NOMINAL_INPUT_POWER,
+                DeviceProperty.LUMINAIRE_POWER_AT_MINIMUM_DIM_LEVEL,
+                DeviceProperty.PRESENT_DEVICE_INPUT_POWER,
+        };
+        for (DeviceProperty property : properties) {
+            int counter = 0;
+            for (byte[] sample : samples) {
+                final DevicePropertyCharacteristic<?> power = DeviceProperty.
+                        getCharacteristic(property, sample, 1, 3);
+                Assert.assertEquals(expectedSamples.get(counter), power.getValue());
+                Assert.assertArrayEquals(expectedGetBytes.get(counter), power.getBytes());
+                counter++;
+            }
+        }
+    }
+
+    @Test
+    public void testElectricCurrent() {
+        final ArrayList<Float> expectedSamples = new ArrayList<>();
+        expectedSamples.add(0.0f);
+        expectedSamples.add(0.01f);
+        expectedSamples.add(327.67f);
+        expectedSamples.add(655.34f);
+        expectedSamples.add(null);
+        final ArrayList<byte[]> samples = new ArrayList<>();
+        // Note that sample data has been padded with leading and trailing "random" bytes to test
+        // data offset and length.
+        samples.add(new byte[]{0x01, 0x00, 0x00, 0x01});
+        samples.add(new byte[]{0x02, 0x01, 0x00, 0x02});
+        samples.add(new byte[]{0x03, (byte) 0xFF, 0x7F, 0x03});
+        samples.add(new byte[]{0x04, (byte) 0xFE, (byte) 0xFF, 0x04});
+        samples.add(new byte[]{0x05, (byte) 0xFF, (byte) 0xFF, 0x05});
+
+        final ArrayList<byte[]> expectedGetBytes = new ArrayList<>();
+        expectedGetBytes.add(new byte[]{0x00, 0x00});
+        expectedGetBytes.add(new byte[]{0x01, 0x00});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, 0x7F});
+        expectedGetBytes.add(new byte[]{(byte) 0xFE, (byte) 0xFF});
+        expectedGetBytes.add(new byte[]{(byte) 0xFF, (byte) 0xFF});
+
+        DeviceProperty[] properties = {
+                DeviceProperty.PRESENT_INPUT_CURRENT,
+                DeviceProperty.PRESENT_OUTPUT_CURRENT,
+        };
+        for (DeviceProperty property : properties) {
+            int counter = 0;
+            for (byte[] sample : samples) {
+                final DevicePropertyCharacteristic<?> electricCurrent = DeviceProperty.
+                        getCharacteristic(property, sample, 1, 2);
+                Assert.assertEquals(expectedSamples.get(counter), electricCurrent.getValue());
+                Assert.assertArrayEquals(expectedGetBytes.get(counter), electricCurrent.getBytes());
+                counter++;
+            }
+        }
+    }
 }

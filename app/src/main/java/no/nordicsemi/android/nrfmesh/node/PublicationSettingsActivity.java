@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -43,11 +45,21 @@ public class PublicationSettingsActivity extends BaseActivity implements
         GroupCallbacks, DestinationAddressCallbacks,
         DialogFragmentTtl.DialogFragmentTtlListener {
 
-    public static final int SET_PUBLICATION_SETTINGS = 2021;
     private static final int MIN_PUBLICATION_INTERVAL = 0;
     private static final int MAX_PUBLICATION_INTERVAL = 234;
 
     private ActivityPublicationSettingsBinding binding;
+
+    private final ActivityResultLauncher<Intent> appKeySelector = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    final ApplicationKey appKey = result.getData().getParcelableExtra(RESULT_KEY);
+                    if (appKey != null) {
+                        ((PublicationViewModel)mViewModel).setAppKeyIndex(appKey.getKeyIndex());
+                        binding.appKey.setText(getString(R.string.app_key_index, appKey.getKeyIndex()));
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -63,9 +75,11 @@ public class PublicationSettingsActivity extends BaseActivity implements
             finish();
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
-        getSupportActionBar().setTitle(R.string.title_publication_settings);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
+            getSupportActionBar().setTitle(R.string.title_publication_settings);
+        }
 
         binding.scrollView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             if (binding.scrollView.getScrollY() == 0) {
@@ -85,7 +99,7 @@ public class PublicationSettingsActivity extends BaseActivity implements
         binding.containerAppKeyIndex.setOnClickListener(v -> {
             final Intent bindAppKeysIntent = new Intent(this, AppKeysActivity.class);
             bindAppKeysIntent.putExtra(Utils.EXTRA_DATA, Utils.PUBLICATION_APP_KEY);
-            startActivityForResult(bindAppKeysIntent, Utils.SELECT_KEY);
+            appKeySelector.launch(bindAppKeysIntent);
         });
 
         binding.friendshipCredentialFlag.setOnCheckedChangeListener((buttonView, isChecked) ->
@@ -150,20 +164,6 @@ public class PublicationSettingsActivity extends BaseActivity implements
             viewModel.setPublicationValues(meshModel.getPublicationSettings(), meshModel.getBoundAppKeyIndexes());
         }
         updatePublicationValues();
-    }
-
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Utils.SELECT_KEY) {
-            if (resultCode == RESULT_OK) {
-                final ApplicationKey appKey = data.getParcelableExtra(RESULT_KEY);
-                if (appKey != null) {
-                    ((PublicationViewModel)mViewModel).setAppKeyIndex(appKey.getKeyIndex());
-                    binding.appKey.setText(getString(R.string.app_key_index, appKey.getKeyIndex()));
-                }
-            }
-        }
     }
 
     @Override

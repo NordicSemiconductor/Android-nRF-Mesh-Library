@@ -119,7 +119,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
             }
         });
 
-        mAdapterSpinner = new AddressTypeAdapter(requireContext(), ADDRESS_TYPES);
+        mAdapterSpinner = new AddressTypeAdapter(ADDRESS_TYPES);
         binding.addressTypes.setAdapter(mAdapterSpinner);
 
         binding.groupContainer.groups.setAdapter( new GroupAdapterSpinner(mGroups));

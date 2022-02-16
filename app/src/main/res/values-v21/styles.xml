@@ -22,9 +22,11 @@
   -->
 
 <resources>
-	<style name="AppTheme.SplashScreen">
-		<item name="colorPrimaryDark">@android:color/transparent</item>
-		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
-		<item name="android:statusBarColor">@color/background</item>
+
+	<!-- Main theme customization per API. -->
+	<style name="AppTheme" parent="AppTheme.Base">
+		<!-- Black navigation bar. -->
+		<item name="android:navigationBarColor">@android:color/black</item>
 	</style>
+
 </resources>

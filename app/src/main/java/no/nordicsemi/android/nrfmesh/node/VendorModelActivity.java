@@ -20,7 +20,6 @@ import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
 import no.nordicsemi.android.mesh.transport.VendorModelMessageAcked;
 import no.nordicsemi.android.mesh.transport.VendorModelMessageStatus;
-import no.nordicsemi.android.mesh.transport.VendorModelMessageUnacked;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutVendorModelControlsBinding;
@@ -229,11 +228,11 @@ public class VendorModelActivity extends ModelConfigurationActivity {
                 final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
                 final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
                 if (acknowledged) {
-                    sendMessage(element.getElementAddress(),
+                    sendAcknowledgedMessage(element.getElementAddress() ,
                             new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters));
                 } else {
-                    sendMessage(element.getElementAddress(),
-                            new VendorModelMessageUnacked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters));
+                    sendUnacknowledgedMessage(element.getElementAddress() ,
+                            new VendorModelMessageAcked(appKey, model.getModelId(), model.getCompanyIdentifier(), opcode, parameters));
                 }
             }
         }
