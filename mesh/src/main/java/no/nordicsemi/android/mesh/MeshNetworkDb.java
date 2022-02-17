@@ -197,7 +197,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.update(network.meshUUID, network.meshName, network.timestamp,
                 network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                 network.lastSelected,
-                MeshTypeConverters.networkExclusionsToJson(network.networkExclusions)));
+                MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions())));
     }
 
     void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork, final boolean lastSelected) throws ExecutionException, InterruptedException {
@@ -220,7 +220,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             networkDao.update(network.meshUUID, network.meshName, network.timestamp,
                     network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                     network.lastSelected,
-                    MeshTypeConverters.networkExclusionsToJson(network.networkExclusions));
+                    MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions()));
             netKeyDao.update(network.getNetKeys());
             appKeyDao.update(network.getAppKeys());
             provisionersDao.update(network.getProvisioners());
