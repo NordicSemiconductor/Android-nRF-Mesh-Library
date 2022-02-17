@@ -267,7 +267,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void update(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
-        databaseWriteExecutor.execute(() -> dao.update(new ArrayList<>(provisioners)));
+        databaseWriteExecutor.execute(() -> dao.update(provisioners));
     }
 
     void delete(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
@@ -287,7 +287,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void update(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
-        databaseWriteExecutor.execute(() -> dao.update(new ArrayList<>(nodes)));
+        databaseWriteExecutor.execute(() -> dao.update(nodes));
     }
 
     void deleteNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {
