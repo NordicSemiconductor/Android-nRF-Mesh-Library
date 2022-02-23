@@ -27,7 +27,7 @@ android {
     group 'no.nordicsemi.android.mesh'
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 18
         targetSdkVersion 31
 
         javaCompileOptions {

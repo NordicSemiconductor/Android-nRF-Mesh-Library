@@ -21,25 +21,10 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
           package="no.nordicsemi.android.mesh">
 
-    <uses-permission
-      android:name="android.permission.BLUETOOTH"
-      android:maxSdkVersion="30"/>
-    <uses-permission
-      android:name="android.permission.BLUETOOTH_ADMIN"
-      android:maxSdkVersion="30"/>
-    <uses-permission
-      android:name="android.permission.BLUETOOTH_SCAN"
-      android:usesPermissionFlags="neverForLocation"
-      tools:targetApi="s" />
-    <uses-permission
-      android:name="android.permission.BLUETOOTH_CONNECT" />
-
-    <uses-feature
-        android:name="android.hardware.bluetooth_le"
-        android:required="true" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="no.nordicsemi.android.LOG"/>
 
 </manifest>
