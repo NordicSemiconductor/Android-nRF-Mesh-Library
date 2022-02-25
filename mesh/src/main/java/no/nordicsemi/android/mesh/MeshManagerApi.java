@@ -995,9 +995,7 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onMeshNodeReset(final ProvisionedMeshNode meshNode) {
             if (meshNode != null) {
-                if (mMeshNetwork.deleteNode(meshNode)) {
-                    deleteNode(meshNode);
-                }
+                mMeshNetwork.deleteNode(meshNode);
             }
         }
 
