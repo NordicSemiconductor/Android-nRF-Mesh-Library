@@ -122,6 +122,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_LOCATION_GLOBAL_STATUS) {
+                    final GenericLocationGlobalStatus genericLocationGlobalStatus = new GenericLocationGlobalStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericLocationGlobalStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericLocationGlobalStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SENSOR_DESCRIPTOR_STATUS) {
                     final SensorDescriptorStatus status = new SensorDescriptorStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
