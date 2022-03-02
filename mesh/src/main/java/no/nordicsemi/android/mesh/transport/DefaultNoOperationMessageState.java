@@ -472,6 +472,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final SchedulerStatus schedulerStatus = new SchedulerStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(schedulerStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.TIME_ZONE_STATUS) {
+                    final TimeZoneStatus timeZoneStatus = new TimeZoneStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(timeZoneStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), timeZoneStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_DEFAULT_TRANSITION_TIME_STATUS) {
                     final GenericDefaultTransitionTimeStatus genericDefaultTransitionTimeStatus = new GenericDefaultTransitionTimeStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericDefaultTransitionTimeStatus);
