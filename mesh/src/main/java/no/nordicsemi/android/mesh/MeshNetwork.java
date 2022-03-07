@@ -565,7 +565,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
     @Nullable
     public Integer nextAvailableSceneNumber(Provisioner provisioner) throws IllegalArgumentException {
         if (provisioner.getAllocatedSceneRanges().isEmpty()) {
-            throw new IllegalArgumentException("Please allocate a scene range to the provisioner");
+            throw new IllegalArgumentException("Please allocate a scene range to the provisioner!");
         }
 
         Collections.sort(scenes, sceneComparator);

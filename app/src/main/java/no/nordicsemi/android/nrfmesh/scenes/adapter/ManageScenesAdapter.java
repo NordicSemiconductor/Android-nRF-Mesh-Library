@@ -56,6 +56,12 @@ public class ManageScenesAdapter extends RecyclerView.Adapter<ManageScenesAdapte
         });
     }
 
+    public void update(final List<Scene> scenes){
+        final List<Scene> newScenes = new ArrayList<>(scenes);
+        Collections.sort(newScenes, Utils.sceneComparator);
+        differ.submitList(newScenes);
+    }
+
     public void setOnItemClickListener(final ManageScenesAdapter.OnItemClickListener listener) {
         mOnItemClickListener = listener;
     }
