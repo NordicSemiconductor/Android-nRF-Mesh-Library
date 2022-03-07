@@ -55,6 +55,26 @@ public class ApplicationMessageOpCodes {
     public static final int GENERIC_LEVEL_SET = 0x8206;
 
     /**
+     * Opcode for the "Generic Location Global Get" message
+     */
+    public static final int GENERIC_LOCATION_GLOBAL_GET = 0x8225;
+
+    /**
+     * Opcode for the "Generic Location Global Status" message
+     */
+    public static final int GENERIC_LOCATION_GLOBAL_STATUS = 0x40;
+
+    /**
+     * Opcode for the "Generic Location Global Set" message
+     */
+    public static final int GENERIC_LOCATION_GLOBAL_SET = 0x41;
+
+    /**
+     * Opcode for the "Generic Location Global Set Unacknowledged" message
+     */
+    public static final int GENERIC_LOCATION_GLOBAL_SET_UNACKNOWLEDGED = 0x42;
+
+    /**
      * Opcode for the "Generic Level Set Unacknowledged" message.
      */
     public static final int GENERIC_LEVEL_SET_UNACKNOWLEDGED = 0x8207;
