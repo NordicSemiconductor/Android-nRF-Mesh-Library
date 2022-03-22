@@ -220,8 +220,8 @@ public class MeshManagerApi implements MeshMngrApi {
     private void insertNetwork(final MeshNetwork meshNetwork) {
         meshNetwork.setLastSelected(true);
         //If there is only one provisioner we default to the zeroth
-        if (meshNetwork.provisioners.size() == 1) {
-            meshNetwork.provisioners.get(0).setLastSelected(true);
+        if (meshNetwork.getProvisioners().size() == 1) {
+            meshNetwork.getProvisioners().get(0).setLastSelected(true);
         }
         mMeshNetworkDb.insertNetwork(mMeshNetworkDao,
                 mNetworkKeysDao,
@@ -922,7 +922,7 @@ public class MeshManagerApi implements MeshMngrApi {
             if (network != null) {
                 final List<ProvisionedMeshNode> nodes = mMeshNetworkDb.getNodes(mProvisionedNodesDao, importedNetwork.getMeshUUID());
                 importedNetwork.unicastAddress = network.unicastAddress;
-                for (ProvisionedMeshNode meshNode : importedNetwork.nodes) {
+                for (ProvisionedMeshNode meshNode : importedNetwork.getNodes()) {
                     for (ProvisionedMeshNode node : nodes) {
                         if (node.getUuid().equalsIgnoreCase(meshNode.getUuid())) {
                             meshNode.setSequenceNumber(node.getSequenceNumber());
