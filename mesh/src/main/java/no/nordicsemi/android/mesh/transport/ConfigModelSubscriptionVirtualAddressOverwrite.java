@@ -81,13 +81,12 @@ public final class ConfigModelSubscriptionVirtualAddressOverwrite extends Config
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
         final byte[] elementAddress = MeshAddress.addressIntToBytes(mElementAddress);
         final byte[] subscriptionAddress = MeshParserUtils.uuidToBytes(labelUuid);
-        if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
+        if (!MeshParserUtils.isVendorModel(mModelIdentifier)) {
             paramsBuffer = ByteBuffer.allocate(CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementAddress[1]);
             paramsBuffer.put(elementAddress[0]);
             paramsBuffer.put(subscriptionAddress);
             paramsBuffer.putShort((short) mModelIdentifier);
-            mParameters = paramsBuffer.array();
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementAddress[1]);
@@ -99,8 +98,8 @@ public final class ConfigModelSubscriptionVirtualAddressOverwrite extends Config
             paramsBuffer.put(modelIdentifier[0]);
             paramsBuffer.put(modelIdentifier[3]);
             paramsBuffer.put(modelIdentifier[2]);
-            mParameters = paramsBuffer.array();
         }
+        mParameters = paramsBuffer.array();
     }
 
     /**
