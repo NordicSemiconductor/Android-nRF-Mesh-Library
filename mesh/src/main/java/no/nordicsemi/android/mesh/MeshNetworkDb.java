@@ -224,7 +224,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             netKeyDao.update(network.getNetKeys());
             appKeyDao.update(network.getAppKeys());
             provisionersDao.update(network.getProvisioners());
-            nodesDao.update(network.getNodes());
+            nodesDao.update(new ArrayList<>(network.nodes));
             groupsDao.update(network.getGroups());
             sceneDao.update(network.getScenes());
         });

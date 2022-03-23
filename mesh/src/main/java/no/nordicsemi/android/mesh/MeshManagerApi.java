@@ -353,9 +353,9 @@ public class MeshManagerApi implements MeshMngrApi {
                             }
 
                             if (!mMeshNetwork.ivIndex.getIvRecoveryFlag()) {
-                                final Iterator<Entry<Integer, ArrayList<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
+                                final Iterator<Entry<Integer, List<Integer>>> iterator = mMeshNetwork.networkExclusions.entrySet().iterator();
                                 while (iterator.hasNext()) {
-                                    final Entry<Integer, ArrayList<Integer>> exclusions = iterator.next();
+                                    final Entry<Integer, List<Integer>> exclusions = iterator.next();
                                     final int expectedIncrement = exclusions.getKey() + 2;
                                     if (mMeshNetwork.ivIndex.getIvIndex() >= expectedIncrement) {
                                         // Clear the last known sequence number of addresses that are to be removed from the exclusion list.
@@ -1258,12 +1258,22 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onProvisionerDeleted(@NonNull Provisioner provisioner) {
             mMeshNetworkDb.delete(mProvisionerDao, provisioner);
-            onMeshNetworkUpdated();
+            // Network update is invoked independent in the case of node deletion or provisioner deletion
+            // onMeshNetworkUpdated();
         }
 
         @Override
         public void onNodeDeleted(@NonNull final ProvisionedMeshNode meshNode) {
-            deleteNode(meshNode);
+            //deleteNode(meshNode);
+            deleteSceneAddress(meshNode.getUnicastAddress());
+            // We should not remove the last known sequence number when resetting a node.
+            // This should be kept until the current iv index has incremented by 2 and delete it when
+            // clearing the exclusion lists
+            // mMeshNetwork.sequenceNumbers.delete(meshNode.getUnicastAddress());
+            mMeshNetworkDb.deleteNode(mProvisionedNodeDao, meshNode);
+            mMeshMessageHandler.resetState(meshNode.getUnicastAddress());
+            // Network update is invoked independent in the case of node deletion or provisioner deletion
+            // mMeshNetworkDb.update(mMeshNetworkDao, mMeshNetwork);
         }
 
         @Override
@@ -1275,12 +1285,6 @@ public class MeshManagerApi implements MeshMngrApi {
         @Override
         public void onNodeUpdated(@NonNull final ProvisionedMeshNode meshNode) {
             mMeshNetworkDb.update(mProvisionedNodeDao, meshNode);
-            onMeshNetworkUpdated();
-        }
-
-        @Override
-        public void onNodesUpdated() {
-            mMeshNetworkDb.update(mProvisionedNodesDao, mMeshNetwork.getNodes());
             onMeshNetworkUpdated();
         }
 

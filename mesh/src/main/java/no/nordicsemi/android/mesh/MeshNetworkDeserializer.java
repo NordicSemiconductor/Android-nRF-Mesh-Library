@@ -533,11 +533,11 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @param networkExclusions exclusion list
      * @return JsonElement
      */
-    private JsonElement serializeExclusionList(@NonNull final Map<Integer, ArrayList<Integer>> networkExclusions) {
+    private JsonElement serializeExclusionList(@NonNull final Map<Integer, List<Integer>> networkExclusions) {
         final JsonArray exclusionList = new JsonArray();
         JsonObject exclusion;
         JsonArray array;
-        for (Map.Entry<Integer, ArrayList<Integer>> entry : networkExclusions.entrySet()) {
+        for (Map.Entry<Integer, List<Integer>> entry : networkExclusions.entrySet()) {
             exclusion = new JsonObject();
             array = new JsonArray();
             for (Integer address : entry.getValue()) {
@@ -556,8 +556,8 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
      * @param networkExclusions Network exclusions
      * @return List of nodes
      */
-    private Map<Integer, ArrayList<Integer>> deserializeExclusionList(@NonNull final JsonArray networkExclusions) {
-        final Map<Integer, ArrayList<Integer>> exclusionList = new HashMap<>();
+    private Map<Integer, List<Integer>> deserializeExclusionList(@NonNull final JsonArray networkExclusions) {
+        final Map<Integer, List<Integer>> exclusionList = new HashMap<>();
         JsonObject exclusion;
         int ivIndex;
         ArrayList<Integer> addresses;

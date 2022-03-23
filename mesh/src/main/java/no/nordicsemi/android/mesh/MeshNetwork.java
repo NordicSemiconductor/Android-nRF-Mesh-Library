@@ -155,10 +155,10 @@ public final class MeshNetwork extends BaseMeshNetwork {
                 usedAddresses.add(node.getUnicastAddress());
         }
         // Excluded addresses with the current IvIndex and current IvIndex - 1 must be considered as addresses in use.
-        final ArrayList<Integer> addressesWithCurrentIvIndex = networkExclusions.get(ivIndex.getIvIndex());
+        final List<Integer> addressesWithCurrentIvIndex = networkExclusions.get(ivIndex.getIvIndex());
         if (addressesWithCurrentIvIndex != null)
             usedAddresses.addAll(addressesWithCurrentIvIndex);
-        final ArrayList<Integer> addressesWithCurrentIvIndexMinusOne = networkExclusions.get(ivIndex.getIvIndex() - 1);
+        final List<Integer> addressesWithCurrentIvIndexMinusOne = networkExclusions.get(ivIndex.getIvIndex() - 1);
         if (addressesWithCurrentIvIndexMinusOne != null)
             usedAddresses.addAll(addressesWithCurrentIvIndexMinusOne);
 
