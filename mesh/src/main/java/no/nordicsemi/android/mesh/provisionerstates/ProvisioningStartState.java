@@ -22,9 +22,11 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import androidx.annotation.NonNull;
 import android.util.Log;
 
+import java.util.List;
+
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
@@ -43,24 +45,21 @@ public class ProvisioningStartState extends ProvisioningState {
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    private int numberOfElements;
-    private int algorithm;
-    private int publicKeyType;
-    private int staticOOBType;
+    private List<AlgorithmType> algorithmTypes;
     private int outputOOBSize;
-    private int outputOOBAction;
     private int inputOOBSize;
-    private int inputOOBAction;
     private short outputActionType;
     private short inputActionType;
 
     public ProvisioningStartState(final UnprovisionedMeshNode node,
+                                  final ProvisioningCapabilities capabilities,
                                   final InternalTransportCallbacks internalTransportCallbacks,
                                   final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
         this.mNode = node;
         this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.mMeshProvisioningStatusCallbacks = provisioningStatusCallbacks;
+        setProvisioningCapabilities(capabilities);
     }
 
     public void setUseStaticOOB(final StaticOOBType actionType) {
@@ -103,14 +102,11 @@ public class ProvisioningStartState extends ProvisioningState {
         final byte[] provisioningPDU = new byte[7];
         provisioningPDU[0] = MeshManagerApi.PDU_TYPE_PROVISIONING;
         provisioningPDU[1] = TYPE_PROVISIONING_START;
-        provisioningPDU[2] = AlgorithmType.getAlgorithmValue((short) algorithm);
+        provisioningPDU[2] = AlgorithmType.getSupportedAlgorithmValue(algorithmTypes);
         provisioningPDU[3] = 0; // (byte) publicKeyType;
         provisioningPDU[4] = (byte) mNode.getAuthMethodUsed().ordinal();
         switch (mNode.getAuthMethodUsed()) {
             case NO_OOB_AUTHENTICATION:
-                provisioningPDU[5] = 0;
-                provisioningPDU[6] = 0;
-                break;
             case STATIC_OOB_AUTHENTICATION:
                 provisioningPDU[5] = 0;
                 provisioningPDU[6] = 0;
@@ -131,21 +127,9 @@ public class ProvisioningStartState extends ProvisioningState {
         return provisioningPDU;
     }
 
-    public void setProvisioningCapabilities(final int numberOfElements,
-                                            final int algorithm,
-                                            final int publicKeyType,
-                                            final int staticOOBType,
-                                            final int outputOOBSize,
-                                            final int outputOOBAction,
-                                            final int inputOOBSize,
-                                            final int inputOOBAction) {
-        this.numberOfElements = numberOfElements;
-        this.algorithm = algorithm;
-        this.publicKeyType = publicKeyType;
-        this.staticOOBType = staticOOBType;
-        this.outputOOBSize = outputOOBSize;
-        this.outputOOBAction = outputOOBAction;
-        this.inputOOBSize = inputOOBSize;
-        this.inputOOBAction = inputOOBAction;
+    private void setProvisioningCapabilities(final ProvisioningCapabilities capabilities) {
+        this.algorithmTypes = capabilities.getSupportedAlgorithmTypes();
+        this.outputOOBSize = capabilities.getOutputOOBSize();
+        this.inputOOBSize = capabilities.getInputOOBSize();
     }
 }

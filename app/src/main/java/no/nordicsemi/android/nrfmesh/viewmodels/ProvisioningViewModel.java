@@ -116,9 +116,9 @@ public class ProvisioningViewModel extends BaseViewModel {
         int count = 0;
         for (AlgorithmType algorithmType : capabilities.getSupportedAlgorithmTypes()) {
             if (count == 0) {
-                algorithmTypes.append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
+                algorithmTypes.append(algorithmType.getName());
             } else {
-                algorithmTypes.append(", ").append(AlgorithmType.getAlgorithmTypeDescription(algorithmType));
+                algorithmTypes.append(", ").append(algorithmType.getName());
             }
             count++;
         }
