@@ -51,7 +51,7 @@ public abstract class ProvisioningState {
         PROVISIONING_INPUT_COMPLETE(4), PROVISIONING_CONFIRMATION(5), PROVISIONING_RANDOM(6),
         PROVISIONING_DATA(7), PROVISIONING_COMPLETE(8), PROVISIONING_FAILED(9);
 
-        private int state;
+        private final int state;
 
         State(final int state) {
             this.state = state;

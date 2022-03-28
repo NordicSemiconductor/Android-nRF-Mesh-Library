@@ -27,6 +27,7 @@ import android.util.Log;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
@@ -41,7 +42,7 @@ import no.nordicsemi.android.mesh.utils.StaticOOBType;
 public class ProvisioningStartState extends ProvisioningState {
 
     private final String TAG = ProvisioningStartState.class.getSimpleName();
-    private final UnprovisionedMeshNode mNode;
+    private final UnprovisionedMeshNode node;
     private final MeshProvisioningStatusCallbacks mMeshProvisioningStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
@@ -51,32 +52,42 @@ public class ProvisioningStartState extends ProvisioningState {
     private short outputActionType;
     private short inputActionType;
 
+
+    /**
+     * Constructs the provisioning start state.
+     *
+     * @param node                        {@link UnprovisionedMeshNode} node.
+     * @param capabilities                Provisioning capabilities.
+     * @param internalTransportCallbacks  {@link InternalTransportCallbacks} callbacks.
+     * @param provisioningStatusCallbacks {@link MeshProvisioningStatusCallbacks} callbacks.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisioningStartState(final UnprovisionedMeshNode node,
                                   final ProvisioningCapabilities capabilities,
                                   final InternalTransportCallbacks internalTransportCallbacks,
                                   final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
-        this.mNode = node;
+        this.node = node;
         this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.mMeshProvisioningStatusCallbacks = provisioningStatusCallbacks;
         setProvisioningCapabilities(capabilities);
     }
 
     public void setUseStaticOOB(final StaticOOBType actionType) {
-        mNode.setAuthMethodUsed(AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION);
-        mNode.setAuthActionUsed(actionType.getStaticOobType());
+        node.setAuthMethodUsed(AuthenticationOOBMethods.STATIC_OOB_AUTHENTICATION);
+        node.setAuthActionUsed(actionType.getStaticOobType());
     }
 
     public void setUseOutputOOB(final OutputOOBAction actionType) {
-        mNode.setAuthMethodUsed(AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION);
+        node.setAuthMethodUsed(AuthenticationOOBMethods.OUTPUT_OOB_AUTHENTICATION);
         this.outputActionType = actionType.getOutputOOBAction();
-        mNode.setAuthActionUsed(actionType.getOutputOOBAction());
+        node.setAuthActionUsed(actionType.getOutputOOBAction());
     }
 
     public void setUseInputOOB(final InputOOBAction actionType) {
-        mNode.setAuthMethodUsed(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
+        node.setAuthMethodUsed(AuthenticationOOBMethods.INPUT_OOB_AUTHENTICATION);
         this.inputActionType = actionType.getInputOOBAction();
-        mNode.setAuthActionUsed(actionType.getInputOOBAction());
+        node.setAuthActionUsed(actionType.getInputOOBAction());
     }
 
     @Override
@@ -88,9 +99,9 @@ public class ProvisioningStartState extends ProvisioningState {
     public void executeSend() {
         final byte[] provisioningStartPDU = createProvisioningStartPDU();
         //We store the provisioning start pdu to be used when generating confirmation inputs
-        mNode.setProvisioningStartPdu(provisioningStartPDU);
-        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_START, provisioningStartPDU);
-        mInternalTransportCallbacks.sendProvisioningPdu(mNode, provisioningStartPDU);
+        node.setProvisioningStartPdu(provisioningStartPDU);
+        mMeshProvisioningStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_START, provisioningStartPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(node, provisioningStartPDU);
     }
 
     @Override
@@ -104,8 +115,8 @@ public class ProvisioningStartState extends ProvisioningState {
         provisioningPDU[1] = TYPE_PROVISIONING_START;
         provisioningPDU[2] = AlgorithmType.getSupportedAlgorithmValue(algorithmTypes);
         provisioningPDU[3] = 0; // (byte) publicKeyType;
-        provisioningPDU[4] = (byte) mNode.getAuthMethodUsed().ordinal();
-        switch (mNode.getAuthMethodUsed()) {
+        provisioningPDU[4] = (byte) node.getAuthMethodUsed().ordinal();
+        switch (node.getAuthMethodUsed()) {
             case NO_OOB_AUTHENTICATION:
             case STATIC_OOB_AUTHENTICATION:
                 provisioningPDU[5] = 0;
@@ -118,7 +129,7 @@ public class ProvisioningStartState extends ProvisioningState {
             case INPUT_OOB_AUTHENTICATION:
                 provisioningPDU[5] = (byte) InputOOBAction.getInputOOBActionValue(this.inputActionType);
                 provisioningPDU[6] = (byte) inputOOBSize;
-                mNode.setInputAuthentication(InputOOBAction.getInputOOOBAuthenticationValue(inputActionType, (byte) inputOOBSize));
+                node.setInputAuthentication(InputOOBAction.getInputOOOBAuthenticationValue(inputActionType, (byte) inputOOBSize));
                 break;
 
         }
