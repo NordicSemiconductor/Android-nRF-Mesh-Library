@@ -23,16 +23,22 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 public class ProvisioningCompleteState extends ProvisioningState {
 
-    private final UnprovisionedMeshNode unprovisionedMeshNode;
-
-    public ProvisioningCompleteState(final UnprovisionedMeshNode unprovisionedMeshNode) {
+    private final UnprovisionedMeshNode node;
+    /**
+     * Constructs the provisioning complete state
+     *
+     * @param node                        {@link UnprovisionedMeshNode} node
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisioningCompleteState(final UnprovisionedMeshNode node) {
         super();
-        this.unprovisionedMeshNode = unprovisionedMeshNode;
-        unprovisionedMeshNode.setIsProvisioned(true);
-        unprovisionedMeshNode.setProvisionedTime(System.currentTimeMillis());
+        this.node = node;
+        node.setAsProvisioned();
+        node.setProvisionedTime(System.currentTimeMillis());
     }
 
     @Override

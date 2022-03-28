@@ -676,4 +676,5 @@
     <string name="title_sensor_information">Sensor Information</string>
     <string name="error_empty_scene_name">Error empty scene name</string>
     <string name="unknwon_error">Unknown error</string>
+    <string name="error_allocate_group_range">Provisioner must have an allocated group range!</string>
 </resources>

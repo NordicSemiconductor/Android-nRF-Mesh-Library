@@ -48,7 +48,7 @@ public class CompositionDataParser {
     }
 
     public static String formatModelIdentifier(final int modelId, final boolean add0x) {
-        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+        if (MeshParserUtils.isVendorModel(modelId)) {
             return add0x ? "0x" + String.format(Locale.US, "%08X", modelId) : String.format(Locale.US, "%08X", modelId);
         } else {
             return add0x ? "0x" + String.format(Locale.US, "%04X", modelId) : String.format(Locale.US, "%04X", modelId);

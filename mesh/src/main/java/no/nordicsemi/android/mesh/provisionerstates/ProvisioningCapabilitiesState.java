@@ -23,21 +23,28 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 import androidx.annotation.NonNull;
-
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
 
 public class ProvisioningCapabilitiesState extends ProvisioningState {
     private static final String TAG = ProvisioningInviteState.class.getSimpleName();
 
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
+    private final UnprovisionedMeshNode node;
     private final MeshProvisioningStatusCallbacks mCallbacks;
 
     private ProvisioningCapabilities capabilities;
 
-    public ProvisioningCapabilitiesState(final UnprovisionedMeshNode unprovisionedMeshNode, final MeshProvisioningStatusCallbacks callbacks) {
+    /**
+     * Constructs the provisioning capabilities complete state.
+     *
+     * @param node        {@link UnprovisionedMeshNode} node.
+     * @param callbacks   {@link MeshProvisioningStatusCallbacks} callbacks.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisioningCapabilitiesState(final UnprovisionedMeshNode node, final MeshProvisioningStatusCallbacks callbacks) {
         super();
         this.mCallbacks = callbacks;
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
+        this.node = node;
     }
 
     @Override
@@ -58,9 +65,9 @@ public class ProvisioningCapabilitiesState extends ProvisioningState {
     public boolean parseData(@NonNull final byte[] data) {
         final boolean flag = parseProvisioningCapabilities(data);
         //We store the provisioning capabilities pdu to be used when generating confirmation inputs
-        mUnprovisionedMeshNode.setProvisioningCapabilitiesPdu(data);
-        mUnprovisionedMeshNode.setProvisioningCapabilities(capabilities);
-        mCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CAPABILITIES, data);
+        node.setProvisioningCapabilitiesPdu(data);
+        node.setProvisioningCapabilities(capabilities);
+        mCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_CAPABILITIES, data);
         return flag;
     }
 

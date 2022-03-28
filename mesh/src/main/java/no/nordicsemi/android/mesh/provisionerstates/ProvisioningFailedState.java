@@ -23,14 +23,16 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.R;
 
 public class ProvisioningFailedState extends ProvisioningState {
 
     private int error;
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisioningFailedState() {
         super();
     }

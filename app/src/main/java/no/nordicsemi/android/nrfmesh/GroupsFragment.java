@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -94,6 +95,10 @@ public class GroupsFragment extends Fragment implements
         });
 
         fab.setOnClickListener(v -> {
+            if (mViewModel.getNetworkLiveData().getProvisioner().getAllocatedGroupRanges().isEmpty()) {
+                displaySnackBar(getString(R.string.error_allocate_group_range), null);
+                return;
+            }
             DialogFragmentCreateGroup fragmentCreateGroup = DialogFragmentCreateGroup.newInstance();
             fragmentCreateGroup.show(getChildFragmentManager(), null);
         });
@@ -130,7 +135,14 @@ public class GroupsFragment extends Fragment implements
         final Group group = network.getGroups().get(position);
         if (network.getModels(group).size() == 0) {
             network.removeGroup(group);
-            displaySnackBar(group);
+            final View.OnClickListener action = v -> {
+                binding.empty.getRoot().setVisibility(View.INVISIBLE);
+                final MeshNetwork network1 = mViewModel.getNetworkLiveData().getMeshNetwork();
+                if (network1 != null) {
+                    network1.addGroup(group);
+                }
+            };
+            displaySnackBar(getString(R.string.group_deleted, group.getName()), action);
         }
     }
 
@@ -170,19 +182,13 @@ public class GroupsFragment extends Fragment implements
         return network.addGroup(group);
     }
 
-    private void displaySnackBar(final Group group) {
-        final String message = getString(R.string.group_deleted, group.getName());
-        Snackbar.make(binding.container, message, Snackbar.LENGTH_LONG)
-                .setActionTextColor(getResources().getColor(R.color.colorSecondary))
-                .setAction(R.string.undo, v -> {
-                    binding.empty.getRoot().setVisibility(View.INVISIBLE);
-                    final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
-                    if (network != null) {
-                        network.addGroup(group);
-                    }
-
-                })
-                .show();
+    @SuppressLint("ShowToast")
+    private void displaySnackBar(final String message, final View.OnClickListener action) {
+        Snackbar snack = Snackbar.make(binding.container, message, Snackbar.LENGTH_LONG);
+        if (action != null)
+            snack = snack.setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                    .setAction(R.string.undo, action);
+        snack.show();
     }
 
     private List<GroupItemUIState> populateGroups(final MeshNetwork network) {

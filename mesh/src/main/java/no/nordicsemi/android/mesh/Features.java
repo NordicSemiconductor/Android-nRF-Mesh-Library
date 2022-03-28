@@ -24,7 +24,7 @@ public class Features implements Parcelable {
     @interface FeatureState {
     }
 
-    // Key refresh phases
+    //feature states
     public static final int DISABLED = 0; //Feature is disabled
     public static final int ENABLED = 1; //Feature is enabled
     public static final int UNSUPPORTED = 2; //Feature is not supported
@@ -64,6 +64,7 @@ public class Features implements Parcelable {
         relay = in.readInt();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public String toString() {
         return "Features{" +

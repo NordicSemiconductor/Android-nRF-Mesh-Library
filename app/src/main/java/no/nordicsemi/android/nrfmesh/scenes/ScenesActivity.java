@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.nrfmesh.scenes;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -74,7 +75,9 @@ public class ScenesActivity extends AppCompatActivity implements
         mViewModel = new ViewModelProvider(this).get(ScenesViewModel.class);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         binding.recyclerViewScenes.setLayoutManager(new LinearLayoutManager(this));
         final DividerItemDecoration dividerItemDecoration =
@@ -84,7 +87,15 @@ public class ScenesActivity extends AppCompatActivity implements
         binding.recyclerViewScenes.setAdapter(mAdapter = new ManageScenesAdapter(this, mViewModel.getNetworkLiveData()));
         mAdapter.setOnItemClickListener(this);
 
-        binding.fabAdd.setOnClickListener(v -> DialogFragmentCreateScene.newInstance(createScene()).show(getSupportFragmentManager(), null));
+        binding.fabAdd.setOnClickListener(v -> {
+                    try {
+                        final Scene scene = createScene();
+                        DialogFragmentCreateScene.newInstance(scene).show(getSupportFragmentManager(), null);
+                    } catch (IllegalArgumentException exception) {
+                        displaySnackBar(exception.getMessage() == null ? getString(R.string.unknwon_error) : exception.getMessage(), null);
+                    }
+                }
+        );
 
         binding.recyclerViewScenes.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -129,7 +140,11 @@ public class ScenesActivity extends AppCompatActivity implements
         try {
             final MeshNetwork network = mViewModel.getNetworkLiveData().getMeshNetwork();
             if (network.removeScene(scene)) {
-                displaySnackBar(scene);
+                final View.OnClickListener action = v -> {
+                    binding.emptyScenes.getRoot().setVisibility(View.INVISIBLE);
+                    mViewModel.getNetworkLiveData().getMeshNetwork().addScene(scene);
+                };
+                displaySnackBar(getString(R.string.scene_deleted), action);
                 // Show the empty view
                 final boolean empty = mAdapter.getItemCount() == 0;
                 if (empty) {
@@ -137,8 +152,8 @@ public class ScenesActivity extends AppCompatActivity implements
                 }
             }
         } catch (Exception ex) {
-            mAdapter.notifyDataSetChanged();
-            mViewModel.displaySnackBar(this, binding.container, ex.getMessage(), Snackbar.LENGTH_LONG);
+            mAdapter.update(mViewModel.getNetworkLiveData().getMeshNetwork().getScenes());
+            mViewModel.displaySnackBar(this, binding.container, ex.getMessage() == null ? getString(R.string.unknwon_error) : ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
@@ -155,6 +170,15 @@ public class ScenesActivity extends AppCompatActivity implements
                 })
                 .setActionTextColor(getResources().getColor(R.color.colorSecondary))
                 .show();
+    }
+
+    @SuppressLint("ShowToast")
+    private void displaySnackBar(final String message, final View.OnClickListener action) {
+        Snackbar snack = Snackbar.make(binding.container, message, Snackbar.LENGTH_LONG);
+        if (action != null)
+            snack = snack.setActionTextColor(getResources().getColor(R.color.colorSecondary))
+                    .setAction(R.string.undo, action);
+        snack.show();
     }
 
     @Override

@@ -113,7 +113,7 @@ public class ElementAdapter extends RecyclerView.Adapter<ElementAdapter.ViewHold
             if (model instanceof VendorModel) {
                 modelIdView.setText(context.getString(R.string.format_vendor_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
             } else {
-                modelIdView.setText(context.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier((short) model.getModelId(), true)));
+                modelIdView.setText(context.getString(R.string.format_sig_model_id, CompositionDataParser.formatModelIdentifier(model.getModelId(), true)));
             }
             modelView.setOnClickListener(v -> {
                 final int position = holder.getBindingAdapterPosition();

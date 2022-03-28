@@ -65,8 +65,26 @@
       },
       {
         "tableName": "network_key",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `old_key` BLOB, `phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`phase` INTEGER NOT NULL, `security` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `old_key` BLOB, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minSecurity",
+            "columnName": "security",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "id",
             "columnName": "id",
@@ -102,24 +120,6 @@
             "columnName": "old_key",
             "affinity": "BLOB",
             "notNull": false
-          },
-          {
-            "fieldPath": "phase",
-            "columnName": "phase",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "minSecurity",
-            "columnName": "security",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "timestamp",
-            "columnName": "timestamp",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -135,6 +135,7 @@
             "columnNames": [
               "mesh_uuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_network_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],
@@ -154,8 +155,14 @@
       },
       {
         "tableName": "application_key",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `old_key` BLOB, `bound_key_index` INTEGER NOT NULL, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bound_key_index` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesh_uuid` TEXT, `index` INTEGER NOT NULL, `name` TEXT, `key` BLOB, `old_key` BLOB, FOREIGN KEY(`mesh_uuid`) REFERENCES `mesh_network`(`mesh_uuid`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
+          {
+            "fieldPath": "boundNetKeyIndex",
+            "columnName": "bound_key_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "id",
             "columnName": "id",
@@ -191,12 +198,6 @@
             "columnName": "old_key",
             "affinity": "BLOB",
             "notNull": false
-          },
-          {
-            "fieldPath": "boundNetKeyIndex",
-            "columnName": "bound_key_index",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -212,6 +213,7 @@
             "columnNames": [
               "mesh_uuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_application_key_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],
@@ -301,6 +303,7 @@
             "columnNames": [
               "mesh_uuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_provisioner_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],
@@ -498,6 +501,7 @@
             "columnNames": [
               "mesh_uuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_nodes_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],
@@ -575,6 +579,7 @@
             "columnNames": [
               "mesh_uuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_groups_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],
@@ -634,6 +639,7 @@
             "columnNames": [
               "mesh_uuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_scene_mesh_uuid` ON `${TABLE_NAME}` (`mesh_uuid`)"
           }
         ],

@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.InternalProvisioningCallbacks;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
@@ -38,20 +39,29 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 public class ProvisioningRandomConfirmationState extends ProvisioningState {
 
     private final String TAG = ProvisioningRandomConfirmationState.class.getSimpleName();
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
+    private final UnprovisionedMeshNode node;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningRandomConfirmationState(@NonNull final InternalProvisioningCallbacks callbacks,
-                                               @NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
-                                               @NonNull final InternalTransportCallbacks mInternalTransportCallbacks,
-                                               @NonNull final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    /**
+     * Constructs the provisioning random confirmation state.
+     *
+     * @param node                          {@link UnprovisionedMeshNode} node.
+     * @param internalTransportCallbacks    {@link InternalTransportCallbacks} callbacks.
+     * @param provisioningStatusCallbacks   {@link MeshProvisioningStatusCallbacks} callbacks.
+     * @param internalProvisioningCallbacks {@link InternalProvisioningCallbacks} callbacks.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisioningRandomConfirmationState(@NonNull final UnprovisionedMeshNode node,
+                                               @NonNull final InternalProvisioningCallbacks internalProvisioningCallbacks,
+                                               @NonNull final InternalTransportCallbacks internalTransportCallbacks,
+                                               @NonNull final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
-        this.provisioningCallbacks = callbacks;
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
-        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
+        this.node = node;
+        this.provisioningCallbacks = internalProvisioningCallbacks;
+        this.mInternalTransportCallbacks = internalTransportCallbacks;
+        this.mStatusCallbacks = provisioningStatusCallbacks;
     }
 
     @Override
@@ -62,19 +72,19 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     @Override
     public void executeSend() {
         final byte[] provisionerRandomConfirmationPDU = createProvisionerRandomPDU();
-        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_CONFIRMATION_SENT, provisionerRandomConfirmationPDU);
-        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, provisionerRandomConfirmationPDU);
+        mStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_CONFIRMATION_SENT, provisionerRandomConfirmationPDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(node, provisionerRandomConfirmationPDU);
     }
 
     @Override
     public boolean parseData(@NonNull final byte[] data) {
-        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_RANDOM_RECEIVED, data);
+        mStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_RANDOM_RECEIVED, data);
         parseProvisioneeRandom(data);
         return provisioneeMatches();
     }
 
     private byte[] createProvisionerRandomPDU() {
-        final byte[] provisionerRandom = mUnprovisionedMeshNode.getProvisionerRandom();
+        final byte[] provisionerRandom = node.getProvisionerRandom();
         final ByteBuffer buffer = ByteBuffer.allocate(provisionerRandom.length + 2);
         buffer.put(new byte[]{MeshManagerApi.PDU_TYPE_PROVISIONING, TYPE_PROVISIONING_RANDOM_CONFIRMATION});
         buffer.put(provisionerRandom);
@@ -84,24 +94,24 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     }
 
     private boolean provisioneeMatches() {
-        final byte[] provisioneeRandom = mUnprovisionedMeshNode.getProvisioneeRandom();
+        final byte[] provisioneeRandom = node.getProvisioneeRandom();
 
-        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mUnprovisionedMeshNode.getProvisionerPublicKeyXY(),
-                mUnprovisionedMeshNode.getProvisioneePublicKeyXY());
+        final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(node.getProvisionerPublicKeyXY(),
+                node.getProvisioneePublicKeyXY());
         Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs
         final byte[] confirmationSalt = SecureUtils.calculateSalt(confirmationInputs);
         Log.v(TAG, "Confirmation salt: " + MeshParserUtils.bytesToHex(confirmationSalt, false));
 
-        final byte[] ecdhSecret = mUnprovisionedMeshNode.getSharedECDHSecret();
+        final byte[] ecdhSecret = node.getSharedECDHSecret();
 
         //Generate the confirmationKey by calculating the K1 of ECDH, confirmationSalt and ASCII value of "prck".
         final byte[] confirmationKey = SecureUtils.calculateK1(ecdhSecret, confirmationSalt, SecureUtils.PRCK);
         Log.v(TAG, "Confirmation key: " + MeshParserUtils.bytesToHex(confirmationKey, false));
 
         //Generate authentication value from the user input pin
-        final byte[] authenticationValue = mUnprovisionedMeshNode.getAuthenticationValue();
+        final byte[] authenticationValue = node.getAuthenticationValue();
         Log.v(TAG, "Authentication value: " + MeshParserUtils.bytesToHex(authenticationValue, false));
 
         ByteBuffer buffer = ByteBuffer.allocate(provisioneeRandom.length + authenticationValue.length);
@@ -111,7 +121,7 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
 
         final byte[] confirmationValue = SecureUtils.calculateCMAC(confirmationData, confirmationKey);
 
-        if (Arrays.equals(confirmationValue, mUnprovisionedMeshNode.getProvisioneeConfirmation())) {
+        if (Arrays.equals(confirmationValue, node.getProvisioneeConfirmation())) {
             Log.v(TAG, "Confirmation values match!!!!: " + MeshParserUtils.bytesToHex(confirmationValue, false));
             return true;
         }
@@ -122,6 +132,6 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
     private void parseProvisioneeRandom(final byte[] provisioneeRandomPDU) {
         final ByteBuffer buffer = ByteBuffer.allocate(provisioneeRandomPDU.length - 2);
         buffer.put(provisioneeRandomPDU, 2, buffer.limit());
-        mUnprovisionedMeshNode.setProvisioneeRandom(buffer.array());
+        node.setProvisioneeRandom(buffer.array());
     }
 }

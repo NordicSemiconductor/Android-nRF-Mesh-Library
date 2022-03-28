@@ -602,11 +602,11 @@ public class MeshParserUtils {
      * @param modelId model identifier
      */
     public static boolean isVendorModel(final int modelId) {
-        return modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE;
+        return (modelId & 0xFFFF0000) != 0;
     }
 
     public static int getCompanyIdentifier(final int modelId) {
-        if (modelId >= Short.MIN_VALUE && modelId <= Short.MAX_VALUE) {
+        if (!MeshParserUtils.isVendorModel(modelId)) {
             throw new IllegalArgumentException("Not a valid vendor model ID");
         }
         final ByteBuffer buffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
@@ -749,7 +749,7 @@ public class MeshParserUtils {
      */
     public static long parseTimeStamp(String timestamp) {
         try {
-            if(timestamp.contains("Z")) {
+            if (timestamp.contains("Z")) {
                 timestamp = timestamp.replace("Z", "+00:00");
             }
             final Date date = SDF.parse(timestamp);

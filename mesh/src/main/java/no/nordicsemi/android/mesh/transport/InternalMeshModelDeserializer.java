@@ -303,7 +303,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
      * @return {@link MeshModel}
      */
     private MeshModel getMeshModel(final int modelId) {
-        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+        if (MeshParserUtils.isVendorModel(modelId)) {
             return new VendorModel(modelId);
         } else {
             return SigModelParser.getSigModel(modelId);
