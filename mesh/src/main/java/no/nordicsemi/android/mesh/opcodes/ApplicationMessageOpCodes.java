@@ -389,6 +389,21 @@ public class ApplicationMessageOpCodes {
     public static final int SCHEDULER_ACTION_STATUS = 0x5F;
 
     /**
+     * Opcode for the "Time Zone Get" message
+     */
+    public static final int TIME_ZONE_GET = 0x823B;
+
+    /**
+     * Opcode for the "Time Zone Set" message
+     */
+    public static final int TIME_ZONE_SET = 0x823C;
+
+    /**
+     * Opcode for the "Time Zone Status" message
+     */
+    public static final int TIME_ZONE_STATUS = 0x823D;
+
+    /**
      * Opcode for the "Generic Default Transition Time Get" message
      */
     public static final int GENERIC_DEFAULT_TRANSITION_TIME_GET = 0x820D;
