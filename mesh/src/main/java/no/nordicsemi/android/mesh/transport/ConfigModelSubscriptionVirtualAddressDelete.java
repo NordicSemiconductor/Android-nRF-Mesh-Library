@@ -22,12 +22,11 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import androidx.annotation.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -81,13 +80,12 @@ public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMes
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
         final byte[] elementAddress = MeshAddress.addressIntToBytes(mElementAddress);
         final byte[] subscriptionAddress = MeshParserUtils.uuidToBytes(labelUuid);
-        if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
+        if (!MeshParserUtils.isVendorModel(mModelIdentifier)) {
             paramsBuffer = ByteBuffer.allocate(CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementAddress[1]);
             paramsBuffer.put(elementAddress[0]);
             paramsBuffer.put(subscriptionAddress);
             paramsBuffer.putShort((short) mModelIdentifier);
-            mParameters = paramsBuffer.array();
         } else {
             paramsBuffer = ByteBuffer.allocate(VENDOR_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put(elementAddress[1]);
@@ -99,8 +97,8 @@ public final class ConfigModelSubscriptionVirtualAddressDelete extends ConfigMes
             paramsBuffer.put(modelIdentifier[0]);
             paramsBuffer.put(modelIdentifier[3]);
             paramsBuffer.put(modelIdentifier[2]);
-            mParameters = paramsBuffer.array();
         }
+        mParameters = paramsBuffer.array();
     }
 
     /**

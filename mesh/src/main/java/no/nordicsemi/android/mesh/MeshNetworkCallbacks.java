@@ -1,9 +1,8 @@
 package no.nordicsemi.android.mesh;
 
-import androidx.annotation.NonNull;
-
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 
 interface MeshNetworkCallbacks {
@@ -35,8 +34,6 @@ interface MeshNetworkCallbacks {
     void onNodeAdded(@NonNull final ProvisionedMeshNode meshNode);
 
     void onNodeUpdated(@NonNull final ProvisionedMeshNode meshNode);
-
-    void onNodesUpdated();
 
     void onGroupAdded(@NonNull final Group group);
 

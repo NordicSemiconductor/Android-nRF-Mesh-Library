@@ -197,7 +197,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.update(network.meshUUID, network.meshName, network.timestamp,
                 network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                 network.lastSelected,
-                MeshTypeConverters.networkExclusionsToJson(network.networkExclusions)));
+                MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions())));
     }
 
     void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork, final boolean lastSelected) throws ExecutionException, InterruptedException {
@@ -220,11 +220,11 @@ abstract class MeshNetworkDb extends RoomDatabase {
             networkDao.update(network.meshUUID, network.meshName, network.timestamp,
                     network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                     network.lastSelected,
-                    MeshTypeConverters.networkExclusionsToJson(network.networkExclusions));
+                    MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions()));
             netKeyDao.update(network.getNetKeys());
             appKeyDao.update(network.getAppKeys());
             provisionersDao.update(network.getProvisioners());
-            nodesDao.update(network.getNodes());
+            nodesDao.update(new ArrayList<>(network.nodes));
             groupsDao.update(network.getGroups());
             sceneDao.update(network.getScenes());
         });
@@ -267,7 +267,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void update(@NonNull final ProvisionerDao dao, @NonNull final List<Provisioner> provisioners) {
-        databaseWriteExecutor.execute(() -> dao.update(new ArrayList<>(provisioners)));
+        databaseWriteExecutor.execute(() -> dao.update(provisioners));
     }
 
     void delete(@NonNull final ProvisionerDao dao, @NonNull final Provisioner provisioner) {
@@ -287,7 +287,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
     }
 
     void update(@NonNull final ProvisionedMeshNodesDao dao, @NonNull final List<ProvisionedMeshNode> nodes) {
-        databaseWriteExecutor.execute(() -> dao.update(new ArrayList<>(nodes)));
+        databaseWriteExecutor.execute(() -> dao.update(nodes));
     }
 
     void deleteNode(@NonNull final ProvisionedMeshNodeDao dao, @NonNull final ProvisionedMeshNode node) {

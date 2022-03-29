@@ -69,17 +69,10 @@ public abstract class MeshModel implements Parcelable {
         this.mModelId = modelId;
     }
 
-    MeshModel() {
-    }
+    MeshModel() {}
 
     protected MeshModel(final Parcel in) {
-
-        final int modelId = in.readInt();
-        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
-            mModelId = modelId;
-        } else {
-            mModelId = (short) modelId;
-        }
+        mModelId = in.readInt();
         in.readList(mBoundAppKeyIndexes, Integer.class.getClassLoader());
         mPublicationSettings = (PublicationSettings) in.readValue(PublicationSettings.class.getClassLoader());
         in.readList(subscriptionAddresses, Integer.class.getClassLoader());

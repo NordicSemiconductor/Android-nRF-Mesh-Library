@@ -23,7 +23,7 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 import androidx.annotation.NonNull;
-
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
@@ -41,6 +41,7 @@ public class ProvisioningInputCompleteState extends ProvisioningState {
      * @param internalTransportCallbacks  {@link InternalTransportCallbacks} callbacks
      * @param provisioningStatusCallbacks {@link MeshProvisioningStatusCallbacks} callbacks
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProvisioningInputCompleteState(@NonNull final UnprovisionedMeshNode node,
                                           @NonNull final InternalTransportCallbacks internalTransportCallbacks,
                                           @NonNull final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {

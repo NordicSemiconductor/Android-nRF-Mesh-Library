@@ -27,6 +27,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.InternalProvisioningCallbacks;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
@@ -43,14 +44,23 @@ public class ProvisioningDataState extends ProvisioningState {
     private final InternalProvisioningCallbacks provisioningCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningDataState(@NonNull final InternalProvisioningCallbacks callbacks,
-                                 @NonNull final UnprovisionedMeshNode unprovisionedMeshNode,
-                                 @NonNull final InternalTransportCallbacks mInternalTransportCallbacks,
+    /**
+     * Constructs the provisioning data state.
+     *
+     * @param node                            {@link UnprovisionedMeshNode} node.
+     * @param callbacks                       {@link InternalProvisioningCallbacks} callbacks.
+     * @param internalTransportCallbacks      {@link InternalTransportCallbacks} callbacks.
+     * @param meshProvisioningStatusCallbacks {@link MeshProvisioningStatusCallbacks} callbacks.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisioningDataState(@NonNull final UnprovisionedMeshNode node,
+                                 @NonNull final InternalProvisioningCallbacks callbacks,
+                                 @NonNull final InternalTransportCallbacks internalTransportCallbacks,
                                  @NonNull final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
+        this.mUnprovisionedMeshNode = node;
+        this.mInternalTransportCallbacks = internalTransportCallbacks;
         this.mStatusCallbacks = meshProvisioningStatusCallbacks;
     }
 
@@ -127,9 +137,10 @@ public class ProvisioningDataState extends ProvisioningState {
         Log.v(TAG, "Provisioning data: " + MeshParserUtils.bytesToHex(provisioningData, false));
 
         final byte[] encryptedProvisioningData = SecureUtils.encryptCCM(provisioningData, sessionKey, sessionNonce, 8);
-        Log.v(TAG, "Encrypted provisioning data: " + MeshParserUtils.bytesToHex(encryptedProvisioningData, false));
-
+        if (encryptedProvisioningData == null)
+            throw new IllegalArgumentException("Failed to encrypt provisioning data!");
         buffer = ByteBuffer.allocate(2 + encryptedProvisioningData.length);
+        Log.v(TAG, "Encrypted provisioning data: " + MeshParserUtils.bytesToHex(encryptedProvisioningData, false));
         buffer.put(MeshManagerApi.PDU_TYPE_PROVISIONING);
         buffer.put(TYPE_PROVISIONING_DATA);
         buffer.put(encryptedProvisioningData);

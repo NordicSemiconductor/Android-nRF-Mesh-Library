@@ -22,12 +22,12 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.InternalProvisioningCallbacks;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
@@ -47,12 +47,19 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
     private String authentication;
-    private byte[] authenticationValue;
 
-    public ProvisioningConfirmationState(final InternalProvisioningCallbacks callbacks,
-                                         final UnprovisionedMeshNode node,
-                                         final InternalTransportCallbacks internalTransportCallbacks,
-                                         final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
+    /**
+     * Constructs the provisioning confirmation state.
+     *
+     * @param node                        {@link UnprovisionedMeshNode} node.
+     * @param callbacks                   {@link InternalProvisioningCallbacks} callbacks.
+     * @param internalTransportCallbacks  {@link InternalTransportCallbacks} callbacks.
+     * @param provisioningStatusCallbacks {@link MeshProvisioningStatusCallbacks} callbacks.
+     */
+    public ProvisioningConfirmationState(@NonNull final UnprovisionedMeshNode node,
+                                         @NonNull final InternalProvisioningCallbacks callbacks,
+                                         @NonNull final InternalTransportCallbacks internalTransportCallbacks,
+                                         @NonNull final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
         this.provisioningCallbacks = callbacks;
         this.mNode = node;
@@ -111,6 +118,8 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
         //Generate authentication value from the user input authentication
         final byte[] authenticationValue = generateAuthenticationValue();
+        if (authenticationValue == null)
+            throw new IllegalArgumentException("Invalid authentication value!");
         mNode.setAuthenticationValue(authenticationValue);
         Log.v(TAG, "Authentication value: " + MeshParserUtils.bytesToHex(authenticationValue, false));
 

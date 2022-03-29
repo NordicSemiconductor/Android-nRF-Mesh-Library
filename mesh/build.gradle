@@ -23,12 +23,12 @@ apply plugin: 'com.android.library'
 
 android {
 
-    compileSdkVersion 31
+    compileSdkVersion 32
     group 'no.nordicsemi.android.mesh'
 
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 31
+        targetSdkVersion 32
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -69,19 +69,19 @@ dependencies {
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.google.code.gson:gson:2.8.9'
 
-    implementation 'androidx.room:room-runtime:2.4.1'
-    annotationProcessor 'androidx.room:room-compiler:2.4.1'
-    androidTestImplementation 'androidx.room:room-testing:2.4.1'
+    implementation 'androidx.room:room-runtime:2.4.2'
+    annotationProcessor 'androidx.room:room-compiler:2.4.2'
+    androidTestImplementation 'androidx.room:room-testing:2.4.2'
 
 }
 // === Maven Central configuration ===
 // The following file exists only when Android BLE Library project is opened, but not
 // when the module is loaded to a different project.
-if (rootProject.file('gradle/publish-module.gradle').exists()) {
-    ext {
-        POM_ARTIFACT_ID="mesh"
-        POM_NAME="A Bluetooth Mesh library for Android"
-        POM_PACKAGING="aar"
-    }
-    apply from: rootProject.file('gradle/publish-module.gradle')
-}
+// if (rootProject.file('gradle/publish-module.gradle').exists()) {
+//     ext {
+//         POM_ARTIFACT_ID="mesh"
+//         POM_NAME="A Bluetooth Mesh library for Android"
+//         POM_PACKAGING="aar"
+//     }
+//     apply from: rootProject.file('gradle/publish-module.gradle')
+// }

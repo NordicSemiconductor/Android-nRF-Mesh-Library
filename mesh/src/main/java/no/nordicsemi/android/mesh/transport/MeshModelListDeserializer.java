@@ -40,13 +40,11 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             final int modelId = MeshParserUtils.hexToInt(jsonObject.get("modelId").getAsString());
 
             final MeshModel meshModel = getMeshModel(modelId);
-            if (meshModel != null) {
-                meshModel.mPublicationSettings = deserializePublicationSettings(jsonObject);
-                deserializeSubscription(meshModel, jsonObject);
-                final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
-                meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
-                meshModels.add(meshModel);
-            }
+            meshModel.mPublicationSettings = deserializePublicationSettings(jsonObject);
+            deserializeSubscription(meshModel, jsonObject);
+            final List<Integer> boundKeyIndexes = getBoundAppKeyIndexes(jsonObject);
+            meshModel.mBoundAppKeyIndexes.addAll(boundKeyIndexes);
+            meshModels.add(meshModel);
         }
         return meshModels;
     }
@@ -96,7 +94,6 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
             publishAddress = Integer.parseInt(hexAddress, 16);
         }
 
-        final int index = publish.get("index").getAsInt();
         final int ttl = publish.get("ttl").getAsByte();
 
         //Previous version stored the publication period as resolution and steps.
@@ -217,7 +214,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      */
     private JsonObject serializePublicationSettings(final PublicationSettings settings) {
         final JsonObject publicationJson = new JsonObject();
-        if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress())) {
+        if (MeshAddress.isValidVirtualAddress(settings.getPublishAddress()) && settings.getLabelUUID() != null) {
             publicationJson.addProperty("address", MeshParserUtils.uuidToHex(settings.getLabelUUID()));
         } else {
             publicationJson.addProperty("address", MeshAddress.formatAddress(settings.getPublishAddress(), false));
@@ -259,7 +256,7 @@ public final class MeshModelListDeserializer implements JsonSerializer<List<Mesh
      * @return {@link MeshModel}
      */
     private MeshModel getMeshModel(final int modelId) {
-        if (modelId < Short.MIN_VALUE || modelId > Short.MAX_VALUE) {
+        if (MeshParserUtils.isVendorModel(modelId)) {
             return new VendorModel(modelId);
         } else {
             return SigModelParser.getSigModel(modelId);

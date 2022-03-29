@@ -23,7 +23,7 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 import androidx.annotation.NonNull;
-
+import androidx.annotation.RestrictTo;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
@@ -31,17 +31,29 @@ import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
 public class ProvisioningInviteState extends ProvisioningState {
 
     private final String TAG = ProvisioningInviteState.class.getSimpleName();
-    private final UnprovisionedMeshNode mUnprovisionedMeshNode;
+    private final UnprovisionedMeshNode node;
     private final int attentionTimer;
     private final MeshProvisioningStatusCallbacks mStatusCallbacks;
     private final InternalTransportCallbacks mInternalTransportCallbacks;
 
-    public ProvisioningInviteState(final UnprovisionedMeshNode unprovisionedMeshNode, final int attentionTimer, final InternalTransportCallbacks mInternalTransportCallbacks, final MeshProvisioningStatusCallbacks meshProvisioningStatusCallbacks) {
+    /**
+     * Constructs the provisioning invite state.
+     *
+     * @param node                        {@link UnprovisionedMeshNode} node.
+     * @param attentionTimer              Duration of attention timer.
+     * @param internalTransportCallbacks  {@link InternalTransportCallbacks} callbacks.
+     * @param provisioningStatusCallbacks {@link MeshProvisioningStatusCallbacks} callbacks.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public ProvisioningInviteState(final UnprovisionedMeshNode node,
+                                   final int attentionTimer,
+                                   final InternalTransportCallbacks internalTransportCallbacks,
+                                   final MeshProvisioningStatusCallbacks provisioningStatusCallbacks) {
         super();
-        this.mUnprovisionedMeshNode = unprovisionedMeshNode;
+        this.node = node;
         this.attentionTimer = attentionTimer;
-        this.mStatusCallbacks = meshProvisioningStatusCallbacks;
-        this.mInternalTransportCallbacks = mInternalTransportCallbacks;
+        this.mStatusCallbacks = provisioningStatusCallbacks;
+        this.mInternalTransportCallbacks = internalTransportCallbacks;
     }
 
     @Override
@@ -53,9 +65,9 @@ public class ProvisioningInviteState extends ProvisioningState {
     public void executeSend() {
         final byte[] invitePDU = createInvitePDU();
         //We store the provisioning invite pdu to be used when generating confirmation inputs
-        mUnprovisionedMeshNode.setProvisioningInvitePdu(invitePDU);
-        mStatusCallbacks.onProvisioningStateChanged(mUnprovisionedMeshNode, States.PROVISIONING_INVITE, invitePDU);
-        mInternalTransportCallbacks.sendProvisioningPdu(mUnprovisionedMeshNode, invitePDU);
+        node.setProvisioningInvitePdu(invitePDU);
+        mStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_INVITE, invitePDU);
+        mInternalTransportCallbacks.sendProvisioningPdu(node, invitePDU);
     }
 
     @Override

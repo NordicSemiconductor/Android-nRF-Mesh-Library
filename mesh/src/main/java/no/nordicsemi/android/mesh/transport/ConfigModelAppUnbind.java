@@ -74,7 +74,7 @@ public final class ConfigModelAppUnbind extends ConfigMessage {
         final ByteBuffer paramsBuffer;
         final byte[] applicationKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKeyIndex);
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
-        if (mModelIdentifier >= Short.MIN_VALUE && mModelIdentifier <= Short.MAX_VALUE) {
+        if (!MeshParserUtils.isVendorModel(mModelIdentifier)) {
             paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_KEY_BIND_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mElementAddress);
             paramsBuffer.put(applicationKeyIndex[1]);
