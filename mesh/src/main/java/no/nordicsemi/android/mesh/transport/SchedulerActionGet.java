@@ -17,15 +17,13 @@ import static android.content.ContentValues.TAG;
 public class SchedulerActionGet extends ApplicationMessage {
 
     private static final int OP_CODE = ApplicationMessageOpCodes.SCHEDULER_ACTION_GET;
-    private static final int SCHEDULER_ACTION_GET_INDEX_PARAMS_LENGTH = 1;
-
     private final int index;
 
 
     /**
      * Scheduler Action Get is an acknowledged message used to report the action defined by the entry of
      * the Schedule Register state of an element (see Mesh Model Spec. v1.0.1 Section 5.1.4.2), identified by the Index field.
-     *
+     * <p>
      * The response to the Scheduler Action Get message is a Scheduler Action Status message.
      *
      * @param appKey the appkey
@@ -45,11 +43,8 @@ public class SchedulerActionGet extends ApplicationMessage {
     @Override
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
-        Log.v(TAG, "Index: " + index);
-        BitWriter bitWriter = new BitWriter(SCHEDULER_ACTION_GET_INDEX_PARAMS_LENGTH);
-        bitWriter.write(index, SCHEDULER_ACTION_GET_INDEX_PARAMS_LENGTH);
+        Log.v(TAG, SchedulerActionGet.class.getSimpleName() +  " with index: " + index);
 
-        mParameters = bitWriter.toByteArray();
-
+        mParameters = new byte[] { (byte) index };
     }
 }
