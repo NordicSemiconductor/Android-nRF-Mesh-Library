@@ -154,10 +154,10 @@ abstract class MeshNetworkDb extends RoomDatabase {
             }
 
             if (meshNetwork.groups != null) {
-                groupsDao.insert(new ArrayList<>(meshNetwork.groups));
+                groupsDao.insert(new ArrayList<>(meshNetwork.getGroups()));
             }
             if (meshNetwork.scenes != null) {
-                scenesDao.insert(new ArrayList<>(meshNetwork.scenes));
+                scenesDao.insert(new ArrayList<>(meshNetwork.getScenes()));
             }
         });
     }
