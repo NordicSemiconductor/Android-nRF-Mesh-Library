@@ -40,22 +40,29 @@ android {
     buildFeatures {
         viewBinding true
     }
-    buildTypes {
+    signingConfigs {
         release {
+            storeFile file('../keystore')
+            storePassword System.env.KEYSTORE_PSWD
+            keyAlias System.env.KEYSTORE_ALIAS
+            keyPassword System.env.KEYSTORE_KEY_PSWD
+        }
+    }
+    buildTypes {
+        debug {
             minifyEnabled false
-            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
-    compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
-    }
-
-    configurations.all {
-        resolutionStrategy.force 'com.android.support:multidex:1.0.2'
-    }
+//    configurations.all {
+//        resolutionStrategy.force 'com.android.support:multidex:1.0.2'
+//    }
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
