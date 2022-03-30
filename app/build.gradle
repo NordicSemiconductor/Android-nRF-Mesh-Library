@@ -59,10 +59,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-//    configurations.all {
-//        resolutionStrategy.force 'com.android.support:multidex:1.0.2'
-//    }
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
