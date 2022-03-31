@@ -152,7 +152,6 @@ abstract class MeshNetworkDb extends RoomDatabase {
             if (!meshNetwork.nodes.isEmpty()) {
                 nodesDao.insert(new ArrayList<>(meshNetwork.getNodes()));
             }
-
             if (meshNetwork.groups != null) {
                 groupsDao.insert(new ArrayList<>(meshNetwork.getGroups()));
             }
@@ -196,7 +195,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.update(network.meshUUID, network.meshName, network.timestamp,
                 network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                 network.lastSelected,
-                MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions())));
+                MeshTypeConverters.networkExclusionsToJson(new HashMap<>(network.getNetworkExclusions()))));
     }
 
     void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork, final boolean lastSelected) throws ExecutionException, InterruptedException {
