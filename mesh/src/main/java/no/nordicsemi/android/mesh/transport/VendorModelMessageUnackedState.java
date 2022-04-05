@@ -7,6 +7,8 @@ import java.util.UUID;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.ApplicationKey;
+import no.nordicsemi.android.mesh.InternalTransportCallbacks;
+import no.nordicsemi.android.mesh.MeshStatusCallbacks;
 
 class VendorModelMessageUnackedState extends ApplicationMessageState {
 
@@ -19,15 +21,19 @@ class VendorModelMessageUnackedState extends ApplicationMessageState {
      * @param dst                       Destination address to which the message must be sent to
      * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the
      *                                  opcode and parameters for {@link VendorModelMessageStatus} message
-     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param handlerCallbacks          {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param transportCallbacks        {@link InternalTransportCallbacks} callbacks
+     * @param statusCallbacks           {@link MeshStatusCallbacks} callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */
     VendorModelMessageUnackedState(final int src,
                                    final int dst,
                                    @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
                                    @NonNull final MeshTransport meshTransport,
-                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        this(src, dst, null, vendorModelMessageUnacked, meshTransport, callbacks);
+                                   @NonNull final InternalMeshMsgHandlerCallbacks handlerCallbacks,
+                                   @NonNull final InternalTransportCallbacks transportCallbacks,
+                                   @NonNull  final MeshStatusCallbacks statusCallbacks) throws IllegalArgumentException {
+        this(src, dst, null, vendorModelMessageUnacked, meshTransport, handlerCallbacks, transportCallbacks, statusCallbacks);
     }
 
     /**
@@ -38,7 +44,9 @@ class VendorModelMessageUnackedState extends ApplicationMessageState {
      * @param label                     Label UUID of destination address
      * @param vendorModelMessageUnacked Wrapper class {@link VendorModelMessageStatus} containing the
      *                                  opcode and parameters for {@link VendorModelMessageStatus} message
-     * @param callbacks                 {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param handlerCallbacks          {@link InternalMeshMsgHandlerCallbacks} for internal callbacks
+     * @param transportCallbacks        {@link InternalTransportCallbacks} callbacks
+     * @param statusCallbacks           {@link MeshStatusCallbacks} callbacks
      * @throws IllegalArgumentException exception for invalid arguments
      */
     VendorModelMessageUnackedState(final int src,
@@ -46,8 +54,10 @@ class VendorModelMessageUnackedState extends ApplicationMessageState {
                                    @Nullable UUID label,
                                    @NonNull final VendorModelMessageUnacked vendorModelMessageUnacked,
                                    @NonNull final MeshTransport meshTransport,
-                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) throws IllegalArgumentException {
-        super(src, dst, vendorModelMessageUnacked, meshTransport, callbacks);
+                                   @NonNull final InternalMeshMsgHandlerCallbacks handlerCallbacks,
+                                   @NonNull final InternalTransportCallbacks transportCallbacks,
+                                   @NonNull  final MeshStatusCallbacks statusCallbacks) throws IllegalArgumentException {
+        super(src, dst, vendorModelMessageUnacked, meshTransport, handlerCallbacks, transportCallbacks, statusCallbacks);
     }
 
     @Override

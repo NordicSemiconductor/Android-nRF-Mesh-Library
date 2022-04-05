@@ -10,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
+import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
+import no.nordicsemi.android.mesh.MeshStatusCallbacks;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
@@ -39,14 +41,18 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     /**
      * Constructs the DefaultNoOperationMessageState
      *
-     * @param meshMessage   {@link MeshMessage} Mesh message to be sent
-     * @param meshTransport {@link MeshTransport} Mesh transport
-     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param meshMessage        {@link MeshMessage} Mesh message to be sent
+     * @param meshTransport      {@link MeshTransport} Mesh transport
+     * @param handlerCallbacks   {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param transportCallbacks {@link InternalTransportCallbacks} callbacks
+     * @param statusCallbacks    {@link MeshStatusCallbacks} callbacks
      */
     DefaultNoOperationMessageState(@Nullable final MeshMessage meshMessage,
                                    @NonNull final MeshTransport meshTransport,
-                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(meshMessage, meshTransport, callbacks);
+                                   @NonNull final InternalMeshMsgHandlerCallbacks handlerCallbacks,
+                                   @NonNull final InternalTransportCallbacks transportCallbacks,
+                                   @NonNull  final MeshStatusCallbacks statusCallbacks) {
+        super(meshMessage, meshTransport, handlerCallbacks, transportCallbacks, statusCallbacks);
     }
 
     @Override
