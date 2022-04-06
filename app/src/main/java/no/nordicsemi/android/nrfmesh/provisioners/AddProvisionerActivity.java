@@ -22,8 +22,8 @@
 
 package no.nordicsemi.android.nrfmesh.provisioners;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,9 +70,11 @@ public class AddProvisionerActivity extends AppCompatActivity implements
         mViewModel = new ViewModelProvider(this).get(AddProvisionerViewModel.class);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setTitle(R.string.title_add_provisioner);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.title_add_provisioner);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
+        }
 
         binding.containerName.image.
                 setBackground(ContextCompat.getDrawable(this, R.drawable.ic_label_outline));
@@ -163,9 +165,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements
                 final AllocatedUnicastRange unicastRange = network.nextAvailableUnicastAddressRange(0x199A);
                 final AllocatedGroupRange groupRange = network.nextAvailableGroupAddressRange(0x0C9A);
                 final AllocatedSceneRange sceneRange = network.nextAvailableSceneAddressRange(0x3334);
-                final Provisioner provisioner = network.createProvisioner("nRF Mesh Provisioner", unicastRange, groupRange, sceneRange);
-                final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-                provisioner.setProvisionerName(adapter.getName());
+                final Provisioner provisioner = network.createProvisioner(Build.MODEL, unicastRange, groupRange, sceneRange);
                 mViewModel.setSelectedProvisioner(provisioner);
             }
         }
@@ -189,7 +189,7 @@ public class AddProvisionerActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int id = item.getItemId();
-        if(id == android.R.id.home){
+        if (id == android.R.id.home) {
             onBackPressed();
             return true;
         } else if (id == R.id.action_save) {
@@ -292,7 +292,8 @@ public class AddProvisionerActivity extends AppCompatActivity implements
                 return network.addProvisioner(mProvisioner);
             } catch (IllegalArgumentException ex) {
                 final DialogFragmentError fragment = DialogFragmentError.
-                        newInstance(getString(R.string.title_error), ex.getMessage());
+                        newInstance(getString(R.string.title_error), ex.getMessage() == null ?
+                                getString(R.string.unknwon_error) : ex.getMessage());
                 fragment.show(getSupportFragmentManager(), null);
             }
         }
