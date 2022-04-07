@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
@@ -49,19 +50,17 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapter.ViewHolder> {
 
+    private final AsyncListDiffer<Integer> differ = new AsyncListDiffer<>(this, new GroupAddressDiffCallback());
     private final MeshNetwork network;
-    private final ArrayList<Integer> mAddresses = new ArrayList<>();
 
     public GroupAddressAdapter(@NonNull final Context context, @NonNull final MeshNetwork network,
                                @NonNull final LiveData<MeshModel> meshModelLiveData) {
         this.network = network;
         meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
             if (meshModel != null) {
-                final List<Integer> tempAddresses = meshModel.getSubscribedAddresses();
-                if (tempAddresses != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(tempAddresses);
-                    notifyDataSetChanged();
+                final List<Integer> addresses = meshModel.getSubscribedAddresses();
+                if (addresses != null) {
+                    differ.submitList(new ArrayList<>(addresses));
                 }
             }
         });
@@ -71,7 +70,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
     @Override
     public GroupAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
                                                              final int viewType) {
-        return new GroupAddressAdapter.ViewHolder(
+        return new ViewHolder(
                 AddressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent,
                         false));
     }
@@ -79,7 +78,7 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
     @Override
     public void onBindViewHolder(@NonNull final GroupAddressAdapter.ViewHolder holder,
                                  final int position) {
-        final int address = mAddresses.get(position);
+        final int address = differ.getCurrentList().get(position);
         if (address == MeshAddress.ALL_PROXIES_ADDRESS) {
             holder.name.setText(AddressType.getTypeName(AddressType.ALL_PROXIES));
         } else if (address == MeshAddress.ALL_RELAYS_ADDRESS) {
@@ -105,14 +104,14 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
-    public final class ViewHolder extends RemovableViewHolder {
+    public static final class ViewHolder extends RemovableViewHolder {
         ImageView icon;
         TextView name;
         TextView address;
