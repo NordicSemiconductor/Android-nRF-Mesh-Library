@@ -1005,6 +1005,11 @@ public class MeshManagerApi implements MeshMngrApi {
         }
 
         @Override
+        public void addGroup(final Group group) {
+            mMeshNetwork.addGroup(group);
+        }
+
+        @Override
         public void storeScene(final int address, final int currentScene, final List<Integer> scenes) {
             final Scene scene = mMeshNetwork.getScene(currentScene);
             if (scene != null && !scene.getAddresses().contains(address)) {
