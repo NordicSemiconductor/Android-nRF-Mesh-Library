@@ -67,11 +67,11 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="@string/title_group_address"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/icon"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/title_group_address" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/title"
@@ -79,11 +79,10 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="0xCEED"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/address_id"
             app:layout_constraintTop_toBottomOf="@id/address_id"
-            tools:ignore="HardcodedText" />
+            tools:text="0xCEED" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

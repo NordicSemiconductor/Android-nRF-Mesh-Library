@@ -52,14 +52,15 @@ import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentGroupSubscription
 import no.nordicsemi.android.nrfmesh.utils.HexKeyListener;
 import no.nordicsemi.android.nrfmesh.utils.Utils;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_FRIENDS;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_PROXIES;
+import static no.nordicsemi.android.mesh.utils.AddressType.ALL_RELAYS;
 import static no.nordicsemi.android.mesh.utils.AddressType.GROUP_ADDRESS;
 import static no.nordicsemi.android.mesh.utils.AddressType.VIRTUAL_ADDRESS;
 
 public class DialogFragmentGroupSubscription extends DialogFragment {
 
-    private static final AddressType[] ADDRESS_TYPES = {GROUP_ADDRESS, VIRTUAL_ADDRESS};
+    private static final AddressType[] ADDRESS_TYPES = {GROUP_ADDRESS, VIRTUAL_ADDRESS, ALL_RELAYS, ALL_PROXIES, ALL_FRIENDS};
     private static final String GROUPS = "GROUPS";
     private static final String GROUP = "GROUP";
 
@@ -122,7 +123,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
         mAdapterSpinner = new AddressTypeAdapter(ADDRESS_TYPES);
         binding.addressTypes.setAdapter(mAdapterSpinner);
 
-        binding.groupContainer.groups.setAdapter( new GroupAdapterSpinner(mGroups));
+        binding.groupContainer.groups.setAdapter(new GroupAdapterSpinner(mGroups));
 
         if (mGroups.isEmpty()) {
             binding.groupContainer.radioSelectGroup.setEnabled(false);
@@ -204,7 +205,7 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                         ((GroupCallbacks) requireActivity()).subscribe(group);
                         dismiss();
                     }
-                } else {
+                } else if (type == VIRTUAL_ADDRESS) {
                     final UUID uuid = UUID.fromString(binding.uuidLabel.getText().toString().trim());
                     final String name = binding.nameInput.getEditableText().toString().trim();
                     final Group group = ((GroupCallbacks) requireActivity()).createGroup(uuid, name);
@@ -213,6 +214,15 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
                             dismiss();
                         }
                     }
+                } else if (type == ALL_RELAYS) {
+                    ((GroupCallbacks) requireActivity()).subscribe(MeshAddress.ALL_RELAYS_ADDRESS);
+                    dismiss();
+                } else if (type == ALL_PROXIES) {
+                    ((GroupCallbacks) requireActivity()).subscribe(MeshAddress.ALL_PROXIES_ADDRESS);
+                    dismiss();
+                } else if (type == ALL_FRIENDS) {
+                    ((GroupCallbacks) requireActivity()).subscribe(MeshAddress.ALL_FRIENDS_ADDRESS);
+                    dismiss();
                 }
             } catch (IllegalArgumentException ex) {
                 binding.groupAddressLayout.setError(ex.getMessage());
@@ -242,23 +252,52 @@ public class DialogFragmentGroupSubscription extends DialogFragment {
     }
 
     private void updateAddress(@NonNull final AddressType addressType) {
-        if (addressType == VIRTUAL_ADDRESS) {
-            binding.labelSummary.setVisibility(VISIBLE);
-            binding.uuidLabel.setVisibility(VISIBLE);
-            mGenerateLabelUUID.setVisibility(VISIBLE);
-            binding.groupContainer.getRoot().setVisibility(GONE);
-            binding.groupNameLayout.setEnabled(true);
-            binding.groupNameLayout.setError(null);
-            binding.groupAddressLayout.setError(null);
-            binding.groupAddressLayout.setEnabled(false);
-            generateVirtualAddress(UUID.fromString(binding.uuidLabel.getText().toString()));
-        } else {
-            binding.groupContainer.getRoot().setVisibility(VISIBLE);
-            binding.labelSummary.setVisibility(GONE);
-            binding.uuidLabel.setVisibility(GONE);
-            mGenerateLabelUUID.setVisibility(GONE);
-            updateGroup();
+
+        switch (addressType) {
+            default:
+            case GROUP_ADDRESS:
+                binding.groupContainer.groups.setSelection(0);
+                binding.groupAddressLayout.setEnabled(false);
+                binding.groupNameLayout.setVisibility(View.VISIBLE);
+                binding.groupContainer.getRoot().setVisibility(View.VISIBLE);
+                binding.labelContainer.setVisibility(View.GONE);
+                mGenerateLabelUUID.setVisibility(View.GONE);
+                final Group group = ((GroupCallbacks) requireActivity())
+                        .createGroup(binding.nameInput.getEditableText().toString().trim());
+                if (group != null) {
+                    binding.addressInput.setText(MeshAddress.formatAddress(group.getAddress(), false));
+                }
+                break;
+            case VIRTUAL_ADDRESS:
+                binding.labelContainer.setVisibility(View.VISIBLE);
+                mGenerateLabelUUID.setVisibility(View.VISIBLE);
+                binding.groupAddressLayout.setEnabled(false);
+                binding.groupNameLayout.setEnabled(true);
+                binding.groupNameLayout.setVisibility(View.VISIBLE);
+                binding.groupContainer.getRoot().setVisibility(View.VISIBLE);
+                binding.groupContainer.getRoot().setVisibility(View.GONE);
+                generateVirtualAddress(UUID.fromString(binding.uuidLabel.getText().toString()));
+                break;
+            case ALL_PROXIES:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_PROXIES_ADDRESS, false);
+                break;
+            case ALL_FRIENDS:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_FRIENDS_ADDRESS, false);
+                break;
+            case ALL_RELAYS:
+                updateFixedGroupAddressVisibility(MeshAddress.ALL_RELAYS_ADDRESS, false);
+                break;
+
         }
+    }
+
+    private void updateFixedGroupAddressVisibility(final int address, final boolean enabled) {
+        binding.addressInput.setText(MeshAddress.formatAddress(address, false));
+        binding.groupAddressLayout.setEnabled(enabled);
+        binding.groupNameLayout.setVisibility(View.GONE);
+        binding.groupContainer.getRoot().setVisibility(View.GONE);
+        binding.labelContainer.setVisibility(View.GONE);
+        mGenerateLabelUUID.setVisibility(View.GONE);
     }
 
     private void generateVirtualAddress(@NonNull final UUID uuid) {
