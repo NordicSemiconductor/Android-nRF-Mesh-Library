@@ -175,7 +175,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         mViewModel = new ViewModelProvider(this).get(ModelConfigurationViewModel.class);
         initialize();
         final MeshModel meshModel = mViewModel.getSelectedModel().getValue();
-        if(meshModel != null) {
+        if (meshModel != null) {
             setSupportActionBar(binding.toolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -325,6 +325,22 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
     }
 
     @Override
+    public void subscribe(final int address) {
+        final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
+        if (meshNode != null) {
+            final Element element = mViewModel.getSelectedElement().getValue();
+            if (element != null) {
+                final int elementAddress = element.getElementAddress();
+                final MeshModel model = mViewModel.getSelectedModel().getValue();
+                if (model != null) {
+                    final int modelIdentifier = model.getModelId();
+                    sendAcknowledgedMessage(meshNode.getUnicastAddress(), new ConfigModelSubscriptionAdd(elementAddress, address, modelIdentifier));
+                }
+            }
+        }
+    }
+
+    @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         final int position = viewHolder.getAbsoluteAdapterPosition();
         if (viewHolder instanceof BoundAppKeysAdapter.ViewHolder) {
@@ -377,7 +393,7 @@ public abstract class BaseModelConfigurationActivity extends BaseActivity implem
         }
     }
 
-    protected final void sendQueuedMessage(final int address){
+    protected final void sendQueuedMessage(final int address) {
         final MeshMessage message = mViewModel.getMessageQueue().peek();
         if (message != null)
             sendAcknowledgedMessage(address, message);

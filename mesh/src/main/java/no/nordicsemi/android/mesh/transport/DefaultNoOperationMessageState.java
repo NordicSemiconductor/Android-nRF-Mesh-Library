@@ -10,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
+import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshNetwork;
+import no.nordicsemi.android.mesh.MeshStatusCallbacks;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
@@ -30,6 +32,7 @@ import no.nordicsemi.android.mesh.utils.RelaySettings;
 
 import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.ALL_PROXIES_ADDRESS;
 import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnassignedAddress;
 
 class DefaultNoOperationMessageState extends MeshMessageState {
@@ -39,14 +42,18 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     /**
      * Constructs the DefaultNoOperationMessageState
      *
-     * @param meshMessage   {@link MeshMessage} Mesh message to be sent
-     * @param meshTransport {@link MeshTransport} Mesh transport
-     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param meshMessage        {@link MeshMessage} Mesh message to be sent
+     * @param meshTransport      {@link MeshTransport} Mesh transport
+     * @param handlerCallbacks   {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param transportCallbacks {@link InternalTransportCallbacks} callbacks
+     * @param statusCallbacks    {@link MeshStatusCallbacks} callbacks
      */
     DefaultNoOperationMessageState(@Nullable final MeshMessage meshMessage,
                                    @NonNull final MeshTransport meshTransport,
-                                   @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(meshMessage, meshTransport, callbacks);
+                                   @NonNull final InternalMeshMsgHandlerCallbacks handlerCallbacks,
+                                   @NonNull final InternalTransportCallbacks transportCallbacks,
+                                   @NonNull final MeshStatusCallbacks statusCallbacks) {
+        super(meshMessage, meshTransport, handlerCallbacks, transportCallbacks, statusCallbacks);
     }
 
     @Override
@@ -160,7 +167,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), schedulerActionStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_ADMIN_PROPERTY_STATUS ||
                         message.getOpCode() == ApplicationMessageOpCodes.GENERIC_MANUFACTURER_PROPERTY_STATUS ||
-                        message.getOpCode() == ApplicationMessageOpCodes.GENERIC_USER_PROPERTY_STATUS){
+                        message.getOpCode() == ApplicationMessageOpCodes.GENERIC_USER_PROPERTY_STATUS) {
                     final GenericPropertyStatus status = new GenericPropertyStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
@@ -615,11 +622,13 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     private void createGroups(@NonNull final List<Integer> subscriptionAddresses) {
         final MeshNetwork network = mInternalTransportCallbacks.getMeshNetwork();
         for (Integer groupAddress : subscriptionAddresses) {
-            Group group = network.getGroup(groupAddress);
-            if (group == null) {
-                group = new Group(groupAddress, network.getMeshUUID());
-                group.setName("Unknown Group");
-                network.getGroups().add(group);
+            if (groupAddress < ALL_PROXIES_ADDRESS) {
+                Group group = network.getGroup(groupAddress);
+                if (group == null) {
+                    group = new Group(groupAddress, network.getMeshUUID());
+                    group.setName("Unknown Group");
+                    mInternalTransportCallbacks.addGroup(group);
+                }
             }
         }
     }

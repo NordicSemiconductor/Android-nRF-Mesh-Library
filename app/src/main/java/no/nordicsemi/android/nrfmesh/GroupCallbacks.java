@@ -82,4 +82,13 @@ public interface GroupCallbacks {
     default void subscribe(final Group group) {
         //Default implementation
     }
+
+    /**
+     * Subscribe to a group
+     *
+     * @param address address
+     */
+    default void subscribe(final int address) {
+        //Default implementation
+    }
 }

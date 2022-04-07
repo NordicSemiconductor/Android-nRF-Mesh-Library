@@ -26,10 +26,6 @@
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
     <!--
 	 Bluetooth permission is required on Android 4.3 - 11 in order to communicate with
 	 Bluetooth LE devices.

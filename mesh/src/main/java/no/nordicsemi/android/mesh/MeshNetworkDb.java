@@ -146,19 +146,17 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> {
 
             meshNetworkDao.insert(meshNetwork);
-            netKeysDao.insert(meshNetwork.getNetKeys());
-            appKeysDao.insert(meshNetwork.getAppKeys());
-            provisionersDao.insert(meshNetwork.getProvisioners());
+            netKeysDao.insert(new ArrayList<>(meshNetwork.netKeys));
+            appKeysDao.insert(new ArrayList<>(meshNetwork.appKeys));
+            provisionersDao.insert(new ArrayList<>(meshNetwork.provisioners));
             if (!meshNetwork.nodes.isEmpty()) {
-                nodesDao.insert(meshNetwork.getNodes());
+                nodesDao.insert(new ArrayList<>(meshNetwork.nodes));
             }
-
             if (meshNetwork.groups != null) {
-                groupsDao.insert(meshNetwork.getGroups());
+                groupsDao.insert(new ArrayList<>(meshNetwork.groups));
             }
-
             if (meshNetwork.scenes != null) {
-                scenesDao.insert(meshNetwork.getScenes());
+                scenesDao.insert(new ArrayList<>(meshNetwork.scenes));
             }
         });
     }
@@ -197,7 +195,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
         databaseWriteExecutor.execute(() -> dao.update(network.meshUUID, network.meshName, network.timestamp,
                 network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                 network.lastSelected,
-                MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions())));
+                MeshTypeConverters.networkExclusionsToJson(new HashMap<>(network.getNetworkExclusions()))));
     }
 
     void update(@NonNull final MeshNetworkDao dao, @NonNull final MeshNetwork meshNetwork, final boolean lastSelected) throws ExecutionException, InterruptedException {
@@ -221,12 +219,12 @@ abstract class MeshNetworkDb extends RoomDatabase {
                     network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                     network.lastSelected,
                     MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions()));
-            netKeyDao.update(network.getNetKeys());
-            appKeyDao.update(network.getAppKeys());
-            provisionersDao.update(network.getProvisioners());
+            netKeyDao.update(new ArrayList<>(network.netKeys));
+            appKeyDao.update(new ArrayList<>(network.appKeys));
+            provisionersDao.update(new ArrayList<>(network.provisioners));
             nodesDao.update(new ArrayList<>(network.nodes));
-            groupsDao.update(network.getGroups());
-            sceneDao.update(network.getScenes());
+            groupsDao.update(new ArrayList<>(network.groups));
+            sceneDao.update(new ArrayList<>(network.scenes));
         });
     }
 

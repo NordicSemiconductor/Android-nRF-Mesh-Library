@@ -37,10 +37,12 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.RecyclerView;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.MeshNetwork;
 import no.nordicsemi.android.mesh.transport.MeshModel;
+import no.nordicsemi.android.mesh.utils.AddressType;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.AddressItemBinding;
@@ -48,18 +50,17 @@ import no.nordicsemi.android.nrfmesh.widgets.RemovableViewHolder;
 
 public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapter.ViewHolder> {
 
+    private final AsyncListDiffer<Integer> differ = new AsyncListDiffer<>(this, new GroupAddressDiffCallback());
     private final MeshNetwork network;
-    private final ArrayList<Integer> mAddresses = new ArrayList<>();
 
-    public GroupAddressAdapter(@NonNull final Context context, @NonNull final MeshNetwork network, @NonNull final LiveData<MeshModel> meshModelLiveData) {
+    public GroupAddressAdapter(@NonNull final Context context, @NonNull final MeshNetwork network,
+                               @NonNull final LiveData<MeshModel> meshModelLiveData) {
         this.network = network;
         meshModelLiveData.observe((LifecycleOwner) context, meshModel -> {
             if (meshModel != null) {
-                final List<Integer> tempAddresses = meshModel.getSubscribedAddresses();
-                if (tempAddresses != null) {
-                    mAddresses.clear();
-                    mAddresses.addAll(tempAddresses);
-                    notifyDataSetChanged();
+                final List<Integer> addresses = meshModel.getSubscribedAddresses();
+                if (addresses != null) {
+                    differ.submitList(new ArrayList<>(addresses));
                 }
             }
         });
@@ -67,21 +68,33 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
 
     @NonNull
     @Override
-    public GroupAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        return new GroupAddressAdapter.ViewHolder(AddressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+    public GroupAddressAdapter.ViewHolder onCreateViewHolder(@NonNull final ViewGroup parent,
+                                                             final int viewType) {
+        return new ViewHolder(
+                AddressItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent,
+                        false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final GroupAddressAdapter.ViewHolder holder, final int position) {
-        if (mAddresses.size() > 0) {
-            final int address = mAddresses.get(position);
+    public void onBindViewHolder(@NonNull final GroupAddressAdapter.ViewHolder holder,
+                                 final int position) {
+        final int address = differ.getCurrentList().get(position);
+        if (address == MeshAddress.ALL_PROXIES_ADDRESS) {
+            holder.name.setText(AddressType.getTypeName(AddressType.ALL_PROXIES));
+        } else if (address == MeshAddress.ALL_RELAYS_ADDRESS) {
+            holder.name.setText(AddressType.getTypeName(AddressType.ALL_RELAYS));
+        } else if (address == MeshAddress.ALL_FRIENDS_ADDRESS) {
+            holder.name.setText(AddressType.getTypeName(AddressType.ALL_FRIENDS));
+        } else {
             final Group group = network.getGroup(address);
             if (group != null) {
-                holder.icon.setImageDrawable(ContextCompat.getDrawable(holder.getSwipeableView().getContext(), R.drawable.ic_outline_group_24dp));
+                holder.icon.setImageDrawable(
+                        ContextCompat.getDrawable(holder.getSwipeableView().getContext(),
+                                R.drawable.ic_outline_group_24dp));
                 holder.name.setText(group.getName());
-                holder.address.setText(MeshAddress.formatAddress(address, true));
             }
         }
+        holder.address.setText(MeshAddress.formatAddress(address, true));
     }
 
     @Override
@@ -91,14 +104,14 @@ public class GroupAddressAdapter extends RecyclerView.Adapter<GroupAddressAdapte
 
     @Override
     public int getItemCount() {
-        return mAddresses.size();
+        return differ.getCurrentList().size();
     }
 
     public boolean isEmpty() {
         return getItemCount() == 0;
     }
 
-    public final class ViewHolder extends RemovableViewHolder {
+    public static final class ViewHolder extends RemovableViewHolder {
         ImageView icon;
         TextView name;
         TextView address;

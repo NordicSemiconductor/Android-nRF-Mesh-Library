@@ -24,6 +24,9 @@ package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
 
+import no.nordicsemi.android.mesh.InternalTransportCallbacks;
+import no.nordicsemi.android.mesh.MeshStatusCallbacks;
+
 /**
  * This generic state class handles the proxy configuration messages received or sent.
  * <p>
@@ -38,18 +41,22 @@ class ProxyConfigMessageState extends MeshMessageState {
     /**
      * Constructs the ProxyConfigMessageState for sending/receiving proxy configuration messages
      *
-     * @param src           Source address
-     * @param dst           Destination address
-     * @param meshMessage   {@link MeshMessage} Mesh proxy config message
-     * @param meshTransport {@link MeshTransport} Mesh transport
-     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} Internal callbacks
+     * @param src                Source address
+     * @param dst                Destination address
+     * @param meshMessage        {@link MeshMessage} Mesh proxy config message
+     * @param meshTransport      {@link MeshTransport} Mesh transport
+     * @param handlerCallbacks   {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param transportCallbacks {@link InternalTransportCallbacks} callbacks
+     * @param statusCallbacks    {@link MeshStatusCallbacks} callbacks
      */
     ProxyConfigMessageState(final int src,
                             final int dst,
                             @NonNull final MeshMessage meshMessage,
                             @NonNull final MeshTransport meshTransport,
-                            @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(meshMessage, meshTransport, callbacks);
+                            @NonNull final InternalMeshMsgHandlerCallbacks handlerCallbacks,
+                            @NonNull final InternalTransportCallbacks transportCallbacks,
+                            @NonNull  final MeshStatusCallbacks statusCallbacks) {
+        super(meshMessage, meshTransport, handlerCallbacks, transportCallbacks, statusCallbacks);
         this.mSrc = src;
         this.mDst = dst;
         createControlMessage();
