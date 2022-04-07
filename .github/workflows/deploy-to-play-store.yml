@@ -1,0 +1,24 @@
+name: Deploy to Play Store Internal
+on:
+  workflow_dispatch:
+jobs:
+  deployAabToGooglePlayInternal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - shell: bash
+        env:
+          # The following env variables are used by signing configuration in sample/build.gradle
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_KEY_PSWD: ${{ secrets.KEYSTORE_KEY_PSWD }}
+          KEYSTORE_PSWD: ${{ secrets.KEYSTORE_PSWD }}
+        # The script decodes keystore (required by sample/build.gradle) and fastlane-api.json
+        # needed by fastlane (see fastlane/Appfile).
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" > keystore.asc
+          gpg -d --passphrase "${{ secrets.KEYSTORE_FILE_PSWD }}" --batch keystore.asc > keystore
+          echo "${{ secrets.API_KEY_FILE }}" > fastlane-api.json.asc
+          gpg -d --passphrase "${{ secrets.API_KEY_FILE_PSWD }}" --batch fastlane-api.json.asc > fastlane-api.json
+          fastlane deployInternal
