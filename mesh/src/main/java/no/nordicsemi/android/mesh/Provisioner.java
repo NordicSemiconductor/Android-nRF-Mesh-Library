@@ -514,7 +514,7 @@ public class Provisioner implements Parcelable, Cloneable {
         if (!allocatedSceneRanges.equals(that.allocatedSceneRanges)) return false;
         if (provisionerAddress != null && that.provisionerAddress != null)
             return provisionerAddress.equals(that.provisionerAddress);
-        else return false;
+        else return true;
     }
 
     @Override
