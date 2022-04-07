@@ -97,6 +97,8 @@ public interface InternalTransportCallbacks {
      */
     MeshNetwork getMeshNetwork();
 
+    void addGroup(final Group group);
+
     void storeScene(final int address, final int currentScene, final List<Integer> scenes);
 
     void deleteScene(final int address, final int currentScene, final List<Integer> scenes);

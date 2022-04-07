@@ -192,10 +192,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param meshMessage Mesh message
      */
     private DefaultNoOperationMessageState toggleState(@NonNull final MeshTransport transport, @Nullable final MeshMessage meshMessage) {
-        final DefaultNoOperationMessageState state = new DefaultNoOperationMessageState(meshMessage, transport, this);
-        state.setTransportCallbacks(mInternalTransportCallbacks);
-        state.setStatusCallbacks(mStatusCallbacks);
-        return state;
+        return new DefaultNoOperationMessageState(meshMessage, transport, this, mInternalTransportCallbacks, mStatusCallbacks);
     }
 
     /**
@@ -206,9 +203,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     protected MeshMessageState getState(final int address) {
         MeshMessageState state = stateSparseArray.get(address);
         if (state == null) {
-            state = new DefaultNoOperationMessageState(null, getTransport(address), this);
-            state.setTransportCallbacks(mInternalTransportCallbacks);
-            state.setStatusCallbacks(mStatusCallbacks);
+            state = new DefaultNoOperationMessageState(null, getTransport(address),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
             stateSparseArray.put(address, state);
         }
         return state;
@@ -261,9 +257,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
      * @param configurationMessage {@link ProxyConfigMessage} Mesh message containing the message opcode and message parameters
      */
     private void createProxyConfigMeshMessage(final int src, final int dst, @NonNull final ProxyConfigMessage configurationMessage) {
-        final ProxyConfigMessageState currentState = new ProxyConfigMessageState(src, dst, configurationMessage, getTransport(dst), this);
-        currentState.setTransportCallbacks(mInternalTransportCallbacks);
-        currentState.setStatusCallbacks(mStatusCallbacks);
+        final ProxyConfigMessageState currentState = new ProxyConfigMessageState(src, dst, configurationMessage,
+                getTransport(dst), this, mInternalTransportCallbacks, mStatusCallbacks);
         stateSparseArray.put(dst, toggleState(currentState.getMeshTransport(), configurationMessage));
         currentState.executeSend();
     }
@@ -279,9 +274,8 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             return;
         }
 
-        final ConfigMessageState currentState = new ConfigMessageState(src, dst, node.getDeviceKey(), configurationMessage, getTransport(dst), this);
-        currentState.setTransportCallbacks(mInternalTransportCallbacks);
-        currentState.setStatusCallbacks(mStatusCallbacks);
+        final ConfigMessageState currentState = new ConfigMessageState(src, dst, node.getDeviceKey(), configurationMessage,
+                getTransport(dst), this, mInternalTransportCallbacks, mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
             stateSparseArray.put(dst, toggleState(getTransport(dst), configurationMessage));
         }
@@ -302,14 +296,15 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     private void createAppMeshMessage(final int src, final int dst, @NonNull final ApplicationMessage applicationMessage) {
         final ApplicationMessageState currentState;
         if (applicationMessage instanceof VendorModelMessageAcked) {
-            currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) applicationMessage, getTransport(dst), this);
+            currentState = new VendorModelMessageAckedState(src, dst, (VendorModelMessageAcked) applicationMessage, getTransport(dst),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
         } else if (applicationMessage instanceof VendorModelMessageUnacked) {
-            currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) applicationMessage, getTransport(dst), this);
+            currentState = new VendorModelMessageUnackedState(src, dst, (VendorModelMessageUnacked) applicationMessage, getTransport(dst),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
         } else {
-            currentState = new ApplicationMessageState(src, dst, applicationMessage, getTransport(dst), this);
+            currentState = new ApplicationMessageState(src, dst, applicationMessage, getTransport(dst),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
         }
-        currentState.setTransportCallbacks(mInternalTransportCallbacks);
-        currentState.setStatusCallbacks(mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
             stateSparseArray.put(dst, toggleState(getTransport(dst), applicationMessage));
         }
@@ -332,14 +327,15 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
     private void createAppMeshMessage(final int src, final int dst, @NonNull UUID label, @NonNull final ApplicationMessage applicationMessage) {
         final ApplicationMessageState currentState;
         if (applicationMessage instanceof VendorModelMessageAcked) {
-            currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) applicationMessage, getTransport(dst), this);
+            currentState = new VendorModelMessageAckedState(src, dst, label, (VendorModelMessageAcked) applicationMessage, getTransport(dst),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
         } else if (applicationMessage instanceof VendorModelMessageUnacked) {
-            currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) applicationMessage, getTransport(dst), this);
+            currentState = new VendorModelMessageUnackedState(src, dst, label, (VendorModelMessageUnacked) applicationMessage, getTransport(dst),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
         } else {
-            currentState = new ApplicationMessageState(src, dst, label, applicationMessage, getTransport(dst), this);
+            currentState = new ApplicationMessageState(src, dst, label, applicationMessage, getTransport(dst),
+                    this, mInternalTransportCallbacks, mStatusCallbacks);
         }
-        currentState.setTransportCallbacks(mInternalTransportCallbacks);
-        currentState.setStatusCallbacks(mStatusCallbacks);
         if (MeshAddress.isValidUnicastAddress(dst)) {
             stateSparseArray.put(dst, toggleState(getTransport(dst), applicationMessage));
         }
