@@ -55,8 +55,8 @@ Bluetooth mesh specifications are available at
 * Connect an Android device.
 * Build and run project.
 * To be able to quickly start testing, use the bundled firmwares directory named `ExampleFirmwares`
-  that includes a light server (Light source) and a light client (Switch) firmwares. those firmwares
-  will work on a `nrf52832` DevKit.
+that includes a light server (Light source) and a light client (Switch) firmwares. those firmwares
+will work on a `nrf52832` DevKit.
 
 ## How to include it in your own project
 
@@ -66,7 +66,7 @@ The library may be found on the Maven Central repository.
 Add it to your project by adding the following dependency:
 
 ```groovy
-implementation 'no.nordicsemi.android:mesh:3.1.8'
+implementation 'no.nordicsemi.android:mesh:3.1.9'
 ```
 
 #### Manual
@@ -116,8 +116,8 @@ Provisioning a node in to the network can be done in three steps,
 
 1. Connect to the node advertising with the Mesh Provisioning UUID
 2. Identify the node to be provisioned, where the devices will blink, vibrate or beep depending on
-   the capabilities for pre-defined duration of 5 seconds. This is useful when provisioning multiple nodes.
-   To identify a node call
+the capabilities for pre-defined duration of 5 seconds. This is useful when provisioning multiple nodes.
+To identify a node call
 ```java
     void identifyNode(@NonNull final UUID deviceUUID) throws IllegalArgumentException;
 ```
