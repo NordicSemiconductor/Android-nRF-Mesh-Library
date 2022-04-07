@@ -76,7 +76,8 @@ public class ExportNetworkActivity extends AppCompatActivity implements
     private ExportNetworkViewModel mViewModel;
 
     @SuppressLint("NewApi")
-    final ActivityResultLauncher<String> fileExporter = registerForActivityResult( new ActivityResultContracts.CreateDocument("application/json"), uri -> {
+    final ActivityResultLauncher<String> fileExporter = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument("application/json"), uri -> {
         if (uri != null) {
             try {
                 final OutputStream stream = getContentResolver().openOutputStream(uri);
@@ -99,7 +100,7 @@ public class ExportNetworkActivity extends AppCompatActivity implements
 
         final Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.export);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -205,23 +206,8 @@ public class ExportNetworkActivity extends AppCompatActivity implements
 
     private void handleNetworkExport() {
         try {
-            if (!Utils.isWriteExternalStoragePermissionsGranted(this)
-                    || Utils.isWriteExternalStoragePermissionDeniedForever(this)) {
-                DialogFragmentPermissionRationale
-                        .newInstance(Utils.isWriteExternalStoragePermissionDeniedForever(this),
-                                getString(R.string.title_permission_required),
-                                getString(R.string.external_storage_permission_required))
-                        .show(getSupportFragmentManager(), null);
-            } else {
-                final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
-                if (Utils.isKitkatOrAbove()) {
-                    fileExporter.launch(networkName);
-                } else {
-                    if (mViewModel.exportNetwork()) {
-                        displayExportSuccessSnackBar();
-                    }
-                }
-            }
+            final String networkName = mViewModel.getNetworkLiveData().getNetworkName();
+            fileExporter.launch(networkName);
         } catch (Exception ex) {
             displayExportErrorDialog(ex.getMessage());
         }
