@@ -24,6 +24,9 @@ package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
 
+import no.nordicsemi.android.mesh.InternalTransportCallbacks;
+import no.nordicsemi.android.mesh.MeshStatusCallbacks;
+
 /**
  * ConfigMessageState class that handles configuration message state.
  */
@@ -34,20 +37,24 @@ class ConfigMessageState extends MeshMessageState {
     /**
      * Constructs the ConfigMessageState
      *
-     * @param src           Source address
-     * @param dst           Destination address
-     * @param deviceKey     Device key
-     * @param meshMessage   {@link MeshMessage} Mesh message to be sent
-     * @param meshTransport {@link MeshTransport} Mesh transport
-     * @param callbacks     {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param src                Source address
+     * @param dst                Destination address
+     * @param deviceKey          Device key
+     * @param meshMessage        {@link MeshMessage} Mesh message to be sent
+     * @param meshTransport      {@link MeshTransport} Mesh transport
+     * @param handlerCallbacks   {@link InternalMeshMsgHandlerCallbacks} callbacks
+     * @param transportCallbacks {@link InternalTransportCallbacks} callbacks
+     * @param statusCallbacks    {@link MeshStatusCallbacks} callbacks
      */
     ConfigMessageState(final int src,
                        final int dst,
                        @NonNull final byte[] deviceKey,
                        @NonNull final MeshMessage meshMessage,
                        @NonNull final MeshTransport meshTransport,
-                       @NonNull final InternalMeshMsgHandlerCallbacks callbacks) {
-        super(meshMessage, meshTransport, callbacks);
+                       @NonNull final InternalMeshMsgHandlerCallbacks handlerCallbacks,
+                       @NonNull final InternalTransportCallbacks transportCallbacks,
+                       @NonNull  final MeshStatusCallbacks statusCallbacks) {
+        super(meshMessage, meshTransport, handlerCallbacks, transportCallbacks, statusCallbacks);
         this.mSrc = src;
         this.mDst = dst;
         this.mDeviceKey = deviceKey;
