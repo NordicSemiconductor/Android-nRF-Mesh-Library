@@ -29,7 +29,7 @@ android {
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 32
         versionCode 83
         versionName VERSION_NAME
