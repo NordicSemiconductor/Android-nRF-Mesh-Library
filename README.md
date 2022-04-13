@@ -66,7 +66,7 @@ The library may be found on the Maven Central repository.
 Add it to your project by adding the following dependency:
 
 ```groovy
-implementation 'no.nordicsemi.android:mesh:3.2.0'
+implementation 'no.nordicsemi.android:mesh:3.2.1'
 ```
 
 #### Manual
