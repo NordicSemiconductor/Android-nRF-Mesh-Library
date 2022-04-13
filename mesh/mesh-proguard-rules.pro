@@ -20,3 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class no.nordicsemi.android.mesh.** { *; }
+-keep class org.spongycastle.** { *; }

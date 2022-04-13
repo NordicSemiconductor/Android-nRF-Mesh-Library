@@ -1,8 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
@@ -40,7 +38,6 @@ public class ConfigNodeIdentitySet extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        Log.d(TAG, "Node Identity: " + nodeIdentityState);
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(networkKey.getKeyIndex());
         mParameters = new byte[]{netKeyIndex[1], (byte) ((netKeyIndex[0] & 0xFF) & 0x0F), (byte) nodeIdentityState};
     }
