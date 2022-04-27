@@ -1,16 +1,11 @@
 package no.nordicsemi.android.mesh.transport;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import no.nordicsemi.android.mesh.ApplicationKey;
-import no.nordicsemi.android.mesh.utils.BitReader;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
-
-import static org.junit.Assert.assertEquals;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.BitSet;
 
 public class SchedulerActionGetTest {
 

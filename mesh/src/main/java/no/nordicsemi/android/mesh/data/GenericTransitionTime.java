@@ -1,6 +1,7 @@
 package no.nordicsemi.android.mesh.data;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import no.nordicsemi.android.mesh.utils.BitReader;
 
@@ -20,14 +21,30 @@ public class GenericTransitionTime {
     }
 
     public GenericTransitionTime(int value) {
-        byte[] bytes = ByteBuffer.allocate(TRANSITION_TIME_BITS_LENGTH).putInt(value).array();
-        final BitReader bitReader = new BitReader(bytes);
-        this.resolution = TransitionResolution.fromValue(bitReader.getBits(TransitionResolution.TRANSITION_STEP_RESOLUTION_BITS_LENGTH));
-        this.transitionStep = TransitionStep.Specific(bitReader.getBits(TransitionStep.TRANSITION_NUMBER_STEP_BITS_LENGTH));
+        this.resolution = TransitionResolution.fromValue((value >> TransitionStep.TRANSITION_NUMBER_STEP_BITS_LENGTH) & 0x03);
+        this.transitionStep = TransitionStep.Specific(value & 0x3F);
     }
 
     public int getValue() {
-        return (resolution.value << 6 | transitionStep.value);
+        return resolution.value << TransitionStep.TRANSITION_NUMBER_STEP_BITS_LENGTH | transitionStep.value;
+    }
+
+    /**
+     * @return Time in milliseconds given any resolution or -1 if resolution is not set.
+     */
+    public long toMilliseconds() {
+        switch (resolution) {
+            case HUNDRED_MILLISECONDS:
+                return 100L * transitionStep.value;
+            case SECOND:
+                return 1000L * transitionStep.value;
+            case TEN_SECONDS:
+                return 10000L * transitionStep.value;
+            case TEN_MINUTES:
+                 return 10L * 60 * 1000 * transitionStep.value;
+            default:
+                return -1;
+        }
     }
 
     public static final class TransitionStep {
@@ -56,6 +73,19 @@ public class GenericTransitionTime {
         TransitionStep(int value) {
             this.value = value;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TransitionStep that = (TransitionStep) o;
+            return value == that.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
     }
 
     public enum TransitionResolution {
@@ -80,5 +110,18 @@ public class GenericTransitionTime {
         TransitionResolution(int value) {
             this.value = value;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GenericTransitionTime that = (GenericTransitionTime) o;
+        return resolution == that.resolution && transitionStep.equals(that.transitionStep);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resolution, transitionStep);
     }
 }
