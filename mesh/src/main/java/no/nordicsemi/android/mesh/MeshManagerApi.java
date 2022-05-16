@@ -42,6 +42,7 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import no.nordicsemi.android.mesh.data.ApplicationKeyDao;
 import no.nordicsemi.android.mesh.data.ApplicationKeysDao;
 import no.nordicsemi.android.mesh.data.GroupDao;
@@ -790,6 +791,22 @@ public class MeshManagerApi implements MeshMngrApi {
         allowIvIndexRecoveryOver42 = false;
         final MeshNetwork meshNet = mMeshNetwork;
         deleteMeshNetworkFromDb(meshNet);
+        final MeshNetwork newMeshNetwork = generateMeshNetwork();
+        newMeshNetwork.setCallbacks(callbacks);
+        insertNetwork(newMeshNetwork);
+        mMeshNetwork = newMeshNetwork;
+        mMeshManagerCallbacks.onNetworkLoaded(newMeshNetwork);
+    }
+
+    /**
+     * Creates a new mesh network and with new provisioning data.
+     * <p>
+     * {@link MeshManagerCallbacks#onNetworkLoaded(MeshNetwork)} will return the newly generated network
+     * </p>
+     */
+    public final void createMeshNetwork() {
+        ivUpdateTestModeActive = false;
+        allowIvIndexRecoveryOver42 = false;
         final MeshNetwork newMeshNetwork = generateMeshNetwork();
         newMeshNetwork.setCallbacks(callbacks);
         insertNetwork(newMeshNetwork);
