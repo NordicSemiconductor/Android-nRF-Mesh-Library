@@ -47,6 +47,7 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    namespace 'no.nordicsemi.android.mesh'
 }
 
 dependencies {

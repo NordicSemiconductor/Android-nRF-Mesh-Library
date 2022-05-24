@@ -60,6 +60,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'no.nordicsemi.android.nrfmesh'
 }
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
