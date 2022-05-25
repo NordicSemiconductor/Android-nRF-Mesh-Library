@@ -137,7 +137,13 @@ public final class UnprovisionedMeshNode extends UnprovisionedBaseMeshNode {
         return provisioneePublicKeyXY;
     }
 
-    void setProvisioneePublicKeyXY(final byte[] provisioneePublicKeyXY) {
+    /**
+     * Sets the provisionee public key. Use this when provisioning using a Public Key obtained via
+     * out of band methods.
+     *
+     * @param provisioneePublicKeyXY 128-bit public key obtained OOB.
+     */
+    public void setProvisioneePublicKeyXY(final byte[] provisioneePublicKeyXY) {
         this.provisioneePublicKeyXY = provisioneePublicKeyXY;
     }
 
