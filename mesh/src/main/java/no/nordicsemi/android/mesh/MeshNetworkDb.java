@@ -218,7 +218,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             networkDao.update(network.meshUUID, network.meshName, network.timestamp,
                     network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                     network.lastSelected,
-                    MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions()));
+                    MeshTypeConverters.networkExclusionsToJson(new HashMap<>(network.getNetworkExclusions())));
             netKeyDao.update(new ArrayList<>(network.netKeys));
             appKeyDao.update(new ArrayList<>(network.appKeys));
             provisionersDao.update(new ArrayList<>(network.provisioners));
