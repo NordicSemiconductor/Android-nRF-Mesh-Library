@@ -1358,10 +1358,6 @@ abstract class BaseMeshNetwork {
      * Returns the map of network exclusions
      */
     public Map<Integer, List<Integer>> getNetworkExclusions() {
-        final Map<Integer, List<Integer>> networkExclusions = new HashMap<>();
-        for (Map.Entry<Integer, List<Integer>> entry : this.networkExclusions.entrySet()) {
-            networkExclusions.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
-        }
         return Collections.unmodifiableMap(networkExclusions);
     }
 
