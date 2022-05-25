@@ -69,6 +69,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     AuthenticationOOBMethods authMethodUsed = AuthenticationOOBMethods.NO_OOB_AUTHENTICATION;
     short authActionUsed;
     byte[] inputAuthentication;
+    boolean secure = false;
 
     UnprovisionedBaseMeshNode(final UUID uuid) {
         deviceUuid = uuid;
@@ -239,5 +240,13 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
      */
     void setInputAuthentication(final byte[] inputAuthentication) {
         this.inputAuthentication = inputAuthentication;
+    }
+
+    void setSecure(final boolean secure){
+        this.secure = secure;
+    }
+
+    public boolean isSecure(){
+        return secure;
     }
 }

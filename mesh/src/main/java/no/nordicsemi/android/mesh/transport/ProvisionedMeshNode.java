@@ -103,6 +103,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         for(int i = 0; i < node.getProvisioningCapabilities().getNumberOfElements(); i++){
             mElements.put(unicastAddress + i, new Element(unicastAddress + i, 0, new HashMap<>()));
         }
+        security = node.isSecure() ? 1 : 0;
     }
 
     /**

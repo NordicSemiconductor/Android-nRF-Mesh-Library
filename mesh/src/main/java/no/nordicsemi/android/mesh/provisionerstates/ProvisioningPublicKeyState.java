@@ -144,8 +144,14 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     }
 
     private void generateSharedECDHSecret(final byte[] xy) {
-        if(node.getProvisioneePublicKeyXY() == null)
+        if(node.getProvisioneePublicKeyXY() == null) {
             node.setProvisioneePublicKeyXY(xy);
+        } else {
+            // Mark the node as secure if the provisionee public key is not null.
+            // This would assume that the key was obtained via an OOB method and is provided by the
+            // user before starting provisioning.
+            node.setSecure(true);
+        }
 
         final byte[] xComponent = new byte[32];
         System.arraycopy(xy, 0, xComponent, 0, xComponent.length);
