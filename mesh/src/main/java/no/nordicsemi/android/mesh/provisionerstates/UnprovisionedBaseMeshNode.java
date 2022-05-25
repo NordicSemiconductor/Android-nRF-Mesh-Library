@@ -62,7 +62,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     int numberOfElements;
     UUID deviceUuid;
     byte[] provisioningInvitePdu;
-    //capabilties pdu received by the provisioner
+    //capabilities pdu received by the provisioner
     byte[] provisioningCapabilitiesPdu;
     //provisioning start pdu sent by the provisioner
     byte[] provisioningStartPdu;
