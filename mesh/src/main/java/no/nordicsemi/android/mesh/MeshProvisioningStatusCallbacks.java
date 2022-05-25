@@ -22,6 +22,7 @@
 
 package no.nordicsemi.android.mesh;
 
+import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.provisionerstates.ProvisioningState;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
@@ -38,7 +39,7 @@ public interface MeshProvisioningStatusCallbacks {
      * @param state    {@link ProvisioningState.State} each provisioning state.
      * @param data     data that was sent or received during each provisioning state.
      */
-    void onProvisioningStateChanged(final UnprovisionedMeshNode meshNode, final ProvisioningState.States state, final byte[] data);
+    void onProvisioningStateChanged(final UnprovisionedMeshNode meshNode, final ProvisioningState.States state, @Nullable final byte[] data);
 
     /**
      * Invoked when the provisioning state changed.
