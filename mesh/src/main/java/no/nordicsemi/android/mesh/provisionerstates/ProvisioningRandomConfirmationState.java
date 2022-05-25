@@ -121,12 +121,12 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
 
         final byte[] confirmationValue = SecureUtils.calculateCMAC(confirmationData, confirmationKey);
 
-        if (Arrays.equals(confirmationValue, node.getProvisioneeConfirmation())) {
+        /*if (Arrays.equals(confirmationValue, node.getProvisioneeConfirmation())) {
             Log.v(TAG, "Confirmation values match!!!!: " + MeshParserUtils.bytesToHex(confirmationValue, false));
             return true;
-        }
+        }*/
 
-        return false;
+        return Arrays.equals(confirmationValue, node.getProvisioneeConfirmation());
     }
 
     private void parseProvisioneeRandom(final byte[] provisioneeRandomPDU) {

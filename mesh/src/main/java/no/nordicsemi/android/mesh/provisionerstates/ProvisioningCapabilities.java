@@ -72,7 +72,8 @@ public final class ProvisioningCapabilities implements Parcelable {
 
         final short outputOOBAction = (short) (((capabilities[8] & 0xff) << 8) | (capabilities[9] & 0xff));
         this.rawOutputOOBAction = outputOOBAction;
-        this.supportedOutputOOBActions = outputOOBSize == 0 ? new ArrayList<>() : OutputOOBAction.parseOutputActionsFromBitMask(outputOOBAction);
+        this.supportedOutputOOBActions = outputOOBSize == 0 ? new ArrayList<>() :
+                OutputOOBAction.parseOutputActionsFromBitMask(outputOOBAction);
 
         final byte inputOOBSize = capabilities[10];
         this.inputOOBSize = inputOOBSize;
@@ -80,7 +81,8 @@ public final class ProvisioningCapabilities implements Parcelable {
 
         final short inputOOBAction = (short) (((capabilities[11] & 0xff) << 8) | (capabilities[12] & 0xff));
         this.rawInputOOBAction = inputOOBAction;
-        this.supportedInputOOBActions = inputOOBSize == 0 ? new ArrayList<>() : InputOOBAction.parseInputActionsFromBitMask(inputOOBAction);
+        this.supportedInputOOBActions = inputOOBSize == 0 ? new ArrayList<>() :
+                InputOOBAction.parseInputActionsFromBitMask(inputOOBAction);
         generateAvailableOOBTypes();
     }
 
@@ -178,6 +180,10 @@ public final class ProvisioningCapabilities implements Parcelable {
      */
     public List<AlgorithmType> getSupportedAlgorithmTypes() {
         return Collections.unmodifiableList(supportedAlgorithmTypes);
+    }
+
+    public boolean isPublicKeyOobSupported() {
+        return rawPublicKeyType == 1;
     }
 
     /**

@@ -1077,8 +1077,24 @@ public class MeshManagerApi implements MeshMngrApi {
                 }
             }
             mMeshNetwork.nodes.add(meshNode);
+            updateNetworkKeySecurity(meshNode);
         }
     };
+
+    /**
+     * Updates the minimum security property of a Network Key. If the node was provisioned
+     * insecurely, all network keys added to the node are marked as insecure.
+     *
+     * @param node Provisioned mesh node.
+     */
+    private void updateNetworkKeySecurity(final ProvisionedMeshNode node) {
+        if (!node.isSecurelyProvisioned()) {
+            for (NodeKey nodeKey : node.getAddedNetKeys()) {
+                final NetworkKey key = mMeshNetwork.getNetKey(nodeKey.getIndex());
+                key.markAsInsecure();
+            }
+        }
+    }
 
     @SuppressWarnings("FieldCanBeLocal")
     private final NetworkLayerCallbacks networkLayerCallbacks = new NetworkLayerCallbacks() {

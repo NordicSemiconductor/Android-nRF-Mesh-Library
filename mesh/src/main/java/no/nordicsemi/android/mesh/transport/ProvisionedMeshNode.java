@@ -103,6 +103,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         for(int i = 0; i < node.getProvisioningCapabilities().getNumberOfElements(); i++){
             mElements.put(unicastAddress + i, new Element(unicastAddress + i, 0, new HashMap<>()));
         }
+        security = node.isSecure() ? 1 : 0;
     }
 
     /**
@@ -145,7 +146,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     @Ignore
-    protected ProvisionedMeshNode(Parcel in) {
+    ProvisionedMeshNode(Parcel in) {
         //noinspection ConstantConditions
         uuid = in.readString();
         isConfigured = in.readByte() != 1;
@@ -204,7 +205,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         return 0;
     }
 
-    public final Map<Integer, Element> getElements() {
+    public Map<Integer, Element> getElements() {
         return mElements;
     }
 
@@ -214,7 +215,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param unicastAddress the address to check
      * @return if this address is the address of an element
      */
-    public final boolean hasUnicastAddress(final int unicastAddress) {
+    public boolean hasUnicastAddress(final int unicastAddress) {
         if (unicastAddress == getUnicastAddress())
             return true;
         for (Element element : mElements.values()) {
@@ -225,11 +226,11 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setElements(final Map<Integer, Element> elements) {
+    public void setElements(final Map<Integer, Element> elements) {
         mElements = elements;
     }
 
-    public final byte[] getDeviceKey() {
+    public byte[] getDeviceKey() {
         return deviceKey;
     }
 
@@ -238,7 +239,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         this.deviceKey = deviceKey;
     }
 
-    public final int getSequenceNumber() {
+    public int getSequenceNumber() {
         return sequenceNumber;
     }
 
@@ -251,49 +252,49 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param sequenceNumber sequence number of the node
      */
-    public final void setSequenceNumber(final int sequenceNumber) {
+    public void setSequenceNumber(final int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public final Integer getCompanyIdentifier() {
+    public Integer getCompanyIdentifier() {
         return companyIdentifier;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setCompanyIdentifier(final Integer companyIdentifier) {
+    public void setCompanyIdentifier(final Integer companyIdentifier) {
         this.companyIdentifier = companyIdentifier;
     }
 
-    public final Integer getProductIdentifier() {
+    public Integer getProductIdentifier() {
         return productIdentifier;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setProductIdentifier(final Integer productIdentifier) {
+    public void setProductIdentifier(final Integer productIdentifier) {
         this.productIdentifier = productIdentifier;
     }
 
-    public final Integer getVersionIdentifier() {
+    public Integer getVersionIdentifier() {
         return versionIdentifier;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setVersionIdentifier(final Integer versionIdentifier) {
+    public void setVersionIdentifier(final Integer versionIdentifier) {
         this.versionIdentifier = versionIdentifier;
     }
 
-    public final Integer getCrpl() {
+    public Integer getCrpl() {
         return crpl;
     }
 
-    public final void setCrpl(final Integer crpl) {
+    public void setCrpl(final Integer crpl) {
         this.crpl = crpl;
     }
 
     /**
      * Returns the {@link Features} of the node
      */
-    public final Features getNodeFeatures() {
+    public Features getNodeFeatures() {
         return nodeFeatures;
     }
 
@@ -303,19 +304,19 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param features feature set supported by the node
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setNodeFeatures(final Features features) {
+    public void setNodeFeatures(final Features features) {
         this.nodeFeatures = features;
     }
 
     /**
      * Returns the list of Network keys added to this node
      */
-    public final List<NodeKey> getAddedNetKeys() {
+    public List<NodeKey> getAddedNetKeys() {
         return Collections.unmodifiableList(mAddedNetKeys);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedNetKeys(final List<NodeKey> addedNetKeyIndexes) {
+    public void setAddedNetKeys(final List<NodeKey> addedNetKeyIndexes) {
         mAddedNetKeys = addedNetKeyIndexes;
     }
 
@@ -325,7 +326,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param index NetKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void setAddedNetKeyIndex(final int index) {
+    void setAddedNetKeyIndex(final int index) {
         if (!MeshParserUtils.isNodeKeyExists(mAddedNetKeys, index)) {
             mAddedNetKeys.add(new NodeKey(index));
         }
@@ -337,7 +338,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param index NetKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void updateAddedNetKey(final int index) {
+    void updateAddedNetKey(final int index) {
         final NodeKey nodeKey = MeshParserUtils.getNodeKey(mAddedNetKeys, index);
         if (nodeKey != null) {
             nodeKey.setUpdated(true);
@@ -350,7 +351,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param indexes NetKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void updateNetKeyList(final List<Integer> indexes) {
+    void updateNetKeyList(final List<Integer> indexes) {
         mAddedNetKeys.clear();
         for (Integer index : indexes) {
             mAddedNetKeys.add(new NodeKey(index, false));
@@ -363,7 +364,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param index NetKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void removeAddedNetKeyIndex(final int index) {
+    void removeAddedNetKeyIndex(final int index) {
         for (int i = 0; i < mAddedNetKeys.size(); i++) {
             final int keyIndex = mAddedNetKeys.get(i).getIndex();
             if (keyIndex == index) {
@@ -387,12 +388,12 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
     /**
      * Returns the list of added AppKey indexes to the node
      */
-    public final List<NodeKey> getAddedAppKeys() {
+    public List<NodeKey> getAddedAppKeys() {
         return mAddedAppKeys;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public final void setAddedAppKeys(final List<NodeKey> addedAppKeyIndexes) {
+    public void setAddedAppKeys(final List<NodeKey> addedAppKeyIndexes) {
         mAddedAppKeys = addedAppKeyIndexes;
     }
 
@@ -402,7 +403,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param index AppKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void setAddedAppKeyIndex(final int index) {
+    void setAddedAppKeyIndex(final int index) {
         if (!MeshParserUtils.isNodeKeyExists(mAddedAppKeys, index)) {
             this.mAddedAppKeys.add(new NodeKey(index));
         }
@@ -414,7 +415,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param index AppKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void updateAddedAppKey(final int index) {
+    void updateAddedAppKey(final int index) {
         final NodeKey nodeKey = MeshParserUtils.getNodeKey(mAddedNetKeys, index);
         if (nodeKey != null) {
             nodeKey.setUpdated(true);
@@ -428,7 +429,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param indexes     AppKey indexes
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void updateAppKeyList(final int netKeyIndex, @NonNull final List<Integer> indexes, @NonNull final List<ApplicationKey> keyIndexes) {
+    void updateAppKeyList(final int netKeyIndex, @NonNull final List<Integer> indexes, @NonNull final List<ApplicationKey> keyIndexes) {
         if (mAddedAppKeys.isEmpty()) {
             mAddedAppKeys.addAll(addAppKeyList(indexes, new ArrayList<>()));
         } else {
@@ -461,7 +462,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      * @param index AppKey index
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected final void removeAddedAppKeyIndex(final int index) {
+    void removeAddedAppKeyIndex(final int index) {
         for (int i = 0; i < mAddedAppKeys.size(); i++) {
             final int keyIndex = mAddedAppKeys.get(i).getIndex();
             if (keyIndex == index) {
@@ -491,7 +492,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param configCompositionDataStatus Composition data status object
      */
-    protected final void setCompositionData(
+    void setCompositionData(
             @NonNull final ConfigCompositionDataStatus configCompositionDataStatus) {
         companyIdentifier = configCompositionDataStatus.getCompanyIdentifier();
         productIdentifier = configCompositionDataStatus.getProductIdentifier();
@@ -501,18 +502,11 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
         final boolean proxyFeatureSupported = configCompositionDataStatus.isProxyFeatureSupported();
         final boolean friendFeatureSupported = configCompositionDataStatus.isFriendFeatureSupported();
         final boolean lowPowerFeatureSupported = configCompositionDataStatus.isLowPowerFeatureSupported();
-        nodeFeatures = new Features(friendFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
-                lowPowerFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
-                proxyFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED,
-                relayFeatureSupported ? Features.ENABLED : Features.UNSUPPORTED);
+        nodeFeatures = new Features(friendFeatureSupported ? Features.DISABLED : Features.UNSUPPORTED,
+                lowPowerFeatureSupported ? Features.DISABLED : Features.UNSUPPORTED,
+                proxyFeatureSupported ? Features.DISABLED : Features.UNSUPPORTED,
+                relayFeatureSupported ? Features.DISABLED : Features.UNSUPPORTED);
         mElements.putAll(configCompositionDataStatus.getElements());
-    }
-
-    private int getFeatureState(final Boolean feature) {
-        if (feature != null && feature) {
-            return 2;
-        }
-        return 0;
     }
 
     /**
@@ -520,7 +514,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param configModelAppStatus ConfigModelAppStatus containing the bound app key information
      */
-    protected final void setAppKeyBindStatus(
+    void setAppKeyBindStatus(
             @NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus.isSuccessful()) {
             final Element element = mElements.get(configModelAppStatus.getElementAddress());
@@ -540,7 +534,7 @@ public final class ProvisionedMeshNode extends ProvisionedBaseMeshNode {
      *
      * @param configModelAppStatus ConfigModelAppStatus containing the unbound app key information
      */
-    protected final void setAppKeyUnbindStatus(
+    void setAppKeyUnbindStatus(
             @NonNull final ConfigModelAppStatus configModelAppStatus) {
         if (configModelAppStatus.isSuccessful()) {
             final Element element = mElements.get(configModelAppStatus.getElementAddress());

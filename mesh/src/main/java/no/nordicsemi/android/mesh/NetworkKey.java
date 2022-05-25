@@ -83,7 +83,7 @@ public final class NetworkKey extends MeshKey {
         timestamp = System.currentTimeMillis();
     }
 
-    protected NetworkKey(Parcel in) {
+    NetworkKey(Parcel in) {
         meshUuid = in.readString();
         keyIndex = in.readInt();
         name = in.readString();
@@ -209,6 +209,14 @@ public final class NetworkKey extends MeshKey {
     }
 
     /**
+     * Marks the network key as insecure.
+     */
+    public void markAsInsecure() {
+        this.minSecurity = false;
+        timestamp = System.currentTimeMillis();
+    }
+
+    /**
      * Returns the identity key derived from the current key
      */
     public byte[] getIdentityKey() {
@@ -298,7 +306,7 @@ public final class NetworkKey extends MeshKey {
      *
      * @return true if successful or false otherwise.
      */
-    protected boolean switchToNewKey() {
+    boolean switchToNewKey() {
         if (phase == 1) {
             setPhase(USING_NEW_KEYS);
             timestamp = System.currentTimeMillis();
@@ -312,7 +320,7 @@ public final class NetworkKey extends MeshKey {
      *
      * @return true if successful or false otherwise.
      */
-    protected boolean revokeOldKey() {
+    boolean revokeOldKey() {
         if (phase == KEY_DISTRIBUTION || phase == USING_NEW_KEYS) {
             phase = NORMAL_OPERATION;
             timestamp = System.currentTimeMillis();
@@ -321,12 +329,12 @@ public final class NetworkKey extends MeshKey {
         return false;
     }
 
-    protected byte[] getNetworkId() {
+    byte[] getNetworkId() {
         return SecureUtils.calculateK3(key);
     }
 
     @Nullable
-    protected byte[] getOldNetworkId() {
+    byte[] getOldNetworkId() {
         return SecureUtils.calculateK3(oldKey);
     }
 

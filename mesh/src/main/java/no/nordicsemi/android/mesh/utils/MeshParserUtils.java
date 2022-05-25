@@ -46,6 +46,7 @@ public class MeshParserUtils {
     private static final String TAG = MeshParserUtils.class.getSimpleName();
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.US);
     private static final String PATTERN_KEY = "[0-9a-fA-F]{32}";
+    private static final String PATTERN_PUBLIC_KEY = "[0-9a-fA-F]{128}";
     private static final String PATTERN_UUID_HEX = "[0-9a-fA-F]{32}";
 
     private static final int PROHIBITED_DEFAULT_TTL_STATE_MIN = 0x01;
@@ -259,6 +260,21 @@ public class MeshParserUtils {
             throw new IllegalArgumentException("Key cannot be empty!");
         } else if (!key.matches(PATTERN_KEY)) {
             throw new IllegalArgumentException("key must be a 32-character hexadecimal string!");
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates the key input
+     *
+     * @param key key
+     * @return true if the Key is a valid value
+     * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
+     */
+    public static boolean validatePublicKeyInput(@NonNull final String key) throws IllegalArgumentException {
+        if (!key.matches(PATTERN_PUBLIC_KEY)) {
+            throw new IllegalArgumentException("key must be a 128-character hexadecimal string!");
         }
 
         return true;
