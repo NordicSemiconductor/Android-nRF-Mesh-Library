@@ -93,8 +93,14 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
         binding.containerPhase.text.setVisibility(View.VISIBLE);
         binding.containerPhase.getRoot().setVisibility(View.VISIBLE);
 
+        binding.containerSecurity.image.
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_numeric));
+        binding.containerSecurity.title.setText(R.string.security);
+        binding.containerSecurity.text.setVisibility(View.VISIBLE);
+        binding.containerSecurity.getRoot().setVisibility(View.VISIBLE);
+
         binding.containerLastModified.image.
-                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_time));
+                setBackground(ContextCompat.getDrawable(this, R.drawable.ic_shield_key));
         binding.containerLastModified.title.setText(R.string.last_modified);
         binding.containerLastModified.text.setVisibility(View.VISIBLE);
         binding.containerLastModified.getRoot().setVisibility(View.VISIBLE);
@@ -120,6 +126,7 @@ public class EditNetKeyActivity extends AppCompatActivity implements MeshKeyList
             binding.containerOldKey.text.setText(key.getOldKey() != null ? bytesToHex(key.getOldKey(), false) : getString(R.string.na));
             binding.containerKeyIndex.text.setText(String.valueOf(key.getKeyIndex()));
             binding.containerPhase.text.setText(key.getPhaseDescription());
+            binding.containerSecurity.text.setText(key.isMinSecurity() ? getString(R.string.secure) : getString(R.string.insecure));
             binding.containerLastModified.text.setText(getDateTimeInstance().format(new Date(key.getTimestamp())));
         });
     }

@@ -670,6 +670,9 @@
     <string name="old_key">Old Key</string>
     <string name="na">N/A</string>
     <string name="phase">Phase</string>
+    <string name="security">Security</string>
+    <string name="secure">Secure</string>
+    <string name="insecure">Insecure</string>
     <string name="last_modified">Last Modified</string>
     <string name="node_identity_state">Node Identity State</string>
     <string name="node_identity_summary">The Node Identity state determines if a node is advertising with Node Identity messages on a subnet.
