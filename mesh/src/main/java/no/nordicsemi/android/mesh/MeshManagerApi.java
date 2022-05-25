@@ -1091,7 +1091,7 @@ public class MeshManagerApi implements MeshMngrApi {
         if (!node.isSecurelyProvisioned()) {
             for (NodeKey nodeKey : node.getAddedNetKeys()) {
                 final NetworkKey key = mMeshNetwork.getNetKey(nodeKey.getIndex());
-                key.setMinSecurity(false);
+                key.markAsInsecure();
             }
         }
     }
