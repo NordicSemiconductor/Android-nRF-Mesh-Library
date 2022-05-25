@@ -660,6 +660,7 @@
     <string name="node_exclusion_summary">If checked the node will be excluded from key exchange process. When the key refresh procedure is complete,
         this node will
         no longer be able to receive or send messages to the mesh network.</string>
+    <string name="node_security_summary">A node is mark as secured if it is provisioned using a public key was obtained out of band.</string>
     <string name="continue_confirmation">This cannot be undone, do you want to continue?</string>
     <string name="secure_network_beacon">Secure Network Beacon</string>
     <string name="secure_network_beacon_state_summary">The Secure Network Beacon state determines if a node is periodically broadcasting Secure

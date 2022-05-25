@@ -63,8 +63,10 @@ public class NodeDetailsActivity extends AppCompatActivity {
         final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(node.getNodeName());
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(node.getNodeName());
+        }
 
         binding.containerTimestamp.getRoot().setClickable(false);
         final TextView timestamp = binding.containerTimestamp.text;
@@ -73,6 +75,8 @@ public class NodeDetailsActivity extends AppCompatActivity {
 
         binding.containerUnicastAddress.getRoot().setClickable(false);
         binding.containerUnicastAddress.text.setText(MeshParserUtils.bytesToHex(MeshAddress.addressIntToBytes(node.getUnicastAddress()), false));
+
+        binding.containerSecurity.text.setText(node.isSecurelyProvisioned() ? getString(R.string.secure) : getString(R.string.insecure));
 
         binding.containerDeviceKey.getRoot().setClickable(false);
         binding.containerDeviceKey.text.setText(MeshParserUtils.bytesToHex(node.getDeviceKey(), false));
