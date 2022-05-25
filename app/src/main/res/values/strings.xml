@@ -28,6 +28,7 @@
     <string name="sub_title_scanning_proxy_node">Looking for provisioned proxy nodes…</string>
 
     <string name="unknown_device">Unknown Device</string>
+    <string name="unknown_address">Unknown Address</string>
     <string name="state">On Off State:</string>
     <string name="button_unknown">UNKNOWN</string>
 
@@ -677,4 +678,10 @@
     <string name="error_empty_scene_name">Error empty scene name</string>
     <string name="unknwon_error">Unknown error</string>
     <string name="error_allocate_group_range">Provisioner must have an allocated group range!</string>
+
+
+    <string name="title_public_key">Public Key</string>
+    <string name="hint_public_key">Public key</string>
+    <string name="message_public_key">Enter the 128-character hexadecimal Public Key of the device.</string>
+    <string name="skip">skip</string>
 </resources>
