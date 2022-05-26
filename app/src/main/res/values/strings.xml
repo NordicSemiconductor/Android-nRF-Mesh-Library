@@ -688,4 +688,5 @@
     <string name="hint_public_key">Public key</string>
     <string name="message_public_key">Enter the 128-character hexadecimal Public Key of the device.</string>
     <string name="skip">skip</string>
+    <string name="skip_oob_public_key_summary">Skipping this process will mark the provisioned node and any Network Key associated with this node as insecure.</string>
 </resources>

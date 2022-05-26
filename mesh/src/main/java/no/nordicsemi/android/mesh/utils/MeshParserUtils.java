@@ -273,7 +273,9 @@ public class MeshParserUtils {
      * @throws IllegalArgumentException in case of an invalid was entered as an input and the message containing the error
      */
     public static boolean validatePublicKeyInput(@NonNull final String key) throws IllegalArgumentException {
-        if (!key.matches(PATTERN_PUBLIC_KEY)) {
+        if (TextUtils.isEmpty(key)) {
+            throw new IllegalArgumentException("Key cannot be empty!");
+        } else if (!key.matches(PATTERN_PUBLIC_KEY)) {
             throw new IllegalArgumentException("key must be a 128-character hexadecimal string!");
         }
 
