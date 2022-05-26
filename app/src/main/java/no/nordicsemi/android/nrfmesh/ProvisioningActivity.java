@@ -238,6 +238,14 @@ public class ProvisioningActivity extends AppCompatActivity implements
             if (node.getProvisioningCapabilities() != null) {
                 if (node.getProvisioningCapabilities().isPublicKeyOobSupported()) {
                     DialogFragmentOobPublicKey.newInstance().show(getSupportFragmentManager(), null);
+                } else {
+                    if (node.getProvisioningCapabilities().getAvailableOOBTypes().size() == 1 &&
+                            node.getProvisioningCapabilities().getAvailableOOBTypes().get(0) == AuthenticationOOBMethods.NO_OOB_AUTHENTICATION) {
+                        onNoOOBSelected();
+                    } else {
+                        final DialogFragmentSelectOOBType fragmentSelectOOBType = DialogFragmentSelectOOBType.newInstance(node.getProvisioningCapabilities());
+                        fragmentSelectOOBType.show(getSupportFragmentManager(), null);
+                    }
                 }
             }
         });
