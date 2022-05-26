@@ -26,7 +26,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 
 import androidx.annotation.NonNull;
@@ -91,16 +90,13 @@ public class DialogFragmentOobPublicKey extends DialogFragment {
         final AlertDialog alertDialog = alertDialogBuilder.show();
         alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             final String key = binding.textInput.getEditableText().toString().trim();
-            if (TextUtils.isEmpty(key)) {
-                ((DialogFragmentOobPublicKeysListener) requireContext()).onPublicKeyAdded(MeshParserUtils.toByteArray(key));
-                dismiss();
-            } else if (validatePublicKeyInput(key)) {
-                try {
+            try {
+                if (validatePublicKeyInput(key)) {
                     ((DialogFragmentOobPublicKeysListener) requireContext()).onPublicKeyAdded(MeshParserUtils.toByteArray(key));
                     dismiss();
-                } catch (IllegalArgumentException ex) {
-                    binding.textInputLayout.setError(ex.getMessage());
                 }
+            } catch (IllegalArgumentException ex) {
+                binding.textInputLayout.setError(ex.getMessage());
             }
         });
         alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(v -> {
