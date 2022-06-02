@@ -100,18 +100,16 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                             formatAddress(unicastAddress, true) + ", Network Transmit count must be in range 1-8.");
 
                 if (count != 0 && interval != 0) {
-                    final NetworkTransmitSettings networkTransmitSettings;
                     // Some versions of nRF Mesh lib for Android were exporting interval
                     // as number of steps, not the interval, therefore we can try to fix that.
                     if (interval % 10 != 0 && interval <= 32) {
                         // Interval that was exported as intervalSteps are imported as it is.
-                        networkTransmitSettings = new NetworkTransmitSettings(count, interval);
-                        node.setNetworkTransmitSettings(networkTransmitSettings);
+                        node.setNetworkTransmitSettings(new NetworkTransmitSettings(count, interval));
                     } else if (interval % 10 == 0) {
                         // Interval that was exported as intervalSteps are decoded to intervalSteps.
                         final int steps = NetworkTransmitSettings.decodeNetworkTransmissionInterval(interval);
-                        networkTransmitSettings = new NetworkTransmitSettings(count, steps);
-                        node.setNetworkTransmitSettings(networkTransmitSettings);
+                        count = NetworkTransmitSettings.getTransmissionCount(count);
+                        node.setNetworkTransmitSettings(new NetworkTransmitSettings(count, steps));
                     }
                 }
             }
@@ -204,7 +202,7 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
 
             if (node.getNetworkTransmitSettings() != null) {
                 final JsonObject json = new JsonObject();
-                json.addProperty("count", node.getNetworkTransmitSettings().getNetworkTransmitCount());
+                json.addProperty("count", node.getNetworkTransmitSettings().getTransmissions());
                 json.addProperty("interval", node.getNetworkTransmitSettings().getNetworkTransmissionInterval());
                 nodeJson.add("networkTransmit", json);
             }

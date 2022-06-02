@@ -100,9 +100,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
     private int mRelayRetransmitCount = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
     private int mRelayRetransmitIntervalSteps = RELAY_RETRANSMIT_SETTINGS_UNKNOWN;
-    private int mNetworkTransmitCount = NETWORK_TRANSMIT_SETTING_UNKNOWN;
-    private int mNetworkTransmitIntervalSteps = NETWORK_TRANSMIT_SETTING_UNKNOWN;
-
     private final ActivityResultLauncher<Intent> heartbeatConfigurationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -188,12 +185,16 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
             mSetNetworkTransmitStateButton = nodeControlsContainerBinding.actionNetworkTransmitConfigure;
             mSetNetworkTransmitStateButton.setOnClickListener(v -> {
                 if (!checkConnectivity(mContainer)) return;
+
+                int transmissionsCount = NetworkTransmitSettings.MIN_TRANSMIT_COUNT;
+                int transmissionIntervalSteps = NetworkTransmitSettings.MIN_TRANSMISSION_INTERVAL;
+
                 if (meshNode != null && meshNode.getNetworkTransmitSettings() != null) {
-                    mNetworkTransmitCount = meshNode.getNetworkTransmitSettings().getNetworkTransmitCount();
-                    mNetworkTransmitIntervalSteps = meshNode.getNetworkTransmitSettings().getNetworkIntervalSteps();
+                    transmissionsCount = meshNode.getNetworkTransmitSettings().getNetworkTransmitCount();
+                    transmissionIntervalSteps = meshNode.getNetworkTransmitSettings().getNetworkIntervalSteps();
                 }
 
-                final DialogFragmentNetworkTransmitSettings fragment = DialogFragmentNetworkTransmitSettings.newInstance(mNetworkTransmitCount, mNetworkTransmitIntervalSteps);
+                final DialogFragmentNetworkTransmitSettings fragment = DialogFragmentNetworkTransmitSettings.newInstance(transmissionsCount, transmissionIntervalSteps);
                 fragment.show(getSupportFragmentManager(), null);
             });
 
@@ -421,8 +422,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         if (networkTransmitSettings != null) {
             mSetNetworkTransmitStateButton.setEnabled(true);
             mNetworkTransmitCountText.setText(getResources().getQuantityString(R.plurals.transmit_count,
-                    networkTransmitSettings.getTransmissionCount(),
-                    networkTransmitSettings.getTransmissionCount()));
+                    networkTransmitSettings.getTransmissions(),
+                    networkTransmitSettings.getTransmissions()));
             mNetworkTransmitIntervalStepsText.setText(getString(R.string.time_ms,
                     networkTransmitSettings.getNetworkTransmissionInterval()));
         } else {
