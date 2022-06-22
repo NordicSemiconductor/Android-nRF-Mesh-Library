@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -75,19 +75,19 @@ public final class LightLightnessStatus extends ApplicationStatusMessage impleme
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light lightness status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received light lightness status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentLightness = buffer.getShort() & 0xFFFF;
-        Log.v(TAG, "Present level: " + mPresentLightness);
+        MeshLogger.verbose(TAG, "Present level: " + mPresentLightness);
         if (buffer.limit() > LIGHT_LIGHTNESS_STATUS_MANDATORY_LENGTH) {
             mTargetLightness = buffer.getShort() & 0xFFFF;
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
-            Log.v(TAG, "Target level: " + mTargetLightness);
-            Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
-            Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
+            MeshLogger.verbose(TAG, "Target level: " + mTargetLightness);
+            MeshLogger.verbose(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
         }
     }
 

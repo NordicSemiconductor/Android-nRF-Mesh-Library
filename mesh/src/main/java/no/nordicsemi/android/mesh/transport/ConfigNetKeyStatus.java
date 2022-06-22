@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 
@@ -74,9 +74,9 @@ public class ConfigNetKeyStatus extends ConfigStatusMessage implements Parcelabl
         //NetKey status will only contain one index so we just take the first element
         mNetKeyIndex = keyIndexes.get(0);//ByteBuffer.wrap(netKeyIndex).order(ByteOrder.BIG_ENDIAN).getShort();
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Net key index: " + Integer.toHexString(mNetKeyIndex));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Net key index: " + Integer.toHexString(mNetKeyIndex));
     }
 
     @Override

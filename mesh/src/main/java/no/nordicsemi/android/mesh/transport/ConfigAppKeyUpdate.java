@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -73,8 +73,8 @@ public class ConfigAppKeyUpdate extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        Log.v(TAG, "NetKeyIndex: " + mAppKey.getBoundNetKeyIndex());
-        Log.v(TAG, "AppKeyIndex: " + mAppKey.getKeyIndex());
+        MeshLogger.verbose(TAG, "NetKeyIndex: " + mAppKey.getBoundNetKeyIndex());
+        MeshLogger.verbose(TAG, "AppKeyIndex: " + mAppKey.getKeyIndex());
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getBoundNetKeyIndex());
         final byte[] appKeyIndex = MeshParserUtils.addKeyIndexPadding(mAppKey.getKeyIndex());
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(19).order(ByteOrder.LITTLE_ENDIAN);

@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.List;
 
@@ -134,7 +134,7 @@ public class ProvisioningStartState extends ProvisioningState {
                 break;
 
         }
-        Log.v(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
+        MeshLogger.verbose(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
 
         return provisioningPDU;
     }

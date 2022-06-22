@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -83,14 +83,14 @@ public class ConfigVendorModelAppList extends ConfigStatusMessage implements Par
         final byte[] modelIdentifier = new byte[]{mParameters[4], mParameters[3], mParameters[6], mParameters[5]};
         mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
-        Log.v(TAG, "Model identifier: " + CompositionDataParser.formatModelIdentifier(mModelIdentifier, false));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
+        MeshLogger.verbose(TAG, "Model identifier: " + CompositionDataParser.formatModelIdentifier(mModelIdentifier, false));
 
         mKeyIndexes.addAll(decode(mParameters.length, 7));
         for (Integer keyIndex : mKeyIndexes) {
-            Log.v(TAG, "AppKey Index: " + Integer.toHexString(keyIndex));
+            MeshLogger.verbose(TAG, "AppKey Index: " + Integer.toHexString(keyIndex));
         }
     }
 

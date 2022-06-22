@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
@@ -67,7 +67,7 @@ public final class VendorModelMessageStatus extends ApplicationStatusMessage imp
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received Vendor model status: " + MeshParserUtils.bytesToHex(mParameters, false));
+        MeshLogger.verbose(TAG, "Received Vendor model status: " + MeshParserUtils.bytesToHex(mParameters, false));
     }
 
     @Override

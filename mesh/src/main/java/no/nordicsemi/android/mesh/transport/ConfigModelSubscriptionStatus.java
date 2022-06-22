@@ -25,7 +25,7 @@ package no.nordicsemi.android.mesh.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -87,11 +87,11 @@ public class ConfigModelSubscriptionStatus extends ConfigStatusMessage implement
             mModelIdentifier = MeshParserUtils.bytesToInt(new byte[]{mParameters[6], mParameters[5], mParameters[8], mParameters[7]});
         }
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element Address: " + MeshAddress.formatAddress(mElementAddress, true));
-        Log.v(TAG, "Subscription Address: " + MeshAddress.formatAddress(mSubscriptionAddress, true));
-        Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Element Address: " + MeshAddress.formatAddress(mElementAddress, true));
+        MeshLogger.verbose(TAG, "Subscription Address: " + MeshAddress.formatAddress(mSubscriptionAddress, true));
+        MeshLogger.verbose(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
     }
 
     @Override

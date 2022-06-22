@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh;
 
 import android.text.TextUtils;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseIntArray;
 
 import com.google.gson.annotations.Expose;
@@ -414,7 +414,7 @@ abstract class BaseMeshNetwork {
                 try {
                     return key.clone();
                 } catch (CloneNotSupportedException e) {
-                    Log.e(TAG, "Error while cloning key: " + e.getMessage());
+                    MeshLogger.error(TAG, "Error while cloning key: " + e.getMessage());
                 }
             }
         }
@@ -480,7 +480,7 @@ abstract class BaseMeshNetwork {
                 try {
                     return key.clone();
                 } catch (CloneNotSupportedException e) {
-                    Log.e(TAG, "Error while cloning key: " + e.getMessage());
+                    MeshLogger.error(TAG, "Error while cloning key: " + e.getMessage());
                 }
             }
         }

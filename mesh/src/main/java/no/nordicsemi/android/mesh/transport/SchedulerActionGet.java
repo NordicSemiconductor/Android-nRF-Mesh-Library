@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -43,7 +43,7 @@ public class SchedulerActionGet extends ApplicationMessage {
     @Override
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
-        Log.v(TAG, SchedulerActionGet.class.getSimpleName() +  " with index: " + index);
+        MeshLogger.verbose(TAG, SchedulerActionGet.class.getSimpleName() +  " with index: " + index);
 
         mParameters = new byte[] { (byte) index };
     }

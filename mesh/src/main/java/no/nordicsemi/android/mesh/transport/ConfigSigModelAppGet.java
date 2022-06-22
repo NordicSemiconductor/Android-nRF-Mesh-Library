@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -70,8 +70,8 @@ public class ConfigSigModelAppGet extends ConfigMessage {
     @Override
     void assembleMessageParameters() {
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
-        Log.v(TAG, "Model: " + CompositionDataParser.formatModelIdentifier(modelIdentifier, false));
+        MeshLogger.verbose(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
+        MeshLogger.verbose(TAG, "Model: " + CompositionDataParser.formatModelIdentifier(modelIdentifier, false));
         paramsBuffer = ByteBuffer.allocate(SIG_MODEL_APP_GET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.putShort((short) elementAddress);
         paramsBuffer.putShort((short) modelIdentifier);

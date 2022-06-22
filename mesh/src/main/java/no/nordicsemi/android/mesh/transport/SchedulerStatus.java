@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -46,10 +46,10 @@ public class SchedulerStatus extends ApplicationStatusMessage implements Parcela
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received scheduler status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received scheduler status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         schedules = buffer.get();
-        Log.v(TAG, "Schedules action: " + schedules);
+        MeshLogger.verbose(TAG, "Schedules action: " + schedules);
     }
 
     @Override

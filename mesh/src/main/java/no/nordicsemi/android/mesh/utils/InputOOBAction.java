@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.utils;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -82,7 +82,7 @@ public enum InputOOBAction {
         for (InputOOBAction action : inputActions) {
             if ((inputAction & action.inputOOBAction) == action.inputOOBAction) {
                 supportedActionValues.add(action);
-                Log.v(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
+                MeshLogger.verbose(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
             }
         }
         return supportedActionValues;

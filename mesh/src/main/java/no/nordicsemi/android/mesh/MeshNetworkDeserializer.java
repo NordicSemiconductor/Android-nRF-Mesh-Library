@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -458,7 +458,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 group.setName(name);
                 groups.add(group);
             } catch (Exception ex) {
-                Log.e(TAG, "Error while de-serializing groups: " + ex.getMessage());
+                MeshLogger.error(TAG, "Error while de-serializing groups: " + ex.getMessage());
             }
         }
         return groups;
@@ -522,7 +522,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 scenes.add(scene);
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error while de-serializing scenes: " + ex.getMessage());
+            MeshLogger.error(TAG, "Error while de-serializing scenes: " + ex.getMessage());
         }
         return scenes;
     }

@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseIntArray;
 
 import java.util.ArrayList;
@@ -879,7 +879,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                     values.put("appKeys", MeshTypeConverters.nodeKeysToJson(appKeyIndexes));
                     database.update("nodes", SQLiteDatabase.CONFLICT_REPLACE, values, "uuid = ?", new String[]{uuid});
                 } catch (Exception ex) {
-                    Log.v(TAG, "Something went wrong while migrating data");
+                    MeshLogger.verbose(TAG, "Something went wrong while migrating data");
                 }
             } while (cursor.moveToNext());
             cursor.close();

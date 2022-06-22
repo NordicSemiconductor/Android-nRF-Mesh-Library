@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -77,22 +77,22 @@ public final class SceneStatus extends ApplicationStatusMessage implements Parce
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received scene status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received scene status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mStatusCode = buffer.get() & 0xFF;
         mCurrentScene = buffer.getShort() & 0xFFFF;
-        Log.d(TAG, "Status: " + mStatusCode);
-        Log.d(TAG, "Current Scene : " + mCurrentScene);
+        MeshLogger.debug(TAG, "Status: " + mStatusCode);
+        MeshLogger.debug(TAG, "Current Scene : " + mCurrentScene);
         if (buffer.limit() > SCENE_STATUS_MANDATORY_LENGTH) {
             mTargetScene = buffer.getShort() & 0xFFFF;
             mRemainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (mRemainingTime & 0x3F);
             mTransitionResolution = (mRemainingTime >> 6);
-            Log.d(TAG, "Target scene: " + mTargetScene);
-            Log.d(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
-            Log.d(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
-            Log.d(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
+            MeshLogger.debug(TAG, "Target scene: " + mTargetScene);
+            MeshLogger.debug(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
+            MeshLogger.debug(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
+            MeshLogger.debug(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
         }
     }
 

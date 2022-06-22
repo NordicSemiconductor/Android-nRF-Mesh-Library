@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.List;
 
@@ -101,7 +101,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
                 final int segO = retransmitPduIndexes.get(i);
                 if (message.getNetworkLayerPdu().get(segO) != null) {
                     final byte[] pdu = message.getNetworkLayerPdu().get(segO);
-                    Log.v(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
+                    MeshLogger.verbose(TAG, "Resending segment " + segO + " : " + MeshParserUtils.bytesToHex(pdu, false));
                     final Message retransmitMeshMessage = mMeshTransport.createRetransmitMeshMessage(message, segO);
                     mInternalTransportCallbacks.onMeshPduCreated(mDst, retransmitMeshMessage.getNetworkLayerPdu().get(segO));
                 }
@@ -111,7 +111,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
 
     @Override
     public void onIncompleteTimerExpired() {
-        Log.v(TAG, "Incomplete timer has expired, all segments were not received!");
+        MeshLogger.verbose(TAG, "Incomplete timer has expired, all segments were not received!");
         if (meshMessageHandlerCallbacks != null) {
             meshMessageHandlerCallbacks.onIncompleteTimerExpired(mDst);
 
@@ -130,7 +130,7 @@ abstract class MeshMessageState implements LowerTransportLayerCallbacks {
     public void sendSegmentAcknowledgementMessage(final ControlMessage controlMessage) {
         //We don't send acknowledgements here
         final ControlMessage message = mMeshTransport.createSegmentBlockAcknowledgementMessage(controlMessage);
-        Log.v(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkLayerPdu().get(0), false));
+        MeshLogger.verbose(TAG, "Sending acknowledgement: " + MeshParserUtils.bytesToHex(message.getNetworkLayerPdu().get(0), false));
         mInternalTransportCallbacks.onMeshPduCreated(message.getDst(), message.getNetworkLayerPdu().get(0));
         mMeshStatusCallbacks.onBlockAcknowledgementProcessed(message.getDst(), controlMessage);
     }

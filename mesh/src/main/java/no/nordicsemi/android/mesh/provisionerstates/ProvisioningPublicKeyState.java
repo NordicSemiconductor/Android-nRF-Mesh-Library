@@ -23,7 +23,7 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.interfaces.ECPrivateKey;
@@ -119,8 +119,8 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
             final byte[] tempX = BigIntegers.asUnsignedByteArray(32, x);
             final byte[] tempY = BigIntegers.asUnsignedByteArray(32, y);
 
-            Log.v(TAG, "X: length: " + tempX.length + " " + MeshParserUtils.bytesToHex(tempX, false));
-            Log.v(TAG, "Y: length: " + tempY.length + " " + MeshParserUtils.bytesToHex(tempY, false));
+            MeshLogger.verbose(TAG, "X: length: " + tempX.length + " " + MeshParserUtils.bytesToHex(tempX, false));
+            MeshLogger.verbose(TAG, "Y: length: " + tempY.length + " " + MeshParserUtils.bytesToHex(tempY, false));
 
             final byte[] tempXY = new byte[64];
             System.arraycopy(tempX, 0, tempXY, 0, tempX.length);
@@ -128,7 +128,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
 
             node.setProvisionerPublicKeyXY(tempXY);
 
-            Log.v(TAG, "XY: " + MeshParserUtils.bytesToHex(tempXY, true));
+            MeshLogger.verbose(TAG, "XY: " + MeshParserUtils.bytesToHex(tempXY, true));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,8 +159,8 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
         final byte[] yComponent = new byte[32];
         System.arraycopy(xy, 32, yComponent, 0, xComponent.length);
 
-        Log.v(TAG, "Provisionee X: " + MeshParserUtils.bytesToHex(yComponent, false));
-        Log.v(TAG, "Provisionee Y: " + MeshParserUtils.bytesToHex(xComponent, false));
+        MeshLogger.verbose(TAG, "Provisionee X: " + MeshParserUtils.bytesToHex(yComponent, false));
+        MeshLogger.verbose(TAG, "Provisionee Y: " + MeshParserUtils.bytesToHex(xComponent, false));
 
         final BigInteger x = BigIntegers.fromUnsignedByteArray(xy, 0, 32);
         final BigInteger y = BigIntegers.fromUnsignedByteArray(xy, 32, 32);
@@ -181,7 +181,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
 
             final byte[] sharedECDHSecret = a.generateSecret();
             node.setSharedECDHSecret(sharedECDHSecret);
-            Log.v(TAG, "ECDH Secret: " + MeshParserUtils.bytesToHex(sharedECDHSecret, false));
+            MeshLogger.verbose(TAG, "ECDH Secret: " + MeshParserUtils.bytesToHex(sharedECDHSecret, false));
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

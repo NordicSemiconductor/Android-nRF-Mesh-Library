@@ -23,7 +23,7 @@ package no.nordicsemi.android.mesh.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
@@ -645,7 +645,7 @@ public class MeshParserUtils {
         final Random random = new Random();
         final int bound = (int) Math.pow(10, oobSize) - 1;
         final byte randomByte = (byte) (random.nextInt(bound) + 1);
-        Log.v(TAG, "Random OOB count: " + randomByte);
+        MeshLogger.verbose(TAG, "Random OOB count: " + randomByte);
         return new byte[]{randomByte};
     }
 
@@ -661,7 +661,7 @@ public class MeshParserUtils {
     static byte[] generateOOBNumeric(final int oobSize) {
         final Random random = new Random();
         final int value = random.nextInt((int) Math.pow(10, oobSize));
-        Log.v(TAG, "Random OOB numeric: " + value);
+        MeshLogger.verbose(TAG, "Random OOB numeric: " + value);
         return intToBytes(value);
     }
 
@@ -681,7 +681,7 @@ public class MeshParserUtils {
             final int index = random.nextInt(ALPHANUMERIC.length);
             value[i] = ALPHANUMERIC[index];
         }
-        Log.v(TAG, "Random OOB alpha numeric: " + new String(value));
+        MeshLogger.verbose(TAG, "Random OOB alpha numeric: " + new String(value));
         return value;
     }
 

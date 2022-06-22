@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.control;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -50,12 +50,12 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
         int ack = 0;
         if (blockAck == null) {
             ack |= 1 << segO;
-            Log.v(TAG, "Block ack value: " + Integer.toString(ack, 16));
+            MeshLogger.verbose(TAG, "Block ack value: " + Integer.toString(ack, 16));
             return ack;
         } else {
             ack = blockAck;
             ack |= 1 << segO;
-            Log.v(TAG, "Block ack value: " + Integer.toString(ack, 16));
+            MeshLogger.verbose(TAG, "Block ack value: " + Integer.toString(ack, 16));
             return ack;
         }
     }
@@ -97,10 +97,10 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
         for (int i = 0; i < segmentCount; i++) {
             int bit = (blockAck >> i) & 1;
             if (bit == 1) {
-                Log.v(TAG, "Segment " + i + " of " + (segmentCount - 1) + " received by peer");
+                MeshLogger.verbose(TAG, "Segment " + i + " of " + (segmentCount - 1) + " received by peer");
             } else {
                 retransmitSegments.add(i);
-                Log.v(TAG, "Segment " + i + " of " + (segmentCount - 1) + " not received by peer");
+                MeshLogger.verbose(TAG, "Segment " + i + " of " + (segmentCount - 1) + " not received by peer");
             }
         }
         return retransmitSegments;
@@ -115,7 +115,7 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
     public static boolean hasAllSegmentsBeenReceived(final Integer blockAcknowledgement, final int segN) {
         if (blockAcknowledgement == null)
             return false;
-        Log.v(TAG, "Block ack: " + blockAcknowledgement);
+        MeshLogger.verbose(TAG, "Block ack: " + blockAcknowledgement);
         final int blockAck = blockAcknowledgement;
         int setBitCount = 0;
         for (int i = 0; i < segN; i++) {
@@ -124,7 +124,7 @@ public class BlockAcknowledgementMessage extends TransportControlMessage {
                 setBitCount++;
             }
         }
-        Log.v(TAG, "bit count: " + setBitCount);
+        MeshLogger.verbose(TAG, "bit count: " + setBitCount);
         return setBitCount == segN + 1; //Since segN is 0 based add 1 as the bit count represents the number of segments
     }
 }

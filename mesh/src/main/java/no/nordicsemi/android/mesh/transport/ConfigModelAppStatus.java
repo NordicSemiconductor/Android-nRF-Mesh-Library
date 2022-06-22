@@ -25,7 +25,7 @@ package no.nordicsemi.android.mesh.transport;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -92,11 +92,11 @@ public class ConfigModelAppStatus extends ConfigStatusMessage implements Parcela
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
         }
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
-        Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
-        Log.v(TAG, "Model identifier: " + Integer.toHexString(mModelIdentifier));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
+        MeshLogger.verbose(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
+        MeshLogger.verbose(TAG, "Model identifier: " + Integer.toHexString(mModelIdentifier));
     }
 
     @Override

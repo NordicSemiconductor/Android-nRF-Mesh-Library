@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
@@ -66,7 +66,7 @@ public final class LightLCOccupancyModeStatus extends ApplicationStatusMessage i
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light lc occupancy mode status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received light lc occupancy mode status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         status = (mParameters[0] & 0xFF) == 0x01;
     }
 

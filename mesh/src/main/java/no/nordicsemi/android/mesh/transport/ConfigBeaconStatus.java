@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
@@ -31,7 +31,7 @@ public class ConfigBeaconStatus extends ConfigStatusMessage {
     @Override
     void parseStatusParameters() {
         enable = MeshParserUtils.unsignedByteToInt(mParameters[0]) == ProvisionedBaseMeshNode.ENABLED;
-        Log.d(TAG, "Secure Network Beacon State: " + enable);
+        MeshLogger.debug(TAG, "Secure Network Beacon State: " + enable);
     }
 
     @Override

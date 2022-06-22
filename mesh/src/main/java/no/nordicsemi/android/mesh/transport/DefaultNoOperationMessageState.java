@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,10 +78,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     parseControlMessage((ControlMessage) message);
                 }
             } else {
-                Log.v(TAG, "Message reassembly may not be completed yet!");
+                MeshLogger.verbose(TAG, "Message reassembly may not be completed yet!");
             }
         } catch (ExtendedInvalidCipherTextException e) {
-            Log.e(TAG, "Decryption failed in " + e.getTag() + " : " + e.getMessage());
+            MeshLogger.error(TAG, "Decryption failed in " + e.getTag() + " : " + e.getMessage());
             mMeshStatusCallbacks.onMessageDecryptionFailed(e.getTag(), e.getMessage());
         }
     }
@@ -496,7 +496,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final VendorModelMessageAcked vendorModelMessageAcked = (VendorModelMessageAcked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(message, vendorModelMessageAcked.getModelIdentifier());
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
-                    Log.v(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(message.getAccessPdu(), false));
+                    MeshLogger.verbose(TAG, "Vendor model Access PDU Received: " + MeshParserUtils.bytesToHex(message.getAccessPdu(), false));
                 } else if (mMeshMessage instanceof VendorModelMessageUnacked) {
                     final VendorModelMessageUnacked vendorModelMessageUnacked = (VendorModelMessageUnacked) mMeshMessage;
                     final VendorModelMessageStatus status = new VendorModelMessageStatus(message, vendorModelMessageUnacked.getModelIdentifier());
@@ -509,7 +509,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     }
 
     private void handleUnknownPdu(final AccessMessage message) {
-        Log.v(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(message.getAccessPdu(), false));
+        MeshLogger.verbose(TAG, "Unknown Access PDU Received: " + MeshParserUtils.bytesToHex(message.getAccessPdu(), false));
         mMeshStatusCallbacks.onUnknownPduReceived(message.getSrc(), message.getAccessPdu());
     }
 
@@ -524,12 +524,12 @@ class DefaultNoOperationMessageState extends MeshMessageState {
         if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_NETWORK) {
             final TransportControlMessage transportControlMessage = controlMessage.getTransportControlMessage();
             if (transportControlMessage.getState() == TransportControlMessage.TransportControlMessageState.LOWER_TRANSPORT_BLOCK_ACKNOWLEDGEMENT) {
-                Log.v(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
+                MeshLogger.verbose(TAG, "Acknowledgement payload: " + MeshParserUtils.bytesToHex(controlMessage.getTransportControlPdu(), false));
                 final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
                 mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc(), controlMessage);
                 executeResend(retransmitPduIndexes);
             } else {
-                Log.v(TAG, "Unexpected control message received, ignoring message");
+                MeshLogger.verbose(TAG, "Unexpected control message received, ignoring message");
                 mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
             }
         } else if (controlMessage.getPduType() == MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION) {

@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.utils;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -35,7 +35,7 @@ final class AllocatedGroupRangeDbMigrator implements JsonDeserializer<List<Alloc
                 }
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
+            MeshLogger.error(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
         }
         return groupRanges;
     }

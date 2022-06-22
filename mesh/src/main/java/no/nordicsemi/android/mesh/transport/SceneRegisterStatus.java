@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -73,19 +73,19 @@ public final class SceneRegisterStatus extends ApplicationStatusMessage implemen
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received scene register status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received scene register status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mStatus = buffer.get() & 0xFF;
         mCurrentScene = buffer.getShort() & 0xFFFF;
-        Log.v(TAG, "Status: " + mStatus);
-        Log.v(TAG, "Current Scene: " + mCurrentScene);
+        MeshLogger.verbose(TAG, "Status: " + mStatus);
+        MeshLogger.verbose(TAG, "Current Scene: " + mCurrentScene);
         if (buffer.limit() > SCENE_REGISTER_STATUS_MANDATORY_LENGTH) {
             int sceneCount = (buffer.limit() - SCENE_REGISTER_STATUS_MANDATORY_LENGTH) / 2;
             for (int i = 0; i < sceneCount; i++) {
                 mSceneList.add(buffer.getShort() & 0xFFFF);
             }
-            Log.v(TAG, "Scenes stored: " + sceneCount);
+            MeshLogger.verbose(TAG, "Scenes stored: " + sceneCount);
         }
     }
 

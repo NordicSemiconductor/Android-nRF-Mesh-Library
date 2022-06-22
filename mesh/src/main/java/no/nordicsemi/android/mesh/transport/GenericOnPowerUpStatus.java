@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -60,16 +60,16 @@ public class GenericOnPowerUpStatus extends ApplicationStatusMessage implements 
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic power up status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received generic power up status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
 
         if (mParameters.length == GENERIC_ON_POWER_UP_STATUS_LENGTH / 8) {
             BitReader bitReader = new BitReader(ArrayUtils.reverseArray(mParameters));
             try {
                 onPowerUpState = OnPowerUpState.fromValue(bitReader.getBits(GENERIC_ON_POWER_UP_STATUS_LENGTH));
             } catch (InvalidParameterException e) {
-                Log.v(TAG, "Couldn't parse on power up state.");
+                MeshLogger.verbose(TAG, "Couldn't parse on power up state.");
             }
-            Log.v(TAG, "Generic on power up status has state: "+onPowerUpState);
+            MeshLogger.verbose(TAG, "Generic on power up status has state: "+onPowerUpState);
         }
     }
 

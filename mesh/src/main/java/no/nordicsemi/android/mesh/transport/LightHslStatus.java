@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -75,21 +75,21 @@ public final class LightHslStatus extends ApplicationStatusMessage implements Pa
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light hsl status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received light hsl status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mPresentHslLightness = buffer.getShort() & 0xFFFF;
         mPresentHslHue = buffer.getShort() & 0xFFFF;
         mPresentHslSaturation = buffer.getShort() & 0xFFFF;
-        Log.v(TAG, "Present lightness: " + mPresentHslLightness);
-        Log.v(TAG, "Present hue: " + mPresentHslHue);
-        Log.v(TAG, "Present saturation: " + mPresentHslSaturation);
+        MeshLogger.verbose(TAG, "Present lightness: " + mPresentHslLightness);
+        MeshLogger.verbose(TAG, "Present hue: " + mPresentHslHue);
+        MeshLogger.verbose(TAG, "Present saturation: " + mPresentHslSaturation);
         if (buffer.limit() > LIGHT_CTL_STATUS_MANDATORY_LENGTH) {
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
-            Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
-            Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
+            MeshLogger.verbose(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(remainingTime));
         }
     }
 

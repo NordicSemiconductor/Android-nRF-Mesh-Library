@@ -23,7 +23,7 @@
 package no.nordicsemi.android.mesh;
 
 import android.content.Context;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -156,7 +156,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
 
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Exception in " + provisioningState.getState().name() + " : " + ex.getMessage());
+            MeshLogger.error(TAG, "Exception in " + provisioningState.getState().name() + " : " + ex.getMessage());
             parseProvisioningState(unprovisionedMeshNode, data);
         }
     }
