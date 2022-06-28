@@ -26,7 +26,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -42,7 +41,6 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import no.nordicsemi.android.mesh.data.ApplicationKeyDao;
 import no.nordicsemi.android.mesh.data.ApplicationKeysDao;
 import no.nordicsemi.android.mesh.data.GroupDao;
@@ -56,6 +54,7 @@ import no.nordicsemi.android.mesh.data.ProvisionerDao;
 import no.nordicsemi.android.mesh.data.ProvisionersDao;
 import no.nordicsemi.android.mesh.data.SceneDao;
 import no.nordicsemi.android.mesh.data.ScenesDao;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.provisionerstates.UnprovisionedMeshNode;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.NetworkLayerCallbacks;
@@ -331,10 +330,14 @@ public class MeshManagerApi implements MeshMngrApi {
                             }
 
                             final IvIndex receivedIvIndex = receivedBeacon.getIvIndex();
-                            mMeshNetwork.ivIndex = new IvIndex(receivedIvIndex.getIvIndex(), receivedIvIndex.isIvUpdateActive(), lastTransitionDate);
-
-                            if (mMeshNetwork.ivIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
+                            if (receivedIvIndex.getIvIndex() > lastIvIndex.getIvIndex()) {
+                                mMeshNetwork.ivIndex = receivedIvIndex;
                                 MeshLogger.info(TAG, "Applying: " + mMeshNetwork.ivIndex.getIvIndex());
+                            } else {
+                                // This will leave the IV update active state intact or will switch from false to true.
+                                // canOverwrite() ensures this by discarding the secureNetworkBeacon received.
+                                mMeshNetwork.ivIndex.setIvUpdateActive(receivedIvIndex.isIvUpdateActive());
+                                MeshLogger.info(TAG, "Setting IV Update Active to: " + receivedIvIndex.isIvUpdateActive());
                             }
 
                             // If the IV Index used for transmitting messages effectively increased,

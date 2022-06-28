@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 public class IvIndex implements Parcelable {
 
     private final int ivIndex;
-    private final boolean isIvUpdateActive; // False: Normal Operation, True: IV Update in progress
+    private boolean isIvUpdateActive; // False: Normal Operation, True: IV Update in progress
     private boolean ivRecoveryFlag = false;
     private Calendar transitionDate;
 
@@ -69,6 +69,15 @@ public class IvIndex implements Parcelable {
      */
     public boolean isIvUpdateActive() {
         return isIvUpdateActive;
+    }
+
+    /**
+     * Sets the current IV Update state for the given IV Index
+     *
+     * @param flag true if the IV Update is active or false otherwise.
+     */
+    protected void setIvUpdateActive(final boolean flag) {
+        isIvUpdateActive = flag;
     }
 
     /**
