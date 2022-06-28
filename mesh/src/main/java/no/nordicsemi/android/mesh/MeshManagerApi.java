@@ -950,6 +950,9 @@ public class MeshManagerApi implements MeshMngrApi {
                     }
                 }
                 importedNetwork.loadSequenceNumbers();
+                // Load the last known ivIndex.
+                // Note: The iv index will be updated based on the secure network beacon after connecting to a proxy.
+                importedNetwork.ivIndex = network.ivIndex;
             }
             mMeshNetworkDb.update(mMeshNetworkDao, importedNetwork, false);
             insertNetwork(importedNetwork);
