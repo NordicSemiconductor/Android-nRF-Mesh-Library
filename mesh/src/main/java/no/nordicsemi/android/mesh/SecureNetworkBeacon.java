@@ -171,6 +171,9 @@ public class SecureNetworkBeacon extends MeshBeacon {
                                                       final Calendar updatedAt,
                                                       final boolean isIvRecoveryActive,
                                                       final boolean isTestMode) {
+        if (updatedAt == null) {
+            return true;
+        }
         // Let's define a "state" as a pair of IV and IV Update Active flag.
         // "States" change as follows:
         // 1. IV = X,   IVUA = false (Normal Operation)

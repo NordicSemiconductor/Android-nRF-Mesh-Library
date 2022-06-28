@@ -86,7 +86,7 @@ abstract class BaseMeshNetwork {
     @TypeConverters(MeshTypeConverters.class)
     @Expose
     @NonNull
-    IvIndex ivIndex = new IvIndex(0, false, Calendar.getInstance());
+    IvIndex ivIndex = new IvIndex(0, false, null);
     //Properties with Ignore are stored in their own table with the network's UUID as the foreign key
     @Ignore
     @SerializedName("netKeys")
