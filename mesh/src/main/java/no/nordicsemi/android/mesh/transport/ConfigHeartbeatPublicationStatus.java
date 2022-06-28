@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.Features;
@@ -89,9 +89,9 @@ public class ConfigHeartbeatPublicationStatus extends ConfigStatusMessage implem
                 DeviceFeatureUtils.getRelayFeature(featuresInt));
         final int netKeyIndex = MeshParserUtils.unsignedBytesToInt((mParameters[8]), mParameters[9]);
         heartbeatPublication = new HeartbeatPublication(dst, (byte) countLog, (byte) periodLog, ttl, features, netKeyIndex);
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.d(TAG, "Heartbeat publication: " + heartbeatPublication.toString());
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.debug(TAG, "Heartbeat publication: " + heartbeatPublication.toString());
     }
 
     @Override

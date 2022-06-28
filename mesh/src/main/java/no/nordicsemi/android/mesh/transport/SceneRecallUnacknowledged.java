@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -78,14 +78,14 @@ public class SceneRecallUnacknowledged extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Scene number: " + mSceneNumber);
+        MeshLogger.verbose(TAG, "Scene number: " + mSceneNumber);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(SCENE_RECALL_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mSceneNumber);
             paramsBuffer.put((byte) tId);
         } else {
-            Log.v(TAG, "Transition steps: " + mTransitionSteps);
-            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Transition steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(SCENE_RECALL_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mSceneNumber);
             paramsBuffer.put((byte) tId);

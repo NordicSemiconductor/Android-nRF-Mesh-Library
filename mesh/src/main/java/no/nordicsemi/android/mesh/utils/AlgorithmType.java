@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.utils;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public enum AlgorithmType {
         for (AlgorithmType algorithmType : algorithmTypes) {
             if ((algorithmTypeValue & algorithmType.bitMask) == algorithmType.bitMask) {
                 supportedAlgorithms.add(algorithmType);
-                Log.v(TAG, "Supported output oob action type: " + algorithmType.name);
+                MeshLogger.verbose(TAG, "Supported output oob action type: " + algorithmType.name);
             }
         }
         return supportedAlgorithms;

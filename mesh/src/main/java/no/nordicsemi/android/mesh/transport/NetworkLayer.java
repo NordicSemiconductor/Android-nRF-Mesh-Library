@@ -21,7 +21,7 @@
  */
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseArray;
 
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -95,10 +95,10 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final SecureUtils.K2Output k2Output = getK2Output(message);
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
-        Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
+        MeshLogger.verbose(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
 
         final byte[] privacyKey = k2Output.getPrivacyKey();
-        Log.v(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
+        MeshLogger.verbose(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
         final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index
@@ -127,11 +127,11 @@ abstract class NetworkLayer extends LowerTransportLayer {
                         message.setSequenceNumber(sequenceNumber);
                     }
                     sequenceNumbers.add(message.getSequenceNumber());
-                    Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNumbers.get(i), false));
+                    MeshLogger.verbose(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNumbers.get(i), false));
                     final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNumbers.get(i), src, message.getIvIndex());
                     final byte[] encryptedPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
                     encryptedPduPayload.put(i, encryptedPayload);
-                    Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
+                    MeshLogger.verbose(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
                 break;
             case MeshManagerApi.PDU_TYPE_PROXY_CONFIGURATION:
@@ -144,7 +144,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
                     final byte[] nonce = createProxyNonce(message.getSequenceNumber(), src, message.getIvIndex());
                     final byte[] encryptedPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
                     encryptedPduPayload.put(i, encryptedPayload);
-                    Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
+                    MeshLogger.verbose(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedPayload, false));
                 }
                 break;
         }
@@ -176,10 +176,10 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final SecureUtils.K2Output k2Output = getK2Output(message);
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
-        Log.v(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
+        MeshLogger.verbose(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
 
         final byte[] privacyKey = k2Output.getPrivacyKey();
-        Log.v(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
+        MeshLogger.verbose(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
         final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index
@@ -204,13 +204,13 @@ abstract class NetworkLayer extends LowerTransportLayer {
             final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(node.incrementSequenceNumber());
             message.setSequenceNumber(sequenceNum);
 
-            Log.v(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
+            MeshLogger.verbose(TAG, "Sequence Number: " + MeshParserUtils.bytesToHex(sequenceNum, false));
 
             final byte[] nonce = createNetworkNonce(ctlTTL, sequenceNum, src, message.getIvIndex());
             encryptedNetworkPayload = encryptPdu(lowerTransportPdu, encryptionKey, nonce, message.getDst(), SecureUtils.getNetMicLength(message.getCtl()));
             if (encryptedNetworkPayload == null)
                 return null;
-            Log.v(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
+            MeshLogger.verbose(TAG, "Encrypted Network payload: " + MeshParserUtils.bytesToHex(encryptedNetworkPayload, false));
         }
 
         if (encryptedNetworkPayload == null)
@@ -257,7 +257,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final int ctlTtl = networkHeader[0];
         final int ctl = (ctlTtl >> 7) & 0x01;
         final int ttl = ctlTtl & 0x7F;
-        Log.v(TAG, "TTL for received message: " + ttl);
+        MeshLogger.verbose(TAG, "TTL for received message: " + ttl);
         final int src = MeshParserUtils.unsignedBytesToInt(networkHeader[5], networkHeader[4]);
         if (ctl == 1) {
             return parseControlMessage(key, provisioner.getProvisionerAddress(), data, networkHeader, decryptedNetworkPayload, src, sequenceNumber);
@@ -289,15 +289,15 @@ abstract class NetworkLayer extends LowerTransportLayer {
         try {
             int receivedTtl = networkHeader[0] & 0x7F;
             final int dst = MeshParserUtils.unsignedBytesToInt(decryptedNetworkPayload[1], decryptedNetworkPayload[0]);
-            Log.v(TAG, "Dst: " + MeshAddress.formatAddress(dst, true));
+            MeshLogger.verbose(TAG, "Dst: " + MeshAddress.formatAddress(dst, true));
 
             if (isSegmentedMessage(decryptedNetworkPayload[2])) {
-                Log.v(TAG, "Received a segmented access message from: " + MeshAddress.formatAddress(src, false));
+                MeshLogger.verbose(TAG, "Received a segmented access message from: " + MeshAddress.formatAddress(src, false));
 
                 //Check if the received segmented message is from the same src as the previous segment
                 //Ideal case this check is not needed but let's leave it for now.
                 if (!mMeshNode.hasUnicastAddress(src)) {
-                    Log.v(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
+                    MeshLogger.verbose(TAG, "Segment received is from a different src than the one we are processing, let's drop it");
                     return null;
                 }
 
@@ -409,7 +409,7 @@ abstract class NetworkLayer extends LowerTransportLayer {
 
                     //Check if the message is directed to us, if its not ignore the message
                     if (provisionerAddress != dst) {
-                        Log.v(TAG, "Received a control message that was not directed to us, so we drop it");
+                        MeshLogger.verbose(TAG, "Received a control message that was not directed to us, so we drop it");
                         return null;
                     }
 

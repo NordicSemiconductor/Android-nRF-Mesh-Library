@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -32,7 +32,7 @@ final class AllocatedGroupRangeDeserializer implements JsonSerializer<List<Alloc
                 groupRanges.add(new AllocatedGroupRange(lowAddress, highAddress));
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
+            MeshLogger.error(TAG, "Error while de-serializing Allocated group range: " + ex.getMessage());
         }
         return groupRanges;
     }

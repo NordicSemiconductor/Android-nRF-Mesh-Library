@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -75,20 +75,20 @@ public final class GenericOnOffStatus extends ApplicationStatusMessage implement
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic on off status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received generic on off status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         buffer.position(0);
         mPresentOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
-        Log.v(TAG, "Present on: " + mPresentOn);
+        MeshLogger.verbose(TAG, "Present on: " + mPresentOn);
         if (buffer.limit() > 1) {
             mTargetOn = buffer.get() == GENERIC_ON_OFF_STATE_ON;
             mRemainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (mRemainingTime & 0x3F);
             mTransitionResolution = (mRemainingTime >> 6);
-            Log.v(TAG, "Target on: " + mTargetOn);
-            Log.v(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
-            Log.v(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
-            Log.v(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
+            MeshLogger.verbose(TAG, "Target on: " + mTargetOn);
+            MeshLogger.verbose(TAG, "Remaining time, transition number of steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Remaining time, transition number of step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Remaining time: " + MeshParserUtils.getRemainingTime(mRemainingTime));
         }
     }
 

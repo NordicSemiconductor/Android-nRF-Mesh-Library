@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.NetworkKey;
@@ -60,7 +60,7 @@ public class ConfigKeyRefreshPhaseSet extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        Log.d(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
+        MeshLogger.debug(TAG, "NetKeyIndex: " + mNetKey.getKeyIndex());
         final byte[] netKeyIndex = MeshParserUtils.addKeyIndexPadding(mNetKey.getKeyIndex());
         mParameters = new byte[]{netKeyIndex[1], (byte) ((netKeyIndex[0] & 0xFF) & 0x0F), (byte) transition};
     }

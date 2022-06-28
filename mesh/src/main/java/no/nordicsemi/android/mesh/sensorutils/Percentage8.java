@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -20,7 +20,7 @@ public class Percentage8 extends DevicePropertyCharacteristic<Float> {
         value = unsignedToSigned(data[offset] & 0xFF, 8) / 2.0f;
         if (value < 0.0f || value > 100.0f) {
             this.value = null;
-            Log.e(TAG, "Value " + value + " is Prohibited!");
+            MeshLogger.error(TAG, "Value " + value + " is Prohibited!");
         }
     }
 

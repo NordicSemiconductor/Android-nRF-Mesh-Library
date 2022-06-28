@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.sensorutils;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 
@@ -28,7 +28,7 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
                 value = tempValue / 2.0f;
                 if (value < -64.0f || value > 63.5f) {
                     this.value = null;
-                    Log.e(TAG, "Value " + tempValue + " is Prohibited!");
+                    MeshLogger.error(TAG, "Value " + tempValue + " is Prohibited!");
                 }
                 break;
             case 2:
@@ -39,7 +39,7 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
                 value = (tempValue / 100.0f);
                 if (value < -273.15f || value > 327.67f) {
                     this.value = null;
-                    Log.e(TAG, "Value " + tempValue + " is Prohibited!");
+                    MeshLogger.error(TAG, "Value " + tempValue + " is Prohibited!");
                 }
                 break;
             default:

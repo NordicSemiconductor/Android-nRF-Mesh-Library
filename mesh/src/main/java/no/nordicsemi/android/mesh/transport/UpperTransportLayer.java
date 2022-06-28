@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import org.spongycastle.crypto.InvalidCipherTextException;
 
@@ -114,7 +114,7 @@ abstract class UpperTransportLayer extends AccessLayer {
             super.createMeshMessage(message);
             final AccessMessage accessMessage = (AccessMessage) message;
             final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-            Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+            MeshLogger.verbose(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
             accessMessage.setUpperTransportPdu(encryptedTransportPDU);
         } else {
             createUpperTransportPDU(message);
@@ -130,7 +130,7 @@ abstract class UpperTransportLayer extends AccessLayer {
         super.createVendorMeshMessage(message);
         final AccessMessage accessMessage = (AccessMessage) message;
         final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-        Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+        MeshLogger.verbose(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
         accessMessage.setUpperTransportPdu(encryptedTransportPDU);
     }
 
@@ -145,7 +145,7 @@ abstract class UpperTransportLayer extends AccessLayer {
             //Access message
             final AccessMessage accessMessage = (AccessMessage) message;
             final byte[] encryptedTransportPDU = encryptUpperTransportPDU(accessMessage);
-            Log.v(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
+            MeshLogger.verbose(TAG, "Encrypted upper transport pdu: " + MeshParserUtils.bytesToHex(encryptedTransportPDU, false));
             accessMessage.setUpperTransportPdu(encryptedTransportPDU);
         } else {
             final ControlMessage controlMessage = (ControlMessage) message;
@@ -163,7 +163,7 @@ abstract class UpperTransportLayer extends AccessLayer {
             }
             final byte[] accessPdu = accessMessageBuffer.array();
 
-            Log.v(TAG, "Created Transport Control PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
+            MeshLogger.verbose(TAG, "Created Transport Control PDU " + MeshParserUtils.bytesToHex(accessPdu, false));
             controlMessage.setTransportControlPdu(accessPdu);
         }
     }
@@ -226,11 +226,11 @@ abstract class UpperTransportLayer extends AccessLayer {
         if (akf == APPLICATION_KEY_IDENTIFIER) {
             key = message.getDeviceKey();
             nonce = createDeviceNonce(aszmic, sequenceNumber, src, dst, ivIndex);
-            Log.v(TAG, "Device nonce: " + MeshParserUtils.bytesToHex(nonce, false));
+            MeshLogger.verbose(TAG, "Device nonce: " + MeshParserUtils.bytesToHex(nonce, false));
         } else {
             key = message.getApplicationKey().getKey();
             nonce = createApplicationNonce(aszmic, sequenceNumber, src, dst, ivIndex);
-            Log.v(TAG, "Application nonce: " + MeshParserUtils.bytesToHex(nonce, false));
+            MeshLogger.verbose(TAG, "Application nonce: " + MeshParserUtils.bytesToHex(nonce, false));
         }
 
         int transMicLength;

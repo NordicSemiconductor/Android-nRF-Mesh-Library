@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -72,8 +72,8 @@ public class ConfigModelPublicationGet extends ConfigMessage {
     @Override
     void assembleMessageParameters() {
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
-        Log.v(TAG, "Model: " + CompositionDataParser.formatModelIdentifier(modelIdentifier, false));
+        MeshLogger.verbose(TAG, "Element address: " + MeshAddress.formatAddress(elementAddress, true));
+        MeshLogger.verbose(TAG, "Model: " + CompositionDataParser.formatModelIdentifier(modelIdentifier, false));
 
         //We check if the model identifier value is within the range of a 16-bit value here. If it is then it is a sigmodel
         if (!MeshParserUtils.isVendorModel(modelIdentifier)) {

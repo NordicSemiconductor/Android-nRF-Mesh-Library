@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -50,10 +50,10 @@ public final class GenericLocationGlobalSet extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer buffer = ByteBuffer.allocate(GENERIC_LOCATION_GLOBAL_SET_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-        Log.v(TAG, "Creating message");
-        Log.v(TAG, latitude.toString());
-        Log.v(TAG, longitude.toString());
-        Log.v(TAG, altitude.toString());
+        MeshLogger.verbose(TAG, "Creating message");
+        MeshLogger.verbose(TAG, latitude.toString());
+        MeshLogger.verbose(TAG, longitude.toString());
+        MeshLogger.verbose(TAG, altitude.toString());
         buffer.putInt(latitude.getEncodedValue());
         buffer.putInt(longitude.getEncodedValue());
         buffer.putShort(altitude.getEncodedValue());

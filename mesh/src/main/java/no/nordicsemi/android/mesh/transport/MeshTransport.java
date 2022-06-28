@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.UUID;
 
@@ -129,15 +129,15 @@ final class MeshTransport extends NetworkLayer {
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
-        Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
-        Log.v(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
-        Log.v(TAG, "akf: " + akf);
-        Log.v(TAG, "aid: " + aid);
-        Log.v(TAG, "aszmic: " + aszmic);
-        Log.v(TAG, "Sequence number: " + sequenceNumber);
-        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
-        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
+        MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
+        MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
+        MeshLogger.verbose(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
+        MeshLogger.verbose(TAG, "akf: " + akf);
+        MeshLogger.verbose(TAG, "aid: " + aid);
+        MeshLogger.verbose(TAG, "aszmic: " + aszmic);
+        MeshLogger.verbose(TAG, "Sequence number: " + sequenceNumber);
+        MeshLogger.verbose(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
+        MeshLogger.verbose(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
@@ -188,15 +188,15 @@ final class MeshTransport extends NetworkLayer {
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
-        Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
-        Log.v(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
-        Log.v(TAG, "akf: " + akf);
-        Log.v(TAG, "aid: " + aid);
-        Log.v(TAG, "aszmic: " + aszmic);
-        Log.v(TAG, "Sequence number: " + sequenceNumber);
-        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
-        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
+        MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
+        MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
+        MeshLogger.verbose(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
+        MeshLogger.verbose(TAG, "akf: " + akf);
+        MeshLogger.verbose(TAG, "aid: " + aid);
+        MeshLogger.verbose(TAG, "aszmic: " + aszmic);
+        MeshLogger.verbose(TAG, "Sequence number: " + sequenceNumber);
+        MeshLogger.verbose(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
+        MeshLogger.verbose(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 
         final AccessMessage message = new AccessMessage();
         message.setSrc(src);
@@ -251,15 +251,15 @@ final class MeshTransport extends NetworkLayer {
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
-        Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
-        Log.v(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        Log.v(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
-        Log.v(TAG, "akf: " + akf);
-        Log.v(TAG, "aid: " + aid);
-        Log.v(TAG, "aszmic: " + aszmic);
-        Log.v(TAG, "Sequence number: " + sequenceNumber);
-        Log.v(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
-        Log.v(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
+        MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
+        MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
+        MeshLogger.verbose(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
+        MeshLogger.verbose(TAG, "akf: " + akf);
+        MeshLogger.verbose(TAG, "aid: " + aid);
+        MeshLogger.verbose(TAG, "aszmic: " + aszmic);
+        MeshLogger.verbose(TAG, "Sequence number: " + sequenceNumber);
+        MeshLogger.verbose(TAG, "Access message opcode: " + Integer.toHexString(accessOpCode));
+        MeshLogger.verbose(TAG, "Access message parameters: " + MeshParserUtils.bytesToHex(accessMessageParameters, false));
 
         final AccessMessage message = new AccessMessage();
         message.setCompanyIdentifier(companyIdentifier);
@@ -299,11 +299,11 @@ final class MeshTransport extends NetworkLayer {
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
-        Log.v(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
-        Log.v(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        Log.v(TAG, "Sequence number: " + sequenceNumber);
-        Log.v(TAG, "Control message opcode: " + Integer.toHexString(opcode));
-        Log.v(TAG, "Control message parameters: " + MeshParserUtils.bytesToHex(parameters, false));
+        MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
+        MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
+        MeshLogger.verbose(TAG, "Sequence number: " + sequenceNumber);
+        MeshLogger.verbose(TAG, "Control message opcode: " + Integer.toHexString(opcode));
+        MeshLogger.verbose(TAG, "Control message parameters: " + MeshParserUtils.bytesToHex(parameters, false));
 
         final ControlMessage message = new ControlMessage();
         message.setSrc(src);

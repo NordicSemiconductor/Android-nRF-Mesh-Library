@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ProxyConfigMessageOpCodes;
@@ -39,8 +39,8 @@ public class ProxyConfigFilterStatus extends ProxyConfigStatusMessage {
         mFilterType = new ProxyFilterType(MeshParserUtils.unsignedByteToInt(mParameters[0]));
         //Note proxy protocol is in big endian
         mAddressListSize = MeshParserUtils.unsignedBytesToInt(mParameters[2], mParameters[1]);
-        Log.d(TAG, "Filter type: " + mFilterType.getFilterTypeName());
-        Log.d(TAG, "Filter size: " + mAddressListSize);
+        MeshLogger.debug(TAG, "Filter type: " + mFilterType.getFilterTypeName());
+        MeshLogger.debug(TAG, "Filter size: " + mAddressListSize);
     }
 
     /**

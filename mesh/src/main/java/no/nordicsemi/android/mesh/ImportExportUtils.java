@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -117,10 +117,10 @@ class ImportExportUtils {
             network.setPartial(partial);
             return mGson.toJson(network);
         } catch (final com.google.gson.JsonSyntaxException ex) {
-            Log.e(TAG, "Error: " + ex.getMessage());
+            MeshLogger.error(TAG, "Error: " + ex.getMessage());
             return null;
         } catch (final Exception e) {
-            Log.e(TAG, "Error: " + e.getMessage());
+            MeshLogger.error(TAG, "Error: " + e.getMessage());
             return null;
         }
     }

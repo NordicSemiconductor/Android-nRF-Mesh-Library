@@ -23,7 +23,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 import android.content.Context;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseArray;
 
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -133,7 +133,7 @@ public abstract class BaseMeshMessageHandler implements MeshMessageHandlerApi, I
             // IF the node was found we can safely try to decrypt message with the network key which we found src of the message.
             if(node != null && k2Output != null) {
                 final byte[] sequenceNumber = ByteBuffer.allocate(3).order(ByteOrder.BIG_ENDIAN).put(networkHeader, 1, 3).array();
-                Log.v(TAG, "Sequence number of received Network PDU: " + MeshParserUtils.convert24BitsToInt(sequenceNumber));
+                MeshLogger.verbose(TAG, "Sequence number of received Network PDU: " + MeshParserUtils.convert24BitsToInt(sequenceNumber));
                 //TODO validate ivi
                 byte[] nonce;
                 try {
