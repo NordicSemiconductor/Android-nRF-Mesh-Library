@@ -322,7 +322,7 @@ public class MeshManagerApi implements MeshMngrApi {
                             final boolean flag = allowIvIndexRecoveryOver42;
                             if (!receivedBeacon.canOverwrite(lastIvIndex, lastTransitionDate, isIvRecoveryActive, isIvTestModeActive, flag)) {
                                 String numberOfHoursSinceDate = ((Calendar.getInstance().getTimeInMillis() -
-                                        lastTransitionDate.getTimeInMillis()) / (3600 * 1000)) + "h";
+                                        (lastTransitionDate != null ? lastTransitionDate.getTimeInMillis() : 0)) / (3600 * 1000)) + "h";
                                 MeshLogger.warn(TAG, "Discarding beacon " + receivedBeacon.getIvIndex() +
                                         ", last " + lastIvIndex.getIvIndex() + ", changed: "
                                         + numberOfHoursSinceDate + " ago, test mode: " + ivUpdateTestModeActive);

@@ -910,7 +910,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("mesh_uuid", uuid);
                 values.put("mesh_name", meshName);
                 values.put("timestamp", timestamp);
-                values.put("iv_index", MeshTypeConverters.ivIndexToJson(new IvIndex(ivIndex, ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE, Calendar.getInstance())));
+                values.put("iv_index", MeshTypeConverters.ivIndexToJson(new IvIndex(ivIndex, ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE, null)));
                 values.put("sequence_numbers", sequenceNumbers);
                 values.put("last_selected", lastSelected);
                 database.insert("mesh_network_temp", SQLiteDatabase.CONFLICT_REPLACE, values);
