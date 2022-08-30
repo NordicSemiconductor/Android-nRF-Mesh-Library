@@ -46,6 +46,6 @@ public class Percentage8 extends DevicePropertyCharacteristic<Float> {
 
     @Override
     public byte[] getBytes() {
-        return new byte[value.byteValue()];
+        return new byte[]{(byte) ((value.intValue() * 2) & 0xFF)};
     }
 }
