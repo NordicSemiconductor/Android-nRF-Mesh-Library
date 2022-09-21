@@ -16,7 +16,7 @@ import no.nordicsemi.android.mesh.utils.MeshAddress;
 public class GenericBatteryStatus extends ApplicationStatusMessage {
 
     private static final String TAG = GenericBatteryStatus.class.getSimpleName();
-    private static final int GENERIC_BATTERY_STATUS_MANDATORY_LENGTH = 10;
+    private static final int GENERIC_BATTERY_STATUS_MANDATORY_LENGTH = 8;
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_BATTERY_STATUS;
     private byte mBatteryLevel;
     private int mTimeToDischarge;
@@ -41,8 +41,8 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
         mBatteryLevel = buffer.get();
         MeshLogger.verbose(TAG, "Battery level: " + mBatteryLevel);
         if (buffer.limit() > GENERIC_BATTERY_STATUS_MANDATORY_LENGTH) {
-            mTimeToDischarge = (buffer.get() << 24) + (buffer.get() << 16) + (buffer.get() << 8) + buffer.get();
-            mTimeToCharge = (buffer.get() << 24) + (buffer.get() << 16) + (buffer.get() << 8) + buffer.get();
+            mTimeToDischarge = buffer.get() | (buffer.get() << 8) | (buffer.get() << 16);
+            mTimeToCharge = buffer.get() | (buffer.get() << 8) | (buffer.get() << 16);
             mFlags = buffer.get();
             MeshLogger.verbose(TAG, "Time to discharge: " + mTimeToDischarge);
             MeshLogger.verbose(TAG, "Time to charge: " + mTimeToCharge);
