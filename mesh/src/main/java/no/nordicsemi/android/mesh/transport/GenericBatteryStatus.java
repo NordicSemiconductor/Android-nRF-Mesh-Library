@@ -40,9 +40,9 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         mBatteryLevel = buffer.get();
         MeshLogger.verbose(TAG, "Battery level: " + mBatteryLevel);
-        if (buffer.limit() > GENERIC_BATTERY_STATUS_MANDATORY_LENGTH) {
-            mTimeToDischarge = buffer.get() | (buffer.get() << 8) | (buffer.get() << 16);
-            mTimeToCharge = buffer.get() | (buffer.get() << 8) | (buffer.get() << 16);
+        if (buffer.limit() >= GENERIC_BATTERY_STATUS_MANDATORY_LENGTH) {
+            mTimeToDischarge = (buffer.get() & 0xFF) | ((buffer.get() & 0xFF) << 8) | ((buffer.get() & 0xFF) << 16);
+            mTimeToCharge = (buffer.get() & 0xFF) | ((buffer.get() & 0xFF)<< 8) | ((buffer.get() & 0xFF) << 16);
             mFlags = buffer.get();
             MeshLogger.verbose(TAG, "Time to discharge: " + mTimeToDischarge);
             MeshLogger.verbose(TAG, "Time to charge: " + mTimeToCharge);
