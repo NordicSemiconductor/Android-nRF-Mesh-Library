@@ -37,13 +37,12 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
     @Override
     void parseStatusParameters() {
         MeshLogger.verbose(TAG, "Received generic battery status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
-        final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mBatteryLevel = buffer.get();
+        mBatteryLevel = mParameters[0];
         MeshLogger.verbose(TAG, "Battery level: " + mBatteryLevel);
-        if (buffer.limit() >= GENERIC_BATTERY_STATUS_MANDATORY_LENGTH) {
-            mTimeToDischarge = (buffer.get() & 0xFF) | ((buffer.get() & 0xFF) << 8) | ((buffer.get() & 0xFF) << 16);
-            mTimeToCharge = (buffer.get() & 0xFF) | ((buffer.get() & 0xFF)<< 8) | ((buffer.get() & 0xFF) << 16);
-            mFlags = buffer.get();
+        if (mParameters.length >= GENERIC_BATTERY_STATUS_MANDATORY_LENGTH) {
+            mTimeToDischarge = (mParameters[1] & 0xFF) | ((mParameters[2] & 0xFF) << 8) | ((mParameters[3] & 0xFF) << 16);
+            mTimeToCharge = (mParameters[4] & 0xFF) | ((mParameters[5] & 0xFF) << 8) | ((mParameters[6] & 0xFF) << 16);
+            mFlags = mParameters[7];
             MeshLogger.verbose(TAG, "Time to discharge: " + mTimeToDischarge);
             MeshLogger.verbose(TAG, "Time to charge: " + mTimeToCharge);
             MeshLogger.verbose(TAG, "Flags: " + mFlags);
