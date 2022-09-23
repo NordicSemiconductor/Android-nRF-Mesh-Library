@@ -430,6 +430,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericLevelStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericLevelStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_BATTERY_STATUS) {
+                    final GenericBatteryStatus status = new GenericBatteryStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(status);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_LIGHTNESS_STATUS) {
                     final LightLightnessStatus lightLightnessStatus = new LightLightnessStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightLightnessStatus);
