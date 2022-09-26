@@ -26,12 +26,12 @@ apply from: rootProject.file("gradle/git-tag-version.gradle")
 
 android {
 
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdkVersion 19
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode getVersionCodeFromTags()
         versionName getVersionNameFromTags()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -69,22 +69,22 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.test:runner:1.4.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
-    implementation 'androidx.activity:activity:1.6.0-alpha04'
-    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
+    implementation 'androidx.activity:activity:1.6.0-rc02'
+    implementation 'androidx.core:core-splashscreen:1.0.0'
 
     // Brings the new BluetoothLeScanner API to older platforms
     implementation 'no.nordicsemi.android:log:2.3.0'
     implementation 'no.nordicsemi.android.support.v18:scanner:1.6.0'
     // Android BLE Library
-    implementation 'no.nordicsemi.android:ble:2.4.0'
+    implementation 'no.nordicsemi.android:ble:2.5.1'
 
     implementation "com.google.dagger:hilt-android:$hilt_version"
 
