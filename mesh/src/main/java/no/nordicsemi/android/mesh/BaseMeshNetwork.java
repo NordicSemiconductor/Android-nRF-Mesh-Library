@@ -1,7 +1,6 @@
 package no.nordicsemi.android.mesh;
 
 import android.text.TextUtils;
-import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseIntArray;
 
 import com.google.gson.annotations.Expose;
@@ -11,7 +10,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -27,6 +25,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.transport.ConfigAppKeyUpdate;
 import no.nordicsemi.android.mesh.transport.ConfigKeyRefreshPhaseSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetKeyUpdate;
@@ -65,11 +64,11 @@ abstract class BaseMeshNetwork {
     @Ignore
     @SerializedName("id")
     @Expose
-    String id = "http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#";
+    String id = "https://www.bluetooth.com/specifications/specs/mesh-cdb-1-0-1-schema.json#";
     @Ignore
     @SerializedName("version")
     @Expose
-    String version = "1.0.0";
+    String version = "1.0.1";
     @ColumnInfo(name = "mesh_name")
     @SerializedName("meshName")
     @Expose
