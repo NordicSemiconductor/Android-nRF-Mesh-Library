@@ -2,7 +2,6 @@ package no.nordicsemi.android.mesh;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,6 +19,7 @@ import java.util.ListIterator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.InternalElementListDeserializer;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -209,7 +209,7 @@ class ImportExportUtils {
         // List of Application Keys to export
         if (applicationKeysConfig.getConfig() instanceof ApplicationKeysConfig.ExportSome) {
             network.appKeys.clear();
-            // List of keys set in the configuration, but we must only export the keys that are bound to that application key.
+            // List of application keys set in the configuration, but we must only export the keys that are bound to that network key.
             final List<ApplicationKey> keys = ((ApplicationKeysConfig.ExportSome) applicationKeysConfig.getConfig()).getKeys();
             for (ApplicationKey key : keys) {
                 if (isApplicationKeyBound(network.getNetKeys(), key)) {
