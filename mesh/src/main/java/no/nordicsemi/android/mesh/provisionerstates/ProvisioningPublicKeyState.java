@@ -23,8 +23,6 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 
-import no.nordicsemi.android.mesh.logger.MeshLogger;
-
 import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.interfaces.ECPrivateKey;
 import org.spongycastle.jce.interfaces.ECPublicKey;
@@ -52,6 +50,7 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 public class ProvisioningPublicKeyState extends ProvisioningState {
@@ -150,7 +149,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
             // Mark the node as secure if the provisionee public key is not null.
             // This would assume that the key was obtained via an OOB method and is provided by the
             // user before starting provisioning.
-            node.setSecure(true);
+            node.markAsSecure();
         }
 
         final byte[] xComponent = new byte[32];

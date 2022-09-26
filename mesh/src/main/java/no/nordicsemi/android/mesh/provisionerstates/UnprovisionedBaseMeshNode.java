@@ -242,8 +242,11 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
         this.inputAuthentication = inputAuthentication;
     }
 
-    void setSecure(final boolean secure){
-        this.secure = secure;
+    /**
+     * Marks the node as secure, if it was provisioned using OOB Public Key.
+     */
+    void markAsSecure(){
+        secure = true;
     }
 
     public boolean isSecure(){
