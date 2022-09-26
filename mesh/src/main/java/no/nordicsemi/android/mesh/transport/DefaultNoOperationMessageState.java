@@ -1,7 +1,5 @@
 package no.nordicsemi.android.mesh.transport;
 
-import no.nordicsemi.android.mesh.logger.MeshLogger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +15,7 @@ import no.nordicsemi.android.mesh.MeshStatusCallbacks;
 import no.nordicsemi.android.mesh.NetworkKey;
 import no.nordicsemi.android.mesh.control.BlockAcknowledgementMessage;
 import no.nordicsemi.android.mesh.control.TransportControlMessage;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.models.ConfigurationServerModel;
 import no.nordicsemi.android.mesh.models.SceneServer;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
@@ -197,6 +196,11 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         if (status.isSuccessful()) {
                             if (mMeshMessage instanceof ConfigNetKeyAdd) {
                                 node.setAddedNetKeyIndex(status.getNetKeyIndex());
+                                // Let's mark any keys added to the node as insecure if the node was provisioned insecurely.
+                                if (!node.isSecurelyProvisioned()) {
+                                    final NetworkKey key = mInternalTransportCallbacks.getMeshNetwork().getNetKey(status.getNetKeyIndex());
+                                    key.markAsInsecure();
+                                }
                             } else if (mMeshMessage instanceof ConfigNetKeyUpdate) {
                                 node.updateAddedNetKey(status.getNetKeyIndex());
                             } else if (mMeshMessage instanceof ConfigNetKeyDelete) {
