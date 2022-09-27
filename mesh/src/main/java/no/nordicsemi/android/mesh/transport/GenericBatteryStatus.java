@@ -1,10 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
 import androidx.annotation.NonNull;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -59,7 +55,7 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
      *
      * @return battery level
      */
-    public byte getBatteryLevel() {
+    public int getBatteryLevel() {
         return mBatteryLevel;
     }
 
@@ -87,7 +83,7 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
      *
      * @return battery flags
      */
-    public byte getFlags() {
+    public int getFlags() {
         return mFlags;
     }
 
@@ -136,7 +132,7 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
         NOT_REMOVABLE(0b10),
         UNKNOWN(0b11);
 
-        private int flag;
+        private final int flag;
         //Constructor to initialize the instance variable
         BatteryPresence(int flag) {
             this.flag = flag;
@@ -164,7 +160,7 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
         GOOD(0b10),
         UNKNOWN(0b11);
 
-        private int flag;
+        private final int flag;
         //Constructor to initialize the instance variable
         BatteryIndicator(int flag) {
             this.flag = flag;
@@ -193,7 +189,7 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
         CHARGING(0b10),
         UNKNOWN(0b11);
 
-        private int flag;
+        private final int flag;
         //Constructor to initialize the instance variable
         BatteryChargingState(int flag) {
             this.flag = flag;
@@ -221,7 +217,7 @@ public class GenericBatteryStatus extends ApplicationStatusMessage {
         SERVICE_REQUIRED(0b10),
         UNKNOWN(0b11);
 
-        private int flag;
+        private final int flag;
         //Constructor to initialize the instance variable
         BatteryServiceability(int flag) {
             this.flag = flag;
