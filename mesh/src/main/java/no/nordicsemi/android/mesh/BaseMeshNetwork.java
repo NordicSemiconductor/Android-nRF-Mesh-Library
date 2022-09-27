@@ -403,7 +403,7 @@ abstract class BaseMeshNetwork {
     }
 
     /**
-     * Returns an application key with a given key index
+     * Returns a network key with a given key index.
      *
      * @param keyIndex index
      */
