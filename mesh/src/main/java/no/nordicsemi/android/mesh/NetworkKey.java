@@ -50,7 +50,7 @@ public final class NetworkKey extends MeshKey {
 
     @ColumnInfo(name = "security")
     @Expose
-    private boolean minSecurity;
+    private boolean minSecurity = true;
 
     @ColumnInfo(name = "timestamp")
     @Expose
