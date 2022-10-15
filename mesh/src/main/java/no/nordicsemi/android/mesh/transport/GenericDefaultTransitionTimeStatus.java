@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -60,14 +60,14 @@ public class GenericDefaultTransitionTimeStatus extends ApplicationStatusMessage
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received default transition time status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received default transition time status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         if (mParameters.length == GENERIC_DEFAULT_TRANSITION_TIME_STATUS_LENGTH) {
             BitReader bitReader = new BitReader(ArrayUtils.reverseArray(mParameters));
             try {
                 genericTransitionTime = new GenericTransitionTime(bitReader.getBits(GENERIC_DEFAULT_TRANSITION_TIME_STATUS_LENGTH));
-                Log.v(TAG, "Parsed Transition time status: "+ genericTransitionTime.toString());
+                MeshLogger.verbose(TAG, "Parsed Transition time status: "+ genericTransitionTime.toString());
             } catch (InvalidParameterException e) {
-                Log.v(TAG, "Couldn't parse TransitionTime.");
+                MeshLogger.verbose(TAG, "Couldn't parse TransitionTime.");
             }
         }
     }

@@ -25,8 +25,8 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 
 /**
@@ -72,7 +72,7 @@ public final class ConfigNetworkTransmitStatus extends ConfigStatusMessage imple
     }
 
     @Override
-    final void parseStatusParameters() {
+    void parseStatusParameters() {
         final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
 
         mNetworkTransmitCount = payload[2] & 0b111;

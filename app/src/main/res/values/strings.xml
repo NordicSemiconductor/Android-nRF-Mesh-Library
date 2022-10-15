@@ -28,6 +28,7 @@
     <string name="sub_title_scanning_proxy_node">Looking for provisioned proxy nodes…</string>
 
     <string name="unknown_device">Unknown Device</string>
+    <string name="unknown_address">Unknown Address</string>
     <string name="state">On Off State:</string>
     <string name="button_unknown">UNKNOWN</string>
 
@@ -659,6 +660,7 @@
     <string name="node_exclusion_summary">If checked the node will be excluded from key exchange process. When the key refresh procedure is complete,
         this node will
         no longer be able to receive or send messages to the mesh network.</string>
+    <string name="node_security_summary">A node is mark as secured if it is provisioned using a public key was obtained out of band.</string>
     <string name="continue_confirmation">This cannot be undone, do you want to continue?</string>
     <string name="secure_network_beacon">Secure Network Beacon</string>
     <string name="secure_network_beacon_state_summary">The Secure Network Beacon state determines if a node is periodically broadcasting Secure
@@ -669,6 +671,9 @@
     <string name="old_key">Old Key</string>
     <string name="na">N/A</string>
     <string name="phase">Phase</string>
+    <string name="security">Security</string>
+    <string name="secure">Secure</string>
+    <string name="insecure">Insecure</string>
     <string name="last_modified">Last Modified</string>
     <string name="node_identity_state">Node Identity State</string>
     <string name="node_identity_summary">The Node Identity state determines if a node is advertising with Node Identity messages on a subnet.
@@ -677,4 +682,11 @@
     <string name="error_empty_scene_name">Error empty scene name</string>
     <string name="unknwon_error">Unknown error</string>
     <string name="error_allocate_group_range">Provisioner must have an allocated group range!</string>
+
+
+    <string name="title_public_key">Public Key</string>
+    <string name="hint_public_key">Public key</string>
+    <string name="message_public_key">Enter the 128-character hexadecimal Public Key of the device.</string>
+    <string name="skip">skip</string>
+    <string name="skip_oob_public_key_summary">Skipping this process will mark the provisioned node and any Network Key associated with this node as insecure.</string>
 </resources>

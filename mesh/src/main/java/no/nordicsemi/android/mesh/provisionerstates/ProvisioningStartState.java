@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.List;
 
@@ -49,6 +49,7 @@ public class ProvisioningStartState extends ProvisioningState {
     private List<AlgorithmType> algorithmTypes;
     private int outputOOBSize;
     private int inputOOBSize;
+    private int publicKeyType;
     private short outputActionType;
     private short inputActionType;
 
@@ -114,7 +115,7 @@ public class ProvisioningStartState extends ProvisioningState {
         provisioningPDU[0] = MeshManagerApi.PDU_TYPE_PROVISIONING;
         provisioningPDU[1] = TYPE_PROVISIONING_START;
         provisioningPDU[2] = AlgorithmType.getSupportedAlgorithmValue(algorithmTypes);
-        provisioningPDU[3] = 0; // (byte) publicKeyType;
+        provisioningPDU[3] = (byte) (node.getProvisioneePublicKeyXY() == null ? 0 : publicKeyType);
         provisioningPDU[4] = (byte) node.getAuthMethodUsed().ordinal();
         switch (node.getAuthMethodUsed()) {
             case NO_OOB_AUTHENTICATION:
@@ -133,7 +134,7 @@ public class ProvisioningStartState extends ProvisioningState {
                 break;
 
         }
-        Log.v(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
+        MeshLogger.verbose(TAG, "Provisioning start PDU: " + MeshParserUtils.bytesToHex(provisioningPDU, true));
 
         return provisioningPDU;
     }
@@ -142,5 +143,6 @@ public class ProvisioningStartState extends ProvisioningState {
         this.algorithmTypes = capabilities.getSupportedAlgorithmTypes();
         this.outputOOBSize = capabilities.getOutputOOBSize();
         this.inputOOBSize = capabilities.getInputOOBSize();
+        this.publicKeyType = capabilities.getRawPublicKeyType();
     }
 }

@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -74,14 +74,14 @@ public class LightLCLightOnOffSet extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = (byte) mAppKey.getAid();
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "State: " + (mState ? "ON" : "OFF"));
+        MeshLogger.verbose(TAG, "State: " + (mState ? "ON" : "OFF"));
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
             paramsBuffer.put((byte) this.tId);
         } else {
-            Log.v(TAG, "Transition steps: " + mTransitionSteps);
-            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Transition steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.put((byte) (mState ? 0x01 : 0x00));
             paramsBuffer.put((byte) this.tId);

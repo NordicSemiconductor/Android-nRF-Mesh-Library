@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -97,10 +97,10 @@ public class LightHslSet extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey() );
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Lightness: " + mLightness);
-        Log.v(TAG, "Hue: " + mHue);
-        Log.v(TAG, "Saturation: " + mSaturation);
-        Log.v(TAG, "TID: " + tId);
+        MeshLogger.verbose(TAG, "Lightness: " + mLightness);
+        MeshLogger.verbose(TAG, "Hue: " + mHue);
+        MeshLogger.verbose(TAG, "Saturation: " + mSaturation);
+        MeshLogger.verbose(TAG, "TID: " + tId);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLightness);
@@ -108,8 +108,8 @@ public class LightHslSet extends ApplicationMessage {
             paramsBuffer.putShort((short) mSaturation);
             paramsBuffer.put((byte) tId);
         } else {
-            Log.v(TAG, "Transition steps: " + mTransitionSteps);
-            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Transition steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(LIGHT_LIGHTNESS_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLightness);
             paramsBuffer.putShort((short) mHue);

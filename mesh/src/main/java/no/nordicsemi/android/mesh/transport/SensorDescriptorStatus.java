@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +97,7 @@ public final class SensorDescriptorStatus extends ApplicationStatusMessage imple
                 updateInterval = mParameters[offset + 7];
                 final SensorDescriptor descriptor = new SensorDescriptor(property, positiveTolerance, negativeTolerance,
                         samplingFunction, measurementPeriod, updateInterval);
-                Log.d(TAG, "Sensor Descriptor: " + descriptor.toString());
+                MeshLogger.debug(TAG, "Sensor Descriptor: " + descriptor.toString());
                 sensorDescriptors.add(descriptor);
                 offset += 8;
             }

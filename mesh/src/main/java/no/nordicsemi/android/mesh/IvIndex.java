@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Class containing the current IV Index State of the network.
@@ -16,8 +17,9 @@ import androidx.annotation.NonNull;
 public class IvIndex implements Parcelable {
 
     private final int ivIndex;
-    private final boolean isIvUpdateActive; // False: Normal Operation, True: IV Update in progress
+    private boolean isIvUpdateActive; // False: Normal Operation, True: IV Update in progress
     private boolean ivRecoveryFlag = false;
+    @Nullable
     private Calendar transitionDate;
 
     /**
@@ -27,7 +29,7 @@ public class IvIndex implements Parcelable {
      * @param isIvUpdateActive If true IV Update is in progress and false the network is in Normal operation.
      * @param transitionDate   Time when the last IV Update happened
      */
-    public IvIndex(final int ivIndex, final boolean isIvUpdateActive, final Calendar transitionDate) {
+    public IvIndex(final int ivIndex, final boolean isIvUpdateActive, @Nullable final Calendar transitionDate) {
         this.ivIndex = ivIndex;
         this.isIvUpdateActive = isIvUpdateActive;
         this.transitionDate = transitionDate;
@@ -72,6 +74,15 @@ public class IvIndex implements Parcelable {
     }
 
     /**
+     * Sets the current IV Update state for the given IV Index
+     *
+     * @param flag true if the IV Update is active or false otherwise.
+     */
+    protected void setIvUpdateActive(final boolean flag) {
+        isIvUpdateActive = flag;
+    }
+
+    /**
      * Returns iv index used when transmitting messages.
      */
     public int getTransmitIvIndex() {
@@ -86,6 +97,7 @@ public class IvIndex implements Parcelable {
         this.ivRecoveryFlag = ivRecoveryFlag;
     }
 
+    @Nullable
     public Calendar getTransitionDate() {
         return transitionDate;
     }
@@ -110,6 +122,9 @@ public class IvIndex implements Parcelable {
         return ivIndex == ivIndex1.ivIndex &&
                 isIvUpdateActive == ivIndex1.isIvUpdateActive &&
                 ivRecoveryFlag == ivIndex1.ivRecoveryFlag &&
-                (transitionDate.getTimeInMillis() == ivIndex1.transitionDate.getTimeInMillis());
+                ((transitionDate == ivIndex1.transitionDate) ||
+                        ((transitionDate != null && ivIndex1.transitionDate != null) &&
+                                (transitionDate.getTimeInMillis() == ivIndex1.transitionDate.getTimeInMillis()))
+                );
     }
 }

@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 
@@ -99,29 +99,29 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     private byte[] createProvisioningConfirmation() {
 
         final byte[] confirmationInputs = provisioningCallbacks.generateConfirmationInputs(mNode.getProvisionerPublicKeyXY(), mNode.getProvisioneePublicKeyXY());
-        Log.v(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
+        MeshLogger.verbose(TAG, "Confirmation inputs: " + MeshParserUtils.bytesToHex(confirmationInputs, false));
 
         //Generate a confirmation salt of the confirmation inputs
         final byte[] confirmationSalt = SecureUtils.calculateSalt(confirmationInputs);
-        Log.v(TAG, "Confirmation salt: " + MeshParserUtils.bytesToHex(confirmationSalt, false));
+        MeshLogger.verbose(TAG, "Confirmation salt: " + MeshParserUtils.bytesToHex(confirmationSalt, false));
 
         final byte[] ecdhSecret = mNode.getSharedECDHSecret();
 
         //Generate the confirmationKey by calculating the K1 of ECDH, confirmationSalt and ASCII value of "prck".
         final byte[] confirmationKey = SecureUtils.calculateK1(ecdhSecret, confirmationSalt, SecureUtils.PRCK);
-        Log.v(TAG, "Confirmation key: " + MeshParserUtils.bytesToHex(confirmationKey, false));
+        MeshLogger.verbose(TAG, "Confirmation key: " + MeshParserUtils.bytesToHex(confirmationKey, false));
 
         //Generate provisioner random number
         final byte[] provisionerRandom = SecureUtils.generateRandomNumber();
         mNode.setProvisionerRandom(provisionerRandom);
-        Log.v(TAG, "Provisioner random: " + MeshParserUtils.bytesToHex(provisionerRandom, false));
+        MeshLogger.verbose(TAG, "Provisioner random: " + MeshParserUtils.bytesToHex(provisionerRandom, false));
 
         //Generate authentication value from the user input authentication
         final byte[] authenticationValue = generateAuthenticationValue();
         if (authenticationValue == null)
             throw new IllegalArgumentException("Invalid authentication value!");
         mNode.setAuthenticationValue(authenticationValue);
-        Log.v(TAG, "Authentication value: " + MeshParserUtils.bytesToHex(authenticationValue, false));
+        MeshLogger.verbose(TAG, "Authentication value: " + MeshParserUtils.bytesToHex(authenticationValue, false));
 
         ByteBuffer buffer = ByteBuffer.allocate(provisionerRandom.length + 16);
         buffer.put(provisionerRandom);
@@ -134,7 +134,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         buffer.put(new byte[]{MeshManagerApi.PDU_TYPE_PROVISIONING, TYPE_PROVISIONING_CONFIRMATION});
         buffer.put(confirmationValue);
         final byte[] provisioningConfirmationPDU = buffer.array();
-        Log.v(TAG, "Provisioning confirmation: " + MeshParserUtils.bytesToHex(provisioningConfirmationPDU, false));
+        MeshLogger.verbose(TAG, "Provisioning confirmation: " + MeshParserUtils.bytesToHex(provisioningConfirmationPDU, false));
 
         return provisioningConfirmationPDU;
     }

@@ -125,6 +125,16 @@ public class ApplicationMessageOpCodes {
     public static final int GENERIC_LEVEL_STATUS = 0x8208;
 
     /**
+     * Opcode for the "Generic Battery Get" message.
+     */
+    public static final int GENERIC_BATTERY_GET = 0x8223;
+
+    /**
+     * Opcode for the "Generic Battery Status" message.
+     */
+    public static final int GENERIC_BATTERY_STATUS = 0x8224;
+
+    /**
      * Opcode for the "Light Lightness Get" message
      */
     public static final int LIGHT_LIGHTNESS_GET = 0x824B;

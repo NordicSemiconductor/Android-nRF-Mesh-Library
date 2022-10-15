@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import android.util.SparseIntArray;
 
 import java.util.ArrayList;
@@ -218,7 +218,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
             networkDao.update(network.meshUUID, network.meshName, network.timestamp,
                     network.partial, MeshTypeConverters.ivIndexToJson(network.ivIndex),
                     network.lastSelected,
-                    MeshTypeConverters.networkExclusionsToJson(network.getNetworkExclusions()));
+                    MeshTypeConverters.networkExclusionsToJson(new HashMap<>(network.getNetworkExclusions())));
             netKeyDao.update(new ArrayList<>(network.netKeys));
             appKeyDao.update(new ArrayList<>(network.appKeys));
             provisionersDao.update(new ArrayList<>(network.provisioners));
@@ -879,7 +879,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                     values.put("appKeys", MeshTypeConverters.nodeKeysToJson(appKeyIndexes));
                     database.update("nodes", SQLiteDatabase.CONFLICT_REPLACE, values, "uuid = ?", new String[]{uuid});
                 } catch (Exception ex) {
-                    Log.v(TAG, "Something went wrong while migrating data");
+                    MeshLogger.verbose(TAG, "Something went wrong while migrating data");
                 }
             } while (cursor.moveToNext());
             cursor.close();
@@ -910,7 +910,7 @@ abstract class MeshNetworkDb extends RoomDatabase {
                 values.put("mesh_uuid", uuid);
                 values.put("mesh_name", meshName);
                 values.put("timestamp", timestamp);
-                values.put("iv_index", MeshTypeConverters.ivIndexToJson(new IvIndex(ivIndex, ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE, Calendar.getInstance())));
+                values.put("iv_index", MeshTypeConverters.ivIndexToJson(new IvIndex(ivIndex, ivUpdateState == MeshNetwork.IV_UPDATE_ACTIVE, null)));
                 values.put("sequence_numbers", sequenceNumbers);
                 values.put("last_selected", lastSelected);
                 database.insert("mesh_network_temp", SQLiteDatabase.CONFLICT_REPLACE, values);

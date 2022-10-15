@@ -1,7 +1,5 @@
 package no.nordicsemi.android.mesh;
 
-import android.util.Log;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -22,6 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
@@ -34,7 +33,6 @@ import static no.nordicsemi.android.mesh.utils.MeshParserUtils.uuidToHex;
 
 public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork>, JsonDeserializer<MeshNetwork> {
     private static final String TAG = MeshNetworkDeserializer.class.getSimpleName();
-    private static final String ID = "http://www.bluetooth.com/specifications/assigned-numbers/mesh-profile/cdb-schema.json#";
 
     @Override
     public MeshNetwork deserialize(final JsonElement json,
@@ -50,20 +48,8 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
         final String uuid = jsonObject.get("meshUUID").getAsString();
         final String meshUuid = formatUuid(uuid);
         final MeshNetwork network = new MeshNetwork(meshUuid == null ? uuid : meshUuid);
-
-        final String schema = jsonObject.get("$schema").getAsString();
-        if (!schema.equalsIgnoreCase("http://json-schema.org/draft-04/schema#"))
-            throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported schema");
-        network.schema = schema;
-        final String id = jsonObject.get("id").getAsString();
-        if (!id.equalsIgnoreCase(ID)) {
-            if (id.equalsIgnoreCase("TBD"))
-                network.id = ID;
-            else
-                throw new JsonSyntaxException("Invalid Mesh Provisioning/Configuration Database JSON file, unsupported ID");
-        } else {
-            network.id = id;
-        }
+        network.schema = jsonObject.get("$schema").getAsString();
+        network.id = jsonObject.get("id").getAsString();
         network.version = jsonObject.get("version").getAsString();
         network.meshName = jsonObject.get("meshName").getAsString();
 
@@ -458,7 +444,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 group.setName(name);
                 groups.add(group);
             } catch (Exception ex) {
-                Log.e(TAG, "Error while de-serializing groups: " + ex.getMessage());
+                MeshLogger.error(TAG, "Error while de-serializing groups: " + ex.getMessage());
             }
         }
         return groups;
@@ -522,7 +508,7 @@ public final class MeshNetworkDeserializer implements JsonSerializer<MeshNetwork
                 scenes.add(scene);
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error while de-serializing scenes: " + ex.getMessage());
+            MeshLogger.error(TAG, "Error while de-serializing scenes: " + ex.getMessage());
         }
         return scenes;
     }

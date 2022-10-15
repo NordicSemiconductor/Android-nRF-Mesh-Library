@@ -3,7 +3,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -64,15 +64,15 @@ public final class GenericLocationGlobalStatus extends ApplicationStatusMessage 
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received generic location global status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received generic location global status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         if (mParameters.length == GENERIC_LOCATION_GLOBAL_STATUS_LENGTH) {
             final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
             latitude = GlobalLatitude.of(buffer.getInt());
             longitude = GlobalLongitude.of(buffer.getInt());
             altitude = GlobalAltitude.of(buffer.getShort());
-            Log.v(TAG, latitude.toString());
-            Log.v(TAG, longitude.toString());
-            Log.v(TAG, altitude.toString());
+            MeshLogger.verbose(TAG, latitude.toString());
+            MeshLogger.verbose(TAG, longitude.toString());
+            MeshLogger.verbose(TAG, altitude.toString());
         }
     }
 

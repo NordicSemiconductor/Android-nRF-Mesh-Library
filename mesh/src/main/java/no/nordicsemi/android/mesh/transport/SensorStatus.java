@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +98,7 @@ public final class SensorStatus extends ApplicationStatusMessage implements Parc
             final MarshalledPropertyId marshalledPropertyId = new MarshalledPropertyId(sensorFormat, length, DeviceProperty.from(sensorFormat, propertyId));
             final byte[] raw = Arrays.copyOfRange(mParameters, offset, offset + length);
             final MarshalledSensorData marshalledSensorData = new MarshalledSensorData(marshalledPropertyId, raw);
-            Log.d(TAG, "Result: " + marshalledSensorData.toString());
+            MeshLogger.debug(TAG, "Result: " + marshalledSensorData.toString());
             marshalledSensorDataList.add(marshalledSensorData);
             offset += length;
         }

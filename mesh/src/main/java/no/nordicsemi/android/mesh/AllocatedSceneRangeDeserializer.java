@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -31,7 +31,7 @@ final class AllocatedSceneRangeDeserializer implements JsonSerializer<List<Alloc
                 sceneRanges.add(new AllocatedSceneRange(firstScene, lastScene));
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error while de-serializing allocated scene range: " + ex.getMessage());
+            MeshLogger.error(TAG, "Error while de-serializing allocated scene range: " + ex.getMessage());
         }
         return sceneRanges;
     }

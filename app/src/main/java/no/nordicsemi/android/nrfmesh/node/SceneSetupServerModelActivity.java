@@ -20,6 +20,7 @@ import no.nordicsemi.android.mesh.transport.SceneStore;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutSceneSetupServerBinding;
 import no.nordicsemi.android.nrfmesh.scenes.ScenesActivity;
+import no.nordicsemi.android.nrfmesh.scenes.adapter.SceneUiState;
 import no.nordicsemi.android.nrfmesh.scenes.adapter.StoredScenesAdapter;
 import no.nordicsemi.android.nrfmesh.viewmodels.ModelConfigurationViewModel;
 import no.nordicsemi.android.nrfmesh.widgets.RemovableItemTouchHelperCallback;
@@ -100,7 +101,8 @@ public class SceneSetupServerModelActivity extends SceneServerModelActivity {
     @Override
     public void onItemDismiss(final RemovableViewHolder viewHolder) {
         if (viewHolder instanceof StoredScenesAdapter.ViewHolder) {
-            final Scene scene = (Scene) viewHolder.getSwipeableView().getTag();
+            final int number = ((SceneUiState) viewHolder.getSwipeableView().getTag()).getNumber();
+            final Scene scene = mViewModel.getNetworkLiveData().getMeshNetwork().getScene(number);
             if (!checkConnectivity(mContainer)) {
                 mScenesAdapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
                 return;

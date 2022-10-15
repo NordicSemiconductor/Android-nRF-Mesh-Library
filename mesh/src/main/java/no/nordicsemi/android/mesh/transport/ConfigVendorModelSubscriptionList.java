@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,15 +81,15 @@ public class ConfigVendorModelSubscriptionList extends ConfigStatusMessage imple
         mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
         mModelIdentifier = MeshParserUtils.bytesToInt(new byte[]{mParameters[4], mParameters[3], mParameters[6], mParameters[5]});
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element Address: " + MeshAddress.formatAddress(mElementAddress, true));
-        Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Element Address: " + MeshAddress.formatAddress(mElementAddress, true));
+        MeshLogger.verbose(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
 
         for (int i = 7; i < mParameters.length; i += 2) {
             final int address = MeshParserUtils.unsignedBytesToInt(mParameters[i], mParameters[i + 1]);
             mSubscriptionAddresses.add(address);
-            Log.v(TAG, "Subscription Address: " + MeshAddress.formatAddress(address, false));
+            MeshLogger.verbose(TAG, "Subscription Address: " + MeshAddress.formatAddress(address, false));
         }
     }
 

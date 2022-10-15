@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import com.google.gson.annotations.Expose;
 
@@ -169,7 +169,7 @@ public class SecureUtils {
             ccmBlockCipher.doFinal(ccm, 0);
             return ccm;
         } catch (InvalidCipherTextException e) {
-            Log.e(TAG, "Error wile encrypting: " + e.getMessage());
+            MeshLogger.error(TAG, "Error wile encrypting: " + e.getMessage());
             return null;
         }
     }
@@ -189,7 +189,7 @@ public class SecureUtils {
             ccmBlockCipher.doFinal(ccm, 0);
             return ccm;
         } catch (InvalidCipherTextException e) {
-            Log.e(TAG, "Error wile encrypting: " + e.getMessage());
+            MeshLogger.error(TAG, "Error wile encrypting: " + e.getMessage());
             return null;
         }
     }

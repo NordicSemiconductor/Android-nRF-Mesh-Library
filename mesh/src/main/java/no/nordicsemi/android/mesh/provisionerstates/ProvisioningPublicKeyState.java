@@ -23,8 +23,6 @@
 package no.nordicsemi.android.mesh.provisionerstates;
 
 
-import android.util.Log;
-
 import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.interfaces.ECPrivateKey;
 import org.spongycastle.jce.interfaces.ECPublicKey;
@@ -43,6 +41,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.KeyAgreement;
@@ -51,6 +50,7 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 public class ProvisioningPublicKeyState extends ProvisioningState {
@@ -61,7 +61,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
     private final UnprovisionedMeshNode node;
     private final InternalTransportCallbacks internalTransportCallbacks;
 
-    private ECPrivateKey mProvisionerPrivateKey;
+    private PrivateKey mProvisionerPrivateKey;
 
     /**
      * Constructs the provisioning publick key state.
@@ -94,7 +94,9 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
 
     @Override
     public boolean parseData(@NonNull final byte[] data) {
-        provisioningStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_PUBLIC_KEY_RECEIVED, data);
+        if (node.getProvisioneePublicKeyXY() == null) {
+            provisioningStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_PUBLIC_KEY_RECEIVED, data);
+        }
         generateSharedECDHSecret(data);
         return true;
     }
@@ -116,8 +118,8 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
             final byte[] tempX = BigIntegers.asUnsignedByteArray(32, x);
             final byte[] tempY = BigIntegers.asUnsignedByteArray(32, y);
 
-            Log.v(TAG, "X: length: " + tempX.length + " " + MeshParserUtils.bytesToHex(tempX, false));
-            Log.v(TAG, "Y: length: " + tempY.length + " " + MeshParserUtils.bytesToHex(tempY, false));
+            MeshLogger.verbose(TAG, "X: length: " + tempX.length + " " + MeshParserUtils.bytesToHex(tempX, false));
+            MeshLogger.verbose(TAG, "Y: length: " + tempY.length + " " + MeshParserUtils.bytesToHex(tempY, false));
 
             final byte[] tempXY = new byte[64];
             System.arraycopy(tempX, 0, tempXY, 0, tempX.length);
@@ -125,34 +127,30 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
 
             node.setProvisionerPublicKeyXY(tempXY);
 
-            Log.v(TAG, "XY: " + MeshParserUtils.bytesToHex(tempXY, true));
-
+            MeshLogger.verbose(TAG, "XY: " + MeshParserUtils.bytesToHex(tempXY, true));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private byte[] generatePublicKeyXYPDU() {
-
         final byte[] tempXY = node.getProvisionerPublicKeyXY();
-
         ByteBuffer buffer = ByteBuffer.allocate(tempXY.length + 2);
         buffer.put(MeshManagerApi.PDU_TYPE_PROVISIONING);
         buffer.put(TYPE_PROVISIONING_PUBLIC_KEY);
         buffer.put(tempXY);
-
         return buffer.array();
     }
 
-    private void generateSharedECDHSecret(final byte[] provisioneePublicKeyXYPDU) {
-        if (provisioneePublicKeyXYPDU.length != 66) {
-            throw new IllegalArgumentException("Invalid Provisionee Public Key PDU," +
-                    " length of the Provisionee public key must be 66 bytes, but was " + provisioneePublicKeyXYPDU.length);
+    private void generateSharedECDHSecret(final byte[] xy) {
+        if(node.getProvisioneePublicKeyXY() == null) {
+            node.setProvisioneePublicKeyXY(xy);
+        } else {
+            // Mark the node as secure if the provisionee public key is not null.
+            // This would assume that the key was obtained via an OOB method and is provided by the
+            // user before starting provisioning.
+            node.markAsSecure();
         }
-        final ByteBuffer buffer = ByteBuffer.allocate(provisioneePublicKeyXYPDU.length - 2);
-        buffer.put(provisioneePublicKeyXYPDU, 2, buffer.limit());
-        final byte[] xy = buffer.array();
-        node.setProvisioneePublicKeyXY(xy);
 
         final byte[] xComponent = new byte[32];
         System.arraycopy(xy, 0, xComponent, 0, xComponent.length);
@@ -160,8 +158,8 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
         final byte[] yComponent = new byte[32];
         System.arraycopy(xy, 32, yComponent, 0, xComponent.length);
 
-        Log.v(TAG, "Provsionee X: " + MeshParserUtils.bytesToHex(yComponent, false));
-        Log.v(TAG, "Provsionee Y: " + MeshParserUtils.bytesToHex(xComponent, false));
+        MeshLogger.verbose(TAG, "Provisionee X: " + MeshParserUtils.bytesToHex(yComponent, false));
+        MeshLogger.verbose(TAG, "Provisionee Y: " + MeshParserUtils.bytesToHex(xComponent, false));
 
         final BigInteger x = BigIntegers.fromUnsignedByteArray(xy, 0, 32);
         final BigInteger y = BigIntegers.fromUnsignedByteArray(xy, 32, 32);
@@ -169,7 +167,6 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
         final ECParameterSpec ecParameters = ECNamedCurveTable.getParameterSpec("secp256r1");
         ECCurve curve = ecParameters.getCurve();
         ECPoint ecPoint = curve.validatePoint(x, y);
-
 
         ECPublicKeySpec keySpec = new ECPublicKeySpec(ecPoint, ecParameters);
         KeyFactory keyFactory;
@@ -183,7 +180,7 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
 
             final byte[] sharedECDHSecret = a.generateSecret();
             node.setSharedECDHSecret(sharedECDHSecret);
-            Log.v(TAG, "ECDH Secret: " + MeshParserUtils.bytesToHex(sharedECDHSecret, false));
+            MeshLogger.verbose(TAG, "ECDH Secret: " + MeshParserUtils.bytesToHex(sharedECDHSecret, false));
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

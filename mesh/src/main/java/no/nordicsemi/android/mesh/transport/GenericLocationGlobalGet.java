@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -35,7 +35,7 @@ public class GenericLocationGlobalGet extends ApplicationMessage {
 
     @Override
     void assembleMessageParameters() {
-        Log.v(TAG, "Creating message");
+        MeshLogger.verbose(TAG, "Creating message");
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
     }
 }

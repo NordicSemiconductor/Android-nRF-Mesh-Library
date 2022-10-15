@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,14 +80,14 @@ public class ConfigSigModelAppList extends ConfigStatusMessage implements Parcel
         mElementAddress = MeshParserUtils.unsignedBytesToInt(mParameters[1], mParameters[2]);
         mModelIdentifier = MeshParserUtils.unsignedBytesToInt(mParameters[3], mParameters[4]);
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
-        Log.v(TAG, "Model identifier: " + CompositionDataParser.formatModelIdentifier(mModelIdentifier, false));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
+        MeshLogger.verbose(TAG, "Model identifier: " + CompositionDataParser.formatModelIdentifier(mModelIdentifier, false));
 
         mKeyIndexes.addAll(decode(mParameters.length, 5));
         for (Integer keyIndex : mKeyIndexes) {
-            Log.v(TAG, "AppKey Index: " + Integer.toHexString(keyIndex));
+            MeshLogger.verbose(TAG, "AppKey Index: " + Integer.toHexString(keyIndex));
         }
     }
 

@@ -123,13 +123,22 @@
                             app:layout_constraintTop_toBottomOf="@+id/container_identifier"/>
 
                         <include
+                            android:id="@+id/container_security"
+                            layout="@layout/info_node_security"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/container_unicast_address"/>
+
+                        <include
                             android:id="@+id/container_device_key"
                             layout="@layout/info_node_device_key"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             app:layout_constraintEnd_toStartOf="@id/copy"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/container_unicast_address"/>
+                            app:layout_constraintTop_toBottomOf="@id/container_security"/>
 
                         <ImageView
                             android:id="@+id/copy"

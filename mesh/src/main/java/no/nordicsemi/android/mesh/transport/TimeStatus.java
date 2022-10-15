@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,14 +55,14 @@ public class TimeStatus extends ApplicationStatusMessage implements Parcelable {
             uncertainty = (byte) bitReader.getBits(UNCERTAINTY_BIT_SIZE);
             subSecond = (byte) bitReader.getBits(SUB_SECOND_BIT_SIZE);
             taiSeconds = bitReader.getBits(TAI_SECONDS_BIT_SIZE);
-            Log.v(TAG, "Time status has taiSeconds: "+taiSeconds);
-            Log.v(TAG, "Time status has subSecond: "+subSecond);
-            Log.v(TAG, "Time status has uncertainty: "+uncertainty);
-            Log.v(TAG, "Time status has timeAuthority: "+timeAuthority);
-            Log.v(TAG, "Time status has utcDelta: "+utcDelta);
-            Log.v(TAG, "Time status has timeZoneOffset: "+timeZoneOffset);
+            MeshLogger.verbose(TAG, "Time status has taiSeconds: "+taiSeconds);
+            MeshLogger.verbose(TAG, "Time status has subSecond: "+subSecond);
+            MeshLogger.verbose(TAG, "Time status has uncertainty: "+uncertainty);
+            MeshLogger.verbose(TAG, "Time status has timeAuthority: "+timeAuthority);
+            MeshLogger.verbose(TAG, "Time status has utcDelta: "+utcDelta);
+            MeshLogger.verbose(TAG, "Time status has timeZoneOffset: "+timeZoneOffset);
         } else {
-            Log.v(TAG, "Time status has no values");
+            MeshLogger.verbose(TAG, "Time status has no values");
         }
     }
 

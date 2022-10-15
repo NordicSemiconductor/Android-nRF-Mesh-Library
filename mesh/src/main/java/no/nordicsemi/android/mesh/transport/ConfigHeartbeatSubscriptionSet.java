@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -85,9 +85,9 @@ public class ConfigHeartbeatSubscriptionSet extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        Log.d(TAG, "Source address: " + Integer.toHexString(srcAddress));
-        Log.d(TAG, "Destination address: " + Integer.toHexString(dstAddress));
-        Log.d(TAG, "Period Log: " + Integer.toHexString(periodLog));
+        MeshLogger.debug(TAG, "Source address: " + Integer.toHexString(srcAddress));
+        MeshLogger.debug(TAG, "Destination address: " + Integer.toHexString(dstAddress));
+        MeshLogger.debug(TAG, "Period Log: " + Integer.toHexString(periodLog));
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(5).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.putShort((short) srcAddress);
         paramsBuffer.putShort((short) dstAddress);

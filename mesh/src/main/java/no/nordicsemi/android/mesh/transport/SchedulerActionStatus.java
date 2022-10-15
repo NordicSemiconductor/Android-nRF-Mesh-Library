@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -61,18 +61,18 @@ public class SchedulerActionStatus extends ApplicationStatusMessage implements P
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received scheduler action status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received scheduler action status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
 
         if (mParameters.length == SCHEDULER_ACTION_STATUS_LENGTH) {
             BitReader bitReader = new BitReader(ArrayUtils.reverseArray(mParameters));
             try {
                 entry = new ScheduleEntry(bitReader);
             } catch (InvalidParameterException e) {
-                Log.v(TAG, "Couldn't parse ScheduleEntry.");
+                MeshLogger.verbose(TAG, "Couldn't parse ScheduleEntry.");
             }
             index = bitReader.getBits(4);
-            Log.v(TAG, "Scheduler action status has index: "+index);
-            Log.v(TAG, "Scheduler action status has entry: "+entry.toString());
+            MeshLogger.verbose(TAG, "Scheduler action status has index: "+index);
+            MeshLogger.verbose(TAG, "Scheduler action status has entry: "+entry.toString());
         }
 
     }

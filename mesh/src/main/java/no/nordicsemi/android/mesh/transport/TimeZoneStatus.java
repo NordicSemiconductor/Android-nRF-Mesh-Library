@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -61,15 +61,15 @@ public final class TimeZoneStatus extends ApplicationStatusMessage implements Pa
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received time zone status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received time zone status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         if (mParameters.length == TIME_ZONE_STATUS_LENGTH) {
             final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
             currentTimeZoneOffset = TimeZoneOffset.of(buffer.get());
             newTimeZoneOffset = TimeZoneOffset.of(buffer.get());
             timeOfChange = ((long) buffer.getInt() & 0xFFFFFFFFl) | (((long) buffer.get() & 0xFF) << 32);
-            Log.v(TAG, "current " + currentTimeZoneOffset.toString());
-            Log.v(TAG, "new " + newTimeZoneOffset.toString());
-            Log.v(TAG, "time of change: " + timeOfChange);
+            MeshLogger.verbose(TAG, "current " + currentTimeZoneOffset.toString());
+            MeshLogger.verbose(TAG, "new " + newTimeZoneOffset.toString());
+            MeshLogger.verbose(TAG, "time of change: " + timeOfChange);
         }
     }
 

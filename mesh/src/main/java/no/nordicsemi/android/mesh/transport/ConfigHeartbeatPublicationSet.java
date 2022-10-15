@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -103,12 +103,12 @@ public class ConfigHeartbeatPublicationSet extends ConfigMessage {
 
     @Override
     void assembleMessageParameters() {
-        Log.d(TAG, "Destination address: " + Integer.toHexString(dstAddress));
-        Log.d(TAG, "Count Log: " + Integer.toHexString(countLog));
-        Log.d(TAG, "Period Log: " + Integer.toHexString(periodLog));
-        Log.d(TAG, "TTL: " + Integer.toHexString(dstAddress));
-        Log.d(TAG, "Features: " + features.toString());
-        Log.d(TAG, "Net key index: " + Integer.toHexString(netKeyIndex));
+        MeshLogger.debug(TAG, "Destination address: " + Integer.toHexString(dstAddress));
+        MeshLogger.debug(TAG, "Count Log: " + Integer.toHexString(countLog));
+        MeshLogger.debug(TAG, "Period Log: " + Integer.toHexString(periodLog));
+        MeshLogger.debug(TAG, "TTL: " + Integer.toHexString(dstAddress));
+        MeshLogger.debug(TAG, "Features: " + features.toString());
+        MeshLogger.debug(TAG, "Net key index: " + Integer.toHexString(netKeyIndex));
         final byte[] netKeyIndex = addKeyIndexPadding(this.netKeyIndex);
         final ByteBuffer paramsBuffer = ByteBuffer.allocate(9).order(ByteOrder.LITTLE_ENDIAN);
         paramsBuffer.putShort((short) dstAddress);

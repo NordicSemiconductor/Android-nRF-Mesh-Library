@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -105,18 +105,18 @@ public class ConfigModelPublicationStatus extends ConfigStatusMessage implements
             mModelIdentifier = ByteBuffer.wrap(modelIdentifier).order(ByteOrder.BIG_ENDIAN).getInt();
         }
 
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.v(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
-        Log.v(TAG, "Publish Address: " + MeshAddress.formatAddress(publishAddress, false));
-        Log.v(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
-        Log.v(TAG, "Credential Flag: " + credentialFlag);
-        Log.v(TAG, "Publish TTL: " + publishTtl);
-        Log.v(TAG, "Publish Period where steps: " + publicationSteps + " and resolution: " + publicationResolution);
-        Log.v(TAG, "Publish Retransmit Count: " + publishRetransmitCount);
-        Log.v(TAG, "Publish Retransmit Interval Steps: " + publishRetransmitIntervalSteps);
-        Log.v(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
-        Log.v(TAG, "Publication status: " + MeshParserUtils.bytesToHex(mParameters, false));
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.verbose(TAG, "Element address: " + MeshAddress.formatAddress(mElementAddress, false));
+        MeshLogger.verbose(TAG, "Publish Address: " + MeshAddress.formatAddress(publishAddress, false));
+        MeshLogger.verbose(TAG, "App key index: " + MeshParserUtils.bytesToHex(appKeyIndex, false));
+        MeshLogger.verbose(TAG, "Credential Flag: " + credentialFlag);
+        MeshLogger.verbose(TAG, "Publish TTL: " + publishTtl);
+        MeshLogger.verbose(TAG, "Publish Period where steps: " + publicationSteps + " and resolution: " + publicationResolution);
+        MeshLogger.verbose(TAG, "Publish Retransmit Count: " + publishRetransmitCount);
+        MeshLogger.verbose(TAG, "Publish Retransmit Interval Steps: " + publishRetransmitIntervalSteps);
+        MeshLogger.verbose(TAG, "Model Identifier: " + Integer.toHexString(mModelIdentifier));
+        MeshLogger.verbose(TAG, "Publication status: " + MeshParserUtils.bytesToHex(mParameters, false));
     }
 
     @Override

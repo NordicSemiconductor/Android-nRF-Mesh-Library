@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
@@ -83,9 +83,9 @@ public class ConfigHeartbeatSubscriptionStatus extends ConfigStatusMessage imple
         final int maxHops = MeshParserUtils.unsignedByteToInt(mParameters[8]);
 
         heartbeatSubscription = new HeartbeatSubscription(srcAddress, dstAddress, (byte)periodLog, (byte)countLog, minHops, maxHops);
-        Log.v(TAG, "Status code: " + mStatusCode);
-        Log.v(TAG, "Status message: " + mStatusCodeName);
-        Log.d(TAG, "Heartbeat subscription: " + heartbeatSubscription.toString());
+        MeshLogger.verbose(TAG, "Status code: " + mStatusCode);
+        MeshLogger.verbose(TAG, "Status message: " + mStatusCodeName);
+        MeshLogger.debug(TAG, "Heartbeat subscription: " + heartbeatSubscription.toString());
     }
 
     @Override

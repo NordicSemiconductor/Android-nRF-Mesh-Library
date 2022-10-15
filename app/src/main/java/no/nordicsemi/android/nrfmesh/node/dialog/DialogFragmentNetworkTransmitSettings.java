@@ -11,17 +11,17 @@ import androidx.fragment.app.DialogFragment;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.DialogFragmentNetworkTransmitSettingsBinding;
 
+import static no.nordicsemi.android.mesh.utils.NetworkTransmitSettings.MAX_TRANSMISSION_INTERVAL_STEPS;
+import static no.nordicsemi.android.mesh.utils.NetworkTransmitSettings.MAX_TRANSMIT_COUNT;
+import static no.nordicsemi.android.mesh.utils.NetworkTransmitSettings.MIN_TRANSMISSION_INTERVAL_STEPS;
+import static no.nordicsemi.android.mesh.utils.NetworkTransmitSettings.MIN_TRANSMIT_COUNT;
+
 
 public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
 
     private static final String TRANSMIT_COUNT = "TRANSMIT_COUNT";
     private static final String TRANSMIT_INTERVAL_STEPS = "TRANSMIT_INTERVAL_STEPS";
 
-    private static final int MIN_TRANSMIT_COUNT = 0;
-    private static final int MAX_TRANSMIT_COUNT = 0b111;
-
-    private static final int MIN_TRANSMIT_INTERVAL_STEPS = 0;
-    private static final int MAX_TRANSMIT_INTERVAL_STEPS = 0b11111;
     private DialogFragmentNetworkTransmitSettingsBinding binding;
 
     private int mTransmitCount = 0;
@@ -60,8 +60,8 @@ public class DialogFragmentNetworkTransmitSettings extends DialogFragment {
         binding.dialogNetworkTransmitCountSlider.setValue(mTransmitCount);
         binding.dialogNetworkTransmitCountSlider.addOnChangeListener((slider, value, fromUser) -> setTransmitCount((int) value));
 
-        binding.dialogNetworkTransmitIntervalStepsSlider.setValueFrom(MIN_TRANSMIT_INTERVAL_STEPS);
-        binding.dialogNetworkTransmitIntervalStepsSlider.setValueTo(MAX_TRANSMIT_INTERVAL_STEPS);
+        binding.dialogNetworkTransmitIntervalStepsSlider.setValueFrom(MIN_TRANSMISSION_INTERVAL_STEPS);
+        binding.dialogNetworkTransmitIntervalStepsSlider.setValueTo(MAX_TRANSMISSION_INTERVAL_STEPS);
         binding.dialogNetworkTransmitIntervalStepsSlider.setValue(mTransmitIntervalSteps);
         binding.dialogNetworkTransmitIntervalStepsSlider.addOnChangeListener((slider, value, fromUser) -> setTransmitIntervalSteps((int) value));
 

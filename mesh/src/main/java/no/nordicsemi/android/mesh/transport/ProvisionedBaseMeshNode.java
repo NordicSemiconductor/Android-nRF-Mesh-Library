@@ -254,6 +254,10 @@ abstract class ProvisionedBaseMeshNode implements Parcelable {
         return security;
     }
 
+    public boolean isSecurelyProvisioned() {
+        return security == HIGH;
+    }
+
     /**
      * Set security state of the node {@link SecurityState}
      */

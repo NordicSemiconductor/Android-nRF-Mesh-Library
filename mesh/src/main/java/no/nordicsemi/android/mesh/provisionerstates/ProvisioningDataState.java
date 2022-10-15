@@ -22,7 +22,7 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 
@@ -88,44 +88,44 @@ public class ProvisioningDataState extends ProvisioningState {
     private byte[] createProvisioningDataPDU() {
 
         final byte[] provisioningSalt = generateProvisioningSalt();
-        Log.v(TAG, "Provisioning salt: " + MeshParserUtils.bytesToHex(provisioningSalt, false));
+        MeshLogger.verbose(TAG, "Provisioning salt: " + MeshParserUtils.bytesToHex(provisioningSalt, false));
 
         final byte[] ecdh = mUnprovisionedMeshNode.getSharedECDHSecret();
 
         final byte[] t = SecureUtils.calculateCMAC(ecdh, provisioningSalt);
         /* Calculating the session key */
         final byte[] sessionKey = SecureUtils.calculateCMAC(SecureUtils.PRSK, t);
-        Log.v(TAG, "Session key: " + MeshParserUtils.bytesToHex(sessionKey, false));
+        MeshLogger.verbose(TAG, "Session key: " + MeshParserUtils.bytesToHex(sessionKey, false));
 
         /* Calculate the Session nonce */
         final byte[] sessionNonce = generateSessionNonce(ecdh, provisioningSalt);
-        Log.v(TAG, "Session nonce: " + MeshParserUtils.bytesToHex(sessionNonce, false));
+        MeshLogger.verbose(TAG, "Session nonce: " + MeshParserUtils.bytesToHex(sessionNonce, false));
 
         /* Calculate the Device key */
         final byte[] deviceKey = SecureUtils.calculateCMAC(SecureUtils.PRDK, t);
-        Log.v(TAG, "Device key: " + MeshParserUtils.bytesToHex(deviceKey, false));
+        MeshLogger.verbose(TAG, "Device key: " + MeshParserUtils.bytesToHex(deviceKey, false));
         mUnprovisionedMeshNode.setDeviceKey(deviceKey);
 
         /* Generate 16 byte Random network key */
         final byte[] networkKey = mUnprovisionedMeshNode.getNetworkKey();
-        Log.v(TAG, "Network key: " + MeshParserUtils.bytesToHex(networkKey, false));
+        MeshLogger.verbose(TAG, "Network key: " + MeshParserUtils.bytesToHex(networkKey, false));
 
         /* Generate random 2 byte Key index*/
         final byte[] keyIndex = MeshParserUtils.addKeyIndexPadding(mUnprovisionedMeshNode.getKeyIndex());
-        Log.v(TAG, "Key index: " + MeshParserUtils.bytesToHex(keyIndex, false));
+        MeshLogger.verbose(TAG, "Key index: " + MeshParserUtils.bytesToHex(keyIndex, false));
 
         /* Generate random 1 byte Flags */
         byte[] flags = mUnprovisionedMeshNode.getFlags();
-        Log.v(TAG, "Flags: " + MeshParserUtils.bytesToHex(flags, false));
+        MeshLogger.verbose(TAG, "Flags: " + MeshParserUtils.bytesToHex(flags, false));
 
         /* Generate random 4 byte IV Index */
         final byte[] ivIndex = mUnprovisionedMeshNode.getIvIndex();
-        Log.v(TAG, "IV index: " + MeshParserUtils.bytesToHex(ivIndex, false));
+        MeshLogger.verbose(TAG, "IV index: " + MeshParserUtils.bytesToHex(ivIndex, false));
 
         /* Generate random 2 byte unicast address*/
         final byte[] unicastAddress = MeshAddress.addressIntToBytes(mUnprovisionedMeshNode.getUnicastAddress());
 
-        Log.v(TAG, "Unicast address: " + MeshParserUtils.bytesToHex(unicastAddress, false));
+        MeshLogger.verbose(TAG, "Unicast address: " + MeshParserUtils.bytesToHex(unicastAddress, false));
         ByteBuffer buffer = ByteBuffer.allocate(networkKey.length + keyIndex.length + flags.length + ivIndex.length + unicastAddress.length);
         buffer.put(networkKey);
         buffer.put(keyIndex);
@@ -134,19 +134,19 @@ public class ProvisioningDataState extends ProvisioningState {
         buffer.put(unicastAddress);
 
         final byte[] provisioningData = buffer.array();
-        Log.v(TAG, "Provisioning data: " + MeshParserUtils.bytesToHex(provisioningData, false));
+        MeshLogger.verbose(TAG, "Provisioning data: " + MeshParserUtils.bytesToHex(provisioningData, false));
 
         final byte[] encryptedProvisioningData = SecureUtils.encryptCCM(provisioningData, sessionKey, sessionNonce, 8);
         if (encryptedProvisioningData == null)
             throw new IllegalArgumentException("Failed to encrypt provisioning data!");
         buffer = ByteBuffer.allocate(2 + encryptedProvisioningData.length);
-        Log.v(TAG, "Encrypted provisioning data: " + MeshParserUtils.bytesToHex(encryptedProvisioningData, false));
+        MeshLogger.verbose(TAG, "Encrypted provisioning data: " + MeshParserUtils.bytesToHex(encryptedProvisioningData, false));
         buffer.put(MeshManagerApi.PDU_TYPE_PROVISIONING);
         buffer.put(TYPE_PROVISIONING_DATA);
         buffer.put(encryptedProvisioningData);
 
         final byte[] provisioningPDU = buffer.array();
-        Log.v(TAG, "Prov Data: " + MeshParserUtils.bytesToHex(provisioningPDU, false));
+        MeshLogger.verbose(TAG, "Prov Data: " + MeshParserUtils.bytesToHex(provisioningPDU, false));
         return provisioningPDU;
     }
 

@@ -1,7 +1,7 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -80,14 +80,14 @@ public class GenericLevelSetUnacknowledged extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer paramsBuffer;
-        Log.v(TAG, "Level: " + mLevel);
+        MeshLogger.verbose(TAG, "Level: " + mLevel);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) mLevel);
             paramsBuffer.put((byte) tId);
         } else {
-            Log.v(TAG, "Transition steps: " + mTransitionSteps);
-            Log.v(TAG, "Transition step resolution: " + mTransitionResolution);
+            MeshLogger.verbose(TAG, "Transition steps: " + mTransitionSteps);
+            MeshLogger.verbose(TAG, "Transition step resolution: " + mTransitionResolution);
             paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putShort((short) (mLevel));
             paramsBuffer.put((byte) tId);

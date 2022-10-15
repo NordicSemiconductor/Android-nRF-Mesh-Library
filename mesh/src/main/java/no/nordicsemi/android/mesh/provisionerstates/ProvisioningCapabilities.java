@@ -2,7 +2,7 @@ package no.nordicsemi.android.mesh.provisionerstates;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public final class ProvisioningCapabilities implements Parcelable {
 
         final byte numberOfElements = (capabilities[2]);
         this.numberOfElements = numberOfElements;
-        Log.v(TAG, "Number of elements: " + numberOfElements);
+        MeshLogger.verbose(TAG, "Number of elements: " + numberOfElements);
 
         final short algorithm = (short) (((capabilities[3] & 0xff) << 8) | (capabilities[4] & 0xff));
         this.rawAlgorithm = algorithm;
@@ -60,27 +60,29 @@ public final class ProvisioningCapabilities implements Parcelable {
 
         this.rawPublicKeyType = capabilities[5];
         this.publicKeyInformationAvailable = rawPublicKeyType == PUBLIC_KEY_INFORMATION_AVAILABLE;
-        Log.v(TAG, "Public key information available: " + publicKeyInformationAvailable);
+        MeshLogger.verbose(TAG, "Public key information available: " + publicKeyInformationAvailable);
 
         this.rawStaticOOBType = capabilities[6];
         this.staticOOBInformationAvailable = rawStaticOOBType == STATIC_OOB_INFO_AVAILABLE;
-        Log.v(TAG, "Static OOB information available: : " + staticOOBInformationAvailable);
+        MeshLogger.verbose(TAG, "Static OOB information available: : " + staticOOBInformationAvailable);
 
         final byte outputOOBSize = capabilities[7];
         this.outputOOBSize = outputOOBSize;
-        Log.v(TAG, "Output OOB size: " + outputOOBSize);
+        MeshLogger.verbose(TAG, "Output OOB size: " + outputOOBSize);
 
         final short outputOOBAction = (short) (((capabilities[8] & 0xff) << 8) | (capabilities[9] & 0xff));
         this.rawOutputOOBAction = outputOOBAction;
-        this.supportedOutputOOBActions = outputOOBSize == 0 ? new ArrayList<>() : OutputOOBAction.parseOutputActionsFromBitMask(outputOOBAction);
+        this.supportedOutputOOBActions = outputOOBSize == 0 ? new ArrayList<>() :
+                OutputOOBAction.parseOutputActionsFromBitMask(outputOOBAction);
 
         final byte inputOOBSize = capabilities[10];
         this.inputOOBSize = inputOOBSize;
-        Log.v(TAG, "Input OOB size: " + inputOOBSize);
+        MeshLogger.verbose(TAG, "Input OOB size: " + inputOOBSize);
 
         final short inputOOBAction = (short) (((capabilities[11] & 0xff) << 8) | (capabilities[12] & 0xff));
         this.rawInputOOBAction = inputOOBAction;
-        this.supportedInputOOBActions = inputOOBSize == 0 ? new ArrayList<>() : InputOOBAction.parseInputActionsFromBitMask(inputOOBAction);
+        this.supportedInputOOBActions = inputOOBSize == 0 ? new ArrayList<>() :
+                InputOOBAction.parseInputActionsFromBitMask(inputOOBAction);
         generateAvailableOOBTypes();
     }
 
@@ -178,6 +180,10 @@ public final class ProvisioningCapabilities implements Parcelable {
      */
     public List<AlgorithmType> getSupportedAlgorithmTypes() {
         return Collections.unmodifiableList(supportedAlgorithmTypes);
+    }
+
+    public boolean isPublicKeyOobSupported() {
+        return rawPublicKeyType == 1;
     }
 
     /**

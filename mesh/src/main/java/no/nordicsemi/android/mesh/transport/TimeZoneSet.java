@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
 
@@ -43,9 +43,9 @@ public final class TimeZoneSet extends ApplicationMessage {
     void assembleMessageParameters() {
         mAid = SecureUtils.calculateK4(mAppKey.getKey());
         final ByteBuffer buffer = ByteBuffer.allocate(TIME_ZONE_SET_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
-        Log.v(TAG, "Creating message");
-        Log.v(TAG, newTimeZoneOffset.toString());
-        Log.v(TAG, "time of change:" + timeOfChange);
+        MeshLogger.verbose(TAG, "Creating message");
+        MeshLogger.verbose(TAG, newTimeZoneOffset.toString());
+        MeshLogger.verbose(TAG, "time of change:" + timeOfChange);
         buffer.put(newTimeZoneOffset.getEncodedValue());
         buffer.putInt((int) timeOfChange);
         buffer.put((byte) (timeOfChange >> 32));

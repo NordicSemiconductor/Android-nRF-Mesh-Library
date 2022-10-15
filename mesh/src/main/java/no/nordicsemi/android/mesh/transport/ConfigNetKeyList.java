@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +72,7 @@ public class ConfigNetKeyList extends ConfigStatusMessage implements Parcelable 
     final void parseStatusParameters() {
         mKeyIndexes.addAll(decode(mParameters.length, 0));
         for (Integer keyIndex : mKeyIndexes) {
-            Log.v(TAG, "Key Index: " + Integer.toHexString(keyIndex));
+            MeshLogger.verbose(TAG, "Key Index: " + Integer.toHexString(keyIndex));
         }
     }
 

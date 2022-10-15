@@ -24,7 +24,7 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -72,7 +72,7 @@ public final class LightLCPropertyStatus extends ApplicationStatusMessage implem
 
     @Override
     void parseStatusParameters() {
-        Log.v(TAG, "Received light lc mode status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received light lc mode status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
         property = DeviceProperty.from(buffer.getShort());
         final byte[] value = new byte[mParameters.length - 2];

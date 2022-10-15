@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.transport;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.util.UUID;
 
@@ -82,7 +82,7 @@ class VendorModelMessageUnackedState extends ApplicationMessageState {
 
     @Override
     public void executeSend() {
-        Log.v(TAG, "Sending acknowledged vendor model message");
+        MeshLogger.verbose(TAG, "Sending acknowledged vendor model message");
         super.executeSend();
     }
 }

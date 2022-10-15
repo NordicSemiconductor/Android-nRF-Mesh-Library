@@ -1,6 +1,6 @@
 package no.nordicsemi.android.mesh.utils;
 
-import android.util.Log;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,7 +22,7 @@ public enum InputOOBAction {
     INPUT_ALPHA_NUMERIC((short) 0x0008);
 
     private static final String TAG = InputOOBAction.class.getSimpleName();
-    private short inputOOBAction;
+    private final short inputOOBAction;
 
     InputOOBAction(final short outputOOBAction) {
         this.inputOOBAction = outputOOBAction;
@@ -82,7 +82,7 @@ public enum InputOOBAction {
         for (InputOOBAction action : inputActions) {
             if ((inputAction & action.inputOOBAction) == action.inputOOBAction) {
                 supportedActionValues.add(action);
-                Log.v(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
+                MeshLogger.verbose(TAG, "Input oob action type value: " + getInputOOBActionDescription(action));
             }
         }
         return supportedActionValues;
