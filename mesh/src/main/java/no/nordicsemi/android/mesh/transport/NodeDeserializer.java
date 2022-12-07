@@ -79,8 +79,8 @@ public final class NodeDeserializer implements JsonSerializer<List<ProvisionedMe
                 final JsonObject featuresJson = jsonObject.get("features").getAsJsonObject();
                 node.nodeFeatures = new Features(featuresJson.get("friend").getAsInt(),
                         featuresJson.get("lowPower").getAsInt(),
-                        featuresJson.get("relay").getAsInt(),
-                        featuresJson.get("proxy").getAsInt());
+                        featuresJson.get("proxy").getAsInt(),
+                        featuresJson.get("relay").getAsInt());
             }
 
             if (jsonObject.has("secureNetworkBeacon")) {
