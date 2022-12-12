@@ -142,7 +142,7 @@ public class NetworkTransmitSettings implements Parcelable {
      * @return Network Transmit Count.
      */
     public static int getTransmissionCount(final int transmissions) {
-        if (transmissions < MIN_TRANSMIT_COUNT || transmissions > MAX_TRANSMIT_COUNT) {
+        if (transmissions < MIN_TRANSMISSIONS || transmissions > MAX_TRANSMISSIONS) {
             throw new IllegalArgumentException("Network Transmissions must be in range 1-8.");
         }
         return transmissions - 1;
