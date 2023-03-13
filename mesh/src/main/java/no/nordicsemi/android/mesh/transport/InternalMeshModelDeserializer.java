@@ -277,7 +277,7 @@ public final class InternalMeshModelDeserializer implements JsonDeserializer<Mes
 
                     final int publishRetransmitCount = jsonPublicationSettings.get("publishRetransmitCount").getAsInt();
                     final int publishRetransmitIntervalSteps = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsInt();
-                    final int publishTtl = jsonPublicationSettings.get("publishRetransmitIntervalSteps").getAsByte();
+                    final int publishTtl = jsonPublicationSettings.get("publishTtl").getAsByte();
                     meshModel.mPublicationSettings = new PublicationSettings(publishAddress,
                             appKeyIndex, credentialFlag, publishTtl, publicationSteps,
                             publicationResolution, publishRetransmitCount, publishRetransmitIntervalSteps);
