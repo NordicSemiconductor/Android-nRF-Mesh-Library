@@ -51,7 +51,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'androidx.annotation:annotation:1.6.0'
 
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
@@ -59,9 +59,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.1'
 
     // Room
-    implementation 'androidx.room:room-runtime:2.4.3'
-    annotationProcessor 'androidx.room:room-compiler:2.4.3'
-    androidTestImplementation 'androidx.room:room-testing:2.4.3'
+    implementation 'androidx.room:room-runtime:2.5.1'
+    annotationProcessor 'androidx.room:room-compiler:2.5.1'
+    androidTestImplementation 'androidx.room:room-testing:2.5.1'
 
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.13.2'
