@@ -695,7 +695,7 @@ public final class MeshNetwork extends BaseMeshNetwork {
             notifySceneAdded(scene);
             return true;
         }
-        throw new IllegalArgumentException("Group already exists");
+        throw new IllegalArgumentException("Scene already exists");
     }
 
     /**
