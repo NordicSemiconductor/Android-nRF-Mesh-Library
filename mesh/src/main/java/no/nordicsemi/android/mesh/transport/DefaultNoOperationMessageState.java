@@ -467,7 +467,11 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_REGISTER_STATUS) {
-                    if (mMeshMessage instanceof SceneStore) {
+                    if (mMeshMessage instanceof SceneRegisterGet) {
+                        final SceneRegisterStatus status = new SceneRegisterStatus(message);
+                        mInternalTransportCallbacks.updateMeshNetwork(status);
+                        mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                    } else if (mMeshMessage instanceof SceneStore) {
                         final SceneRegisterStatus status = new SceneRegisterStatus(message);
                         storeScene(node, status);
                         mInternalTransportCallbacks.updateMeshNetwork(status);
