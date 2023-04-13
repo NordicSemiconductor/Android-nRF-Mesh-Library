@@ -56,7 +56,7 @@ dependencies {
     // Spongycastle - Android implementation of Bouncy Castle
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     // Room
     implementation 'androidx.room:room-runtime:2.5.1'
@@ -65,8 +65,8 @@ dependencies {
 
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:4.8.0'
-    androidTestImplementation 'org.mockito:mockito-android:4.8.0'
+    testImplementation 'org.mockito:mockito-core:5.3.0'
+    androidTestImplementation 'org.mockito:mockito-android:5.3.0'
 }
 // === Maven Central configuration ===
 // The following file exists only when Android BLE Library project is opened, but not
