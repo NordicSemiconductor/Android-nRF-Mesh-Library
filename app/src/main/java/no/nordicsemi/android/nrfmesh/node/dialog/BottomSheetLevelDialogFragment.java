@@ -121,7 +121,7 @@ public class BottomSheetLevelDialogFragment extends BottomSheetDialogFragment {
             @Override
             public void onStopTrackingTouch(@NonNull final Slider slider) {
                 final int level = (int) slider.getValue();
-                final int delay = (int) levelSlider.getValue();
+                final int delay = (int) delaySlider.getValue();
                 final int genericLevel = ((level * 65535) / 100) - 32768;
                 ((BottomSheetLevelListener) requireActivity()).toggleLevel(mKeyIndex, genericLevel, mTransitionSteps, mTransitionStepResolution, delay);
             }
