@@ -65,7 +65,7 @@ public class GenericLevelServerActivity extends ModelConfigurationActivity {
 
             level = nodeControlsContainer.level;
             mLevelSlider = nodeControlsContainer.levelSeekBar;
-            mLevelSlider.setValueTo(0);
+            mLevelSlider.setValueFrom(0);
             mLevelSlider.setValueTo(100);
             mLevelSlider.setValue(0);
             mLevelSlider.setStepSize(1);
