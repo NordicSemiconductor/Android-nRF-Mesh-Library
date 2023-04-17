@@ -1,9 +1,8 @@
 package no.nordicsemi.android.mesh.transport;
 
 
-import no.nordicsemi.android.mesh.logger.MeshLogger;
-
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
@@ -15,7 +14,7 @@ public class ConfigFriendStatus extends ConfigStatusMessage {
     private static final String TAG = ConfigFriendStatus.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_FRIEND_STATUS;
 
-    private boolean enable;
+    private boolean enabled;
 
     /**
      * Constructs ConfigFriendStatus message.
@@ -30,8 +29,8 @@ public class ConfigFriendStatus extends ConfigStatusMessage {
 
     @Override
     void parseStatusParameters() {
-        enable = MeshParserUtils.unsignedByteToInt(mParameters[0]) == ProvisionedBaseMeshNode.ENABLED;
-        MeshLogger.debug(TAG, "Friend status: " + enable);
+        enabled = MeshParserUtils.unsignedByteToInt(mParameters[0]) == ProvisionedBaseMeshNode.ENABLED;
+        MeshLogger.debug(TAG, "Friend status: " + enabled);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class ConfigFriendStatus extends ConfigStatusMessage {
     /**
      * Returns the true if the Friend feature is enabled or not.
      */
-    public boolean isEnable() {
-        return enable;
+    public boolean isEnabled() {
+        return enabled;
     }
 }

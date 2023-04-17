@@ -25,9 +25,9 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
 
@@ -74,7 +74,7 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
     }
 
     @Override
-    final void parseStatusParameters() {
+    void parseStatusParameters() {
         final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
         mRelay = payload[2];
         mRelayRetransmitCount = payload[3] & 0b111;
@@ -120,5 +120,12 @@ public final class ConfigRelayStatus extends ConfigStatusMessage implements Parc
     public void writeToParcel(final Parcel dest, final int flags) {
         final AccessMessage message = (AccessMessage) mMessage;
         dest.writeParcelable(message, flags);
+    }
+
+    /**
+     * Returns true if enabled.
+     */
+    public boolean isEnabled() {
+        return mRelay == 1;
     }
 }
