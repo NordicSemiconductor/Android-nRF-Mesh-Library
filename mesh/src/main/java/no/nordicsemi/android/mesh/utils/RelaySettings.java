@@ -12,7 +12,7 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 /**
  * Class containing Relay Settings values in a {@link ProvisionedMeshNode}
  */
-@SuppressWarnings({"WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class RelaySettings implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
@@ -58,6 +58,15 @@ public class RelaySettings implements Parcelable {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Returns true if relay is enabled
+     * @param relay relay state
+     * @return true if relay is enabled or false otherwise
+     */
+    public static boolean isRelayEnabled(@RelayState final int relay) {
+        return relay == RELAY_FEATURE_ENABLED;
     }
 
     @Override
