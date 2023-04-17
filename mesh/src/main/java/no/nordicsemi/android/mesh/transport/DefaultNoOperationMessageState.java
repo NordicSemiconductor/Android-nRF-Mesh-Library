@@ -88,7 +88,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
     /**
      * Parses Access message received
      *
-     * @param message access message received by the acccess layer
+     * @param message access message received by the access layer
      */
     private void parseAccessMessage(final AccessMessage message) {
         final ProvisionedMeshNode node = mInternalTransportCallbacks.getNode(message.getSrc());
@@ -397,6 +397,8 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                         final RelaySettings relaySettings =
                                 new RelaySettings(status.getRelayRetransmitCount(), status.getRelayRetransmitIntervalSteps());
                         node.setRelaySettings(relaySettings);
+                        // Let's update the feature state based on the status message.
+                        node.nodeFeatures.setRelay(status.getRelay() == RelaySettings.RELAY_FEATURE_ENABLED ? Features.ENABLED : Features.DISABLED);
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);

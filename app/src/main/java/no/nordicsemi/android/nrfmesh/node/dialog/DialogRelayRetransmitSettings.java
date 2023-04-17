@@ -90,7 +90,7 @@ public class DialogRelayRetransmitSettings extends DialogFragment {
 
     private void setRelay(final int relay) {
         mRelay = relay;
-        binding.switchRelayState.setChecked(RelaySettings.isRelaySupported(relay));
+        binding.switchRelayState.setChecked(RelaySettings.isRelayEnabled(relay));
     }
 
     private void setRelayRetransmitCount(final int relayRetransmitCount) {

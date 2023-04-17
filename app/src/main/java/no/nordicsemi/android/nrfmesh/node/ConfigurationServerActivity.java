@@ -61,8 +61,6 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         DialogRelayRetransmitSettings.DialogFragmentRelaySettingsListener {
 
     private static final String TAG = ConfigurationServerActivity.class.getSimpleName();
-
-    private static final int NETWORK_TRANSMIT_SETTING_UNKNOWN = -1;
     private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = -1;
 
 
@@ -154,7 +152,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
                         }
                         //Assuming relay is enabled by default
                         final DialogRelayRetransmitSettings fragment = DialogRelayRetransmitSettings
-                                .newInstance(1, mRelayRetransmitCount, mRelayRetransmitIntervalSteps);
+                                .newInstance(meshNode.getNodeFeatures().getRelay(), mRelayRetransmitCount, mRelayRetransmitIntervalSteps);
                         fragment.show(getSupportFragmentManager(), null);
                     });
                 }
@@ -200,7 +198,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
 
             switchSnb = nodeControlsContainerBinding.switchSnb;
             switchSnb.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if(buttonView.isPressed()){
+                if (buttonView.isPressed()) {
                     if (!checkConnectivity(mContainer)) {
                         switchSnb.toggle();
                         return;
