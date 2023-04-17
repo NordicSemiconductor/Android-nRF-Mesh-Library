@@ -16,7 +16,7 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 /**
  * Defines the features supported by a {@link ProvisionedMeshNode}
  */
-@SuppressWarnings({"WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class Features implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
@@ -208,6 +208,13 @@ public class Features implements Parcelable {
             default:
                 return true;
         }
+    }
+
+    /**
+     * Returns true if Proxy feature is enabled.
+     */
+    public boolean isProxyFeatureEnabled() {
+        return isProxyFeatureSupported() && proxy == ENABLED;
     }
 
     /**

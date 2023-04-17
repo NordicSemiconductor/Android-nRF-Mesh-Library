@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 import no.nordicsemi.android.nrfmesh.node.NodeConfigurationActivity;
 
 /**
@@ -43,5 +44,12 @@ public class NodeConfigurationViewModel extends BaseViewModel {
     protected void onCleared() {
         super.onCleared();
         mNrfMeshRepository.clearTransactionStatus();
+    }
+
+    public boolean isProxyFeatureEnabled() {
+        final ProvisionedMeshNode meshNode = getSelectedMeshNode().getValue();
+        return meshNode != null &&
+                meshNode.getNodeFeatures() != null &&
+                meshNode.getNodeFeatures().isProxyFeatureEnabled();
     }
 }

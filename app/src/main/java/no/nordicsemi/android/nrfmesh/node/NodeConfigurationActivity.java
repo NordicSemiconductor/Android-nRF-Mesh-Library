@@ -82,8 +82,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
     private static final String REQUESTED_PROXY_STATE = "REQUESTED_PROXY_STATE";
 
     private ActivityNodeConfigurationBinding binding;
-
-    private boolean mProxyState;
     private boolean mRequestedState = true;
 
     @Override
@@ -103,7 +101,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
                 enableClickableViews();
             }
             mRequestedState = savedInstanceState.getBoolean(PROXY_STATE, true);
-            mProxyState = savedInstanceState.getBoolean(PROXY_STATE, true);
         }
 
         if (mViewModel.getSelectedMeshNode().getValue() == null) {
@@ -111,7 +108,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
         }
         // Set up views
         setSupportActionBar(binding.toolbar);
-        if(getSupportActionBar() != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.title_node_configuration);
         }
@@ -213,6 +210,7 @@ public class NodeConfigurationActivity extends BaseActivity implements
 
         binding.actionSetProxyState.setOnClickListener(v -> {
             final String message;
+            final boolean mProxyState = ((NodeConfigurationViewModel) mViewModel).isProxyFeatureEnabled();
             if (mProxyState) {
                 message = getString(R.string.proxy_set_off_rationale_summary);
             } else {
@@ -252,7 +250,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
     protected void onSaveInstanceState(@NonNull final Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(PROGRESS_BAR_STATE, binding.configurationProgressBar.getVisibility() == View.VISIBLE);
-        outState.putBoolean(PROXY_STATE, mProxyState);
         outState.putBoolean(REQUESTED_PROXY_STATE, mRequestedState);
     }
 
@@ -300,17 +297,13 @@ public class NodeConfigurationActivity extends BaseActivity implements
         final ProvisionedMeshNode meshNode = mViewModel.getSelectedMeshNode().getValue();
         if (meshNode != null && meshNode.getNodeFeatures() != null && meshNode.getNodeFeatures().isProxyFeatureSupported()) {
             binding.nodeProxyStateCard.setVisibility(View.VISIBLE);
-            updateProxySettingsButtonUi();
-        }
-    }
-
-    private void updateProxySettingsButtonUi() {
-        if (mProxyState) {
-            binding.proxyStateSummary.setText(R.string.proxy_set_off_rationale);
-            binding.actionSetProxyState.setText(R.string.action_proxy_state_set_off);
-        } else {
-            binding.proxyStateSummary.setText(R.string.proxy_set_on_rationale);
-            binding.actionSetProxyState.setText(R.string.action_proxy_state_set_on);
+            if (meshNode.getNodeFeatures().isProxyFeatureEnabled()) {
+                binding.proxyStateSummary.setText(R.string.proxy_set_off_rationale);
+                binding.actionSetProxyState.setText(R.string.action_proxy_state_set_off);
+            } else {
+                binding.proxyStateSummary.setText(R.string.proxy_set_on_rationale);
+                binding.actionSetProxyState.setText(R.string.action_proxy_state_set_on);
+            }
         }
     }
 
@@ -359,8 +352,6 @@ public class NodeConfigurationActivity extends BaseActivity implements
             hideProgressBar();
             finish();
         } else if (meshMessage instanceof ConfigGattProxyStatus) {
-            final ConfigGattProxyStatus status = (ConfigGattProxyStatus) meshMessage;
-            mProxyState = status.isProxyFeatureEnabled();
             updateProxySettingsCardUi();
             hideProgressBar();
         }
@@ -417,6 +408,5 @@ public class NodeConfigurationActivity extends BaseActivity implements
     public void onProxySet(final int state) {
         final ConfigGattProxySet configGattProxySet = new ConfigGattProxySet(state);
         sendMessage(configGattProxySet);
-        mRequestedState = state == 1;
     }
 }
