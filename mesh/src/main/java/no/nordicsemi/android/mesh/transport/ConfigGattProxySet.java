@@ -11,11 +11,11 @@ import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
  * To be used as a wrapper class to create a ConfigProxySet message.
  */
 @SuppressWarnings({"unused"})
-public class ConfigProxySet extends ConfigMessage {
+public class ConfigGattProxySet extends ConfigMessage {
 
     public static final int PROXY_FEATURE_DISABLED = 0x00;
     public static final int PROXY_FEATURE_ENABLED = 0x01;
-    private static final String TAG = ConfigProxySet.class.getSimpleName();
+    private static final String TAG = ConfigGattProxySet.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_GATT_PROXY_SET;
     private final int proxyState;
 
@@ -24,7 +24,7 @@ public class ConfigProxySet extends ConfigMessage {
      *
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigProxySet(@ProxyState final int proxyState) throws IllegalArgumentException {
+    public ConfigGattProxySet(@ProxyState final int proxyState) throws IllegalArgumentException {
         if (proxyState != PROXY_FEATURE_DISABLED && proxyState != PROXY_FEATURE_ENABLED)
             throw new IllegalArgumentException("Invalid proxy state value.");
         this.proxyState = proxyState;

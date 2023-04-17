@@ -29,16 +29,16 @@ import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
  * To be used as a wrapper class for when creating the ConfigProxyGet message.
  */
 @SuppressWarnings({"unused"})
-public final class ConfigProxyGet extends ConfigMessage {
+public final class ConfigGattProxyGet extends ConfigMessage {
 
-    private static final String TAG = ConfigProxyGet.class.getSimpleName();
+    private static final String TAG = ConfigGattProxyGet.class.getSimpleName();
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_GATT_PROXY_GET;
 
     /**
      * Constructs a ConfigRelayGet message
      *
      */
-    public ConfigProxyGet() {
+    public ConfigGattProxyGet() {
         assembleMessageParameters();
     }
 
@@ -48,7 +48,7 @@ public final class ConfigProxyGet extends ConfigMessage {
     }
 
     @Override
-    final void assembleMessageParameters() {
+    void assembleMessageParameters() {
         // Do nothing as this message has no parameters
     }
 }

@@ -30,25 +30,23 @@ import androidx.annotation.NonNull;
 import no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes;
 
 /**
- * To be used as a wrapper class for when creating the ConfigRelayStatus message.
+ * Status message received for a ConfigProxySet message.
  */
-@SuppressWarnings({"WeakerAccess"})
-public final class ConfigProxyStatus extends ConfigStatusMessage implements Parcelable {
-
-    private static final String TAG = ConfigProxyStatus.class.getSimpleName();
+@SuppressWarnings({"WeakerAccess", "unused"})
+public final class ConfigGattProxyStatus extends ConfigStatusMessage implements Parcelable {
     private static final int OP_CODE = ConfigMessageOpCodes.CONFIG_GATT_PROXY_STATUS;
     private int mProxyState;
 
-    private static final Creator<ConfigProxyStatus> CREATOR = new Creator<ConfigProxyStatus>() {
+    private static final Creator<ConfigGattProxyStatus> CREATOR = new Creator<ConfigGattProxyStatus>() {
         @Override
-        public ConfigProxyStatus createFromParcel(Parcel in) {
+        public ConfigGattProxyStatus createFromParcel(Parcel in) {
             final AccessMessage message = in.readParcelable(AccessMessage.class.getClassLoader());
-            return new ConfigProxyStatus(message);
+            return new ConfigGattProxyStatus(message);
         }
 
         @Override
-        public ConfigProxyStatus[] newArray(int size) {
-            return new ConfigProxyStatus[size];
+        public ConfigGattProxyStatus[] newArray(int size) {
+            return new ConfigGattProxyStatus[size];
         }
     };
 
@@ -58,7 +56,7 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
      * @param message Access message received
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public ConfigProxyStatus(@NonNull final AccessMessage message) {
+    public ConfigGattProxyStatus(@NonNull final AccessMessage message) {
         super(message);
         this.mParameters = message.getParameters();
         parseStatusParameters();
@@ -70,16 +68,16 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
     }
 
     @Override
-    final void parseStatusParameters() {
+    void parseStatusParameters() {
         final byte[] payload = ((AccessMessage) mMessage).getAccessPdu();
         mProxyState = payload[2];
     }
 
 
     /**
-     * Returns the current {@link ConfigProxySet.ProxyState} of the node
+     * Returns the current {@link ConfigGattProxySet.ProxyState} of the node
      */
-    @ConfigProxySet.ProxyState
+    @ConfigGattProxySet.ProxyState
     public int getProxyState() {
         return mProxyState;
     }
@@ -88,7 +86,7 @@ public final class ConfigProxyStatus extends ConfigStatusMessage implements Parc
      * Returns true if the proxy feature is currently enabled on the node and false otherwise
      */
     public boolean isProxyFeatureEnabled() {
-        return mProxyState == ConfigProxySet.PROXY_FEATURE_ENABLED;
+        return mProxyState == ConfigGattProxySet.PROXY_FEATURE_ENABLED;
     }
 
     @Override

@@ -27,7 +27,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import no.nordicsemi.android.mesh.transport.ConfigProxySet;
+import no.nordicsemi.android.mesh.transport.ConfigGattProxySet;
 import no.nordicsemi.android.nrfmesh.R;
 
 public class DialogFragmentProxySet extends DialogFragmentMessage {
@@ -36,7 +36,7 @@ public class DialogFragmentProxySet extends DialogFragmentMessage {
     private boolean mState = true; //Let's set true by default so that we don't break anyone's node
 
     public interface DialogFragmentProxySetListener {
-        void onProxySet(@ConfigProxySet.ProxyState final int state);
+        void onProxySet(@ConfigGattProxySet.ProxyState final int state);
     }
 
     public static DialogFragmentProxySet newInstance(final String title, final String message, final boolean state) {
@@ -66,7 +66,7 @@ public class DialogFragmentProxySet extends DialogFragmentMessage {
         alertDialogBuilder.setNegativeButton(getString(R.string.no), null);
         alertDialogBuilder.setPositiveButton(getString(R.string.yes), (dialog, which) -> (
                 (DialogFragmentProxySetListener) requireActivity()).
-                onProxySet(mState ? ConfigProxySet.PROXY_FEATURE_ENABLED : ConfigProxySet.PROXY_FEATURE_DISABLED));
+                onProxySet(mState ? ConfigGattProxySet.PROXY_FEATURE_ENABLED : ConfigGattProxySet.PROXY_FEATURE_DISABLED));
 
         return super.onCreateDialog(savedInstanceState);
     }

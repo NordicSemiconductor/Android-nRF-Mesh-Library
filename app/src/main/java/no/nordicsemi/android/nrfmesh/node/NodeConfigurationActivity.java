@@ -40,11 +40,11 @@ import no.nordicsemi.android.mesh.transport.ConfigCompositionDataStatus;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlGet;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlSet;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlStatus;
+import no.nordicsemi.android.mesh.transport.ConfigGattProxyGet;
+import no.nordicsemi.android.mesh.transport.ConfigGattProxySet;
+import no.nordicsemi.android.mesh.transport.ConfigGattProxyStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNodeReset;
 import no.nordicsemi.android.mesh.transport.ConfigNodeResetStatus;
-import no.nordicsemi.android.mesh.transport.ConfigProxyGet;
-import no.nordicsemi.android.mesh.transport.ConfigProxySet;
-import no.nordicsemi.android.mesh.transport.ConfigProxyStatus;
 import no.nordicsemi.android.mesh.transport.Element;
 import no.nordicsemi.android.mesh.transport.MeshMessage;
 import no.nordicsemi.android.mesh.transport.MeshModel;
@@ -207,8 +207,8 @@ public class NodeConfigurationActivity extends BaseActivity implements
 
         binding.actionGetProxyState.setOnClickListener(v -> {
             if (!checkConnectivity(binding.container)) return;
-            final ConfigProxyGet configProxyGet = new ConfigProxyGet();
-            sendMessage(configProxyGet);
+            final ConfigGattProxyGet configGattProxyGet = new ConfigGattProxyGet();
+            sendMessage(configGattProxyGet);
         });
 
         binding.actionSetProxyState.setOnClickListener(v -> {
@@ -358,8 +358,8 @@ public class NodeConfigurationActivity extends BaseActivity implements
         } else if (meshMessage instanceof ConfigNodeResetStatus) {
             hideProgressBar();
             finish();
-        } else if (meshMessage instanceof ConfigProxyStatus) {
-            final ConfigProxyStatus status = (ConfigProxyStatus) meshMessage;
+        } else if (meshMessage instanceof ConfigGattProxyStatus) {
+            final ConfigGattProxyStatus status = (ConfigGattProxyStatus) meshMessage;
             mProxyState = status.isProxyFeatureEnabled();
             updateProxySettingsCardUi();
             hideProgressBar();
@@ -415,8 +415,8 @@ public class NodeConfigurationActivity extends BaseActivity implements
 
     @Override
     public void onProxySet(final int state) {
-        final ConfigProxySet configProxySet = new ConfigProxySet(state);
-        sendMessage(configProxySet);
+        final ConfigGattProxySet configGattProxySet = new ConfigGattProxySet(state);
+        sendMessage(configGattProxySet);
         mRequestedState = state == 1;
     }
 }

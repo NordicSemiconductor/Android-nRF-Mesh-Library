@@ -42,13 +42,13 @@ import no.nordicsemi.android.mesh.transport.ConfigCompositionDataGet;
 import no.nordicsemi.android.mesh.transport.ConfigCompositionDataStatus;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlGet;
 import no.nordicsemi.android.mesh.transport.ConfigDefaultTtlStatus;
+import no.nordicsemi.android.mesh.transport.ConfigGattProxyStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitSet;
 import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNodeResetStatus;
-import no.nordicsemi.android.mesh.transport.ConfigProxyStatus;
 import no.nordicsemi.android.mesh.transport.ConfigRelayStatus;
 import no.nordicsemi.android.mesh.transport.ControlMessage;
 import no.nordicsemi.android.mesh.transport.Element;
@@ -913,7 +913,7 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 }
             } else if (meshMessage.getOpCode() == CONFIG_GATT_PROXY_STATUS) {
                 if (updateNode(node)) {
-                    final ConfigProxyStatus status = (ConfigProxyStatus) meshMessage;
+                    final ConfigGattProxyStatus status = (ConfigGattProxyStatus) meshMessage;
                     mMeshMessageLiveData.postValue(status);
                 }
             } else if (meshMessage.getOpCode() == GENERIC_ON_OFF_STATUS) {
