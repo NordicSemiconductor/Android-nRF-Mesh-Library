@@ -22,8 +22,6 @@
 
 package no.nordicsemi.android.mesh.provisionerstates;
 
-import no.nordicsemi.android.mesh.logger.MeshLogger;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -33,6 +31,7 @@ import no.nordicsemi.android.mesh.InternalProvisioningCallbacks;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
 import no.nordicsemi.android.mesh.MeshManagerApi;
 import no.nordicsemi.android.mesh.MeshProvisioningStatusCallbacks;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 import no.nordicsemi.android.mesh.utils.SecureUtils;
 
@@ -120,11 +119,6 @@ public class ProvisioningRandomConfirmationState extends ProvisioningState {
         final byte[] confirmationData = buffer.array();
 
         final byte[] confirmationValue = SecureUtils.calculateCMAC(confirmationData, confirmationKey);
-
-        /*if (Arrays.equals(confirmationValue, node.getProvisioneeConfirmation())) {
-            MeshLogger.verbose(TAG, "Confirmation values match!!!!: " + MeshParserUtils.bytesToHex(confirmationValue, false));
-            return true;
-        }*/
 
         return Arrays.equals(confirmationValue, node.getProvisioneeConfirmation());
     }
