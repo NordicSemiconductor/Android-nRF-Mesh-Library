@@ -20,7 +20,7 @@ import no.nordicsemi.android.mesh.transport.ProvisionedMeshNode;
 public class Features implements Parcelable {
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({DISABLED, ENABLED, UNSUPPORTED})
+    @IntDef({DISABLED, ENABLED, UNSUPPORTED, UNKNOWN})
     @interface FeatureState {
     }
 
@@ -28,6 +28,7 @@ public class Features implements Parcelable {
     public static final int DISABLED = 0; //Feature is disabled
     public static final int ENABLED = 1; //Feature is enabled
     public static final int UNSUPPORTED = 2; //Feature is not supported
+    public static final int UNKNOWN = 3; //Feature is not supported
 
     @SerializedName("friend")
     @Expose
@@ -55,6 +56,13 @@ public class Features implements Parcelable {
         this.lowPower = lowPower;
         this.proxy = proxy;
         this.relay = relay;
+    }
+
+    public Features() {
+        friend = UNKNOWN;
+        lowPower = UNKNOWN;
+        proxy = UNKNOWN;
+        relay = UNKNOWN;
     }
 
     private Features(Parcel in) {
