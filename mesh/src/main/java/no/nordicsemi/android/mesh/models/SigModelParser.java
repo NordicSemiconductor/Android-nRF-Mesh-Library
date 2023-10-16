@@ -24,12 +24,26 @@ package no.nordicsemi.android.mesh.models;
 
 @SuppressWarnings("WeakerAccess")
 public class SigModelParser {
-    private static final String TAG = SigModelParser.class.getSimpleName();
 
     public static final short CONFIGURATION_SERVER = 0x0000;
     public static final short CONFIGURATION_CLIENT = 0x0001;
     private static final short HEALTH_SERVER_MODEL = 0x0002;
     private static final short HEALTH_CLIENT_MODEL = 0x0003;
+
+    private static final short REMOTE_PROVISIONING_SERVER                 = 0x0004;
+    private static final short REMOTE_PROVISIONING_CLIENT                 = 0x0005;
+    private static final short MESH_PRIVATE_BEACON_SERVER                 = 0x000A;
+    private static final short MESH_PRIVATE_BEACON_CLIENT                 = 0x000B;
+    private static final short ON_DEMAND_PRIVATE_PROXY_SERVER             = 0x000C;
+    private static final short ON_DEMAND_PRIVATE_PROXY_CLIENT             = 0x000D;
+    private static final short SAR_CONFIGURATION_SERVER                   = 0x000E;
+    private static final short SAR_CONFIGURATION_CLIENT                   = 0x000F;
+    private static final short OPCODES_AGGREGATOR_SERVER                  = 0x0010;
+    private static final short OPCODES_AGGREGATOR_CLIENT                  = 0x0011;
+    private static final short LARGE_COMPOSITION_DATA_SERVER              = 0x0012;
+    private static final short LARGE_COMPOSITION_DATA_CLIENT              = 0x0013;
+    private static final short SOLICITATION_PDU_RPL_CONFIGURATION_SERVER  = 0x0014;
+    private static final short SOLICITATION_PDU_RPL_CONFIGURATION_CLIENT  = 0x0015;
 
     public static final short GENERIC_ON_OFF_SERVER = 0x1000;
     public static final short GENERIC_ON_OFF_CLIENT = 0x1001;
@@ -90,6 +104,16 @@ public class SigModelParser {
     private static final short LIGHT_LC_SERVER = 0x130F;
     private static final short LIGHT_LC_SETUP_SERVER = 0x1310;
     private static final short LIGHT_LC_CLIENT = 0x1311;
+
+    // BLOB
+    private static final short BLOB_TRANSFER_SERVER                       = 0x1400;
+    private static final short BLOB_TRANSFER_CLIENT                       = 0x1401;
+
+    // Firmware Update
+    private static final short FIRMWARE_UPDATE_SERVER                     = 0x1402;
+    private static final short FIRMWARE_UPDATE_CLIENT                     = 0x1403;
+    private static final short FIRMWARE_DISTRIBUTION_SERVER               = 0x1404;
+    private static final short FIRMWARE_DISTRIBUTION_CLIENT               = 0x1405;
 
     /**
      * Returns the Bluetooth sig model based on the model id.
@@ -211,6 +235,46 @@ public class SigModelParser {
                 return new LightLcSetupServer(modelId);
             case LIGHT_LC_CLIENT:
                 return new LightLcClient(modelId);
+            case REMOTE_PROVISIONING_SERVER:
+                return new RemoteProvisioningServer(modelId);
+            case REMOTE_PROVISIONING_CLIENT:
+                return new RemoteProvisioningClient(modelId);
+            case MESH_PRIVATE_BEACON_SERVER:
+                return new MeshPrivateBeaconServer(modelId);
+            case MESH_PRIVATE_BEACON_CLIENT:
+                return new MeshPrivateBeaconClient(modelId);
+            case ON_DEMAND_PRIVATE_PROXY_SERVER:
+                return new OnDemandPrivateProxyServer(modelId);
+            case ON_DEMAND_PRIVATE_PROXY_CLIENT:
+                return new OnDemandPrivateProxyClient(modelId);
+            case SAR_CONFIGURATION_SERVER:
+                return new SarConfigurationServer(modelId);
+            case SAR_CONFIGURATION_CLIENT:
+                return new SarConfigurationClient(modelId);
+            case OPCODES_AGGREGATOR_SERVER:
+                return new OpcodesAggregatorServer(modelId);
+            case OPCODES_AGGREGATOR_CLIENT:
+                return new OpcodesAggregatorClient(modelId);
+            case LARGE_COMPOSITION_DATA_SERVER:
+                return new LargeCompositionDataServer(modelId);
+            case LARGE_COMPOSITION_DATA_CLIENT:
+                return new LargeCompositionDataClient(modelId);
+            case SOLICITATION_PDU_RPL_CONFIGURATION_SERVER:
+                return new SolicitationPduRplConfigurationServer(modelId);
+            case SOLICITATION_PDU_RPL_CONFIGURATION_CLIENT:
+                return new SolicitationPduRplConfigurationClient(modelId);
+            case BLOB_TRANSFER_SERVER:
+                return new BlobTransferServer(modelId);
+            case BLOB_TRANSFER_CLIENT:
+                return new BlobTransferClient(modelId);
+            case FIRMWARE_UPDATE_SERVER:
+                return new FirmwareUpdateServer(modelId);
+            case FIRMWARE_UPDATE_CLIENT:
+                return new FirmwareUpdateClient(modelId);
+            case FIRMWARE_DISTRIBUTION_SERVER:
+                return new FirmwareDistributionServer(modelId);
+            case FIRMWARE_DISTRIBUTION_CLIENT:
+                return new FirmwareDistributionClient(modelId);
             default:
                 return new UnknownModel(modelId);
         }
