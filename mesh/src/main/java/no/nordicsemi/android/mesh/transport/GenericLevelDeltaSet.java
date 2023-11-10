@@ -30,7 +30,7 @@ public class GenericLevelDeltaSet extends ApplicationMessage {
     private final int tId;
 
     /**
-     * Constructs GenericLevelSet message.
+     * Constructs GenericLevelDeltaSet message.
      *
      * @param appKey {@link ApplicationKey} key for this message
      * @param delta  Level delta value
@@ -44,7 +44,7 @@ public class GenericLevelDeltaSet extends ApplicationMessage {
     }
 
     /**
-     * Constructs GenericLevelSet message.
+     * Constructs GenericLevelDeltaSet message.
      *
      * @param appKey               {@link ApplicationKey} key for this message
      * @param transitionSteps      Transition steps for the level
