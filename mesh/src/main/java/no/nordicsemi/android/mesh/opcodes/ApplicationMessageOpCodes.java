@@ -55,6 +55,11 @@ public class ApplicationMessageOpCodes {
     public static final int GENERIC_LEVEL_SET = 0x8206;
 
     /**
+     * Opcode for the "Generic Level Delta Set" message.
+     */
+    public static final int GENERIC_LEVEL_DELTA_SET = 0x8209;
+
+    /**
      * Opcode for the "Generic Location Global Get" message
      */
     public static final int GENERIC_LOCATION_GLOBAL_GET = 0x8225;
