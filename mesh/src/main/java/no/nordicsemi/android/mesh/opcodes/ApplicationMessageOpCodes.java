@@ -487,4 +487,15 @@ public class ApplicationMessageOpCodes {
      * Opcode for the "Time Status" message
      */
     public static final int TIME_STATUS = 0x5D;
+
+
+    /**
+     * Opcode for the "Health Current Status" message
+     */
+    public static final int HEALTH_CURRENT_STATUS = 0x04;
+
+    /**
+     * Opcode for the "Health Fault Status" message
+     */
+    public static final int HEALTH_FAULT_STATUS = 0x05;
 }
