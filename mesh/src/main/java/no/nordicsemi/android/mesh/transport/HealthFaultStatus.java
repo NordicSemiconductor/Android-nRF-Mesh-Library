@@ -18,7 +18,7 @@ public class HealthFaultStatus extends ApplicationStatusMessage {
 
 
     /**
-     * Constructs HealthCurrentStatus message
+     * Constructs HealthFaultStatus message
      * @param message access message
      */
     public HealthFaultStatus(@NonNull AccessMessage message) {
@@ -30,7 +30,7 @@ public class HealthFaultStatus extends ApplicationStatusMessage {
 
     @Override
     void parseStatusParameters() {
-        MeshLogger.verbose(TAG, "Received health current status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
+        MeshLogger.verbose(TAG, "Received health fault status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         mTestId = mParameters[0] & 0xFF;
         mCompanyId = mParameters[1] & 0xFF  | ((mParameters[2] & 0xFF) << 8);
         MeshLogger.verbose(TAG, "Test ID: " + mTestId);
