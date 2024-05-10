@@ -16,12 +16,12 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
  * To be used as a wrapper class when creating a GenericLevelDeltaSet message.
  */
 @SuppressWarnings("unused")
-public class GenericLevelDeltaSet extends ApplicationMessage {
+public class GenericDeltaSet extends ApplicationMessage {
 
     private static final String TAG = GenericLevelDeltaSet.class.getSimpleName();
     private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_DELTA_SET;
-    private static final int GENERIC_LEVEL_DELTA_SET_TRANSITION_PARAMS_LENGTH = 7;
-    private static final int GENERIC_LEVEL_DELTA_SET_PARAMS_LENGTH = 5;
+    private static final int GENERIC_DELTA_SET_TRANSITION_PARAMS_LENGTH = 7;
+    private static final int GENERIC_DELTA_SET_PARAMS_LENGTH = 5;
 
     private final Integer mTransitionSteps;
     private final Integer mTransitionResolution;
@@ -80,13 +80,13 @@ public class GenericLevelDeltaSet extends ApplicationMessage {
         final ByteBuffer paramsBuffer;
         MeshLogger.verbose(TAG, "Delta: " + mDelta);
         if (mTransitionSteps == null || mTransitionResolution == null || mDelay == null) {
-            paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_DELTA_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer = ByteBuffer.allocate(GENERIC_DELTA_SET_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putInt((short) mDelta);
             paramsBuffer.put((byte) tId);
         } else {
             MeshLogger.verbose(TAG, "Transition steps: " + mTransitionSteps);
             MeshLogger.verbose(TAG, "Transition step resolution: " + mTransitionResolution);
-            paramsBuffer = ByteBuffer.allocate(GENERIC_LEVEL_DELTA_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
+            paramsBuffer = ByteBuffer.allocate(GENERIC_DELTA_SET_TRANSITION_PARAMS_LENGTH).order(ByteOrder.LITTLE_ENDIAN);
             paramsBuffer.putInt((short) (mDelta));
             paramsBuffer.put((byte) tId);
             paramsBuffer.put((byte) (mTransitionResolution << 6 | mTransitionSteps));
