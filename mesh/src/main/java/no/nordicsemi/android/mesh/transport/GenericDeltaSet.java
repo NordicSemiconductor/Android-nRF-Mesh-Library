@@ -18,8 +18,8 @@ import no.nordicsemi.android.mesh.utils.SecureUtils;
 @SuppressWarnings("unused")
 public class GenericDeltaSet extends ApplicationMessage {
 
-    private static final String TAG = GenericLevelDeltaSet.class.getSimpleName();
-    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_LEVEL_DELTA_SET;
+    private static final String TAG = GenericDeltaSet.class.getSimpleName();
+    private static final int OP_CODE = ApplicationMessageOpCodes.GENERIC_DELTA_SET;
     private static final int GENERIC_DELTA_SET_TRANSITION_PARAMS_LENGTH = 7;
     private static final int GENERIC_DELTA_SET_PARAMS_LENGTH = 5;
 
@@ -37,9 +37,9 @@ public class GenericDeltaSet extends ApplicationMessage {
      * @param tId    Transaction id which must be incremented for every message
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelDeltaSet(@NonNull final ApplicationKey appKey,
-                                final int delta,
-                                final int tId) throws IllegalArgumentException {
+    public GenericDeltaSet(@NonNull final ApplicationKey appKey,
+                           final int delta,
+                           final int tId) throws IllegalArgumentException {
         this(appKey, null, null, null, delta, tId);
     }
 
@@ -54,12 +54,12 @@ public class GenericDeltaSet extends ApplicationMessage {
      * @param tId                  Transaction id
      * @throws IllegalArgumentException if any illegal arguments are passed
      */
-    public GenericLevelDeltaSet(@NonNull final ApplicationKey appKey,
-                                @Nullable final Integer transitionSteps,
-                                @Nullable final Integer transitionResolution,
-                                @Nullable final Integer delay,
-                                final int delta,
-                                final int tId) {
+    public GenericDeltaSet(@NonNull final ApplicationKey appKey,
+                           @Nullable final Integer transitionSteps,
+                           @Nullable final Integer transitionResolution,
+                           @Nullable final Integer delay,
+                           final int delta,
+                           final int tId) {
         super(appKey);
         this.mTransitionSteps = transitionSteps;
         this.mTransitionResolution = transitionResolution;
