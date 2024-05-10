@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.4
         with:
-          node-version: 20
+          node-version: '20'
           fetch-depth: 0
       - shell: bash
         # The script gets VERSION from the latest tag and replaces {{VERSION}} with it in
