@@ -118,7 +118,7 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
     public final void createLowerTransportAccessPDU(@NonNull final AccessMessage message) {
         final byte[] upperTransportPDU = message.getUpperTransportPdu();
         final SparseArray<byte[]> lowerTransportAccessPduMap;
-        if (upperTransportPDU.length <= MAX_SEGMENTED_ACCESS_PAYLOAD_LENGTH) {
+        if (upperTransportPDU.length <= MAX_UNSEGMENTED_ACCESS_PAYLOAD_LENGTH) {
             message.setSegmented(false);
             final byte[] lowerTransportPDU = createUnsegmentedAccessMessage(message);
             lowerTransportAccessPduMap = new SparseArray<>();
