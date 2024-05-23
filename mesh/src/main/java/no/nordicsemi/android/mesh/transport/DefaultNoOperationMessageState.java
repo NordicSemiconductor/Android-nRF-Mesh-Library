@@ -103,6 +103,14 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.HEALTH_CURRENT_STATUS) {
+                    final HealthCurrentStatus healthCurrentStatus = new HealthCurrentStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(healthCurrentStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), healthCurrentStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.HEALTH_FAULT_STATUS) {
+                    final HealthFaultStatus healthFaultStatus = new HealthFaultStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(healthFaultStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), healthFaultStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.SCENE_STATUS) {
                     final SceneStatus sceneStatus = new SceneStatus(message);
                     if (sceneStatus.isSuccessful()) {
@@ -500,14 +508,6 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final TimeZoneStatus timeZoneStatus = new TimeZoneStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(timeZoneStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), timeZoneStatus);
-                } else if (message.getOpCode() == ApplicationMessageOpCodes.HEALTH_CURRENT_STATUS) {
-                    final HealthCurrentStatus healthCurrentStatus = new HealthCurrentStatus(message);
-                    mInternalTransportCallbacks.updateMeshNetwork(healthCurrentStatus);
-                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), healthCurrentStatus);
-                } else if (message.getOpCode() == ApplicationMessageOpCodes.HEALTH_FAULT_STATUS) {
-                    final HealthFaultStatus healthFaultStatus = new HealthFaultStatus(message);
-                    mInternalTransportCallbacks.updateMeshNetwork(healthFaultStatus);
-                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), healthFaultStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_DEFAULT_TRANSITION_TIME_STATUS) {
                     final GenericDefaultTransitionTimeStatus genericDefaultTransitionTimeStatus = new GenericDefaultTransitionTimeStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericDefaultTransitionTimeStatus);
