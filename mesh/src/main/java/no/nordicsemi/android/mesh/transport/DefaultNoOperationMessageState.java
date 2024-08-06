@@ -1,11 +1,17 @@
 package no.nordicsemi.android.mesh.transport;
 
+import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.ALL_PROXIES_ADDRESS;
+import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnassignedAddress;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import no.nordicsemi.android.mesh.Features;
 import no.nordicsemi.android.mesh.Group;
 import no.nordicsemi.android.mesh.InternalTransportCallbacks;
@@ -28,11 +34,6 @@ import no.nordicsemi.android.mesh.utils.NetworkTransmitSettings;
 import no.nordicsemi.android.mesh.utils.ProxyFilter;
 import no.nordicsemi.android.mesh.utils.ProxyFilterType;
 import no.nordicsemi.android.mesh.utils.RelaySettings;
-
-import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
-import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
-import static no.nordicsemi.android.mesh.utils.MeshAddress.ALL_PROXIES_ADDRESS;
-import static no.nordicsemi.android.mesh.utils.MeshAddress.isValidUnassignedAddress;
 
 class DefaultNoOperationMessageState extends MeshMessageState {
 
@@ -430,7 +431,7 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), status);
                 } else if (message.getOpCode() == ConfigMessageOpCodes.CONFIG_GATT_PROXY_STATUS) {
                     final ConfigGattProxyStatus status = new ConfigGattProxyStatus(message);
-                    if(!isReceivedViaProxyFilter(message)) {
+                    if (!isReceivedViaProxyFilter(message)) {
                         node.nodeFeatures.setProxy(status.isProxyFeatureEnabled() ? Features.ENABLED : Features.DISABLED);
                     }
                     mInternalTransportCallbacks.updateMeshNetwork(status);
@@ -447,6 +448,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericLevelStatus genericLevelStatus = new GenericLevelStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericLevelStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericLevelStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_POWER_LEVEL_STATUS) {
+                    final GenericPowerLevelStatus genericPowerLevelStatus = new GenericPowerLevelStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericPowerLevelStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericPowerLevelStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_BATTERY_STATUS) {
                     final GenericBatteryStatus status = new GenericBatteryStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);
