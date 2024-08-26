@@ -586,7 +586,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x0222, "Praxis Dynamics");
         vendorModels.append(0x0223, "Philip Morris Products S.A.");
         vendorModels.append(0x0224, "Comarch SA");
-        vendorModels.append(0x0225, "NestlÃ© Nespresso S.A.");
+        vendorModels.append(0x0225, "Nestlé Nespresso S.A.");
         vendorModels.append(0x0226, "Merlinia A/S");
         vendorModels.append(0x0227, "LifeBEAM Technologies");
         vendorModels.append(0x0228, "Twocanoes Labs, LLC");
@@ -628,7 +628,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x024C, "Blue Clover Devices");
         vendorModels.append(0x024D, "M-Way Solutions GmbH");
         vendorModels.append(0x024E, "Microtronics Engineering GmbH");
-        vendorModels.append(0x024F, "Schneider SchreibgerÃ¤te GmbH");
+        vendorModels.append(0x024F, "Schneider Schreibgeräte GmbH");
         vendorModels.append(0x0250, "Sapphire Circuits LLC");
         vendorModels.append(0x0251, "Lumo Bodytech Inc.");
         vendorModels.append(0x0252, "UKC Technosolution");
@@ -2092,7 +2092,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x0805, "Urbanminded Ltd");
         vendorModels.append(0x0806, "TYRI Sweden AB");
         vendorModels.append(0x0807, "ECD Electronic Components GmbH Dresden");
-        vendorModels.append(0x0808, "SISTEMAS KERN, SOCIEDAD ANÃ“MINA");
+        vendorModels.append(0x0808, "SISTEMAS KERN, SOCIEDAD ANÓMINA");
         vendorModels.append(0x0809, "Trulli Audio");
         vendorModels.append(0x080A, "Altaneos");
         vendorModels.append(0x080B, "Nanoleaf Canada Limited");
@@ -2238,7 +2238,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x0897, "Current Lighting Solutions LLC");
         vendorModels.append(0x0898, "Sensibo, Inc.");
         vendorModels.append(0x0899, "SFS unimarket AG");
-        vendorModels.append(0x089A, "Private limited company "Teltonika"");
+        vendorModels.append(0x089A, "Private limited company \"Teltonika\"");
         vendorModels.append(0x089B, "Saucon Technologies");
         vendorModels.append(0x089C, "Embedded Devices Co. Company");
         vendorModels.append(0x089D, "J-J.A.D.E. Enterprise LLC");
@@ -2418,7 +2418,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x094C, "GimmiSys GmbH");
         vendorModels.append(0x094D, "tkLABS INC.");
         vendorModels.append(0x094E, "PassiveBolt, Inc.");
-        vendorModels.append(0x094F, "Limited Liability Company "Mikrotikls"");
+        vendorModels.append(0x094F, "Limited Liability Company \"Mikrotikls\"");
         vendorModels.append(0x0950, "Capetech");
         vendorModels.append(0x0951, "PPRS");
         vendorModels.append(0x0952, "Apptricity Corporation");
@@ -2453,7 +2453,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x096F, "Lund Motion Products, Inc.");
         vendorModels.append(0x0970, "IBA Dosimetry GmbH");
         vendorModels.append(0x0971, "GA");
-        vendorModels.append(0x0972, "Closed Joint Stock Company "Zavod Flometr" ("Zavod Flometr" CJSC)");
+        vendorModels.append(0x0972, "Closed Joint Stock Company \"Zavod Flometr\" (\"Zavod Flometr\" CJSC)");
         vendorModels.append(0x0973, "Popit Oy");
         vendorModels.append(0x0974, "ABEYE");
         vendorModels.append(0x0975, "BlueIOT(Beijing) Technology Co.,Ltd");
@@ -3115,7 +3115,7 @@ public class CompanyIdentifiers {
         vendorModels.append(0x0C05, "Montage Connect, Inc.");
         vendorModels.append(0x0C06, "LED Smart Inc.");
         vendorModels.append(0x0C07, "CONSTRUKTS, INC.");
-        vendorModels.append(0x0C08, "limited liability company "Red"");
+        vendorModels.append(0x0C08, "limited liability company \"Red\"");
         vendorModels.append(0x0C09, "Senic Inc.");
         vendorModels.append(0x0C0A, "Automated Pet Care Products, LLC");
         vendorModels.append(0x0C0B, "aconno GmbH");
