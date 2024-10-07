@@ -161,7 +161,8 @@ public class SecureNetworkBeacon extends MeshBeacon {
 
             // Before version 2.2.2 the timestamp was not stored. The initial
             // Secure Network Beacon is assumed to be valid.
-            return isMinimumTimeRequirementCompleted(ivIndex, updatedAt, ivRecoveryActive, isTestMode);
+            // return isMinimumTimeRequirementCompleted(ivIndex, updatedAt, ivRecoveryActive, isTestMode);
+            return true; // ignore isMinimumTimeRequirementCompleted (DooZ shared networks workaround)
         } else {
             return false;
         }

@@ -201,6 +201,74 @@ public final class MeshNetwork extends BaseMeshNetwork {
     }
 
     /**
+     * Returns the next unicast address for a node based on the number of elements
+     * and the range allocated to the provisioner.
+     * P.S. When setting up a new network don't forget to assign an address to the provisioner.
+     * When importing a network make sure to create a new provisioner with a different address
+     * which is the recommended approach. However you can also use the same provisioner
+     * with a different address.
+     *
+     * @param minAddress the minimal address to return
+     * @param elementCount Element count
+     * @param provisioner  provisioner
+     * @return Allocated unicast address or -1 if none
+     * @throws IllegalArgumentException if there is no allocated unicast range to the provisioner
+     */
+    public int nextAvailableUnicastAddressWithMin(final int minAddress, final int elementCount, @NonNull final Provisioner provisioner) throws IllegalArgumentException {
+        if (provisioner.getAllocatedUnicastRanges().isEmpty()) {
+            throw new IllegalArgumentException("Please allocate a unicast address range to the provisioner");
+        }
+
+        // Populate all addresses that are currently in use
+        final ArrayList<Integer> usedAddresses = new ArrayList<>();
+        for (ProvisionedMeshNode node : nodes) {
+            usedAddresses.addAll(node.getElements().keySet());
+        }
+        // Excluded addresses with the current IvIndex and current IvIndex - 1 must be considered as addresses in use.
+        if (networkExclusions.get(ivIndex.getIvIndex()) != null)
+            usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex()));
+        if (networkExclusions.get(ivIndex.getIvIndex() - 1) != null)
+            usedAddresses.addAll(networkExclusions.get(ivIndex.getIvIndex() - 1));
+
+        Collections.sort(usedAddresses);
+        // Iterate through all nodes just once, while iterating over ranges.
+        int index = 0;
+        for (AllocatedUnicastRange range : provisioner.getAllocatedUnicastRanges()) {
+            // Start from the beginning of the current range.
+            int address = range.getLowAddress();
+
+            // Iterate through nodes that weren't checked yet in essence the used addresses which include the excluded adresses
+            for (int usedAddress : usedAddresses) {
+
+                // Skip nodes with addresses below the range or below specified min address.
+                if (address > usedAddress) {
+                    continue;
+                }
+
+                // If we found a space before the current node, return the address.
+                if (usedAddress > (address + (elementCount - 1)) && address > minAddress) {
+                    return address;
+                }
+
+                // Else, move the address to the next available address.
+                address = usedAddress + 1;
+
+                // If the new address is outside of the range, go to the next one.
+                if (range.highAddress < address + (elementCount - 1)) {
+                    break;
+                }
+            }
+
+            if (range.getHighAddress() >= address + (elementCount - 1)) {
+                return address;
+            }
+        }
+
+        // No address was found :(
+        return -1;
+    }
+
+    /**
      * Returns the next unicast address for a provisioner based on the allocated range and the number of elements
      *
      * @param rangeSize Element count

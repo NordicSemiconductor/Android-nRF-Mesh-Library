@@ -42,6 +42,10 @@ android {
             minifyEnabled false
             consumerProguardFiles 'mesh-proguard-rules.pro'
         }
+
+        profile {
+            matchingFallbacks = ['debug', 'release']
+        }
     }
 
     testOptions {
