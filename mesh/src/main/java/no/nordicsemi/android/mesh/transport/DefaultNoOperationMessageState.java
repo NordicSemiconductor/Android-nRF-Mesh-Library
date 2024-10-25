@@ -464,6 +464,10 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final LightCtlStatus lightCtlStatus = new LightCtlStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightCtlStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightCtlStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_CTL_TEMPERATURE_RANGE_STATUS) {
+                    final LightCtlTemperatureRangeStatus lightCtlTemperatureRangeStatus = new LightCtlTemperatureRangeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(lightCtlTemperatureRangeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), lightCtlTemperatureRangeStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.LIGHT_HSL_STATUS) {
                     final LightHslStatus lightHslStatus = new LightHslStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(lightHslStatus);
