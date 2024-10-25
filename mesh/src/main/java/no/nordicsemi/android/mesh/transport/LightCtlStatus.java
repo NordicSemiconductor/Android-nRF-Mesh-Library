@@ -24,18 +24,19 @@ package no.nordicsemi.android.mesh.transport;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import no.nordicsemi.android.mesh.logger.MeshLogger;
+
+import androidx.annotation.NonNull;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import androidx.annotation.NonNull;
+import no.nordicsemi.android.mesh.logger.MeshLogger;
 import no.nordicsemi.android.mesh.opcodes.ApplicationMessageOpCodes;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.mesh.utils.MeshParserUtils;
 
 /**
- * To be used as a wrapper class to create generic level status message.
+ * To be used as a wrapper class to create light ctl status message.
  */
 @SuppressWarnings({"WeakerAccess"})
 public final class LightCtlStatus extends ApplicationStatusMessage implements Parcelable {
@@ -43,13 +44,6 @@ public final class LightCtlStatus extends ApplicationStatusMessage implements Pa
     private static final String TAG = LightCtlStatus.class.getSimpleName();
     private static final int LIGHT_CTL_STATUS_MANDATORY_LENGTH = 4;
     private static final int OP_CODE = ApplicationMessageOpCodes.LIGHT_CTL_STATUS;
-    private int mPresentCtlLightness;
-    private int mPresentCtlTemperature;
-    private Integer mTargetCtlLightness;
-    private Integer mTargetCtlTemperature;
-    private int mTransitionSteps;
-    private int mTransitionResolution;
-
     private static final Creator<LightCtlStatus> CREATOR = new Creator<LightCtlStatus>() {
         @Override
         public LightCtlStatus createFromParcel(Parcel in) {
@@ -62,6 +56,12 @@ public final class LightCtlStatus extends ApplicationStatusMessage implements Pa
             return new LightCtlStatus[size];
         }
     };
+    private int mPresentCtlLightness;
+    private int mPresentCtlTemperature;
+    private Integer mTargetCtlLightness;
+    private Integer mTargetCtlTemperature;
+    private int mTransitionSteps;
+    private int mTransitionResolution;
 
     /**
      * Constructs LightCtlStatus message

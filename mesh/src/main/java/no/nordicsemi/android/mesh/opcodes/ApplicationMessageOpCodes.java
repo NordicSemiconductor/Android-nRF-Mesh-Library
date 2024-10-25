@@ -160,6 +160,26 @@ public class ApplicationMessageOpCodes {
     public static final int LIGHT_CTL_STATUS = 0x8260;
 
     /**
+     * Opcode for the "Light Ctl Temperature Range Get" message
+     */
+    public static final int LIGHT_CTL_TEMPERATURE_RANGE_GET = 0x8262;
+
+    /**
+     * Opcode for the "Light Ctl Temperature Range Status" message
+     */
+    public static final int LIGHT_CTL_TEMPERATURE_RANGE_STATUS = 0x8263;
+
+    /**
+     * Opcode for the "Light Ctl Temperature Range Set" message
+     */
+    public static final int LIGHT_CTL_TEMPERATURE_RANGE_SET = 0x826B;
+
+    /**
+     * Opcode for the "Light Ctl Temperature Range Set Unacknowledged" message
+     */
+    public static final int LIGHT_CTL_TEMPERATURE_RANGE_SET_UNACKNOWLEDGED = 0x826C;
+
+    /**
      * Opcode for the "Light Hsl Get" message
      */
     public static final int LIGHT_HSL_GET = 0x826D;
