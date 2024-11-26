@@ -562,6 +562,9 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                 final ArrayList<Integer> retransmitPduIndexes = BlockAcknowledgementMessage.getSegmentsToBeRetransmitted(controlMessage.getTransportControlPdu(), segmentCount);
                 mMeshStatusCallbacks.onBlockAcknowledgementReceived(controlMessage.getSrc(), controlMessage);
                 executeResend(retransmitPduIndexes);
+            } else if (transportControlMessage.getState() == TransportControlMessage.TransportControlMessageState.LOWER_TRANSPORT_HEARTBEAT_MESSAGE) {
+                MeshLogger.verbose(TAG, "Heartbeat message received");
+                mMeshStatusCallbacks.onHeartbeatMessageReceived(controlMessage.getSrc(), controlMessage);
             } else {
                 MeshLogger.verbose(TAG, "Unexpected control message received, ignoring message");
                 mMeshStatusCallbacks.onUnknownPduReceived(controlMessage.getSrc(), controlMessage.getTransportControlPdu());
