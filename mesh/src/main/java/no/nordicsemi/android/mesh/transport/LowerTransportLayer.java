@@ -76,6 +76,8 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             mIncompleteTimerStarted = false;
         }
     };
+    private boolean mBlockAckSent;
+    private long mDuration;
 
     /**
      * Sets the lower transport layer callbacks
