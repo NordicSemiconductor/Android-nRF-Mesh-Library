@@ -484,13 +484,36 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             MeshLogger.verbose(TAG, "Starting incomplete timer for src: " + MeshAddress.formatAddress(blockAckDst, false));
             initIncompleteTimer();
 
-            //Start acknowledgement calculation and timer only for messages directed to a unicast address.
+            // Start acknowledgement calculation and timer only for messages directed to a unicast address.
             if (MeshAddress.isValidUnicastAddress(dst)) {
                 // Calculate the initial block acknowledgement value
                 mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(null, segO);
                 //Start the block acknowledgement timer irrespective of which segment was received first
                 initSegmentedAccessAcknowledgementTimer(seqZero, ttl, blockAckSrc, blockAckDst, segN);
             }
+
+            // We need to ensure there could be an unsegmented message that could be sent as a
+            // segmented message i.e. segO = 0 and segN = 0
+            if (segO == segN) {
+                if (MeshAddress.isValidUnicastAddress(dst)) {
+                    mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
+                    handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
+                } else {
+                    //We should cancel the incomplete timer since we have received all segments
+                    cancelIncompleteTimer();
+                }
+
+                final AccessMessage accessMessage = new AccessMessage();
+                accessMessage.setAszmic(szmic);
+                accessMessage.setSequenceNumber(MeshParserUtils.getSequenceNumberBytes(seqNumber));
+                accessMessage.setAkf(akf);
+                accessMessage.setAid(aid);
+                accessMessage.setSegmented(true);
+                final SparseArray<byte[]> segmentedMessages = segmentedAccessMessageMap.clone();
+                accessMessage.setLowerTransportAccessPdu(segmentedMessages);
+                return accessMessage;
+            }
+
         } else {
             //if the seqauth values are the same and the init complete timer has already started for a received segmented message, we need to restart the incomplete timer
             if (lastSeqAuth == seqAuth) {
