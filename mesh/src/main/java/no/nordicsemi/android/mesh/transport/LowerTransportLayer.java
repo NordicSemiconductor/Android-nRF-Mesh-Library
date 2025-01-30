@@ -493,8 +493,9 @@ abstract class LowerTransportLayer extends UpperTransportLayer {
             }
 
             // We need to ensure there could be an unsegmented message that could be sent as a
-            // segmented message i.e. segO = 0 and segN = 0
-            if (segO == segN) {
+            // segmented message i.e. segO = 0 and segN = 0. This will ensure the multi-segmented
+            // messages that may not arrive in order will be reassembled correctly or rather ignored.
+            if (segO == 0 && segN == 0) {
                 if (MeshAddress.isValidUnicastAddress(dst)) {
                     mSegmentedAccessBlockAck = BlockAcknowledgementMessage.calculateBlockAcknowledgement(mSegmentedAccessBlockAck, segO);
                     handleImmediateBlockAcks(seqZero, ttl, blockAckSrc, blockAckDst, segN);
