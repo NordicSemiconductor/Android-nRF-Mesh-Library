@@ -21,3 +21,5 @@
 #-renamesourcefileattribute SourceFile
 -keep class no.nordicsemi.android.mesh.** { *; }
 -keep class org.spongycastle.** { *; }
+-dontwarn org.spongycastle.**
+
