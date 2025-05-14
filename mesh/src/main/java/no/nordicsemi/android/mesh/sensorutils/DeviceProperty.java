@@ -992,6 +992,7 @@ public enum DeviceProperty {
             case LIGHT_CONTROL_LIGHTNESS_STANDBY:
                 return new PerceivedLightness(data, offset);
             case TIME_SINCE_MOTION_SENSED:
+                return new TimeSecond(data, offset, 3);
             case TIME_SINCE_PRESENCE_DETECTED:
                 return new TimeSecond(data, offset, 2);
             case LIGHT_SOURCE_START_COUNTER_RESETTABLE:
