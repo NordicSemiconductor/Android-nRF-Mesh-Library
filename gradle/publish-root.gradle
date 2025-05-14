@@ -18,5 +18,4 @@ nexusPublishing {
             password = System.env.OSSR_PASSWORD
         }
     }
-
 }
