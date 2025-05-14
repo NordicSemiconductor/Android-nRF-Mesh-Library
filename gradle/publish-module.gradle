@@ -19,7 +19,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.release
+                from components.findByName('release')
 
                 artifact androidSourcesJar
 
