@@ -43,6 +43,14 @@ android {
             consumerProguardFiles 'mesh-proguard-rules.pro'
         }
     }
+    // Upgrading to gradle 8 requires the following configuration
+    // https://stackoverflow.com/questions/67253670/could-not-get-unknown-property-release-for-softwarecomponentinternal-maven-p/77141507#77141507
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 
     testOptions {
         unitTests.returnDefaultValues = true

@@ -5,21 +5,15 @@ apply from: rootProject.file("gradle/git-tag-version.gradle")
 group = GROUP
 version = getVersionNameFromTags()
 
-task androidSourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
+tasks.register('androidSourcesJar', Jar) {
     from android.sourceSets.main.java.srcDirs
-    // from android.sourceSets.main.kotlin.srcDirs
-}
-
-artifacts {
-    archives androidSourcesJar
 }
 
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.findByName('release')
+                from components.release
 
                 artifact androidSourcesJar
 
