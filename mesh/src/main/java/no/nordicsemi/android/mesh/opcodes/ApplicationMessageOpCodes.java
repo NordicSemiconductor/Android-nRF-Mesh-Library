@@ -543,4 +543,9 @@ public class ApplicationMessageOpCodes {
      * Opcode for the "Health Fault Status" message
      */
     public static final int HEALTH_FAULT_STATUS = 0x05;
+
+    /**
+     * Opcode for the "Health Fault Get" message
+     */
+    public static final int HEALTH_FAULT_GET = 0x8031;
 }
