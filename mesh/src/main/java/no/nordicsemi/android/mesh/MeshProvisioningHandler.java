@@ -499,7 +499,7 @@ class MeshProvisioningHandler implements InternalProvisioningCallbacks {
     }
 
     private void sendRandomConfirmationPDU(final UnprovisionedMeshNode node) {
-        final ProvisioningRandomConfirmationState provisioningRandomConfirmation = new ProvisioningRandomConfirmationState(node, this, mInternalTransportCallbacks, mStatusCallbacks);
+        final ProvisioningRandomConfirmationState provisioningRandomConfirmation = new ProvisioningRandomConfirmationState(node, mInternalTransportCallbacks, mStatusCallbacks);
         provisioningState = provisioningRandomConfirmation;
         provisioningRandomConfirmation.executeSend();
     }

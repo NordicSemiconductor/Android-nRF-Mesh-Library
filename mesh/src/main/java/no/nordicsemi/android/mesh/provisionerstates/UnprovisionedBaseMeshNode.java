@@ -48,6 +48,7 @@ abstract class UnprovisionedBaseMeshNode implements Parcelable {
     byte[] sharedECDHSecret;
     byte[] provisionerRandom;
     byte[] provisioneeConfirmation;
+    byte[] provisioningConfirmation;
     byte[] authenticationValue;
     byte[] provisioneeRandom;
     protected byte[] networkKey;

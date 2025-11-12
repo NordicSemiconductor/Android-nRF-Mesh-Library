@@ -43,6 +43,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 
 import javax.crypto.KeyAgreement;
 
@@ -98,7 +99,9 @@ public class ProvisioningPublicKeyState extends ProvisioningState {
             provisioningStatusCallbacks.onProvisioningStateChanged(node, States.PROVISIONING_PUBLIC_KEY_RECEIVED, data);
         }
         generateSharedECDHSecret(data);
-        return true;
+        // Errata E16350 added an extra validation whether the received Public Key
+        // is different than Provisioner's one.
+        return !Arrays.equals(node.provisionerPublicKeyXY, node.provisioneePublicKeyXY);
     }
 
     private void generateKeyPairs() {
