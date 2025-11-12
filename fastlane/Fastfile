@@ -19,8 +19,8 @@ platform :android do
 
   desc "Deploy libraries to Nexus."
   lane :deployNexus do
-        gradle(task: "publish")
-        gradle(task: "releaseStagingRepositories")
+    gradle(task: "publish")
+    gradle(task: "releaseStagingRepositories")
   end
 
   desc "Deploy build to Internal channel."
