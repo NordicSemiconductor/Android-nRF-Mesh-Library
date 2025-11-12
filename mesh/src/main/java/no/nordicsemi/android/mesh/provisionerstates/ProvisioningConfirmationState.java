@@ -25,6 +25,7 @@ package no.nordicsemi.android.mesh.provisionerstates;
 import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -83,7 +84,6 @@ public class ProvisioningConfirmationState extends ProvisioningState {
 
     @Override
     public void executeSend() {
-
         final byte[] provisioningConfirmationPDU = createProvisioningConfirmation();
         mStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_CONFIRMATION_SENT, provisioningConfirmationPDU);
         mInternalTransportCallbacks.sendProvisioningPdu(mNode, provisioningConfirmationPDU);
@@ -93,7 +93,9 @@ public class ProvisioningConfirmationState extends ProvisioningState {
     public boolean parseData(@NonNull final byte[] data) {
         mStatusCallbacks.onProvisioningStateChanged(mNode, States.PROVISIONING_CONFIRMATION_RECEIVED, data);
         parseProvisioneeConfirmation(data);
-        return true;
+        // Errata E16350 added an extra validation whether the received Confirmation is different
+        // than Provisioner's one.
+        return !Arrays.equals(mNode.provisioningConfirmation, mNode.provisioneeConfirmation);
     }
 
     private byte[] createProvisioningConfirmation() {
@@ -129,6 +131,7 @@ public class ProvisioningConfirmationState extends ProvisioningState {
         final byte[] confirmationData = buffer.array();
 
         final byte[] confirmationValue = SecureUtils.calculateCMAC(confirmationData, confirmationKey);
+        mNode.provisioningConfirmation = confirmationValue;
 
         buffer = ByteBuffer.allocate(confirmationValue.length + 2);
         buffer.put(new byte[]{MeshManagerApi.PDU_TYPE_PROVISIONING, TYPE_PROVISIONING_CONFIRMATION});
