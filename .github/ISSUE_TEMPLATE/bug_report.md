@@ -20,8 +20,8 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Platform details:**
- - Device: [e.g. Pixel XL]
- - OS: [e.g. Android 8.0]
+ - Device: [e.g. Pixel 10]
+ - OS: [e.g. Android 16]
  - Library Version (or Commit)
 
 **Logs / Screenshots**
