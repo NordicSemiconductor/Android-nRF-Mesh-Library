@@ -26,12 +26,12 @@ apply from: rootProject.file("gradle/git-tag-version.gradle")
 
 android {
 
-    compileSdk(34)
+    compileSdk(35)
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdk(19)
-        targetSdk(34)
+        targetSdk(35)
         versionCode getVersionCodeFromTags()
         versionName getVersionNameFromTags()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
