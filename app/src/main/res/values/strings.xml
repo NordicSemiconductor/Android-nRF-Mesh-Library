@@ -688,6 +688,7 @@
     <string name="node_identity_summary">The Node Identity state determines if a node is advertising with Node Identity messages on a subnet.
         If the Mesh Proxy Service is exposed, the node can be configured to advertise with Node Identity on a subnet.</string>
     <string name="title_sensor_information">Sensor Information</string>
+    <string name="title_properties_information">Properties Information</string>
     <string name="error_empty_scene_name">Error empty scene name</string>
     <string name="unknwon_error">Unknown error</string>
     <string name="error_allocate_group_range">Provisioner must have an allocated group range!</string>
