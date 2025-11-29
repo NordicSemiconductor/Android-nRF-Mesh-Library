@@ -368,6 +368,15 @@
     <string name="transition_time_interval" formatted="false">%s %s</string>
     <string name="hint_unsubscribe">Hint: Swipe address to unsubscribe.</string>
     <string name="title_generic_on_off_controls">Generic On Off Controls</string>
+    <string name="title_generic_power_on_off_controls">Generic Power On Off Controls</string>
+    <string name="title_generic_power_on_off_setup_controls">Generic Power On Off Setup Controls</string>
+
+    <string name="generic_power_on_off_hint">This model only supports reading the current state. To modify the state you need to use the Generic Power On Off Setup Server model</string>
+    <string name="generic_power_on_off_setup_hint">For reading the state you also need to bind an App Key to the Generic Power On Off Server model.</string>
+    <string name="generic_power_on_off_power_up_off">On power-up, switch OFF</string>
+    <string name="generic_power_on_off_power_up_on">On power-up, switch ON</string>
+    <string name="generic_power_on_off_power_up_restore">On power-up, restore previous state</string>
+
     <string name="transition_time">Transition time</string>
     <string name="generic_on_off_step_delay">Delay (5ms steps)</string>
     <string name="generic_state_on">LED ON</string>
