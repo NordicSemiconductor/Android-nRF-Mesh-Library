@@ -76,4 +76,5 @@
     <color name="bulbNordicMediumGray">@color/nordicMediumGray</color>
     <color name="vendorNordicMediumGray">@color/nordicMediumGray</color>
     <color name="uncheckedColor">#a1a1a1</color>
+    <color name="colorSurfaceContain">#FFE4EFF2</color>
 </resources>

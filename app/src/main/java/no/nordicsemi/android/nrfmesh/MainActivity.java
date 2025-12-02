@@ -22,21 +22,26 @@
 
 package no.nordicsemi.android.nrfmesh;
 
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-
+import androidx.activity.EdgeToEdge;
+import androidx.activity.SystemBarStyle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+
 import dagger.hilt.android.AndroidEntryPoint;
 import no.nordicsemi.android.nrfmesh.databinding.ActivityMainBinding;
 import no.nordicsemi.android.nrfmesh.viewmodels.SharedViewModel;
@@ -69,6 +74,13 @@ public class MainActivity extends AppCompatActivity implements
         // setTheme, this is preferred in our case, as this also work for older platforms.
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this,
+                SystemBarStyle.dark(Color.TRANSPARENT),
+                SystemBarStyle.light(
+                        ContextCompat.getColor(this, R.color.colorSurfaceContain),
+                        ContextCompat.getColor(this, R.color.colorSurfaceContain)
+                )
+        );
         mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // Set up the splash screen.
@@ -91,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements
                     coldStart = false;
                     // Keep the splash screen on-screen for longer periods.
                     // Handle the splash screen transition.
-                    final long then = System.currentTimeMillis();
                     splashScreen.setKeepOnScreenCondition(() -> mViewModel.getNetworkLiveData().getMeshNetwork() == null);
                 }
             }
@@ -142,11 +153,6 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     @Override
