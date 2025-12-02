@@ -61,7 +61,7 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         DialogRelayRetransmitSettings.DialogFragmentRelaySettingsListener {
 
     private static final String TAG = ConfigurationServerActivity.class.getSimpleName();
-    private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = -1;
+    private static final int RELAY_RETRANSMIT_SETTINGS_UNKNOWN = 0;
 
 
     private View mContainerHeartbeatPublication;
@@ -341,8 +341,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         mSetSubscription.setEnabled(true);
         mRefreshSubscription.setEnabled(true);
         mClearSubscription.setEnabled(true);
-        mActionSetRelayState.setEnabled(true);
-        mSetNetworkTransmitStateButton.setEnabled(true);
+        // mActionSetRelayState.setEnabled(true);
+        // mSetNetworkTransmitStateButton.setEnabled(true);
         switchSnb.setEnabled(true);
         switchFriend.setEnabled(true);
         switchNodeIdentity.setEnabled(true);
@@ -357,8 +357,8 @@ public class ConfigurationServerActivity extends BaseModelConfigurationActivity 
         mRefreshSubscription.setEnabled(false);
         mClearSubscription.setEnabled(false);
         mSetSubscription.setEnabled(false);
-        mActionSetRelayState.setEnabled(false);
-        mSetNetworkTransmitStateButton.setEnabled(false);
+        // mActionSetRelayState.setEnabled(false);
+        // mSetNetworkTransmitStateButton.setEnabled(false);
         switchSnb.setEnabled(false);
         switchFriend.setEnabled(false);
         switchNodeIdentity.setEnabled(false);
