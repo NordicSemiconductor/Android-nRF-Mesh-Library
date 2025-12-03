@@ -69,22 +69,22 @@ final class MeshTransport extends NetworkLayer {
     }
 
     @Override
-    protected final void initHandler() {
+    protected void initHandler() {
         this.mHandler = new Handler(mContext.getMainLooper());
     }
 
     @Override
-    protected final void setLowerTransportLayerCallbacks(@NonNull final LowerTransportLayerCallbacks callbacks) {
+    protected void setLowerTransportLayerCallbacks(@NonNull final LowerTransportLayerCallbacks callbacks) {
         mLowerTransportLayerCallbacks = callbacks;
     }
 
     @Override
-    final void setNetworkLayerCallbacks(@NonNull final NetworkLayerCallbacks callbacks) {
+    void setNetworkLayerCallbacks(@NonNull final NetworkLayerCallbacks callbacks) {
         this.mNetworkLayerCallbacks = callbacks;
     }
 
     @Override
-    final void setUpperTransportLayerCallbacks(@NonNull final UpperTransportLayerCallbacks callbacks) {
+    void setUpperTransportLayerCallbacks(@NonNull final UpperTransportLayerCallbacks callbacks) {
         this.mUpperTransportLayerCallbacks = callbacks;
     }
 
@@ -94,7 +94,7 @@ final class MeshTransport extends NetworkLayer {
      * @param controlMessage Control message containing the required opcodes and parameters to create the message
      * @return Control message containing the acknowledgement message pdu
      */
-    final ControlMessage createSegmentBlockAcknowledgementMessage(final ControlMessage controlMessage) {
+    ControlMessage createSegmentBlockAcknowledgementMessage(final ControlMessage controlMessage) {
         createLowerTransportControlPDU(controlMessage);
         createNetworkLayerPDU(controlMessage);
         return controlMessage;
@@ -116,22 +116,22 @@ final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createMeshMessage(final int src,
-                                          final int dst,
-                                          @Nullable final Integer ttl,
-                                          final byte[] key,
-                                          final int akf,
-                                          final int aid,
-                                          final int aszmic,
-                                          final int accessOpCode,
-                                          final byte[] accessMessageParameters) {
+    AccessMessage createMeshMessage(final int src,
+                                    final int dst,
+                                    @Nullable final Integer ttl,
+                                    final byte[] key,
+                                    final int akf,
+                                    final int aid,
+                                    final int aszmic,
+                                    final int accessOpCode,
+                                    final byte[] accessMessageParameters) {
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
         MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        MeshLogger.verbose(TAG, "Key: " + MeshParserUtils.bytesToHex(key, false));
+        // MeshLogger.verbose(TAG, "Key: " + + key.getName());
         MeshLogger.verbose(TAG, "akf: " + akf);
         MeshLogger.verbose(TAG, "aid: " + aid);
         MeshLogger.verbose(TAG, "aszmic: " + aszmic);
@@ -174,23 +174,23 @@ final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createMeshMessage(final int src,
-                                          final int dst,
-                                          @Nullable final UUID label,
-                                          @Nullable final Integer ttl,
-                                          @NonNull final ApplicationKey key,
-                                          final int akf,
-                                          final int aid,
-                                          final int aszmic,
-                                          final int accessOpCode,
-                                          @Nullable final byte[] accessMessageParameters) {
+    AccessMessage createMeshMessage(final int src,
+                                    final int dst,
+                                    @Nullable final UUID label,
+                                    @Nullable final Integer ttl,
+                                    @NonNull final ApplicationKey key,
+                                    final int akf,
+                                    final int aid,
+                                    final int aszmic,
+                                    final int accessOpCode,
+                                    @Nullable final byte[] accessMessageParameters) {
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
         MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        MeshLogger.verbose(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
+        MeshLogger.verbose(TAG, "Key: " + key.getName());
         MeshLogger.verbose(TAG, "akf: " + akf);
         MeshLogger.verbose(TAG, "aid: " + aid);
         MeshLogger.verbose(TAG, "aszmic: " + aszmic);
@@ -236,24 +236,24 @@ final class MeshTransport extends NetworkLayer {
      * @param accessMessageParameters Parameters for the access message.
      * @return access message containing the mesh pdu
      */
-    final AccessMessage createVendorMeshMessage(final int companyIdentifier,
-                                                final int src,
-                                                final int dst,
-                                                @Nullable final UUID label,
-                                                @Nullable final Integer ttl,
-                                                @NonNull final ApplicationKey key,
-                                                final int akf,
-                                                final int aid,
-                                                final int aszmic,
-                                                final int accessOpCode,
-                                                @Nullable final byte[] accessMessageParameters) {
+    AccessMessage createVendorMeshMessage(final int companyIdentifier,
+                                          final int src,
+                                          final int dst,
+                                          @Nullable final UUID label,
+                                          @Nullable final Integer ttl,
+                                          @NonNull final ApplicationKey key,
+                                          final int akf,
+                                          final int aid,
+                                          final int aszmic,
+                                          final int accessOpCode,
+                                          @Nullable final byte[] accessMessageParameters) {
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
 
         MeshLogger.verbose(TAG, "Src address: " + MeshAddress.formatAddress(src, false));
         MeshLogger.verbose(TAG, "Dst address: " + MeshAddress.formatAddress(dst, false));
-        MeshLogger.verbose(TAG, "Key: " + MeshParserUtils.bytesToHex(key.getKey(), false));
+        MeshLogger.verbose(TAG, "Key: " + key.getName());
         MeshLogger.verbose(TAG, "akf: " + akf);
         MeshLogger.verbose(TAG, "aid: " + aid);
         MeshLogger.verbose(TAG, "aszmic: " + aszmic);
@@ -292,9 +292,9 @@ final class MeshTransport extends NetworkLayer {
      * @param parameters Parameters for the access message.
      * @return Control message containing the proxy configuration pdu
      */
-    final ControlMessage createProxyConfigurationMessage(final int src,
-                                                         final int dst,
-                                                         final int opcode, final byte[] parameters) {
+    ControlMessage createProxyConfigurationMessage(final int src,
+                                                   final int dst,
+                                                   final int opcode, final byte[] parameters) {
         final ProvisionedMeshNode node = mUpperTransportLayerCallbacks.getNode(src);
         final int sequenceNumber = node.incrementSequenceNumber();
         final byte[] sequenceNum = MeshParserUtils.getSequenceNumberBytes(sequenceNumber);
@@ -320,7 +320,7 @@ final class MeshTransport extends NetworkLayer {
         return message;
     }
 
-    final Message createRetransmitMeshMessage(final Message message, final int segment) {
+    Message createRetransmitMeshMessage(final Message message, final int segment) {
         return createRetransmitNetworkLayerPDU(message, segment);
     }
 }
