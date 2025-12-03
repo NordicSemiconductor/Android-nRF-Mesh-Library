@@ -13,6 +13,7 @@ import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_HEA
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_MODEL_APP_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_MODEL_PUBLICATION_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_MODEL_SUBSCRIPTION_STATUS;
+import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_NETWORK_TRANSMIT_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_NODE_RESET_STATUS;
 import static no.nordicsemi.android.mesh.opcodes.ConfigMessageOpCodes.CONFIG_RELAY_STATUS;
 import static no.nordicsemi.android.nrfmesh.ble.BleMeshManager.MESH_PROXY_UUID;
@@ -62,6 +63,7 @@ import no.nordicsemi.android.mesh.transport.ConfigGattProxyStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelAppStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelPublicationStatus;
 import no.nordicsemi.android.mesh.transport.ConfigModelSubscriptionStatus;
+import no.nordicsemi.android.mesh.transport.ConfigNetworkTransmitStatus;
 import no.nordicsemi.android.mesh.transport.ConfigNodeResetStatus;
 import no.nordicsemi.android.mesh.transport.ConfigRelayStatus;
 import no.nordicsemi.android.mesh.transport.ControlMessage;
@@ -766,39 +768,58 @@ public class NrfMeshRepository implements MeshProvisioningStatusCallbacks, MeshS
                 }
             } else if (meshMessage.getOpCode() == CONFIG_DEFAULT_TTL_STATUS) {
               final ConfigDefaultTtlStatus status = (ConfigDefaultTtlStatus) meshMessage;
-/*                if (mSetupProvisionedNode) {
+                if (mSetupProvisionedNode) {
                     mIsDefaultTtlReceived = true;
+                    if(mMeshNetworkLiveData.getAppKeys().isEmpty()){
+                        mSetupProvisionedNode = false;
+                    }
                     mProvisionedMeshNodeLiveData.postValue(node);
                     mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.DEFAULT_TTL_STATUS_RECEIVED);
-                    mHandler.postDelayed(() -> {
-                        final ConfigNetworkTransmitSet networkTransmitSet = new ConfigNetworkTransmitSet(2, 1);
-                        mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), networkTransmitSet);
-                    }, 1500);
-                } else {
-                    updateNode(node);
-                    mMeshMessageLiveData.postValue(status);
-                }
-            } else if (meshMessage.getOpCode() == CONFIG_NETWORK_TRANSMIT_STATUS) {
-                final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;*/
-                if (mSetupProvisionedNode) {
-                    mIsNetworkRetransmitSetCompleted = true;
-                    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.NETWORK_TRANSMIT_STATUS_RECEIVED);
-                    final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
-                    if (appKey != null) {
-                        mHandler.postDelayed(() -> {
-                            // We should use the app key's boundNetKeyIndex as the network key index when adding the default app key
-                            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(appKey.getBoundNetKeyIndex());
-                            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
-                            mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
-                        }, 1500);
-                    } else {
-                        mSetupProvisionedNode = false;
-                        mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.APP_KEY_STATUS_RECEIVED);
+                    //mHandler.postDelayed(() -> {
+                    //    final ConfigNetworkTransmitSet networkTransmitSet = new ConfigNetworkTransmitSet(2, 1);
+                    //    mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), networkTransmitSet);
+                    //}, 1500);
+                    if(!mMeshNetworkLiveData.getAppKeys().isEmpty()) {
+                        final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
+                        if (appKey != null) {
+                            mHandler.postDelayed(() -> {
+                                // We should use the app key's boundNetKeyIndex as the network key index when adding the default app key
+                                final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(appKey.getBoundNetKeyIndex());
+                                final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
+                                mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
+                            }, 1500);
+                        } else {
+                            mSetupProvisionedNode = false;
+                            mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.APP_KEY_STATUS_RECEIVED);
+                        }
                     }
                 } else {
                     updateNode(node);
                     mMeshMessageLiveData.postValue(status);
                 }
+            } else if (meshMessage.getOpCode() == CONFIG_NETWORK_TRANSMIT_STATUS) {
+                final ConfigNetworkTransmitStatus status = (ConfigNetworkTransmitStatus) meshMessage;
+                //if (mSetupProvisionedNode) {
+                //    mIsNetworkRetransmitSetCompleted = true;
+                //    mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.NETWORK_TRANSMIT_STATUS_RECEIVED);
+                //    final ApplicationKey appKey = mMeshNetworkLiveData.getSelectedAppKey();
+                //    if (appKey != null) {
+                //        mHandler.postDelayed(() -> {
+                //            // We should use the app key's boundNetKeyIndex as the network key index when adding the default app key
+                //            final NetworkKey networkKey = mMeshNetwork.getNetKeys().get(appKey.getBoundNetKeyIndex());
+                //            final ConfigAppKeyAdd configAppKeyAdd = new ConfigAppKeyAdd(networkKey, appKey);
+                //            mMeshManagerApi.createMeshPdu(node.getUnicastAddress(), configAppKeyAdd);
+                //        }, 1500);
+                //    } else {
+                //        mSetupProvisionedNode = false;
+                //        mProvisioningStateLiveData.onMeshNodeStateUpdated(ProvisionerStates.APP_KEY_STATUS_RECEIVED);
+                //    }
+                //} else {
+                //    updateNode(node);
+                //    mMeshMessageLiveData.postValue(status);
+                //}
+                updateNode(node);
+                mMeshMessageLiveData.postValue(status);
             } else if (meshMessage.getOpCode() == CONFIG_APPKEY_STATUS) {
                 final ConfigAppKeyStatus status = (ConfigAppKeyStatus) meshMessage;
                 if (mSetupProvisionedNode) {

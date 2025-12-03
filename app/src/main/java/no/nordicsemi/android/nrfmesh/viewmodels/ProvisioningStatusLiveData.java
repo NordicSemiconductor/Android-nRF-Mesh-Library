@@ -127,7 +127,7 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case DEFAULT_TTL_STATUS_RECEIVED:
-                provisioningProgress = new ProvisionerProgress(state, "Default TTL status received...", R.drawable.ic_arrow_forward);
+                provisioningProgress = new ProvisionerProgress(state, "Default TTL status received...", R.drawable.ic_arrow_back);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case SENDING_APP_KEY_ADD:
@@ -136,14 +136,6 @@ public class ProvisioningStatusLiveData extends LiveData<ProvisioningStatusLiveD
                 break;
             case APP_KEY_STATUS_RECEIVED:
                 provisioningProgress = new ProvisionerProgress(state, "App key status received...", R.drawable.ic_arrow_forward);
-                mProvisioningProgress.add(provisioningProgress);
-                break;
-            case SENDING_NETWORK_TRANSMIT_SET:
-                provisioningProgress = new ProvisionerProgress(state, "Sending network transmit set...", R.drawable.ic_arrow_forward);
-                mProvisioningProgress.add(provisioningProgress);
-                break;
-            case NETWORK_TRANSMIT_STATUS_RECEIVED:
-                provisioningProgress = new ProvisionerProgress(state, "Network transmit status received...", R.drawable.ic_arrow_forward);
                 mProvisioningProgress.add(provisioningProgress);
                 break;
             case SENDING_BLOCK_ACKNOWLEDGEMENT:

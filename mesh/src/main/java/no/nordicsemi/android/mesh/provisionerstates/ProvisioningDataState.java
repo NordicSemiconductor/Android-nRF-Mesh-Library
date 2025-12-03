@@ -88,27 +88,22 @@ public class ProvisioningDataState extends ProvisioningState {
     private byte[] createProvisioningDataPDU() {
 
         final byte[] provisioningSalt = generateProvisioningSalt();
-        MeshLogger.verbose(TAG, "Provisioning salt: " + MeshParserUtils.bytesToHex(provisioningSalt, false));
 
         final byte[] ecdh = mUnprovisionedMeshNode.getSharedECDHSecret();
 
         final byte[] t = SecureUtils.calculateCMAC(ecdh, provisioningSalt);
         /* Calculating the session key */
         final byte[] sessionKey = SecureUtils.calculateCMAC(SecureUtils.PRSK, t);
-        MeshLogger.verbose(TAG, "Session key: " + MeshParserUtils.bytesToHex(sessionKey, false));
 
         /* Calculate the Session nonce */
         final byte[] sessionNonce = generateSessionNonce(ecdh, provisioningSalt);
-        MeshLogger.verbose(TAG, "Session nonce: " + MeshParserUtils.bytesToHex(sessionNonce, false));
 
         /* Calculate the Device key */
         final byte[] deviceKey = SecureUtils.calculateCMAC(SecureUtils.PRDK, t);
-        MeshLogger.verbose(TAG, "Device key: " + MeshParserUtils.bytesToHex(deviceKey, false));
         mUnprovisionedMeshNode.setDeviceKey(deviceKey);
 
         /* Generate 16 byte Random network key */
         final byte[] networkKey = mUnprovisionedMeshNode.getNetworkKey();
-        MeshLogger.verbose(TAG, "Network key: " + MeshParserUtils.bytesToHex(networkKey, false));
 
         /* Generate random 2 byte Key index*/
         final byte[] keyIndex = MeshParserUtils.addKeyIndexPadding(mUnprovisionedMeshNode.getKeyIndex());
