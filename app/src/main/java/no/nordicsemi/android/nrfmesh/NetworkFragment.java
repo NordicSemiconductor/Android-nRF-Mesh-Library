@@ -181,16 +181,16 @@ public class NetworkFragment extends Fragment implements
                     final boolean compositionDataReceived = data.getBooleanExtra(Utils.COMPOSITION_DATA_COMPLETED, false);
                     final boolean defaultTtlGetCompleted = data.getBooleanExtra(Utils.DEFAULT_GET_COMPLETED, false);
                     final boolean appKeyAddCompleted = data.getBooleanExtra(Utils.APP_KEY_ADD_COMPLETED, false);
-                    final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
+                    // final boolean networkRetransmitSetCompleted = data.getBooleanExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, false);
                     final String title = getString(R.string.title_init_config_error);
                     final String message;
                     if (compositionDataReceived) {
                         if (defaultTtlGetCompleted) {
                             if (appKeyAddCompleted) {
-                                if (!networkRetransmitSetCompleted) {
-                                    message = getString(R.string.init_config_error_app_key_msg);
-                                    showErrorDialog(title, message);
-                                }
+                                // if (!networkRetransmitSetCompleted) {
+                                //     message = getString(R.string.init_config_error_app_key_msg);
+                                //     showErrorDialog(title, message);
+                                // }
                             } else {
                                 message = getString(R.string.init_config_error_app_key_msg);
                                 showErrorDialog(title, message);

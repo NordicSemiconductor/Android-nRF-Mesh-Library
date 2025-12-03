@@ -95,10 +95,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final SecureUtils.K2Output k2Output = getK2Output(message);
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
-        MeshLogger.verbose(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
 
         final byte[] privacyKey = k2Output.getPrivacyKey();
-        MeshLogger.verbose(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
         final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index
@@ -176,10 +174,8 @@ abstract class NetworkLayer extends LowerTransportLayer {
         final SecureUtils.K2Output k2Output = getK2Output(message);
         final int nid = k2Output.getNid();
         final byte[] encryptionKey = k2Output.getEncryptionKey();
-        MeshLogger.verbose(TAG, "Encryption key: " + MeshParserUtils.bytesToHex(encryptionKey, false));
 
         final byte[] privacyKey = k2Output.getPrivacyKey();
-        MeshLogger.verbose(TAG, "Privacy key: " + MeshParserUtils.bytesToHex(privacyKey, false));
         final int ctl = message.getCtl();
         final int ttl = message.getTtl();
         final int ivi = message.getIvIndex()[3] & 0x01; // least significant bit of IV Index

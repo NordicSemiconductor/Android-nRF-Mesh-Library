@@ -74,13 +74,7 @@ public class MainActivity extends AppCompatActivity implements
         // setTheme, this is preferred in our case, as this also work for older platforms.
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this,
-                SystemBarStyle.dark(Color.TRANSPARENT),
-                SystemBarStyle.light(
-                        ContextCompat.getColor(this, R.color.colorSurfaceContain),
-                        ContextCompat.getColor(this, R.color.colorSurfaceContain)
-                )
-        );
+        EdgeToEdge.enable(this);
         mViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // Set up the splash screen.

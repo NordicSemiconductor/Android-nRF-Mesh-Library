@@ -358,6 +358,17 @@ public class ProvisioningActivity extends AppCompatActivity implements
                             if (fragment != null)
                                 fragment.dismiss();
                             break;
+                        case DEFAULT_TTL_STATUS_RECEIVED:
+                            if (mViewModel.isDefaultTtlReceived()) {
+                                if(mViewModel.getNetworkLiveData().getAppKeys().isEmpty()){
+                                    if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_CONFIGURATION_STATUS) == null) {
+                                        DialogFragmentConfigurationComplete fragmentConfigComplete = DialogFragmentConfigurationComplete.
+                                                newInstance(getString(R.string.title_configuration_compete), getString(R.string.configuration_complete_summary));
+                                        fragmentConfigComplete.show(getSupportFragmentManager(), DIALOG_FRAGMENT_CONFIGURATION_STATUS);
+                                    }
+                                }
+                            }
+                            break;
                         case APP_KEY_STATUS_RECEIVED:
                             if (getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_CONFIGURATION_STATUS) == null) {
                                 DialogFragmentConfigurationComplete fragmentConfigComplete = DialogFragmentConfigurationComplete.
@@ -397,11 +408,14 @@ public class ProvisioningActivity extends AppCompatActivity implements
                     returnIntent.putExtra(Utils.COMPOSITION_DATA_COMPLETED, true);
                     if (mViewModel.isDefaultTtlReceived()) {
                         returnIntent.putExtra(Utils.DEFAULT_GET_COMPLETED, true);
-                        if (mViewModel.isNetworkRetransmitSetCompleted()) {
-                            returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
-                            if (mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys().isEmpty() || mViewModel.isAppKeyAddCompleted()) {
-                                returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
-                            }
+                        // if (mViewModel.isNetworkRetransmitSetCompleted()) {
+                        //     returnIntent.putExtra(Utils.NETWORK_TRANSMIT_SET_COMPLETED, true);
+                        //     if (mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys().isEmpty() || mViewModel.isAppKeyAddCompleted()) {
+                        //         returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
+                        //     }
+                        // }
+                        if (mViewModel.getNetworkLiveData().getMeshNetwork().getAppKeys().isEmpty() || mViewModel.isAppKeyAddCompleted()) {
+                            returnIntent.putExtra(Utils.APP_KEY_ADD_COMPLETED, true);
                         }
                     }
                 }
