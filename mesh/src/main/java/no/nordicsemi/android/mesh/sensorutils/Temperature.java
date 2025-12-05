@@ -63,7 +63,7 @@ public class Temperature extends DevicePropertyCharacteristic<Float> {
     @NonNull
     @Override
     public String toString() {
-        return String.valueOf(value);
+        return value + " °C";
     }
 
     @Override

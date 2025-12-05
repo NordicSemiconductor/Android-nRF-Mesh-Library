@@ -1060,6 +1060,9 @@ public enum DeviceProperty {
             case PRESENT_INPUT_CURRENT:
             case PRESENT_OUTPUT_CURRENT:
                 return new ElectricCurrent(data, offset);
+            case PRESENT_INPUT_VOLTAGE:
+            case PRESENT_OUTPUT_VOLTAGE:
+                return new Voltage(data, offset);
             default:
                 return new UnknownCharacteristic(data, offset, length);
         }
