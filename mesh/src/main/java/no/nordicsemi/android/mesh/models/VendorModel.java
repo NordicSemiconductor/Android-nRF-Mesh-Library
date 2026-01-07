@@ -24,7 +24,6 @@ package no.nordicsemi.android.mesh.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import no.nordicsemi.android.mesh.logger.MeshLogger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -57,7 +56,6 @@ public class VendorModel extends MeshModel {
         buffer.putInt(modelIdentifier);
         this.companyIdentifier = buffer.getShort(0);
         this.companyName = CompanyIdentifiers.getCompanyName(companyIdentifier);
-        MeshLogger.verbose(TAG, "Company name: " + companyName);
     }
 
     private VendorModel(final Parcel source) {
