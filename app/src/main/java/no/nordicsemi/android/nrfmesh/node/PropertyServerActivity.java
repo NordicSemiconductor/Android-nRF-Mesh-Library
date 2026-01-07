@@ -89,6 +89,10 @@ public class PropertyServerActivity extends ModelConfigurationActivity {
             final Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_chart);
             final GenericManufacturerPropertiesStatus status = (GenericManufacturerPropertiesStatus) meshMessage;
 
+            if (status.getPropertyIds().isEmpty()) {
+
+            }
+
             for (Short id : status.getPropertyIds()) {
                 try {
                     DeviceProperty deviceProperty = DeviceProperty.from(id);
@@ -99,7 +103,7 @@ public class PropertyServerActivity extends ModelConfigurationActivity {
                     binding.title.setEllipsize(TextUtils.TruncateAt.END);
                     binding.title.setMaxLines(1);
 
-                    binding.text.setTag(id); // Setting the ID to the propertyId to later update its value
+                    binding.text.setTag(id); // Setting the tag to the propertyId to later update its value
                     binding.text.setText("Loading... ");
                     binding.text.setVisibility(View.VISIBLE);
 
