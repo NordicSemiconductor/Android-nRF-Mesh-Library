@@ -90,31 +90,35 @@ public class PropertyServerActivity extends ModelConfigurationActivity {
             final GenericManufacturerPropertiesStatus status = (GenericManufacturerPropertiesStatus) meshMessage;
 
             if (status.getPropertyIds().isEmpty()) {
+                // Show info "No properties found"
+                final LayoutContainerBinding binding = LayoutContainerBinding.inflate(getLayoutInflater(), propertiesBinding.propertiesInfoContainer, false);
+                binding.title.setText(R.string.properties_non_found);
+                propertiesBinding.propertiesInfoContainer.addView(binding.getRoot());
+            } else {
+                // Add all found properties to the layout
+                for (Short id : status.getPropertyIds()) {
+                    try {
+                        DeviceProperty deviceProperty = DeviceProperty.from(id);
 
-            }
+                        final LayoutContainerBinding binding = LayoutContainerBinding.inflate(getLayoutInflater(), propertiesBinding.propertiesInfoContainer, false);
+                        binding.image.setImageDrawable(drawable);
+                        binding.title.setText(DeviceProperty.getPropertyName(deviceProperty));
+                        binding.title.setEllipsize(TextUtils.TruncateAt.END);
+                        binding.title.setMaxLines(1);
 
-            for (Short id : status.getPropertyIds()) {
-                try {
-                    DeviceProperty deviceProperty = DeviceProperty.from(id);
+                        binding.text.setTag(id); // Setting the tag to the propertyId to later update its value
+                        binding.text.setText(R.string.properties_loading);
+                        binding.text.setVisibility(View.VISIBLE);
 
-                    final LayoutContainerBinding binding = LayoutContainerBinding.inflate(getLayoutInflater(), propertiesBinding.propertiesInfoContainer, false);
-                    binding.image.setImageDrawable(drawable);
-                    binding.title.setText(DeviceProperty.getPropertyName(deviceProperty));
-                    binding.title.setEllipsize(TextUtils.TruncateAt.END);
-                    binding.title.setMaxLines(1);
+                        propertiesBinding.propertiesInfoContainer.addView(binding.getRoot());
+                        this.propertyIdsToGet.add(id);
 
-                    binding.text.setTag(id); // Setting the tag to the propertyId to later update its value
-                    binding.text.setText("Loading... ");
-                    binding.text.setVisibility(View.VISIBLE);
-
-                    propertiesBinding.propertiesInfoContainer.addView(binding.getRoot());
-                    this.propertyIdsToGet.add(id);
-
-                } catch (Exception ex) {
-                    Log.e(TAG, "Error while parsing sensor data: " + ex.toString());
+                    } catch (Exception ex) {
+                        Log.e(TAG, "Error while parsing sensor data: " + ex.toString());
+                    }
                 }
-
             }
+
             mViewModel.removeMessage();
             handleStatuses();
         }
