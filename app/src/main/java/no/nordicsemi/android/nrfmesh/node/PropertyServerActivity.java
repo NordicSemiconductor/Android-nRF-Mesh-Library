@@ -102,12 +102,7 @@ public class PropertyServerActivity extends ModelConfigurationActivity {
                     binding.text.setTag(id); // Setting the ID to the propertyId to later update its value
                     binding.text.setText("Loading... ");
                     binding.text.setVisibility(View.VISIBLE);
-                    /*
-                    binding.text.setOnClickListener(v -> {
-                        MeshLogger.info(TAG, "Send request for property: " + deviceProperty);
-                        sendPropertyGet(deviceProperty);
-                    });
-                    */
+
                     propertiesBinding.propertiesInfoContainer.addView(binding.getRoot());
                     this.propertyIdsToGet.add(id);
 
