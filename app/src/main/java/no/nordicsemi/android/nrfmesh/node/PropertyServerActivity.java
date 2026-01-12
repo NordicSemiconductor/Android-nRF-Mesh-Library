@@ -53,6 +53,10 @@ public class PropertyServerActivity extends ModelConfigurationActivity {
 
             propertiesBinding.actionGet.setOnClickListener(v -> sendPropertiesGet());
 
+            final LayoutContainerBinding placeholder = LayoutContainerBinding.inflate(getLayoutInflater(), propertiesBinding.propertiesInfoContainer, false);
+            placeholder.title.setText(R.string.properties_placeholder);
+            propertiesBinding.propertiesInfoContainer.addView(placeholder.getRoot());
+
             mViewModel.getSelectedModel().observe(this, meshModel -> {
                 if (meshModel != null) {
                     updateAppStatusUi(meshModel);
