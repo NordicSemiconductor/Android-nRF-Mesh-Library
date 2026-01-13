@@ -498,6 +498,12 @@ public class ApplicationMessageOpCodes {
      */
     public static final int GENERIC_MANUFACTURER_PROPERTY_STATUS = 0x46;
 
+    public static final int GENERIC_MANUFACTURER_PROPERTIES_STATUS = 0x43;
+
+    public static final int GENERIC_MANUFACTURER_PROPERTIES_GET = 0x822A;
+
+    public static final int GENERIC_MANUFACTURER_PROPERTY_GET = 0x822B;
+
     /**
      * Opcode for the "Generic User Property Status" message
      */

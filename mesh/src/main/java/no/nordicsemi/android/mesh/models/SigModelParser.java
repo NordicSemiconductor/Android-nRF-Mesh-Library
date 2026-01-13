@@ -64,7 +64,7 @@ public class SigModelParser {
     private static final short GENERIC_LOCATION_SETUP_SERVER = 0x100F;
     private static final short GENERIC_LOCATION_CLIENT = 0x1010;
     private static final short GENERIC_ADMIN_PROPERTY_SERVER = 0x1011;
-    private static final short GENERIC_MANUFACTURER_PROPERTY_SERVER = 0x1012;
+    public static final short GENERIC_MANUFACTURER_PROPERTY_SERVER = 0x1012;
     private static final short GENERIC_USER_PROPERTY_SERVER = 0x1013;
     private static final short GENERIC_CLIENT_PROPERTY_SERVER = 0x1014;
     private static final short GENERIC_PROPERTY_CLIENT = 0x1015;
