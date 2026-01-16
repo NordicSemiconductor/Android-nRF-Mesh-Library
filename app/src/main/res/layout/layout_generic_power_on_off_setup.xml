@@ -71,13 +71,13 @@
                     android:id="@+id/radio1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/generic_power_on_off_power_up_on" />
+                    android:text="@string/generic_power_on_off_power_up_off" />
 
                 <RadioButton
                     android:id="@+id/radio2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/generic_power_on_off_power_up_off" />
+                    android:text="@string/generic_power_on_off_power_up_on" />
 
                 <RadioButton
                     android:id="@+id/radio3"
