@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardElevation="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/node_controls_tool_bar"
+                android:layout_width="0dp"
+                android:layout_height="?actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:logo="@drawable/ic_settings_power"
+                app:title="@string/title_generic_battery_controls"
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/transition_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/container_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:visibility="visible"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/node_controls_tool_bar"
+                tools:visibility="visible">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_level_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_level_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/battery_level"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_level"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/battery_level_label"
+                    app:layout_constraintTop_toTopOf="@+id/battery_level_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_to_discharge_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_time_to_discharge"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/time_to_discharge"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/battery_level_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_to_discharge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/time_to_discharge_label"
+                    app:layout_constraintTop_toTopOf="@+id/time_to_discharge_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_to_charge_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_time_to_charge"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/time_to_charge"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/time_to_discharge_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_to_charge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/time_to_charge_label"
+                    app:layout_constraintTop_toTopOf="@+id/time_to_charge_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_presence_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_presence_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/battery_presence"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/time_to_charge_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_presence"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/battery_presence_label"
+                    app:layout_constraintTop_toTopOf="@+id/battery_presence_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_indicator_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_indicator_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/battery_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/battery_presence_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/battery_indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/battery_indicator_label"
+                    app:layout_constraintTop_toTopOf="@+id/battery_indicator_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/charging_state_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_charging_state_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/charging_state"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/battery_indicator_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/charging_state"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/charging_state_label"
+                    app:layout_constraintTop_toTopOf="@+id/charging_state_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/serviceability_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/battery_serviceability_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/serviceability"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/charging_state_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/serviceability"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/serviceability_label"
+                    app:layout_constraintTop_toTopOf="@+id/serviceability_label" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <include
+                android:id="@+id/div3"
+                layout="@layout/layout_divider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/container_controls" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_read"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/item_padding_start"
+                android:padding="@dimen/item_padding_end"
+                android:text="@string/action_generic_read_battery"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div3" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

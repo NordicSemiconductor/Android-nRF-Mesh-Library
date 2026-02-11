@@ -741,4 +741,38 @@
     <string name="time_change_label">Change Time:</string>
     <string name="time_change_display">%s UTC</string>
     <string name="time_no_change_scheduled">No change scheduled</string>
+    
+    <!-- Generic Battery Server strings -->
+    <string name="title_generic_battery_controls">Generic Battery Controls</string>
+    <string name="action_generic_read_battery">READ</string>
+    <string name="battery_level_label">Battery Level:</string>
+    <string name="battery_level_percent">%d%%</string>
+    <string name="battery_time_minutes">%d min</string>
+    <string name="battery_time_to_discharge">Time to Discharge:</string>
+    <string name="battery_time_to_charge">Time to Charge:</string>
+    <string name="battery_presence_label">Presence:</string>
+    <string name="battery_indicator_label">Indicator:</string>
+    <string name="battery_charging_state_label">Charging State:</string>
+    <string name="battery_serviceability_label">Serviceability:</string>
+
+    <!-- Battery presence strings -->
+    <string name="battery_not_present">Not Present</string>
+    <string name="battery_removable">Removable</string>
+    <string name="battery_not_removable">Not Removable</string>
+    
+    <!-- Battery indicator strings -->
+    <string name="battery_critically_low">Critically Low</string>
+    <string name="battery_low">Low</string>
+    <string name="battery_good">Good</string>
+    
+    <!-- Battery charging state strings -->
+    <string name="battery_not_chargeable">Not Chargeable</string>
+    <string name="battery_not_charging">Not Charging</string>
+    <string name="battery_charging">Charging</string>
+    
+    <!-- Battery serviceability strings -->
+    <string name="battery_serviceability_reserved">Reserved</string>
+    <string name="battery_service_not_required">Service Not Required</string>
+    <string name="battery_service_required">Service Required</string>
+
 </resources>
