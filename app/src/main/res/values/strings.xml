@@ -711,4 +711,34 @@
     <string name="power_range_min">Range Min</string>
     <string name="power_range_max">Range Max</string>
     <string name="power_level_setup_hint">Configure default power level and power range settings for the device.</string>
+    
+    <!-- Time Server strings -->
+    <string name="title_time_server_controls">Time Server Controls</string>
+    <string name="title_time_setup_server_controls">Time Setup Server Controls</string>
+    <string name="action_time_read">READ TIME</string>
+    <string name="action_time_zone_read">READ TIMEZONE</string>
+    <string name="action_time_set">SET TIME</string>
+    <string name="action_time_zone_set">SET TIMEZONE</string>
+    <string name="time_current_label">Current Time</string>
+    <string name="time_current_display">%s UTC</string>
+    <string name="time_current_display_local">%s</string>
+    <string name="time_unknown">Unknown</string>
+    <string name="time_device_time_label">Device Time:</string>
+    <string name="time_tai_seconds_label">TAI Seconds:</string>
+    <string name="time_sub_second_label">Sub-Second:</string>
+    <string name="time_subsecond_display">%d/256 s</string>
+    <string name="time_uncertainty_label">Uncertainty:</string>
+    <string name="time_uncertainty_display">%d ms</string>
+    <string name="time_authority_label">Time Authority:</string>
+    <string name="time_authority_yes">Yes</string>
+    <string name="time_authority_no">No</string>
+    <string name="time_utc_delta_label">UTC Delta:</string>
+    <string name="time_utc_delta_display">%d s</string>
+    <string name="time_zone_offset_label">Zone Offset:</string>
+    <string name="time_zone_offset_display">%+d min</string>
+    <string name="time_zone_current_label">Current Timezone:</string>
+    <string name="time_zone_new_label">New Timezone:</string>
+    <string name="time_change_label">Change Time:</string>
+    <string name="time_change_display">%s UTC</string>
+    <string name="time_no_change_scheduled">No change scheduled</string>
 </resources>

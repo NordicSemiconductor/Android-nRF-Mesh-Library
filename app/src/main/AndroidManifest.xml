@@ -194,6 +194,12 @@
             android:name=".node.PowerLevelSetupServerActivity"
             android:launchMode="singleTop" />
         <activity
+            android:name=".node.TimeServerActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.TimeSetupServerActivity"
+            android:launchMode="singleTop" />
+        <activity
             android:name=".node.SceneServerModelActivity"
             android:launchMode="singleTop" />
         <activity
