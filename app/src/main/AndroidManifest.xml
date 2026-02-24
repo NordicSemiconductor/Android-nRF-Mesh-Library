@@ -188,6 +188,9 @@
             android:name=".node.GenericPowerOnOffSetupServerActivity"
             android:launchMode="singleTop" />
         <activity
+            android:name=".node.GenericDefaultTransitionTimeServerActivity"
+            android:launchMode="singleTop" />
+        <activity
             android:name=".node.SceneServerModelActivity"
             android:launchMode="singleTop" />
         <activity
