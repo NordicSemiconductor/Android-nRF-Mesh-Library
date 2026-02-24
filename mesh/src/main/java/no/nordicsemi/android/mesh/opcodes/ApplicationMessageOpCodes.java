@@ -80,6 +80,56 @@ public class ApplicationMessageOpCodes {
     public static final int GENERIC_POWER_LEVEL_STATUS = 0x8218;
 
     /**
+     * Opcode for the "Generic Power Last Get" message.
+     */
+    public static final int GENERIC_POWER_LAST_GET = 0x8219;
+
+    /**
+     * Opcode for the "Generic Power Last Status" message.
+     */
+    public static final int GENERIC_POWER_LAST_STATUS = 0x821A;
+
+    /**
+     * Opcode for the "Generic Power Default Get" message.
+     */
+    public static final int GENERIC_POWER_DEFAULT_GET = 0x821B;
+
+    /**
+     * Opcode for the "Generic Power Default Status" message.
+     */
+    public static final int GENERIC_POWER_DEFAULT_STATUS = 0x821C;
+
+    /**
+     * Opcode for the "Generic Power Range Get" message.
+     */
+    public static final int GENERIC_POWER_RANGE_GET = 0x821D;
+
+    /**
+     * Opcode for the "Generic Power Range Status" message.
+     */
+    public static final int GENERIC_POWER_RANGE_STATUS = 0x821E;
+
+    /**
+     * Opcode for the "Generic Power Default Set" message.
+     */
+    public static final int GENERIC_POWER_DEFAULT_SET = 0x821F;
+
+    /**
+     * Opcode for the "Generic Power Default Set Unacknowledged" message.
+     */
+    public static final int GENERIC_POWER_DEFAULT_SET_UNACKNOWLEDGED = 0x8220;
+
+    /**
+     * Opcode for the "Generic Power Range Set" message.
+     */
+    public static final int GENERIC_POWER_RANGE_SET = 0x8221;
+
+    /**
+     * Opcode for the "Generic Power Range Set Unacknowledged" message.
+     */
+    public static final int GENERIC_POWER_RANGE_SET_UNACKNOWLEDGED = 0x8222;
+
+    /**
      * Opcode for the "Generic Location Global Get" message
      */
     public static final int GENERIC_LOCATION_GLOBAL_GET = 0x8225;

@@ -456,6 +456,18 @@ class DefaultNoOperationMessageState extends MeshMessageState {
                     final GenericPowerLevelStatus genericPowerLevelStatus = new GenericPowerLevelStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(genericPowerLevelStatus);
                     mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericPowerLevelStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_POWER_LAST_STATUS) {
+                    final GenericPowerLastStatus genericPowerLastStatus = new GenericPowerLastStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericPowerLastStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericPowerLastStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_POWER_DEFAULT_STATUS) {
+                    final GenericPowerDefaultStatus genericPowerDefaultStatus = new GenericPowerDefaultStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericPowerDefaultStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericPowerDefaultStatus);
+                } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_POWER_RANGE_STATUS) {
+                    final GenericPowerRangeStatus genericPowerRangeStatus = new GenericPowerRangeStatus(message);
+                    mInternalTransportCallbacks.updateMeshNetwork(genericPowerRangeStatus);
+                    mMeshStatusCallbacks.onMeshMessageReceived(message.getSrc(), genericPowerRangeStatus);
                 } else if (message.getOpCode() == ApplicationMessageOpCodes.GENERIC_BATTERY_STATUS) {
                     final GenericBatteryStatus status = new GenericBatteryStatus(message);
                     mInternalTransportCallbacks.updateMeshNetwork(status);

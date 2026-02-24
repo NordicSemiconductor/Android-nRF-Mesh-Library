@@ -76,10 +76,10 @@ public final class GenericPowerLevelStatus extends ApplicationStatusMessage impl
     void parseStatusParameters() {
         MeshLogger.verbose(TAG, "Received generic power level status from: " + MeshAddress.formatAddress(mMessage.getSrc(), true));
         final ByteBuffer buffer = ByteBuffer.wrap(mParameters).order(ByteOrder.LITTLE_ENDIAN);
-        mPresentPowerLevel = (int) (buffer.getShort());
+        mPresentPowerLevel = buffer.getShort() & 0xFFFF;
         MeshLogger.verbose(TAG, "Present power level: " + mPresentPowerLevel);
         if (buffer.limit() > GENERIC_POWER_LEVEL_STATUS_MANDATORY_LENGTH) {
-            mTargetPowerLevel = (int) (buffer.getShort());
+            mTargetPowerLevel = buffer.getShort() & 0xFFFF;
             final int remainingTime = buffer.get() & 0xFF;
             mTransitionSteps = (remainingTime & 0x3F);
             mTransitionResolution = (remainingTime >> 6);
@@ -105,11 +105,29 @@ public final class GenericPowerLevelStatus extends ApplicationStatusMessage impl
     }
 
     /**
+     * Returns the present power level of the GenericPowerLevelModel
+     *
+     * @return present power level
+     */
+    public final int getPresentPowerLevel() {
+        return mPresentPowerLevel;
+    }
+
+    /**
      * Returns the target level of the GenericOnOffModel
      *
      * @return target level
      */
     public final Integer getTargetLevel() {
+        return mTargetPowerLevel;
+    }
+
+    /**
+     * Returns the target power level of the GenericPowerLevelModel
+     *
+     * @return target power level
+     */
+    public final Integer getTargetPowerLevel() {
         return mTargetPowerLevel;
     }
 
