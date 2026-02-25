@@ -50,7 +50,7 @@ public class GenericDefaultTransitionTimeServer extends SigModel {
 
     @Override
     public String getModelName() {
-        return "Generic Default Transition Timer Server";
+        return "Generic Default Transition Time Server";
     }
 
     @Override
