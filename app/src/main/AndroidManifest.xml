@@ -188,6 +188,12 @@
             android:name=".node.GenericPowerOnOffSetupServerActivity"
             android:launchMode="singleTop" />
         <activity
+            android:name=".node.PowerLevelServerActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".node.PowerLevelSetupServerActivity"
+            android:launchMode="singleTop" />
+        <activity
             android:name=".node.SceneServerModelActivity"
             android:launchMode="singleTop" />
         <activity

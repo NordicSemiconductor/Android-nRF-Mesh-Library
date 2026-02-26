@@ -702,4 +702,13 @@
     <string name="message_public_key">Enter the 128-character hexadecimal Public Key of the device.</string>
     <string name="skip">skip</string>
     <string name="skip_oob_public_key_summary">Skipping this process will mark the provisioned node and any Network Key associated with this node as insecure.</string>
+
+    <!-- Power Level Server strings -->
+    <string name="title_power_level_controls">Power Level Controls</string>
+    <string name="title_power_level_setup_controls">Power Level Setup Controls</string>
+    <string name="power_level">Power Level</string>
+    <string name="power_default">Default Power</string>
+    <string name="power_range_min">Range Min</string>
+    <string name="power_range_max">Range Max</string>
+    <string name="power_level_setup_hint">Configure default power level and power range settings for the device.</string>
 </resources>

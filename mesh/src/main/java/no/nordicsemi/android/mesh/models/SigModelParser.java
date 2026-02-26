@@ -55,8 +55,8 @@ public class SigModelParser {
     public static final short GENERIC_POWER_ON_OFF_SERVER = 0x1006;
     public static final short GENERIC_POWER_ON_OFF_SETUP_SERVER = 0x1007;
     private static final short GENERIC_POWER_ON_OFF_CLIENT = 0x1008;
-    private static final short GENERIC_POWER_LEVEL_SERVER = 0x1009;
-    private static final short GENERIC_POWER_LEVEL_SETUP_SERVER = 0x100A;
+    public static final short GENERIC_POWER_LEVEL_SERVER = 0x1009;
+    public static final short GENERIC_POWER_LEVEL_SETUP_SERVER = 0x100A;
     private static final short GENERIC_POWER_LEVEL_CLIENT = 0x100B;
     private static final short GENERIC_BATTERY_SERVER = 0x100C;
     private static final short GENERIC_BATTERY_CLIENT = 0x100D;
