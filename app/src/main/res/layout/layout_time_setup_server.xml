@@ -280,6 +280,38 @@
                     app:layout_constraintStart_toEndOf="@id/time_zone_offset_label"
                     app:layout_constraintTop_toTopOf="@+id/time_zone_offset_label" />
 
+                <!-- Time Role -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_role_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_role_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/time_role"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/time_zone_offset_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_role"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/time_role_label"
+                    app:layout_constraintTop_toTopOf="@+id/time_role_label" />
+
                 <!-- Time Zone Information Section -->
                 <View
                     android:id="@+id/divider_timezone"
@@ -289,7 +321,7 @@
                     android:background="?attr/dividerHorizontal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/time_zone_offset_label" />
+                    app:layout_constraintTop_toBottomOf="@id/time_role_label" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/current_time_zone_label"
@@ -428,7 +460,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_controls" />
 
-            <!-- Action Buttons Row 1 -->
+            <!-- Left Column - Read Operations -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_read"
                 android:layout_width="0dp"
@@ -436,7 +468,7 @@
                 android:layout_marginStart="@dimen/item_padding_start"
                 android:layout_marginEnd="4dp"
                 android:text="@string/action_time_read"
-                app:layout_constraintEnd_toStartOf="@+id/action_get_time_zone"
+                app:layout_constraintEnd_toStartOf="@+id/action_set_time"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/div3" />
 
@@ -444,25 +476,39 @@
                 android:id="@+id/action_get_time_zone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="@dimen/item_padding_start"
+                android:layout_marginStart="@dimen/item_padding_start"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
                 android:text="@string/action_time_zone_read"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/action_read"
-                app:layout_constraintTop_toBottomOf="@id/div3" />
+                app:layout_constraintEnd_toStartOf="@+id/action_set_time_zone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/action_read" />
 
-            <!-- Action Buttons Row 2 -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/action_set_time"
+                android:id="@+id/action_get_time_role"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/item_padding_start"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="4dp"
-                android:text="@string/action_time_set"
-                app:layout_constraintEnd_toStartOf="@+id/action_set_time_zone"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/action_time_role_read"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/action_set_time_role"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/action_read" />
+                app:layout_constraintTop_toBottomOf="@id/action_get_time_zone" />
+
+            <!-- Right Column - Set Operations -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_set_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="@dimen/item_padding_start"
+                android:text="@string/action_time_set"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/action_read"
+                app:layout_constraintTop_toBottomOf="@id/div3" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/action_set_time_zone"
@@ -471,12 +517,22 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="@dimen/item_padding_start"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:text="@string/action_time_zone_set"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/action_set_time"
-                app:layout_constraintTop_toBottomOf="@id/action_get_time_zone" />
+                app:layout_constraintStart_toEndOf="@+id/action_get_time_zone"
+                app:layout_constraintTop_toBottomOf="@id/action_set_time" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_set_time_role"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="@dimen/item_padding_start"
+                android:text="@string/action_time_role_set"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/action_get_time_role"
+                app:layout_constraintTop_toBottomOf="@id/action_set_time_zone" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

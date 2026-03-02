@@ -30,6 +30,9 @@ import no.nordicsemi.android.mesh.transport.TimeStatus;
 import no.nordicsemi.android.mesh.transport.TimeZoneGet;
 import no.nordicsemi.android.mesh.transport.TimeZoneSet;
 import no.nordicsemi.android.mesh.transport.TimeZoneStatus;
+import no.nordicsemi.android.mesh.transport.TimeRoleGet;
+import no.nordicsemi.android.mesh.transport.TimeRoleSet;
+import no.nordicsemi.android.mesh.transport.TimeRoleStatus;
 import no.nordicsemi.android.mesh.utils.MeshAddress;
 import no.nordicsemi.android.nrfmesh.R;
 import no.nordicsemi.android.nrfmesh.databinding.LayoutTimeSetupServerBinding;
@@ -51,9 +54,12 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
     private TextView mNewTimeZoneText;
     private TextView mTimeOfChangeText;
     private TextView mDeviceTimeText;
+    private TextView mTimeRoleText;
     private Button mActionGetTimeZone;
     private Button mActionSetTime;
     private Button mActionSetTimeZone;
+    private Button mActionGetTimeRole;
+    private Button mActionSetTimeRole;
 
     private Calendar selectedDateTime = Calendar.getInstance();
     private Integer mLastReceivedTaiSeconds; // Store last TAI seconds for device time calculation
@@ -77,6 +83,7 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
             mNewTimeZoneText = nodeControlsContainer.newTimeZone;
             mTimeOfChangeText = nodeControlsContainer.timeOfChange;
             mDeviceTimeText = nodeControlsContainer.deviceTime;
+            mTimeRoleText = nodeControlsContainer.timeRole;
 
             mActionRead = nodeControlsContainer.actionRead;
             mActionRead.setOnClickListener(v -> sendTimeGet());
@@ -89,6 +96,12 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
 
             mActionSetTimeZone = nodeControlsContainer.actionSetTimeZone;
             mActionSetTimeZone.setOnClickListener(v -> showTimeZoneSetDialog());
+
+            mActionGetTimeRole = nodeControlsContainer.actionGetTimeRole;
+            mActionGetTimeRole.setOnClickListener(v -> sendTimeRoleGet());
+
+            mActionSetTimeRole = nodeControlsContainer.actionSetTimeRole;
+            mActionSetTimeRole.setOnClickListener(v -> showTimeRoleSetDialog());
 
             mViewModel.getSelectedModel().observe(this, meshModel -> {
                 if (meshModel != null) {
@@ -109,6 +122,10 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
             mActionSetTime.setEnabled(true);
         if (mActionSetTimeZone != null && !mActionSetTimeZone.isEnabled())
             mActionSetTimeZone.setEnabled(true);
+        if (mActionGetTimeRole != null && !mActionGetTimeRole.isEnabled())
+            mActionGetTimeRole.setEnabled(true);
+        if (mActionSetTimeRole != null && !mActionSetTimeRole.isEnabled())
+            mActionSetTimeRole.setEnabled(true);
     }
 
     @Override
@@ -120,6 +137,10 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
             mActionSetTime.setEnabled(false);
         if (mActionSetTimeZone != null)
             mActionSetTimeZone.setEnabled(false);
+        if (mActionGetTimeRole != null)
+            mActionGetTimeRole.setEnabled(false);
+        if (mActionSetTimeRole != null)
+            mActionSetTimeRole.setEnabled(false);
     }
 
     @Override
@@ -212,6 +233,20 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
                 mTimeOfChangeText.setText(getString(R.string.time_change_display, sdf.format(date)));
             } else {
                 mTimeOfChangeText.setText(R.string.time_no_change_scheduled);
+            }
+        } else if (meshMessage instanceof TimeRoleStatus) {
+            final TimeRoleStatus status = (TimeRoleStatus) meshMessage;
+            
+            final Byte timeRole = status.getTimeRole();
+            if (timeRole != null) {
+                String roleDescription = status.getTimeRoleDescription();
+                if (roleDescription != null) {
+                    mTimeRoleText.setText(roleDescription);
+                } else {
+                    mTimeRoleText.setText(R.string.time_role_unknown);
+                }
+            } else {
+                mTimeRoleText.setText(R.string.unknown);
             }
         }
         hideProgressBar();
@@ -446,6 +481,74 @@ public class TimeSetupServerActivity extends ModelConfigurationActivity {
 
                     final TimeZoneSet timeZoneSet = new TimeZoneSet(appKey, newOffset, timeOfChange);
                     sendAcknowledgedMessage(address, timeZoneSet);
+                } else {
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
+                }
+            }
+        }
+    }
+
+    public void sendTimeRoleGet() {
+        if (!checkConnectivity(mContainer)) return;
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            final MeshModel model = mViewModel.getSelectedModel().getValue();
+            if (model != null) {
+                if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                    final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                    final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+
+                    final int address = element.getElementAddress();
+                    Log.v(TAG, "Sending TimeRoleGet message to element's unicast address: " + MeshAddress.formatAddress(address, true));
+
+                    final TimeRoleGet timeRoleGet = new TimeRoleGet(appKey);
+                    sendAcknowledgedMessage(address, timeRoleGet);
+                } else {
+                    mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
+                }
+            }
+        }
+    }
+
+    private void showTimeRoleSetDialog() {
+        final String[] roleNames = {
+            getString(R.string.time_role_none),
+            getString(R.string.time_role_authority),
+            getString(R.string.time_role_relay),
+            getString(R.string.time_role_client)
+        };
+        
+        final byte[] roleValues = { 0x00, 0x01, 0x02, 0x03 };
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Time Role")
+                .setItems(roleNames, (dialog, which) -> {
+                    byte selectedRole = roleValues[which];
+                    sendTimeRoleSet(selectedRole);
+                    
+                    // Show confirmation
+                    String message = "Time role set to: " + roleNames[which];
+                    mViewModel.displaySnackBar(this, mContainer, message, Snackbar.LENGTH_LONG);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void sendTimeRoleSet(byte timeRole) {
+        if (!checkConnectivity(mContainer)) return;
+        final Element element = mViewModel.getSelectedElement().getValue();
+        if (element != null) {
+            final MeshModel model = mViewModel.getSelectedModel().getValue();
+            if (model != null) {
+                if (!model.getBoundAppKeyIndexes().isEmpty()) {
+                    final int appKeyIndex = model.getBoundAppKeyIndexes().get(0);
+                    final ApplicationKey appKey = mViewModel.getNetworkLiveData().getMeshNetwork().getAppKey(appKeyIndex);
+
+                    final int address = element.getElementAddress();
+                    Log.v(TAG, "Sending TimeRoleSet message to element's unicast address: " + MeshAddress.formatAddress(address, true));
+
+                    final TimeRoleSet timeRoleSet = new TimeRoleSet(appKey, timeRole);
+                    sendAcknowledgedMessage(address, timeRoleSet);
                 } else {
                     mViewModel.displaySnackBar(this, mContainer, getString(R.string.error_no_app_keys_bound), Snackbar.LENGTH_LONG);
                 }
