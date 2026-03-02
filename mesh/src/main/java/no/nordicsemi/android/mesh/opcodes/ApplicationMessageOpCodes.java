@@ -589,6 +589,21 @@ public class ApplicationMessageOpCodes {
      */
     public static final int TIME_STATUS = 0x5D;
 
+    /**
+     * Opcode for the "Time Role Get" message
+     */
+    public static final int TIME_ROLE_GET = 0x8238;
+
+    /**
+     * Opcode for the "Time Role Set" message
+     */
+    public static final int TIME_ROLE_SET = 0x8239;
+
+    /**
+     * Opcode for the "Time Role Status" message
+     */
+    public static final int TIME_ROLE_STATUS = 0x823A;
+
 
     /**
      * Opcode for the "Health Current Status" message
