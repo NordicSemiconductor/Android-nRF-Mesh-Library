@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardElevation="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/node_controls_tool_bar"
+                android:layout_width="0dp"
+                android:layout_height="?actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:logo="@drawable/ic_time"
+                app:title="@string/title_time_setup_server_controls"
+                app:titleMarginStart="@dimen/toolbar_title_margin"
+                app:titleTextAppearance="@style/Toolbar.TitleText" />
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/transition_progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:indeterminate="false"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/node_controls_tool_bar" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/container_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:visibility="visible"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/node_controls_tool_bar"
+                tools:visibility="visible">
+
+                <!-- Current Time Display Section -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/current_time_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_current_label"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/current_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_unknown"
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/current_time_label" />
+
+                <!-- TAI Seconds -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tai_seconds_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_tai_seconds_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/tai_seconds"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/current_time" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tai_seconds"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/tai_seconds_label"
+                    app:layout_constraintTop_toTopOf="@+id/tai_seconds_label" />
+
+                <!-- SubSecond -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/sub_second_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_sub_second_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/sub_second"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tai_seconds_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/sub_second"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/sub_second_label"
+                    app:layout_constraintTop_toTopOf="@+id/sub_second_label" />
+
+                <!-- Uncertainty -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/uncertainty_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_uncertainty_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/uncertainty"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/sub_second_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/uncertainty"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/uncertainty_label"
+                    app:layout_constraintTop_toTopOf="@+id/uncertainty_label" />
+
+                <!-- Time Authority -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_authority_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_authority_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/time_authority"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/uncertainty_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_authority"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/time_authority_label"
+                    app:layout_constraintTop_toTopOf="@+id/time_authority_label" />
+
+                <!-- UTC Delta -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/utc_delta_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_utc_delta_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/utc_delta"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/time_authority_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/utc_delta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/utc_delta_label"
+                    app:layout_constraintTop_toTopOf="@+id/utc_delta_label" />
+
+                <!-- Time Zone Offset -->
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_zone_offset_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_zone_offset_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/time_zone_offset"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/utc_delta_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_zone_offset"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/time_zone_offset_label"
+                    app:layout_constraintTop_toTopOf="@+id/time_zone_offset_label" />
+
+                <!-- Time Zone Information Section -->
+                <View
+                    android:id="@+id/divider_timezone"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:background="?attr/dividerHorizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/time_zone_offset_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/current_time_zone_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_zone_current_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/current_time_zone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/divider_timezone" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/current_time_zone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/current_time_zone_label"
+                    app:layout_constraintTop_toTopOf="@+id/current_time_zone_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/device_time_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_device_time_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/device_time"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/current_time_zone_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/device_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/device_time_label"
+                    app:layout_constraintTop_toTopOf="@+id/device_time_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/new_time_zone_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_zone_new_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/new_time_zone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/device_time_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/new_time_zone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/new_time_zone_label"
+                    app:layout_constraintTop_toTopOf="@+id/new_time_zone_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_of_change_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:gravity="start"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/time_change_label"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@id/time_of_change"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/new_time_zone_label" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/time_of_change"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/item_padding_start"
+                    android:paddingEnd="@dimen/item_padding_end"
+                    android:text="@string/unknown"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/time_of_change_label"
+                    app:layout_constraintTop_toTopOf="@+id/time_of_change_label" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <include
+                android:id="@+id/div3"
+                layout="@layout/layout_divider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/container_controls" />
+
+            <!-- Action Buttons Row 1 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_read"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/item_padding_start"
+                android:layout_marginEnd="4dp"
+                android:text="@string/action_time_read"
+                app:layout_constraintEnd_toStartOf="@+id/action_get_time_zone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/div3" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_get_time_zone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="@dimen/item_padding_start"
+                android:text="@string/action_time_zone_read"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/action_read"
+                app:layout_constraintTop_toBottomOf="@id/div3" />
+
+            <!-- Action Buttons Row 2 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_set_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/item_padding_start"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/action_time_set"
+                app:layout_constraintEnd_toStartOf="@+id/action_set_time_zone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/action_read" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_set_time_zone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="@dimen/item_padding_start"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:text="@string/action_time_zone_set"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/action_set_time"
+                app:layout_constraintTop_toBottomOf="@id/action_get_time_zone" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
