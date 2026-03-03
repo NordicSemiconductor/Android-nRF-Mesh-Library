@@ -34,6 +34,7 @@ import no.nordicsemi.android.nrfmesh.node.GenericPowerOnOffServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericPowerOnOffSetupServerActivity;
 import no.nordicsemi.android.nrfmesh.node.PowerLevelServerActivity;
 import no.nordicsemi.android.nrfmesh.node.PowerLevelSetupServerActivity;
+import no.nordicsemi.android.nrfmesh.node.GenericDefaultTransitionTimeServerActivity;
 import no.nordicsemi.android.nrfmesh.node.PropertyServerActivity;
 import no.nordicsemi.android.nrfmesh.node.SceneServerModelActivity;
 import no.nordicsemi.android.nrfmesh.node.SceneSetupServerModelActivity;
@@ -53,6 +54,7 @@ import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_POWER_ON_
 import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_POWER_ON_OFF_SETUP_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_POWER_LEVEL_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_POWER_LEVEL_SETUP_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_DEFAULT_TRANSITION_TIME_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.SCENE_SETUP_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.SENSOR_SERVER;
@@ -140,6 +142,8 @@ public abstract class BaseViewModel extends ViewModel {
             intent = new Intent(context, GenericPowerOnOffSetupServerActivity.class);
         } else if (model.getModelId() == GENERIC_BATTERY_SERVER) {
             intent = new Intent(context, GenericBatteryServerActivity.class);
+        } else if (model.getModelId() == GENERIC_DEFAULT_TRANSITION_TIME_SERVER) {
+            intent = new Intent(context, GenericDefaultTransitionTimeServerActivity.class);
         } else if (model.getModelId() == GENERIC_LEVEL_SERVER) {
             intent = new Intent(context, GenericLevelServerActivity.class);
         } else if (model.getModelId() == GENERIC_POWER_LEVEL_SERVER) {

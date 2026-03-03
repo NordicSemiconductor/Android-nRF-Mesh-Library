@@ -377,6 +377,12 @@
     <string name="generic_power_on_off_power_up_on">On power-up, switch ON</string>
     <string name="generic_power_on_off_power_up_restore">On power-up, restore previous state</string>
 
+    <string name="title_generic_default_transition_time_controls">Generic Default Transition Time Controls</string>
+    <string name="generic_default_transition_time_hint">Configure the default transition time that will be used when no transition time is specified in other messages.</string>
+    <string name="current_transition_time">Current Time:</string>
+    <string name="action_generic_set_transition_time">SET TIME</string>
+    <string name="immediate">Immediate</string>
+
     <string name="transition_time">Transition time</string>
     <string name="generic_on_off_step_delay">Delay (5ms steps)</string>
     <string name="generic_state_on">LED ON</string>
