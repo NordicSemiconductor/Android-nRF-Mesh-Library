@@ -26,6 +26,7 @@ import no.nordicsemi.android.nrfmesh.ble.BleMeshManager;
 import no.nordicsemi.android.nrfmesh.ble.ScannerActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationClientActivity;
 import no.nordicsemi.android.nrfmesh.node.ConfigurationServerActivity;
+import no.nordicsemi.android.nrfmesh.node.GenericBatteryServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericLevelServerActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericModelConfigurationActivity;
 import no.nordicsemi.android.nrfmesh.node.GenericOnOffServerActivity;
@@ -44,6 +45,7 @@ import no.nordicsemi.android.nrfmesh.utils.Utils;
 
 import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_CLIENT;
 import static no.nordicsemi.android.mesh.models.SigModelParser.CONFIGURATION_SERVER;
+import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_BATTERY_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_LEVEL_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_MANUFACTURER_PROPERTY_SERVER;
 import static no.nordicsemi.android.mesh.models.SigModelParser.GENERIC_ON_OFF_SERVER;
@@ -136,10 +138,8 @@ public abstract class BaseViewModel extends ViewModel {
             intent = new Intent(context, GenericPowerOnOffServerActivity.class);
         } else if (model.getModelId() == GENERIC_POWER_ON_OFF_SETUP_SERVER) {
             intent = new Intent(context, GenericPowerOnOffSetupServerActivity.class);
-        } else if (model.getModelId() == TIME_SERVER) {
-            intent = new Intent(context, TimeServerActivity.class);
-        } else if (model.getModelId() == TIME_SETUP_SERVER) {
-            intent = new Intent(context, TimeSetupServerActivity.class);
+        } else if (model.getModelId() == GENERIC_BATTERY_SERVER) {
+            intent = new Intent(context, GenericBatteryServerActivity.class);
         } else if (model.getModelId() == GENERIC_LEVEL_SERVER) {
             intent = new Intent(context, GenericLevelServerActivity.class);
         } else if (model.getModelId() == GENERIC_POWER_LEVEL_SERVER) {
