@@ -781,4 +781,13 @@
     <string name="battery_service_not_required">Service Not Required</string>
     <string name="battery_service_required">Service Required</string>
 
+    <!-- Time Role -->
+    <string name="time_role_label">Time Role:</string>
+    <string name="action_time_role_read">READ ROLE</string>
+    <string name="action_time_role_set">SET ROLE</string>
+    <string name="time_role_none">None</string>
+    <string name="time_role_authority">Mesh Time Authority</string>
+    <string name="time_role_relay">Mesh Time Relay</string>
+    <string name="time_role_client">Mesh Time Client</string>
+    <string name="time_role_unknown">Unknown</string>
 </resources>

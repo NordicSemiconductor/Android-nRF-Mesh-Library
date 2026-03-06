@@ -158,6 +158,10 @@ public abstract class BaseViewModel extends ViewModel {
             intent = new Intent(context, SensorServerActivity.class);
         } else if (model.getModelId() == GENERIC_MANUFACTURER_PROPERTY_SERVER) {
             intent = new Intent(context, PropertyServerActivity.class);
+        } else if (model.getModelId() == TIME_SERVER) {
+            intent = new Intent(context, TimeServerActivity.class);
+        } else if (model.getModelId() == TIME_SETUP_SERVER) {
+            intent = new Intent(context, TimeSetupServerActivity.class);
         } else if (model instanceof VendorModel) {
             intent = new Intent(context, VendorModelActivity.class);
         } else {
