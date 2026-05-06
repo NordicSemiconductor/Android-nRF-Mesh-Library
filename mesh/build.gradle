@@ -68,7 +68,7 @@ dependencies {
 
     // Room - Lets keep this as it is so that we don't have to increase the minSdk version
     implementation 'androidx.room:room-runtime:2.5.1'
-    annotationProcessor 'androidx.room:room-compiler:2.5.1'
+    annotationProcessor 'androidx.room:room-compiler:2.8.4'
     androidTestImplementation 'androidx.room:room-testing:2.5.1'
 
     // Required -- JUnit 4 framework
