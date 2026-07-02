@@ -90,7 +90,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
 
     annotationProcessor "com.google.dagger:hilt-android-compiler:$hilt_version"
-    annotationProcessor 'androidx.hilt:hilt-compiler:1.0.0'
+    annotationProcessor 'androidx.hilt:hilt-compiler:1.4.0'
 
     implementation project(':mesh')
 }
