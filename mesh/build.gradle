@@ -23,12 +23,11 @@ apply plugin: 'com.android.library'
 
 android {
 
-    compileSdkVersion(35)
+    compileSdkVersion(37)
     group 'no.nordicsemi.android.mesh'
 
     defaultConfig {
         minSdk(18)
-        targetSdk(35)
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -54,8 +53,12 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+        targetSdk 37
     }
     namespace 'no.nordicsemi.android.mesh'
+    lint {
+        targetSdk 37
+    }
 }
 
 dependencies {

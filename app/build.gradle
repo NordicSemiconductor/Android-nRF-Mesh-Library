@@ -26,12 +26,12 @@ apply from: rootProject.file("gradle/git-tag-version.gradle")
 
 android {
 
-    compileSdk(35)
+    compileSdk(37)
 
     defaultConfig {
         applicationId "no.nordicsemi.android.nrfmeshprovisioner"
         minSdk(19)
-        targetSdk(35)
+        targetSdk(37)
         versionCode getVersionCodeFromTags()
         versionName getVersionNameFromTags()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -52,12 +52,12 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
             signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     namespace 'no.nordicsemi.android.nrfmesh'
