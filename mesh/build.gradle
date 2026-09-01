@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.11.0'
 
     // Room - Lets keep this as it is so that we don't have to increase the minSdk version
-    implementation 'androidx.room:room-runtime:2.5.1'
+    implementation 'androidx.room:room-runtime:2.8.4'
     annotationProcessor 'androidx.room:room-compiler:2.5.1'
     androidTestImplementation 'androidx.room:room-testing:2.5.1'
 
